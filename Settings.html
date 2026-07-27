@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HabitArc - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+	tailwind.config = {
+	  darkMode: "class",
+	  theme: {
+	    extend: {
+	      "colors": {
+		      "surface-container-high": "#e7e8e9",
+		      "on-primary": "#ffffff",
+		      "on-error-container": "#93000a",
+		      "on-surface": "#191c1d",
+		      "on-primary-fixed": "#002114",
+		      "secondary-container": "#a0f4c8",
+		      "error": "#ba1a1a",
+		      "secondary-fixed": "#a0f4c8",
+		      "on-secondary-fixed": "#002113",
+		      "on-tertiary": "#ffffff",
+		      "tertiary-fixed": "#ffdad8",
+		      "error-container": "#ffdad6",
+		      "on-tertiary-fixed-variant": "#673a39",
+		      "surface-dim": "#d9dadb",
+		      "surface-variant": "#e1e3e4",
+		      "surface-container-low": "#f3f4f5",
+		      "tertiary-fixed-dim": "#f5b7b4",
+		      "tertiary-container": "#5a302f",
+		      "surface-container-highest": "#e1e3e4",
+		      "on-secondary": "#ffffff",
+		      "on-tertiary-fixed": "#331111",
+		      "inverse-surface": "#2e3132",
+		      "surface": "#f8f9fa",
+		      "primary": "#012d1d",
+		      "tertiary": "#401b1b",
+		      "secondary-fixed-dim": "#85d7ad",
+		      "on-primary-container": "#86af99",
+		      "on-primary-fixed-variant": "#274e3d",
+		      "inverse-primary": "#a5d0b9",
+		      "primary-container": "#1b4332",
+		      "background": "#f8f9fa",
+		      "primary-fixed-dim": "#a5d0b9",
+		      "on-secondary-container": "#19724f",
+		      "surface-tint": "#3f6653",
+		      "secondary": "#0e6c4a",
+		      "on-surface-variant": "#414844",
+		      "on-tertiary-container": "#d29895",
+		      "surface-container": "#edeeef",
+		      "outline": "#717973",
+		      "on-error": "#ffffff",
+		      "surface-bright": "#f8f9fa",
+		      "surface-container-lowest": "#ffffff",
+		      "primary-fixed": "#c1ecd4",
+		      "on-background": "#191c1d",
+		      "on-secondary-fixed-variant": "#005236",
+		      "inverse-on-surface": "#f0f1f2",
+		      "outline-variant": "#c1c8c2"
+	      },
+	      "borderRadius": {
+		      "DEFAULT": "0.25rem",
+		      "lg": "0.5rem",
+		      "xl": "0.75rem",
+		      "full": "9999px"
+	      },
+	      "spacing": {
+		      "section-margin": "32px",
+		      "container-padding": "20px",
+		      "card-padding": "20px",
+		      "element-gap": "12px",
+		      "stack-gap": "16px"
+	      },
+	      "fontFamily": {
+		      "headline-md": [
+			      "Hanken Grotesk"
+		      ],
+		      "body-md": [
+			      "Hanken Grotesk"
+		      ],
+		      "label-sm": [
+			      "Geist"
+		      ],
+		      "headline-lg": [
+			      "Hanken Grotesk"
+		      ],
+		      "body-lg": [
+			      "Hanken Grotesk"
+		      ],
+		      "label-md": [
+			      "Geist"
+		      ]
+	      },
+	      "fontSize": {
+		      "headline-md": [
+			      "20px",
+			      {
+				      "lineHeight": "28px",
+				      "letterSpacing": "-0.01em",
+				      "fontWeight": "600"
+			      }
+		      ],
+		      "body-md": [
+			      "14px",
+			      {
+				      "lineHeight": "20px",
+				      "fontWeight": "400"
+			      }
+		      ],
+		      "label-sm": [
+			      "10px",
+			      {
+				      "lineHeight": "12px",
+				      "letterSpacing": "0.05em",
+				      "fontWeight": "600"
+			      }
+		      ],
+		      "headline-lg": [
+			      "28px",
+			      {
+				      "lineHeight": "34px",
+				      "letterSpacing": "-0.02em",
+				      "fontWeight": "600"
+			      }
+		      ],
+		      "body-lg": [
+			      "16px",
+			      {
+				      "lineHeight": "24px",
+				      "fontWeight": "400"
+			      }
+		      ],
+		      "label-md": [
+			      "12px",
+			      {
+				      "lineHeight": "16px",
+				      "letterSpacing": "0.02em",
+				      "fontWeight": "500"
+			      }
+		      ]
+	      }
+	    },
+	  },
+	}
+    </script>
+<style>
+	/* Custom toggle switch styles */
+	.toggle-checkbox:checked {
+	    right: 0;
+	    border-color: #1b4332; /* primary-container */
+	}
+	.toggle-checkbox:checked + .toggle-label {
+	    background-color: #1b4332; /* primary-container */
+	}
+	.toggle-checkbox {
+	    right: 0;
+	    z-index: 1;
+	    border-color: #e1e3e4; /* surface-variant */
+	    transition: all 0.3s;
+	}
+	.toggle-label {
+	    width: 3rem;
+	    height: 1.5rem;
+	    background-color: #e1e3e4; /* surface-variant */
+	    border-radius: 9999px;
+	    transition: all 0.3s;
+	}
+	.toggle-checkbox-inner {
+	    position: absolute;
+	    left: 2px;
+	    top: 2px;
+	    width: 1.25rem;
+	    height: 1.25rem;
+	    background-color: white;
+	    border-radius: 9999px;
+	    transition: all 0.3s;
+	    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+	}
+	.toggle-checkbox:checked ~ .toggle-label .toggle-checkbox-inner {
+	    transform: translateX(1.5rem);
+	}
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-background dark:bg-background">
+<div class="flex justify-between items-center px-container-padding py-4 w-full max-w-7xl mx-auto">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A close up, professional portrait of a calm individual in a brightly lit, modern environment. The lighting is soft and natural, emphasizing a minimal and clean aesthetic. The color palette features neutral tones with a hint of warm, organic hues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0AVHHC5PpC9rgDxAGioLOq0uNVZ0dOhcilPy0jMJ-3sQzK29itLSWalF-BTaJT_p3f6cixXkB2HfaLd-5wjYTQSQiHRsamJ3za-PABfFBvz0Kdb8g0uDY3-DAYTSdhe_NV69af4ii4T4L1fI3w5YqqzJwLNd0houikkdsoPOXA81yfVlOXffb-2NMjO2MBcgElNu3kjqNFHluhLespuqYsxGtYKvugmdzS5Un0WC4qgynyoLFtYvh"/>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary dark:text-primary-fixed">HabitArc</h1>
+<button class="hover:opacity-80 transition-opacity active:scale-95 duration-200 text-primary dark:text-primary-fixed w-10 h-10 flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="max-w-3xl mx-auto px-container-padding py-stack-gap md:py-section-margin">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-gap">Settings</h2>
+<!-- Appearance Section -->
+<section class="mb-section-margin">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Appearance</h3>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
+<!-- Theme -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">palette</span>
+<span class="font-body-lg text-body-lg text-on-surface">Theme</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
+<span>Light</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</div>
+</div>
+<!-- Accent Color -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">format_color_fill</span>
+<span class="font-body-lg text-body-lg text-on-surface">Accent Color</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container border border-outline-variant/50"></div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+<!-- Font Size -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">text_fields</span>
+<span class="font-body-lg text-body-lg text-on-surface">Font Size</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
+<span>Medium</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Notifications Section -->
+<section class="mb-section-margin">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Notifications</h3>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
+<!-- Daily Reminder -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">notifications_active</span>
+<div>
+<div class="font-body-lg text-body-lg text-on-surface">Daily Reminder</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Notify me to complete habits</div>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-daily" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer relative" for="toggle-daily">
+<span class="toggle-checkbox-inner"></span>
+</label>
+</div>
+</div>
+<!-- Weekly Summary -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">summarize</span>
+<div>
+<div class="font-body-lg text-body-lg text-on-surface">Weekly Summary</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Receive a weekly progress report</div>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-weekly" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer relative" for="toggle-weekly">
+<span class="toggle-checkbox-inner"></span>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Habits Section -->
+<section class="mb-section-margin">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Habits</h3>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
+<!-- Start Week On -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">calendar_today</span>
+<span class="font-body-lg text-body-lg text-on-surface">Start Week On</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
+<span>Monday</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</div>
+</div>
+<!-- Default Reminder Time -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">schedule</span>
+<span class="font-body-lg text-body-lg text-on-surface">Default Reminder Time</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
+<span>09:00 AM</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Data Section -->
+<section class="mb-section-margin">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Data</h3>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
+<!-- Export Data -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">download</span>
+<span class="font-body-lg text-body-lg text-on-surface">Export Data</span>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Backup -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">cloud_sync</span>
+<span class="font-body-lg text-body-lg text-on-surface">Backup to Cloud</span>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Reset App -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-error">delete_forever</span>
+<span class="font-body-lg text-body-lg text-error">Reset App Data</span>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- About Section -->
+<section class="mb-section-margin">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">About</h3>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
+<!-- Version -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">info</span>
+<span class="font-body-lg text-body-lg text-on-surface">Version</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant">1.0.4 (Build 42)</span>
+</div>
+<!-- Privacy Policy -->
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">policy</span>
+<span class="font-body-lg text-body-lg text-on-surface">Privacy Policy</span>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</section>
+<div class="flex justify-center mt-section-margin mb-stack-gap">
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-primary-container transition-colors py-2 px-4 rounded-full border border-outline-variant/50 hover:bg-surface-container-low">
+		Log Out
+	    </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface dark:bg-surface-container flex justify-around items-end pb-6 pt-2 px-2 border-t border-outline-variant dark:border-outline">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Dashboard.html">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Habits.html">
+<span class="material-symbols-outlined mb-1">format_list_bulleted</span>
+<span class="font-label-md text-label-md">Habits</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Add_Habit.html">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center mb-1 shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant/20">
+<span class="material-symbols-outlined text-on-primary">add</span>
+</div>
+<span class="font-label-md text-label-md sr-only">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Insights.html">
+<span class="material-symbols-outlined mb-1">insights</span>
+<span class="font-label-md text-label-md">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-semibold hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150 relative" href="Profile.html">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+<div class="absolute -top-1 w-12 h-1 bg-primary rounded-b-full"></div>
+</a>
+</nav>
+</body></html>
