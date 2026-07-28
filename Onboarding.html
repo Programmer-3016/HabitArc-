@@ -2,7 +2,7 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>HabitArc - Welcome Onboarding</title>
+<title>HabitArc - Welcome Journey</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -47,263 +47,284 @@
     .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(12px); }
+        from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
     .animate-in { animation: fadeInUp 0.35s ease-out forwards; }
     .step-card { display: none; }
     .step-card.active { display: block; }
+
+    /* Custom Theme Previews */
+    .theme-preview-purple { background: #160d27; color: #d8b4fe; }
+    .theme-preview-dark { background: #121415; color: #e1e3e4; }
+    .theme-preview-light { background: #f8f9fa; color: #191c1d; }
+    .theme-preview-forest { background: #071f16; color: #a0f4c8; }
+    .theme-preview-ocean { background: #0c1a2e; color: #93c5fd; }
+    .theme-preview-sunset { background: #2a1015; color: #fca5a5; }
 </style>
 </head>
 <body class="bg-background text-on-background antialiased min-h-screen flex flex-col justify-between p-4 md:p-8">
 
 <!-- Header Top Bar -->
-<header class="w-full max-w-2xl mx-auto flex items-center justify-between py-4">
+<header class="w-full max-w-xl mx-auto flex items-center justify-between py-4">
     <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary font-bold text-sm">H</div>
         <span class="font-headline-md text-headline-md text-primary">HabitArc</span>
     </div>
     <div class="flex items-center gap-3">
-        <span id="step-indicator" class="font-label-sm text-label-sm text-on-surface-variant geist">Step 1 of 9</span>
-        <button id="skip-btn" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors">Skip to App</button>
+        <span id="step-indicator" class="font-label-sm text-label-sm text-on-surface-variant geist">Step 1 of 8</span>
+        <button id="skip-btn" class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors">Skip</button>
     </div>
 </header>
 
 <!-- Progress Bar -->
-<div class="w-full max-w-2xl mx-auto h-1.5 bg-surface-container rounded-full overflow-hidden my-2">
-    <div id="progress-bar" class="h-full bg-primary-container transition-all duration-300 rounded-full" style="width: 11%;"></div>
+<div class="w-full max-w-xl mx-auto h-1.5 bg-surface-container rounded-full overflow-hidden my-2">
+    <div id="progress-bar" class="h-full bg-primary-container transition-all duration-300 rounded-full" style="width: 12.5%;"></div>
 </div>
 
 <!-- Main Stepper Wizard Canvas -->
-<main class="flex-1 w-full max-w-2xl mx-auto flex flex-col justify-center py-6">
+<main class="flex-1 w-full max-w-xl mx-auto flex flex-col justify-center py-6">
 
     <!-- STEP 1: Welcome -->
-    <div id="step-1" class="step-card active animate-in space-y-6">
-        <div class="w-16 h-16 rounded-2xl bg-primary-fixed/30 flex items-center justify-center text-primary mb-4">
+    <div id="step-1" class="step-card active animate-in space-y-6 text-center sm:text-left">
+        <div class="w-16 h-16 rounded-2xl bg-primary-fixed/30 flex items-center justify-center text-primary mb-2 mx-auto sm:mx-0">
             <span class="material-symbols-outlined text-4xl fill">auto_awesome</span>
         </div>
-        <h1 class="font-headline-lg text-headline-lg text-on-surface">Welcome to HabitArc</h1>
-        <p class="font-body-lg text-body-lg text-on-surface-variant">Rethinking how habit building actually works. A Personal Growth Platform designed for clarity, consistency, and reflection — not a basic todo list.</p>
-        
-        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding space-y-3">
-            <div class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-secondary">check_circle</span>
-                <span class="font-body-md text-body-md text-on-surface">Minimal inputs, maximum behavioral insights</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-secondary">check_circle</span>
-                <span class="font-body-md text-body-md text-on-surface">30, 60, or 90 Day Habit Horizon Tracking</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="material-symbols-outlined text-secondary">check_circle</span>
-                <span class="font-body-md text-body-md text-on-surface">GitHub-style activity contributions</span>
-            </div>
-        </div>
+        <h1 class="font-headline-lg text-4xl text-on-surface font-bold tracking-tight">Welcome to HabitArc</h1>
+        <p class="font-body-lg text-xl text-on-surface-variant leading-relaxed">
+            Build habits.<br/>
+            Understand yourself.<br/>
+            <span class="text-primary font-semibold">Grow every day.</span>
+        </p>
     </div>
 
-    <!-- STEP 2: Improvement Focus -->
+    <!-- STEP 2: What brought you here today? (Multi Select) -->
     <div id="step-2" class="step-card animate-in space-y-6">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">What do you want to improve?</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Select the core areas you want to cultivate in your life.</p>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold">What brought you here today?</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Select all areas you want to transform.</p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="focus-area-options">
-            <div class="focus-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Health">
-                <span class="material-symbols-outlined text-primary text-2xl">favorite</span>
-                <span class="font-headline-md text-headline-md text-on-surface text-base">Health & Fitness</span>
+        <div class="grid grid-cols-2 gap-3" id="intent-options">
+            <div class="intent-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Health">
+                <span class="material-symbols-outlined text-emerald-600">favorite</span>
+                <span class="font-headline-md text-on-surface text-sm">Health</span>
             </div>
-            <div class="focus-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Mindfulness">
-                <span class="material-symbols-outlined text-secondary text-2xl">self_improvement</span>
-                <span class="font-headline-md text-headline-md text-on-surface text-base">Mindfulness & Peace</span>
+            <div class="intent-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Fitness">
+                <span class="material-symbols-outlined text-primary">fitness_center</span>
+                <span class="font-headline-md text-on-surface text-sm">Fitness</span>
             </div>
-            <div class="focus-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Learning">
-                <span class="material-symbols-outlined text-tertiary text-2xl">menu_book</span>
-                <span class="font-headline-md text-headline-md text-on-surface text-base">Learning & Wisdom</span>
+            <div class="intent-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Study">
+                <span class="material-symbols-outlined text-amber-600">school</span>
+                <span class="font-headline-md text-on-surface text-sm">Study</span>
             </div>
-            <div class="focus-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Focus">
-                <span class="material-symbols-outlined text-primary-container text-2xl">bolt</span>
-                <span class="font-headline-md text-headline-md text-on-surface text-base">Deep Work & Focus</span>
+            <div class="intent-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Productivity">
+                <span class="material-symbols-outlined text-sky-600">bolt</span>
+                <span class="font-headline-md text-on-surface text-sm">Productivity</span>
+            </div>
+            <div class="intent-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Mindfulness">
+                <span class="material-symbols-outlined text-teal-600">self_improvement</span>
+                <span class="font-headline-md text-on-surface text-sm">Mindfulness</span>
+            </div>
+            <div class="intent-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Finance">
+                <span class="material-symbols-outlined text-indigo-600">payments</span>
+                <span class="font-headline-md text-on-surface text-sm">Finance</span>
+            </div>
+            <div class="intent-opt col-span-2 p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center gap-3" data-val="Other">
+                <span class="material-symbols-outlined text-outline">more_horiz</span>
+                <span class="font-headline-md text-on-surface text-sm">Other</span>
             </div>
         </div>
     </div>
 
-    <!-- STEP 3: Initial Goals -->
+    <!-- STEP 3: What's your biggest challenge? (Single Select) -->
     <div id="step-3" class="step-card animate-in space-y-6">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Choose your first goals</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Pick 2-3 starter habits to kickstart your growth trajectory.</p>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold">What's your biggest challenge?</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">This helps our future AI personalize your behavioral insights.</p>
         </div>
-        <div class="space-y-3" id="initial-habits-list">
-            <div class="habit-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-name="Hydrate" data-icon="water_drop" data-cat="Health">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-primary-fixed/20 flex items-center justify-center text-primary"><span class="material-symbols-outlined">water_drop</span></div>
-                    <div><h4 class="font-headline-md text-headline-md text-on-surface text-base">Hydrate</h4><span class="font-label-sm text-label-sm text-on-surface-variant geist">8 glasses of water daily</span></div>
-                </div>
-                <span class="material-symbols-outlined text-outline">add_circle</span>
+        <div class="space-y-3" id="challenge-options">
+            <div class="challenge-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="consistency">
+                <span class="font-headline-md text-on-surface text-base">I lose consistency</span>
+                <span class="material-symbols-outlined text-outline">chevron_right</span>
             </div>
-            <div class="habit-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-name="Meditation" data-icon="self_improvement" data-cat="Mindfulness">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary"><span class="material-symbols-outlined">self_improvement</span></div>
-                    <div><h4 class="font-headline-md text-headline-md text-on-surface text-base">Meditation</h4><span class="font-label-sm text-label-sm text-on-surface-variant geist">10 mins mindful breathing</span></div>
-                </div>
-                <span class="material-symbols-outlined text-outline">add_circle</span>
+            <div class="challenge-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="distracted">
+                <span class="font-headline-md text-on-surface text-base">I get distracted</span>
+                <span class="material-symbols-outlined text-outline">chevron_right</span>
             </div>
-            <div class="habit-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-name="Reading" data-icon="menu_book" data-cat="Learning">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-tertiary-fixed/20 flex items-center justify-center text-tertiary"><span class="material-symbols-outlined">menu_book</span></div>
-                    <div><h4 class="font-headline-md text-headline-md text-on-surface text-base">Reading</h4><span class="font-label-sm text-label-sm text-on-surface-variant geist">20 pages before sleep</span></div>
-                </div>
-                <span class="material-symbols-outlined text-outline">add_circle</span>
+            <div class="challenge-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="time">
+                <span class="font-headline-md text-on-surface text-base">I don't have enough time</span>
+                <span class="material-symbols-outlined text-outline">chevron_right</span>
+            </div>
+            <div class="challenge-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="motivation">
+                <span class="font-headline-md text-on-surface text-base">I lose motivation</span>
+                <span class="material-symbols-outlined text-outline">chevron_right</span>
+            </div>
+            <div class="challenge-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="forget">
+                <span class="font-headline-md text-on-surface text-base">I forget my habits</span>
+                <span class="material-symbols-outlined text-outline">chevron_right</span>
             </div>
         </div>
     </div>
 
-    <!-- STEP 4: Daily Routine Window -->
+    <!-- STEP 4: Habit Capacity -->
     <div id="step-4" class="step-card animate-in space-y-6">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Daily Routine Window</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">When are you most focused during the day?</p>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold">How many habits do you realistically want to focus on?</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Starting small guarantees long-term success. You can change this anytime in settings.</p>
         </div>
-        <div class="space-y-3" id="routine-window-options">
-            <div class="routine-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="Morning">
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-amber-600 text-2xl">wb_sunny</span>
-                    <div><h4 class="font-headline-md text-headline-md text-on-surface text-base">Morning Anchor</h4><span class="font-label-sm text-label-sm text-on-surface-variant geist">6:00 AM – 12:00 PM</span></div>
+        <div class="space-y-3" id="capacity-options">
+            <div class="cap-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="3">
+                <div>
+                    <span class="font-headline-md text-on-surface text-base block font-bold">Beginner (3 Habits)</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs">Maximum focus, low cognitive strain</span>
                 </div>
+                <span class="material-symbols-outlined text-primary">filter_3</span>
             </div>
-            <div class="routine-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="Afternoon">
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-sky-600 text-2xl">partly_cloudy_day</span>
-                    <div><h4 class="font-headline-md text-headline-md text-on-surface text-base">Afternoon Boost</h4><span class="font-label-sm text-label-sm text-on-surface-variant geist">12:00 PM – 6:00 PM</span></div>
+            <div class="cap-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="5">
+                <div>
+                    <span class="font-headline-md text-on-surface text-base block font-bold">Intermediate (5 Habits)</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs">Balanced personal growth horizon</span>
                 </div>
+                <span class="material-symbols-outlined text-secondary">filter_5</span>
             </div>
-            <div class="routine-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="Evening">
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-indigo-600 text-2xl">nights_stay</span>
-                    <div><h4 class="font-headline-md text-headline-md text-on-surface text-base">Evening Wind-down</h4><span class="font-label-sm text-label-sm text-on-surface-variant geist">6:00 PM – 11:00 PM</span></div>
+            <div class="cap-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="8">
+                <div>
+                    <span class="font-headline-md text-on-surface text-base block font-bold">Advanced (8 Habits)</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs">High discipline capacity</span>
                 </div>
+                <span class="material-symbols-outlined text-tertiary">filter_8</span>
+            </div>
+            <div class="cap-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between" data-val="later">
+                <div>
+                    <span class="font-headline-md text-on-surface text-base block font-medium">I'll decide later</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs">Default to flexible limits</span>
+                </div>
+                <span class="material-symbols-outlined text-outline">schedule</span>
             </div>
         </div>
     </div>
 
-    <!-- STEP 5: Habit Capacity -->
+    <!-- STEP 5: Personalize HabitArc (Theme, Grid, Duration) -->
     <div id="step-5" class="step-card animate-in space-y-6">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Habit Capacity Focus</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">To prevent overwhelm, HabitArc caps active habits. What is your goal?</p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="capacity-options">
-            <div class="cap-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all text-center space-y-2" data-val="5">
-                <span class="font-headline-lg text-headline-lg text-primary block">3 – 5</span>
-                <span class="font-headline-md text-headline-md text-on-surface text-sm block">Minimalist</span>
-                <span class="font-label-sm text-[10px] text-on-surface-variant geist block">High focus, zero clutter</span>
-            </div>
-            <div class="cap-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all text-center space-y-2" data-val="10">
-                <span class="font-headline-lg text-headline-lg text-primary block">5 – 10</span>
-                <span class="font-headline-md text-headline-md text-on-surface text-sm block">Balanced</span>
-                <span class="font-label-sm text-[10px] text-on-surface-variant geist block">Recommended horizon</span>
-            </div>
-            <div class="cap-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all text-center space-y-2" data-val="20">
-                <span class="font-headline-lg text-headline-lg text-primary block">10 – 20</span>
-                <span class="font-headline-md text-headline-md text-on-surface text-sm block">Growth Master</span>
-                <span class="font-label-sm text-[10px] text-on-surface-variant geist block">Maximum limit</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- STEP 6: Personalize HabitArc -->
-    <div id="step-6" class="step-card animate-in space-y-6">
-        <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Personalize HabitArc</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Configure your theme & goal horizon duration.</p>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold">Personalize HabitArc</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Customize your theme, grid style, and horizon duration.</p>
         </div>
         <div class="space-y-4">
+            <!-- Theme Selection -->
             <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Theme Mode</label>
-                <div class="grid grid-cols-2 gap-3" id="theme-options">
-                    <button class="theme-opt p-3 rounded-xl border border-primary bg-primary-container text-on-primary font-headline-md text-sm flex items-center justify-center gap-2" data-theme="light">
-                        <span class="material-symbols-outlined">light_mode</span> Light Mode
-                    </button>
-                    <button class="theme-opt p-3 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-headline-md text-sm flex items-center justify-center gap-2" data-theme="dark">
-                        <span class="material-symbols-outlined">dark_mode</span> Dark Mode
-                    </button>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Theme Palette</label>
+                <div class="grid grid-cols-3 gap-2" id="theme-grid">
+                    <button class="theme-btn p-2.5 rounded-xl border border-surface-container theme-preview-purple font-label-sm text-xs font-semibold text-center" data-theme="purple">Purple Night</button>
+                    <button class="theme-btn p-2.5 rounded-xl border border-surface-container theme-preview-dark font-label-sm text-xs font-semibold text-center" data-theme="dark">Dark</button>
+                    <button class="theme-btn p-2.5 rounded-xl border border-primary bg-primary-container text-on-primary font-label-sm text-xs font-semibold text-center" data-theme="light">Light</button>
+                    <button class="theme-btn p-2.5 rounded-xl border border-surface-container theme-preview-forest font-label-sm text-xs font-semibold text-center" data-theme="forest">Forest</button>
+                    <button class="theme-btn p-2.5 rounded-xl border border-surface-container theme-preview-ocean font-label-sm text-xs font-semibold text-center" data-theme="ocean">Ocean</button>
+                    <button class="theme-btn p-2.5 rounded-xl border border-surface-container theme-preview-sunset font-label-sm text-xs font-semibold text-center" data-theme="sunset">Sunset</button>
                 </div>
             </div>
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Goal Horizon Duration</label>
-                <div class="grid grid-cols-3 gap-3" id="duration-options">
-                    <button class="dur-opt p-3 rounded-xl border border-primary bg-primary-container text-on-primary font-headline-md text-sm" data-dur="30">30 Days</button>
-                    <button class="dur-opt p-3 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-headline-md text-sm" data-dur="60">60 Days</button>
-                    <button class="dur-opt p-3 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-headline-md text-sm" data-dur="90">90 Days</button>
+            
+            <!-- Grid Shape & Horizon Duration -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Contribution Grid</label>
+                    <div class="grid grid-cols-2 gap-2" id="grid-shape-opts">
+                        <button class="grid-shape-btn p-2 rounded-xl border border-primary bg-primary-container text-on-primary font-label-sm text-xs text-center" data-shape="square">Square</button>
+                        <button class="grid-shape-btn p-2 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs text-center" data-shape="circle">Circle</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-1.5">Horizon Duration</label>
+                    <div class="grid grid-cols-2 gap-2" id="horizon-dur-opts">
+                        <button class="horizon-btn p-2 rounded-xl border border-primary bg-primary-container text-on-primary font-label-sm text-xs text-center" data-dur="30">30 Days</button>
+                        <button class="horizon-btn p-2 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs text-center" data-dur="90">90 Days</button>
+                    </div>
                 </div>
             </div>
+
             <!-- Live Preview Card -->
             <div class="bg-surface-container-low border border-surface-container rounded-xl p-4 flex items-center justify-between">
                 <div>
                     <span class="font-label-sm text-[10px] uppercase geist text-on-surface-variant">Live Preview</span>
-                    <h4 id="preview-title" class="font-headline-md text-headline-md text-on-surface text-base">30-Day Growth Horizon</h4>
+                    <h4 id="preview-text" class="font-headline-md text-on-surface text-sm">Light Theme • Square Grid • 30-Day Horizon</h4>
                 </div>
-                <span class="material-symbols-outlined text-secondary text-2xl">verified</span>
+                <div id="preview-box" class="w-8 h-8 rounded-lg bg-primary-container"></div>
             </div>
         </div>
     </div>
 
-    <!-- STEP 7: Notifications -->
+    <!-- STEP 6: Enable Notifications (Yes / No) -->
+    <div id="step-6" class="step-card animate-in space-y-6">
+        <div>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold">Enable Notifications?</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Receive gentle daily nudges to keep your streaks alive. You can adjust exact times later.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4" id="notification-options">
+            <div class="notif-opt p-6 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer transition-all text-center space-y-2" data-val="true">
+                <span class="material-symbols-outlined text-primary text-4xl block">notifications_active</span>
+                <span class="font-headline-md text-on-surface text-lg block font-bold">Yes, notify me</span>
+                <span class="font-label-sm text-on-surface-variant geist text-xs block">Keep my streaks consistent</span>
+            </div>
+            <div class="notif-opt p-6 rounded-xl border border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-2" data-val="false">
+                <span class="material-symbols-outlined text-outline text-4xl block">notifications_off</span>
+                <span class="font-headline-md text-on-surface text-lg block font-bold">No thanks</span>
+                <span class="font-label-sm text-on-surface-variant geist text-xs block">I'll check manually</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 7: Create Account (Simple) -->
     <div id="step-7" class="step-card animate-in space-y-6">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Daily Reminders</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Set a gentle daily reminder to anchor your habits.</p>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold">Create Your Account</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Save your growth profile and sync seamlessly across devices.</p>
         </div>
-        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding space-y-4">
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Default Reminder Time</label>
-                <input id="reminder-time-picker" type="time" value="08:00" class="w-full p-3 rounded-xl border border-outline-variant bg-surface font-headline-md text-on-surface"/>
+        <div class="space-y-3">
+            <button id="google-signin-btn" class="w-full p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary transition-all flex items-center justify-center gap-3 font-headline-md text-on-surface shadow-xs">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                <span>Continue with Google</span>
+            </button>
+            
+            <div class="flex items-center my-2">
+                <div class="flex-grow border-t border-surface-container"></div>
+                <span class="px-3 text-xs text-outline geist">OR</span>
+                <div class="flex-grow border-t border-surface-container"></div>
             </div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant geist">Reminders can be customized individually for each habit later.</p>
+
+            <div class="space-y-2">
+                <input id="acc-name-input" type="text" value="Alex Thorne" class="w-full p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest font-headline-md text-on-surface" placeholder="Your Name"/>
+                <input id="acc-email-input" type="email" value="alex@example.com" class="w-full p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest font-body-md text-on-surface" placeholder="Email Address"/>
+            </div>
+
+            <button id="guest-signin-btn" class="w-full py-2 text-center text-xs text-on-surface-variant hover:text-primary font-label-sm geist">
+                Continue as Guest (Save locally)
+            </button>
         </div>
     </div>
 
-    <!-- STEP 8: Create Account / Profile -->
+    <!-- STEP 8: North Star Habit -->
     <div id="step-8" class="step-card animate-in space-y-6">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Setup Your Profile</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Enter your details to create your personal growth identity.</p>
+            <h2 class="font-headline-lg text-2xl text-on-surface font-bold">If you could improve only ONE habit this year...<br/><span class="text-primary">What would it be?</span></h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-2">This will become your personal north star. We'll remind you why you started whenever you lose consistency.</p>
         </div>
         <div class="space-y-4">
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Your Name</label>
-                <input id="onboard-user-name" type="text" value="Alex Thorne" class="w-full p-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-headline-md text-on-surface" placeholder="e.g. Alex Thorne"/>
-            </div>
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Personal Mantra / Bio</label>
-                <input id="onboard-user-bio" type="text" value="Building stillness, one day at a time." class="w-full p-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-body-md text-on-surface" placeholder="e.g. Building stillness, one day at a time."/>
-            </div>
-        </div>
-    </div>
-
-    <!-- STEP 9: North Star Habit -->
-    <div id="step-9" class="step-card animate-in space-y-6">
-        <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Your North Star Habit ⭐</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant mt-1">What is the single most important habit that will transform your day?</p>
-        </div>
-        <div class="space-y-4">
-            <input id="north-star-input" type="text" value="Daily Meditation & Mindfulness" class="w-full p-4 rounded-xl border border-primary bg-surface-container-lowest font-headline-md text-headline-md text-on-surface" placeholder="e.g. 20-minute Morning Run"/>
-            <div class="bg-primary-fixed/20 border border-primary-fixed rounded-xl p-card-padding">
-                <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider geist font-semibold block mb-1">Coach Note</span>
-                <p class="font-body-md text-body-md text-on-surface-variant">Your North Star Habit serves as the cornerstone for your entire daily routine. All other habits build around it.</p>
+            <input id="north-star-input" type="text" value="Daily Meditation & Mindful Reflection" class="w-full p-4 rounded-xl border-2 border-primary bg-surface-container-lowest font-headline-md text-lg text-on-surface focus:outline-none shadow-xs" placeholder="e.g. Daily 20-minute Reading"/>
+            <div class="bg-primary-fixed/20 border border-primary-fixed/50 rounded-xl p-4 flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl">stars</span>
+                <span class="font-body-md text-sm text-on-surface">Your North Star Habit anchors your daily routine.</span>
             </div>
         </div>
     </div>
 
 </main>
 
-<!-- Bottom Wizard Controls -->
-<footer class="w-full max-w-2xl mx-auto flex items-center justify-between py-4 border-t border-surface-container">
-    <button id="prev-step-btn" class="px-5 py-2.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all disabled:opacity-40" disabled>
+<!-- Bottom Navigation Controls -->
+<footer class="w-full max-w-xl mx-auto flex items-center justify-between py-4 border-t border-surface-container">
+    <button id="prev-step-btn" class="px-5 py-2.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all disabled:opacity-30" disabled>
         Back
     </button>
-    <button id="next-step-btn" class="bg-primary text-on-primary font-headline-md text-headline-md px-8 py-2.5 rounded-full hover:opacity-90 transition-opacity active:scale-95 shadow-[0_4px_12px_rgba(1,45,29,0.2)] flex items-center gap-2">
+    <button id="next-step-btn" class="bg-primary text-on-primary font-headline-md text-base px-8 py-3 rounded-full hover:opacity-90 transition-all active:scale-95 shadow-[0_4px_12px_rgba(1,45,29,0.25)] flex items-center gap-2">
         <span>Continue</span>
         <span class="material-symbols-outlined text-sm">arrow_forward</span>
     </button>
@@ -313,121 +334,132 @@
 <script>
 (function() {
     let currentStep = 1;
-    const totalSteps = 9;
+    const totalSteps = 8;
 
-    let selectedFocus = ['Health'];
-    let selectedHabits = [];
-    let selectedRoutine = 'Morning';
-    let selectedCap = '10';
+    let selectedIntents = ['Health', 'Productivity'];
+    let selectedChallenge = 'consistency';
+    let selectedCap = '5';
     let selectedTheme = 'light';
+    let selectedGridShape = 'square';
     let selectedDuration = '30';
+    let notificationsEnabled = true;
 
     function updateStep() {
-        // Hide all steps, show active
         document.querySelectorAll('.step-card').forEach((card, idx) => {
             card.classList.toggle('active', idx + 1 === currentStep);
         });
 
-        // Update progress bar & indicators
         const pct = Math.round((currentStep / totalSteps) * 100);
         document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('step-indicator').textContent = `Step ${currentStep} of ${totalSteps}`;
 
-        // Back button state
         document.getElementById('prev-step-btn').disabled = (currentStep === 1);
 
-        // Next button label on last step
         const nextBtn = document.getElementById('next-step-btn');
         if (currentStep === totalSteps) {
-            nextBtn.querySelector('span').textContent = 'Enter Dashboard';
+            nextBtn.querySelector('span').textContent = 'Start My Journey';
         } else {
             nextBtn.querySelector('span').textContent = 'Continue';
         }
     }
 
-    // Step 2: Focus Area Selection
-    document.querySelectorAll('.focus-option').forEach(opt => {
+    // Step 2: Intent Multi-Select
+    document.querySelectorAll('.intent-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             this.classList.toggle('border-primary');
             this.classList.toggle('bg-primary-fixed/10');
             const val = this.dataset.val;
-            if (selectedFocus.includes(val)) {
-                selectedFocus = selectedFocus.filter(f => f !== val);
+            if (selectedIntents.includes(val)) {
+                selectedIntents = selectedIntents.filter(i => i !== val);
             } else {
-                selectedFocus.push(val);
+                selectedIntents.push(val);
             }
         });
     });
 
-    // Step 3: Habit Selection
-    document.querySelectorAll('.habit-option').forEach(opt => {
+    // Step 3: Challenge Single Select
+    document.querySelectorAll('.challenge-opt').forEach(opt => {
         opt.addEventListener('click', function() {
-            this.classList.toggle('border-primary');
-            this.classList.toggle('bg-primary-fixed/10');
-            const name = this.dataset.name;
-            const icon = this.dataset.icon;
-            const cat = this.dataset.cat;
-
-            const existing = selectedHabits.findIndex(h => h.name === name);
-            if (existing !== -1) {
-                selectedHabits.splice(existing, 1);
-            } else {
-                selectedHabits.push({ name, icon, category: cat });
-            }
+            document.querySelectorAll('.challenge-opt').forEach(o => {
+                o.className = 'challenge-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between';
+            });
+            this.className = 'challenge-opt p-4 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer transition-all flex items-center justify-between';
+            selectedChallenge = this.dataset.val;
         });
     });
 
-    // Step 4: Routine Window
-    document.querySelectorAll('.routine-option').forEach(opt => {
+    // Step 4: Capacity
+    document.querySelectorAll('.cap-opt').forEach(opt => {
         opt.addEventListener('click', function() {
-            document.querySelectorAll('.routine-option').forEach(o => {
-                o.className = 'routine-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between';
+            document.querySelectorAll('.cap-opt').forEach(o => {
+                o.className = 'cap-opt p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all flex items-center justify-between';
             });
-            this.className = 'routine-option p-4 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer transition-all flex items-center justify-between';
-            selectedRoutine = this.dataset.val;
-        });
-    });
-
-    // Step 5: Capacity
-    document.querySelectorAll('.cap-option').forEach(opt => {
-        opt.addEventListener('click', function() {
-            document.querySelectorAll('.cap-option').forEach(o => {
-                o.className = 'cap-option p-4 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary cursor-pointer transition-all text-center space-y-2';
-            });
-            this.className = 'cap-option p-4 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer transition-all text-center space-y-2';
+            this.className = 'cap-opt p-4 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer transition-all flex items-center justify-between';
             selectedCap = this.dataset.val;
         });
     });
 
-    // Step 6: Theme & Duration
-    document.querySelectorAll('.theme-opt').forEach(btn => {
+    // Step 5: Theme & Grid Personalization
+    document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.theme-opt').forEach(b => {
-                b.className = 'theme-opt p-3 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-headline-md text-sm flex items-center justify-center gap-2';
-            });
-            this.className = 'theme-opt p-3 rounded-xl border border-primary bg-primary-container text-on-primary font-headline-md text-sm flex items-center justify-center gap-2';
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('border-primary', 'ring-2'));
+            this.classList.add('border-primary', 'ring-2');
             selectedTheme = this.dataset.theme;
             HabitArc.setTheme(selectedTheme);
+            updatePreview();
         });
     });
 
-    document.querySelectorAll('.dur-opt').forEach(btn => {
+    document.querySelectorAll('.grid-shape-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.dur-opt').forEach(b => {
-                b.className = 'dur-opt p-3 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-headline-md text-sm';
+            document.querySelectorAll('.grid-shape-btn').forEach(b => {
+                b.className = 'grid-shape-btn p-2 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs text-center';
             });
-            this.className = 'dur-opt p-3 rounded-xl border border-primary bg-primary-container text-on-primary font-headline-md text-sm';
-            selectedDuration = this.dataset.dur;
-            document.getElementById('preview-title').textContent = `${selectedDuration}-Day Growth Horizon`;
+            this.className = 'grid-shape-btn p-2 rounded-xl border border-primary bg-primary-container text-on-primary font-label-sm text-xs text-center';
+            selectedGridShape = this.dataset.shape;
+            updatePreview();
         });
     });
 
-    // Controls Event Listeners
+    document.querySelectorAll('.horizon-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.horizon-btn').forEach(b => {
+                b.className = 'horizon-btn p-2 rounded-xl border border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs text-center';
+            });
+            this.className = 'horizon-btn p-2 rounded-xl border border-primary bg-primary-container text-on-primary font-label-sm text-xs text-center';
+            selectedDuration = this.dataset.dur;
+            updatePreview();
+        });
+    });
+
+    function updatePreview() {
+        document.getElementById('preview-text').textContent = `${selectedTheme.toUpperCase()} Theme • ${selectedGridShape} Grid • ${selectedDuration}-Day Horizon`;
+        const box = document.getElementById('preview-box');
+        box.className = `w-8 h-8 ${selectedGridShape === 'circle' ? 'rounded-full' : 'rounded-lg'} bg-primary-container`;
+    }
+
+    // Step 6: Notifications
+    document.querySelectorAll('.notif-opt').forEach(opt => {
+        opt.addEventListener('click', function() {
+            document.querySelectorAll('.notif-opt').forEach(o => {
+                o.className = 'notif-opt p-6 rounded-xl border border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-2';
+            });
+            this.className = 'notif-opt p-6 rounded-xl border-2 border-primary bg-primary-fixed/10 cursor-pointer transition-all text-center space-y-2';
+            notificationsEnabled = (this.dataset.val === 'true');
+        });
+    });
+
+    // Step 7: Account Buttons
+    document.getElementById('google-signin-btn').addEventListener('click', function() {
+        if (currentStep < totalSteps) { currentStep++; updateStep(); }
+    });
+    document.getElementById('guest-signin-btn').addEventListener('click', function() {
+        if (currentStep < totalSteps) { currentStep++; updateStep(); }
+    });
+
+    // Navigation Controls
     document.getElementById('prev-step-btn').addEventListener('click', function() {
-        if (currentStep > 1) {
-            currentStep--;
-            updateStep();
-        }
+        if (currentStep > 1) { currentStep--; updateStep(); }
     });
 
     document.getElementById('next-step-btn').addEventListener('click', function() {
@@ -435,31 +467,25 @@
             currentStep++;
             updateStep();
         } else {
-            // Finish Onboarding
-            const userName = document.getElementById('onboard-user-name').value.trim() || 'Alex Thorne';
-            const userBio = document.getElementById('onboard-user-bio').value.trim() || 'Building stillness, one day at a time.';
-            const reminderTime = document.getElementById('reminder-time-picker').value || '08:00';
+            // Finish Journey (Step 8)
+            const userName = document.getElementById('acc-name-input').value.trim() || 'Alex Thorne';
+            const northStar = document.getElementById('north-star-input').value.trim() || 'Daily Meditation';
 
-            // Save Settings
             HabitArc.updateSettings({
                 userName,
-                userBio,
+                userBio: `North Star: ${northStar}`,
                 theme: selectedTheme,
-                goalDuration: parseInt(selectedDuration),
-                defaultReminderTime: reminderTime,
+                goalDuration: parseInt(selectedDuration) || 30,
                 onboardingComplete: true
             });
 
-            // If user selected starter habits, add them
-            if (selectedHabits.length > 0) {
-                selectedHabits.forEach(h => {
-                    HabitArc.addHabit({
-                        name: h.name,
-                        icon: h.icon,
-                        category: h.category,
-                        reminder: reminderTime,
-                        repeat: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-                    });
+            // Create North Star habit automatically
+            if (northStar) {
+                HabitArc.addHabit({
+                    name: northStar,
+                    icon: 'stars',
+                    category: 'Mindfulness',
+                    repeat: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
                 });
             }
 
