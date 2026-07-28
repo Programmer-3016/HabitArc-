@@ -104,7 +104,7 @@
 </div>
 
 <!-- Main Stepper Wizard Canvas -->
-<main class="flex-1 w-full max-w-xl mx-auto flex flex-col justify-center py-4">
+<main class="flex-1 w-full max-w-xl mx-auto flex flex-col justify-center py-4 pb-24">
 
     <!-- STEP 1: Welcome -->
     <div id="step-1" class="step-card active animate-in space-y-4 text-center sm:text-left">
@@ -402,15 +402,17 @@
 
 </main>
 
-<!-- Bottom Navigation Controls -->
-<footer class="w-full max-w-xl mx-auto flex items-center justify-between py-3 border-t border-surface-container bg-background shrink-0 z-20">
-    <button id="prev-step-btn" class="btn-press px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-xs hover:bg-surface-container transition-all disabled:opacity-30" disabled>
-        Back
-    </button>
-    <button id="next-step-btn" class="btn-press bg-primary text-on-primary font-headline-md text-xs sm:text-sm px-6 py-2.5 rounded-full hover:opacity-90 transition-all shadow-[0_4px_12px_rgba(1,45,29,0.25)] flex items-center gap-1.5">
-        <span>Continue</span>
-        <span class="material-symbols-outlined text-xs">arrow_forward</span>
-    </button>
+<!-- Bottom Navigation Controls (Fixed to Viewport Bottom) -->
+<footer class="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-surface-container py-3 px-4 sm:px-6">
+    <div class="w-full max-w-xl mx-auto flex items-center justify-between">
+        <button id="prev-step-btn" class="btn-press px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-xs hover:bg-surface-container transition-all disabled:opacity-30" disabled>
+            Back
+        </button>
+        <button id="next-step-btn" class="btn-press bg-primary text-on-primary font-headline-md text-xs sm:text-sm px-6 py-2.5 rounded-full hover:opacity-90 transition-all shadow-[0_4px_12px_rgba(1,45,29,0.25)] flex items-center gap-1.5">
+            <span>Continue</span>
+            <span class="material-symbols-outlined text-xs">arrow_forward</span>
+        </button>
+    </div>
 </footer>
 
 <script src="app.js"></script>
