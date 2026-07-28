@@ -586,9 +586,9 @@
     document.querySelectorAll('.grid-shape-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.grid-shape-btn').forEach(b => {
-                b.className = 'grid-shape-btn btn-press p-2 rounded-lg border border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-[11px] text-center';
+                b.className = 'grid-shape-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs sm:text-sm font-bold text-center';
             });
-            this.className = 'grid-shape-btn btn-press p-2 rounded-lg border border-primary bg-primary-container text-on-primary font-label-sm text-[11px] text-center';
+            this.className = 'grid-shape-btn btn-press p-3 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs sm:text-sm font-bold text-center';
             selectedGridShape = this.dataset.shape;
             updatePreview();
         });
@@ -597,9 +597,9 @@
     document.querySelectorAll('.horizon-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.horizon-btn').forEach(b => {
-                b.className = 'horizon-btn btn-press p-2 rounded-lg border border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-[11px] text-center';
+                b.className = 'horizon-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs sm:text-sm font-bold text-center';
             });
-            this.className = 'horizon-btn btn-press p-2 rounded-lg border border-primary bg-primary-container text-on-primary font-label-sm text-[11px] text-center';
+            this.className = 'horizon-btn btn-press p-3 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs sm:text-sm font-bold text-center';
             selectedDuration = this.dataset.dur;
             updatePreview();
         });
