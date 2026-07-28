@@ -85,15 +85,15 @@
     /* Logo Hero Animations */
     @keyframes logoFloat {
         0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-8px); }
+        50% { transform: translateY(-10px); }
     }
     @keyframes logoPulseGlow {
-        0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), 0 0 60px rgba(16, 185, 129, 0.05); }
-        50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.3), 0 0 80px rgba(16, 185, 129, 0.1); }
+        0%, 100% { filter: drop-shadow(0 4px 15px rgba(16, 185, 129, 0.25)); }
+        50% { filter: drop-shadow(0 8px 30px rgba(16, 185, 129, 0.55)); }
     }
     @keyframes logoScaleIn {
-        0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
-        60% { opacity: 1; transform: scale(1.08) rotate(2deg); }
+        0% { opacity: 0; transform: scale(0.5) rotate(-6deg); }
+        60% { opacity: 1; transform: scale(1.06) rotate(2deg); }
         100% { opacity: 1; transform: scale(1) rotate(0deg); }
     }
     .logo-hero {
@@ -126,11 +126,9 @@
 <main class="flex-1 w-full max-w-xl mx-auto flex flex-col justify-center py-4 my-auto pb-24 overflow-y-auto">
 
     <!-- STEP 1: Welcome -->
-    <div id="step-1" class="step-card active animate-in space-y-5 text-center flex flex-col items-center">
-        <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl flex items-center justify-center logo-hero mb-2">
-            <img src="logo.png" alt="HabitArc Logo" class="w-full h-full object-contain drop-shadow-lg"/>
-        </div>
-        <h1 class="font-headline-lg text-3xl sm:text-4xl text-on-surface font-bold tracking-tight">Welcome to HabitArc</h1>
+    <div id="step-1" class="step-card active animate-in space-y-5 text-center flex flex-col items-center justify-center">
+        <img src="logo.png" alt="HabitArc Logo" class="w-36 h-36 sm:w-44 sm:h-44 object-contain logo-hero filter drop-shadow-xl"/>
+        <h1 class="font-headline-lg text-3xl sm:text-4xl text-on-surface font-bold tracking-tight mt-2">Welcome to HabitArc</h1>
         <p class="font-body-lg text-lg sm:text-xl text-on-surface-variant leading-relaxed">
             Build habits.<br/>
             Understand yourself.<br/>
