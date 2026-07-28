@@ -677,115 +677,16 @@ const HabitArc = (() => {
     function applyTheme() {
         const theme = getTheme();
         const html = document.documentElement;
-        html.classList.remove('dark', 'light');
+        
+        const styleTag = document.getElementById('habitarc-theme-styles');
+        if (styleTag) styleTag.remove();
 
+        html.classList.remove('dark', 'light');
         if (['dark', 'purple', 'forest', 'ocean', 'sunset'].includes(theme)) {
             html.classList.add('dark');
         } else {
             html.classList.add('light');
         }
-
-        const themeMap = {
-            'purple': {
-                bg: '#0f0919',
-                card: '#181028',
-                cardBorder: '#2d1b4e',
-                text: '#f3e8ff',
-                textMuted: '#a78bfa',
-                primary: '#a855f7',
-                primaryContainer: '#281647'
-            },
-            'dark': {
-                bg: '#0d0f12',
-                card: '#15181e',
-                cardBorder: '#232833',
-                text: '#e1e3e4',
-                textMuted: '#94a3b8',
-                primary: '#10b981',
-                primaryContainer: '#16382c'
-            },
-            'light': {
-                bg: '#f8f9fa',
-                card: '#ffffff',
-                cardBorder: '#e2e8f0',
-                text: '#191c1d',
-                textMuted: '#64748b',
-                primary: '#012d1d',
-                primaryContainer: '#1b4332'
-            },
-            'forest': {
-                bg: '#05140d',
-                card: '#0b2419',
-                cardBorder: '#16402d',
-                text: '#d1fae5',
-                textMuted: '#6ee7b7',
-                primary: '#34d399',
-                primaryContainer: '#103827'
-            },
-            'ocean': {
-                bg: '#07111e',
-                card: '#0f1d32',
-                cardBorder: '#1d3356',
-                text: '#dbeafe',
-                textMuted: '#7dd3fc',
-                primary: '#38bdf8',
-                primaryContainer: '#162c4c'
-            },
-            'sunset': {
-                bg: '#18090e',
-                card: '#251017',
-                cardBorder: '#421d28',
-                text: '#ffe4e6',
-                textMuted: '#fda4af',
-                primary: '#fb7185',
-                primaryContainer: '#3a1723'
-            }
-        };
-
-        const config = themeMap[theme] || themeMap['light'];
-
-        let styleTag = document.getElementById('habitarc-theme-styles');
-        if (!styleTag) {
-            styleTag = document.createElement('style');
-            styleTag.id = 'habitarc-theme-styles';
-            document.head.appendChild(styleTag);
-        }
-
-        styleTag.innerHTML = `
-            :root {
-                --bg-color: ${config.bg};
-                --card-color: ${config.card};
-                --card-border: ${config.cardBorder};
-                --text-color: ${config.text};
-                --text-muted: ${config.textMuted};
-                --primary-color: ${config.primary};
-                --primary-container: ${config.primaryContainer};
-            }
-            body, .bg-background {
-                background-color: ${config.bg} !important;
-                color: ${config.text} !important;
-            }
-            .bg-surface-container-lowest, .bg-surface-container-low, .bg-surface-container {
-                background-color: ${config.card} !important;
-                border-color: ${config.cardBorder} !important;
-            }
-            .border-surface-container, .border-outline-variant {
-                border-color: ${config.cardBorder} !important;
-            }
-            .text-on-surface, .text-on-background {
-                color: ${config.text} !important;
-            }
-            .text-on-surface-variant {
-                color: ${config.textMuted} !important;
-            }
-            .bg-primary {
-                background-color: ${config.primary} !important;
-            }
-            .bg-primary-container {
-                background-color: ${config.primaryContainer} !important;
-            }
-        `;
-
         html.setAttribute('data-theme', theme);
     }
 
