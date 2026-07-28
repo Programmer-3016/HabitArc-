@@ -54,9 +54,7 @@
         from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    .animate-in { animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .step-card { display: none; }
-    .step-card.active { display: block; }
+    .step-card:not(.active) { display: none !important; }
 
     .btn-press { transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease; }
     .btn-press:active { transform: scale(0.98); }
@@ -385,7 +383,6 @@
                 </button>
             </div>
         </div>
-    </div>
 
     <!-- STEP 8: North Star Habit -->
     <div id="step-8" class="step-card animate-in space-y-4">
@@ -438,7 +435,13 @@
 
     function updateStep() {
         document.querySelectorAll('.step-card').forEach((card, idx) => {
-            card.classList.toggle('active', idx + 1 === currentStep);
+            const isActive = (idx + 1 === currentStep);
+            if (isActive && !card.classList.contains('active')) {
+                card.classList.remove('animate-in');
+                void card.offsetWidth;
+                card.classList.add('animate-in');
+            }
+            card.classList.toggle('active', isActive);
         });
 
         const pct = Math.round((currentStep / totalSteps) * 100);
