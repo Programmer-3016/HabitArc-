@@ -156,48 +156,45 @@
         </div>
     </section>
 
-    <!-- GitHub Contribution Calendar -->
+    <!-- Interactive Monthly Activity Calendar -->
     <section class="animate-in animate-delay-2">
         <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <!-- Header: Month Selector & Controls -->
+            <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h3 class="font-headline-md text-headline-md text-on-surface">Activity</h3>
-                    <p id="total-contributions-text" class="font-label-sm text-label-sm text-on-surface-variant geist mt-0.5">-- logs in past 6 months</p>
+                    <h3 id="current-month-title" class="font-headline-md text-headline-md text-on-surface">July 2026</h3>
+                    <p id="month-stat-subtitle" class="font-label-sm text-label-sm text-on-surface-variant geist mt-0.5">-- days completed</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="font-label-sm text-label-sm text-on-surface-variant geist">Less</span>
-                    <div class="flex gap-1 items-center">
-                        <div class="cal-cell cal-none" title="No activity"></div>
-                        <div class="cal-cell cal-missed" title="Missed"></div>
-                        <div class="cal-cell cal-rest" title="Rest day"></div>
-                        <div class="cal-cell cal-completed" title="Completed"></div>
-                    </div>
-                    <span class="font-label-sm text-label-sm text-on-surface-variant geist">More</span>
+                <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-full border border-surface-container">
+                    <button id="prev-month-btn" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90">
+                        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                    </button>
+                    <button id="today-month-btn" class="px-2.5 py-1 rounded-full text-label-sm font-label-sm text-on-surface hover:bg-surface-container transition-all">Today</button>
+                    <button id="next-month-btn" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90">
+                        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                    </button>
                 </div>
             </div>
-            
-            <!-- Calendar Container with Left Day Labels & Top Month Labels -->
-            <div class="overflow-x-auto pb-2">
-                <div class="min-w-[320px]">
-                    <!-- Month Labels Header -->
-                    <div id="month-labels" class="flex text-on-surface-variant font-label-sm text-[10px] geist mb-1 pl-6"></div>
-                    
-                    <!-- Main Grid Area (Left Day Labels + Week Columns) -->
-                    <div class="flex gap-2">
-                        <!-- Left Day Labels (M, W, F) -->
-                        <div class="flex flex-col justify-between py-[1px] text-on-surface-variant font-label-sm text-[9px] geist shrink-0 w-4 text-right">
-                            <span></span>
-                            <span>M</span>
-                            <span></span>
-                            <span>W</span>
-                            <span></span>
-                            <span>F</span>
-                            <span></span>
-                        </div>
-                        <!-- Calendar Week Columns -->
-                        <div id="calendar-grid" class="flex gap-[3px]"></div>
-                    </div>
-                </div>
+
+            <!-- Legend Bar -->
+            <div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant mb-4 geist border-b border-surface-container pb-3">
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-primary-container inline-block"></span><span>Completed</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-error-container border border-error/20 inline-block"></span><span>Missed</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-surface-container inline-block"></span><span>Rest</span></div>
+            </div>
+
+            <!-- Weekdays Header Grid -->
+            <div class="grid grid-cols-7 gap-1 text-center font-label-sm text-[11px] text-on-surface-variant geist mb-2">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+
+            <!-- Days Grid (7 Columns) -->
+            <div id="monthly-calendar-grid" class="grid grid-cols-7 gap-1.5"></div>
+
+            <!-- Active Date Inspector Banner -->
+            <div id="date-inspector-banner" class="mt-4 p-3 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-between">
+                <span id="inspector-date-text" class="font-body-md text-body-md text-on-surface font-semibold">Tap a date to inspect</span>
+                <span id="inspector-status-badge" class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant geist">Tap date</span>
             </div>
         </div>
     </section>
@@ -324,86 +321,133 @@
     }
     renderStats();
 
-    // ─── GitHub Contribution Calendar ───────────
+    // ─── Monthly Interactive Calendar ───────────
+    let currentMonthOffset = 0; // 0 = current month, -1 = last month, etc.
+
     function renderCalendar() {
-        const calData = HabitArc.getCalendarData(habitId, 5);
-        const grid = document.getElementById('calendar-grid');
-        const monthHeader = document.getElementById('month-labels');
+        const grid = document.getElementById('monthly-calendar-grid');
         grid.innerHTML = '';
-        monthHeader.innerHTML = '';
 
-        // Group by weeks (columns)
-        const weeks = [];
-        let currentWeek = [];
+        const today = new Date();
+        const viewDate = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+        const year = viewDate.getFullYear();
+        const month = viewDate.getMonth();
 
-        // Pad start to align with day of week
-        if (calData.length > 0) {
-            const firstDayOfWeek = calData[0].dayOfWeek;
-            for (let i = 0; i < firstDayOfWeek; i++) {
-                currentWeek.push(null);
-            }
+        // Update header month title
+        const monthTitle = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        document.getElementById('current-month-title').textContent = monthTitle;
+
+        // Calculate days in month & first day of week offset
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Monday = 0, Sunday = 6
+        let firstDayIndex = new Date(year, month, 1).getDay() - 1;
+        if (firstDayIndex === -1) firstDayIndex = 6; // Adjust Sunday
+
+        const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const todayStr = HabitArc.today();
+        let monthCompletedCount = 0;
+        let monthScheduledCount = 0;
+
+        // Render empty padding cells for start of month
+        for (let i = 0; i < firstDayIndex; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'aspect-square rounded-xl bg-surface-container/20 border border-transparent';
+            grid.appendChild(emptyCell);
         }
 
-        for (const day of calData) {
-            currentWeek.push(day);
-            if (day.dayOfWeek === 6) { // Saturday = end of week
-                weeks.push(currentWeek);
-                currentWeek = [];
-            }
-        }
-        if (currentWeek.length > 0) {
-            weeks.push(currentWeek);
-        }
+        // Render date cells (1 to daysInMonth)
+        for (let dayNum = 1; dayNum <= daysInMonth; dayNum++) {
+            const dateObj = new Date(year, month, dayNum);
+            // Format YYYY-MM-DD local
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+            const dayName = dayNames[dateObj.getDay()];
 
-        // Track total completions for badge subtitle
-        let completedCount = 0;
-        let lastMonthSeen = -1;
+            const isBeforeCreation = dateStr < habit.createdAt;
+            const isFuture = dateStr > todayStr;
+            const isScheduled = !habit.repeat || habit.repeat.includes(dayName);
+            const isCompleted = habit.completions && habit.completions[dateStr];
+            const isToday = dateStr === todayStr;
 
-        // Render weeks as columns + Month Header Labels
-        weeks.forEach((week, weekIdx) => {
-            const col = document.createElement('div');
-            col.className = 'flex flex-col gap-[3px]';
-
-            // Check if month changes in this week
-            const validDay = week.find(d => d !== null);
-            if (validDay) {
-                const dayMonth = validDay.month;
-                if (dayMonth !== lastMonthSeen) {
-                    lastMonthSeen = dayMonth;
-                    const monthName = new Date(validDay.date).toLocaleDateString('en-US', { month: 'short' });
-                    const mSpan = document.createElement('span');
-                    mSpan.textContent = monthName;
-                    mSpan.style.width = `${weeks.length > 0 ? (100 / (weeks.length / 5)) : 40}px`;
-                    mSpan.className = 'inline-block shrink-0';
-                    monthHeader.appendChild(mSpan);
-                }
-            }
-
-            for (let row = 0; row < 7; row++) {
-                const cell = document.createElement('div');
-                cell.className = 'cal-cell';
-
-                if (row < week.length && week[row]) {
-                    const day = week[row];
-                    cell.classList.add('cal-' + day.status);
-                    if (day.status === 'completed') completedCount++;
-                    if (day.isToday) cell.classList.add('cal-today');
-
-                    const statusText = day.status === 'completed' ? '✓ Completed' : day.status === 'missed' ? '✗ Missed' : day.status === 'rest' ? 'Rest Day' : '';
-                    cell.title = `${day.date}: ${statusText}`;
+            let status = 'none';
+            if (!isBeforeCreation && !isFuture && isScheduled) {
+                if (isCompleted) {
+                    status = 'completed';
+                    monthCompletedCount++;
+                    monthScheduledCount++;
                 } else {
-                    cell.classList.add('cal-none');
-                    cell.style.opacity = '0';
+                    status = 'missed';
+                    monthScheduledCount++;
                 }
-
-                col.appendChild(cell);
+            } else if (!isBeforeCreation && !isFuture && !isScheduled) {
+                status = 'rest';
             }
-            grid.appendChild(col);
-        });
 
-        // Update badge text
-        document.getElementById('total-contributions-text').textContent = `${completedCount} completed log${completedCount !== 1 ? 's' : ''} in past 6 months`;
+            const cell = document.createElement('div');
+            let cellStyle = 'bg-surface-container-low text-on-surface-variant/40';
+
+            if (status === 'completed') {
+                cellStyle = 'bg-primary-container text-on-primary font-bold shadow-sm';
+            } else if (status === 'missed') {
+                cellStyle = 'bg-error-container/70 text-error font-medium border border-error/20';
+            } else if (status === 'rest') {
+                cellStyle = 'bg-surface-container/60 text-on-surface-variant/60';
+            } else if (isFuture) {
+                cellStyle = 'bg-surface-container-lowest text-on-surface-variant/30 border border-surface-container';
+            }
+
+            if (isToday) {
+                cellStyle += ' ring-2 ring-primary ring-offset-2';
+            }
+
+            cell.className = `aspect-square rounded-xl flex flex-col items-center justify-center p-1.5 cursor-pointer transition-all duration-150 hover:scale-105 active:scale-95 ${cellStyle}`;
+            cell.innerHTML = `<span class="text-sm font-semibold">${dayNum}</span>`;
+
+            // Tap event to inspect date
+            cell.addEventListener('click', function() {
+                const formattedText = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                document.getElementById('inspector-date-text').textContent = formattedText;
+                
+                const badge = document.getElementById('inspector-status-badge');
+                if (status === 'completed') {
+                    badge.textContent = '✓ Completed';
+                    badge.className = 'font-label-sm text-label-sm px-3 py-1 rounded-full bg-primary-container text-on-primary font-semibold geist';
+                } else if (status === 'missed') {
+                    badge.textContent = '✗ Missed';
+                    badge.className = 'font-label-sm text-label-sm px-3 py-1 rounded-full bg-error-container text-error font-semibold geist';
+                } else if (status === 'rest') {
+                    badge.textContent = 'Rest Day';
+                    badge.className = 'font-label-sm text-label-sm px-3 py-1 rounded-full bg-surface-container text-on-surface-variant geist';
+                } else if (isFuture) {
+                    badge.textContent = 'Upcoming';
+                    badge.className = 'font-label-sm text-label-sm px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant/60 geist';
+                } else {
+                    badge.textContent = 'Not Active';
+                    badge.className = 'font-label-sm text-label-sm px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant/50 geist';
+                }
+            });
+
+            grid.appendChild(cell);
+        }
+
+        // Subtitle text
+        document.getElementById('month-stat-subtitle').textContent = `${monthCompletedCount} of ${monthScheduledCount} scheduled days completed (${monthScheduledCount > 0 ? Math.round((monthCompletedCount/monthScheduledCount)*100) : 0}%)`;
     }
+
+    // Month Navigation Controls
+    document.getElementById('prev-month-btn').addEventListener('click', function() {
+        currentMonthOffset--;
+        renderCalendar();
+    });
+    document.getElementById('next-month-btn').addEventListener('click', function() {
+        currentMonthOffset++;
+        renderCalendar();
+    });
+    document.getElementById('today-month-btn').addEventListener('click', function() {
+        currentMonthOffset = 0;
+        renderCalendar();
+    });
+
     renderCalendar();
 
     // ─── Monthly Activity Bars ──────────────────
