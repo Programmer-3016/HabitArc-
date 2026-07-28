@@ -402,8 +402,12 @@
     // Step 5: Theme & Grid Personalization
     document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('border-primary', 'ring-2'));
-            this.classList.add('border-primary', 'ring-2');
+            document.querySelectorAll('.theme-btn').forEach(b => {
+                b.classList.remove('ring-4', 'ring-primary-fixed', 'border-primary', 'border-2');
+                b.classList.add('border-surface-container');
+            });
+            this.classList.remove('border-surface-container');
+            this.classList.add('ring-4', 'ring-primary-fixed', 'border-primary', 'border-2');
             selectedTheme = this.dataset.theme;
             HabitArc.setTheme(selectedTheme);
             updatePreview();
@@ -433,9 +437,20 @@
     });
 
     function updatePreview() {
-        document.getElementById('preview-text').textContent = `${selectedTheme.toUpperCase()} Theme • ${selectedGridShape} Grid • ${selectedDuration}-Day Horizon`;
+        const themeNames = {
+            'purple': 'PURPLE NIGHT', 'dark': 'DARK', 'light': 'LIGHT',
+            'forest': 'FOREST', 'ocean': 'OCEAN', 'sunset': 'SUNSET'
+        };
+        const colors = {
+            'purple': '#8b5cf6', 'dark': '#34d399', 'light': '#012d1d',
+            'forest': '#10b981', 'ocean': '#3b82f6', 'sunset': '#f43f5e'
+        };
+
+        const tName = themeNames[selectedTheme] || selectedTheme.toUpperCase();
+        document.getElementById('preview-text').textContent = `${tName} Theme • ${selectedGridShape} Grid • ${selectedDuration}-Day Horizon`;
         const box = document.getElementById('preview-box');
-        box.className = `w-8 h-8 ${selectedGridShape === 'circle' ? 'rounded-full' : 'rounded-lg'} bg-primary-container`;
+        box.style.backgroundColor = colors[selectedTheme] || '#012d1d';
+        box.className = `w-8 h-8 ${selectedGridShape === 'circle' ? 'rounded-full' : 'rounded-lg'} transition-all shadow-xs`;
     }
 
     // Step 6: Notifications

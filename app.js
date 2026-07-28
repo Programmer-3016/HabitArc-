@@ -659,25 +659,47 @@ const HabitArc = (() => {
 
     // ─── Theme ──────────────────────────────────────
     function getTheme() {
-        return getSettings().theme;
+        return getSettings().theme || 'light';
     }
 
     function setTheme(theme) {
         updateSettings({ theme });
-        document.documentElement.classList.toggle('dark', theme === 'dark');
-        document.documentElement.classList.toggle('light', theme === 'light');
+        applyTheme();
     }
 
     function toggleTheme() {
         const current = getTheme();
-        setTheme(current === 'light' ? 'dark' : 'light');
-        return getTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        setTheme(next);
+        return next;
     }
 
     function applyTheme() {
         const theme = getTheme();
-        document.documentElement.classList.toggle('dark', theme === 'dark');
-        document.documentElement.classList.toggle('light', theme === 'light');
+        const html = document.documentElement;
+        html.removeAttribute('style');
+        html.classList.remove('dark', 'light');
+
+        if (['dark', 'purple', 'forest', 'ocean', 'sunset'].includes(theme)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.add('light');
+        }
+
+        const themeMap = {
+            'purple': { bg: '#160d27', text: '#e9d5ff' },
+            'dark':   { bg: '#121415', text: '#e1e3e4' },
+            'light':  { bg: '#f8f9fa', text: '#191c1d' },
+            'forest': { bg: '#071f16', text: '#d1fae5' },
+            'ocean':  { bg: '#0c1a2e', text: '#dbeafe' },
+            'sunset': { bg: '#2a1015', text: '#ffe4e6' }
+        };
+
+        const config = themeMap[theme] || themeMap['light'];
+        html.style.backgroundColor = config.bg;
+        document.body.style.backgroundColor = config.bg;
+        document.body.style.color = config.text;
+        html.setAttribute('data-theme', theme);
     }
 
     // ─── Export ─────────────────────────────────────
