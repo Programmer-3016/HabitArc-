@@ -817,7 +817,17 @@ const HabitArc = (() => {
     };
 })();
 
-// Apply theme on load
+// Apply theme & update header streak on load
 document.addEventListener('DOMContentLoaded', () => {
     HabitArc.applyTheme();
+    
+    try {
+        const streak = HabitArc.getCurrentStreak() || 0;
+        const mobileEl = document.getElementById('header-streak-count');
+        const webEl = document.getElementById('header-streak-count-web');
+        if (mobileEl) mobileEl.textContent = `${streak}d`;
+        if (webEl) webEl.textContent = `${streak} Day Streak`;
+    } catch (e) {
+        console.warn('Header streak calculation deferred:', e);
+    }
 });

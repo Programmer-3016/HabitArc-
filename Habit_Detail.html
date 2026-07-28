@@ -88,14 +88,17 @@
 <body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
 
 <!-- Top Bar -->
-<header class="w-full sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
-    <div class="flex items-center justify-between px-container-padding py-4 max-w-3xl mx-auto">
-        <a href="Habits.html" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low active:scale-90 transition-all">
-            <span class="material-symbols-outlined text-on-surface">arrow_back</span>
+<header class="w-full sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-surface-container/70 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+    <div class="flex items-center justify-between px-4 py-3 max-w-3xl mx-auto">
+        <a href="Habits.html" class="w-9 h-9 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface hover:text-primary active:scale-95 transition-all shadow-2xs">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
         </a>
-        <h1 class="font-headline-md text-headline-md text-on-surface" id="habit-name-title">Habit Detail</h1>
-        <button id="delete-btn" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-error-container active:scale-90 transition-all">
-            <span class="material-symbols-outlined text-error">delete</span>
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-primary-container text-on-primary font-bold flex items-center justify-center text-xs shadow-xs">H</div>
+            <h1 class="font-headline-md text-base text-on-surface font-bold" id="habit-name-title">Habit Detail</h1>
+        </div>
+        <button id="delete-btn" class="w-9 h-9 rounded-full bg-error-container/20 border border-error/20 flex items-center justify-center text-error hover:bg-error-container active:scale-95 transition-all shadow-2xs" title="Delete Habit">
+            <span class="material-symbols-outlined text-lg">delete</span>
         </button>
     </div>
 </header>

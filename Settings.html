@@ -186,17 +186,46 @@
     </style>
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen pb-24 md:pb-0">
-<!-- TopAppBar -->
-<header class="w-full sticky top-0 z-50 bg-background dark:bg-background">
-<div class="flex justify-between items-center px-container-padding py-4 w-full max-w-7xl mx-auto">
-<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center">
-<img class="w-full h-full object-cover" data-alt="A close up, professional portrait of a calm individual in a brightly lit, modern environment. The lighting is soft and natural, emphasizing a minimal and clean aesthetic. The color palette features neutral tones with a hint of warm, organic hues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0AVHHC5PpC9rgDxAGioLOq0uNVZ0dOhcilPy0jMJ-3sQzK29itLSWalF-BTaJT_p3f6cixXkB2HfaLd-5wjYTQSQiHRsamJ3za-PABfFBvz0Kdb8g0uDY3-DAYTSdhe_NV69af4ii4T4L1fI3w5YqqzJwLNd0houikkdsoPOXA81yfVlOXffb-2NMjO2MBcgElNu3kjqNFHluhLespuqYsxGtYKvugmdzS5Un0WC4qgynyoLFtYvh"/>
-</div>
-<h1 class="font-headline-lg text-headline-lg text-primary dark:text-primary-fixed">HabitArc</h1>
-<button class="hover:opacity-80 transition-opacity active:scale-95 duration-200 text-primary dark:text-primary-fixed w-10 h-10 flex items-center justify-center">
-<span class="material-symbols-outlined">settings</span>
-</button>
-</div>
+<!-- Top App Bar (Mobile) -->
+<header class="w-full sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-surface-container/70 flex justify-between items-center px-4 py-3 max-w-7xl mx-auto md:hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+    <a href="Dashboard.html" class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-primary-container text-on-primary font-bold flex items-center justify-center text-sm shadow-xs">H</div>
+        <span class="font-headline-md text-lg text-primary font-bold tracking-tight">HabitArc</span>
+    </a>
+    
+    <div class="flex items-center gap-2">
+        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1 font-semibold text-xs geist shadow-2xs">
+            <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+            <span id="header-streak-count">5d</span>
+        </div>
+
+        <a class="w-8 h-8 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
+            <span class="material-symbols-outlined text-lg">settings</span>
+        </a>
+    </div>
+</header>
+
+<!-- Web Navigation (Hidden on Mobile) -->
+<header class="hidden md:flex w-full sticky top-0 z-50 bg-background/85 backdrop-blur-xl justify-between items-center px-container-padding py-3.5 max-w-7xl mx-auto border-b border-surface-container/70 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+    <a href="Dashboard.html" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-primary-container text-on-primary font-bold flex items-center justify-center text-base shadow-xs">H</div>
+        <span class="font-headline-lg text-xl text-primary font-bold tracking-tight">HabitArc</span>
+    </a>
+    <nav class="flex gap-8">
+        <a class="text-on-surface-variant font-headline-md text-headline-md hover:opacity-80 transition-opacity active:scale-95 duration-200" href="Dashboard.html">Dashboard</a>
+        <a class="text-on-surface-variant font-headline-md text-headline-md hover:opacity-80 transition-opacity active:scale-95 duration-200" href="Habits.html">Habits</a>
+        <a class="text-on-surface-variant font-headline-md text-headline-md hover:opacity-80 transition-opacity active:scale-95 duration-200" href="Insights.html">Insights</a>
+    </nav>
+    <div class="flex items-center gap-3">
+        <div class="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-semibold text-xs geist shadow-2xs">
+            <span class="material-symbols-outlined text-base fill text-amber-500">local_fire_department</span>
+            <span id="header-streak-count-web">5 Day Streak</span>
+        </div>
+
+        <a class="w-9 h-9 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
+            <span class="material-symbols-outlined text-lg">settings</span>
+        </a>
+    </div>
 </header>
 <!-- Main Content -->
 <main class="max-w-3xl mx-auto px-container-padding py-stack-gap md:py-section-margin pb-32 md:pb-8">
