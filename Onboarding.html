@@ -335,43 +335,40 @@
             <!-- Theme Swatches -->
             <div>
                 <label class="block font-label-md text-xs sm:text-sm text-on-surface-variant mb-2 geist font-bold uppercase tracking-wider">Theme Palette</label>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="theme-grid">
-                    <button class="theme-btn btn-press p-3 rounded-2xl border-2 font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-2xs" style="background:#181028; color:#a78bfa; border-color:#2d1b4e;" data-theme="purple">
-                        <span class="w-4 h-4 rounded-full bg-[#8b5cf6] shrink-0 border border-white/20"></span>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="theme-grid">
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2" style="background:#181028; color:#a78bfa; border-color:#2d1b4e;" data-theme="purple">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#8b5cf6] shrink-0"></span>
                         <span>Purple Night</span>
                     </button>
-                    <button class="theme-btn btn-press p-3 rounded-2xl border-2 font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-2xs" style="background:#15181e; color:#94a3b8; border-color:#232833;" data-theme="dark">
-                        <span class="w-4 h-4 rounded-full bg-[#34d399] shrink-0 border border-white/20"></span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2" style="background:#15181e; color:#94a3b8; border-color:#232833;" data-theme="dark">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#34d399] shrink-0"></span>
                         <span>Obsidian Dark</span>
                     </button>
-                    <button class="theme-btn btn-press p-3 rounded-2xl border-2 ring-4 ring-primary-fixed border-primary font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-2xs" style="background:#ffffff; color:#012d1d; border-color:#e2e8f0;" data-theme="light">
-                        <span class="w-4 h-4 rounded-full bg-[#012d1d] shrink-0 border border-black/20"></span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border-2 border-primary font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2 selected-theme" style="background:#ffffff; color:#012d1d;" data-theme="light">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#012d1d] shrink-0"></span>
                         <span>Crisp Light</span>
                     </button>
-                    <button class="theme-btn btn-press p-3 rounded-2xl border-2 font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-2xs" style="background:#0b2419; color:#6ee7b7; border-color:#16402d;" data-theme="forest">
-                        <span class="w-4 h-4 rounded-full bg-[#10b981] shrink-0 border border-white/20"></span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2" style="background:#0b2419; color:#6ee7b7; border-color:#16402d;" data-theme="forest">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#10b981] shrink-0"></span>
                         <span>Deep Forest</span>
                     </button>
-                    <button class="theme-btn btn-press p-3 rounded-2xl border-2 font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-2xs" style="background:#0f1d32; color:#7dd3fc; border-color:#1d3356;" data-theme="ocean">
-                        <span class="w-4 h-4 rounded-full bg-[#3b82f6] shrink-0 border border-white/20"></span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2" style="background:#0f1d32; color:#7dd3fc; border-color:#1d3356;" data-theme="ocean">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#3b82f6] shrink-0"></span>
                         <span>Abyssal Ocean</span>
                     </button>
-                    <button class="theme-btn btn-press p-3 rounded-2xl border-2 font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-2xs" style="background:#251017; color:#fda4af; border-color:#421d28;" data-theme="sunset">
-                        <span class="w-4 h-4 rounded-full bg-[#f43f5e] shrink-0 border border-white/20"></span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-xs sm:text-sm font-bold flex items-center gap-2" style="background:#251017; color:#fda4af; border-color:#421d28;" data-theme="sunset">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#f43f5e] shrink-0"></span>
                         <span>Midnight Sunset</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Live Preview Card -->
-            <div class="bg-surface-container-lowest border-2 border-surface-container rounded-2xl p-4 flex items-center justify-between shadow-2xs">
-                <div class="space-y-1">
-                    <span class="font-label-sm text-xs uppercase tracking-wider geist text-primary font-bold">Live Preview</span>
-                    <h4 id="preview-text" class="font-headline-md text-on-surface text-sm sm:text-base font-bold">LIGHT Theme • Square Grid • 30-Day Horizon</h4>
+            <!-- Live Preview -->
+            <div class="flex items-center gap-2.5 px-1">
+                <div id="preview-box" class="w-6 h-6 rounded-md bg-primary-container transition-all flex items-center justify-center text-on-primary shrink-0">
+                    <span class="material-symbols-outlined text-xs">check</span>
                 </div>
-                <div id="preview-box" class="w-9 h-9 rounded-xl bg-primary-container transition-all shadow-xs flex items-center justify-center text-on-primary shrink-0">
-                    <span class="material-symbols-outlined text-base">check</span>
-                </div>
+                <span id="preview-text" class="font-label-sm text-on-surface-variant geist text-xs">LIGHT Theme • Square Grid • 30-Day Horizon</span>
             </div>
             
             <!-- Grid Shape & Horizon Duration -->
@@ -574,11 +571,13 @@
     document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.theme-btn').forEach(b => {
-                b.classList.remove('ring-4', 'ring-primary-fixed', 'border-primary', 'border-2');
-                b.classList.add('border-surface-container');
+                b.classList.remove('border-primary', 'border-2', 'selected-theme');
+                b.classList.add('border');
+                b.style.borderColor = b.dataset.theme === 'purple' ? '#2d1b4e' : b.dataset.theme === 'dark' ? '#232833' : b.dataset.theme === 'light' ? '#e2e8f0' : b.dataset.theme === 'forest' ? '#16402d' : b.dataset.theme === 'ocean' ? '#1d3356' : '#421d28';
             });
-            this.classList.remove('border-surface-container');
-            this.classList.add('ring-4', 'ring-primary-fixed', 'border-primary', 'border-2');
+            this.classList.remove('border');
+            this.classList.add('border-2', 'border-primary', 'selected-theme');
+            this.style.borderColor = '';
             selectedTheme = this.dataset.theme;
             updatePreview();
         });
@@ -620,7 +619,7 @@
         document.getElementById('preview-text').textContent = `${tName} Theme • ${selectedGridShape} Grid • ${selectedDuration}-Day Horizon`;
         const box = document.getElementById('preview-box');
         box.style.backgroundColor = colors[selectedTheme] || '#012d1d';
-        box.className = `w-7 h-7 ${selectedGridShape === 'circle' ? 'rounded-full' : 'rounded-lg'} transition-all shadow-xs flex items-center justify-center text-on-primary`;
+        box.className = `w-6 h-6 ${selectedGridShape === 'circle' ? 'rounded-full' : 'rounded-md'} transition-all flex items-center justify-center text-on-primary shrink-0`;
     }
 
     // Step 6: Notifications
