@@ -80,6 +80,19 @@
         opacity: 1;
     }
 
+    @keyframes calmCheckPop {
+        0% { transform: scale(0.6); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-check-1 { animation: calmCheckPop 0.4s ease-out 0.1s forwards; opacity: 0; }
+    .animate-check-2 { animation: calmCheckPop 0.4s ease-out 0.25s forwards; opacity: 0; }
+    .animate-check-3 { animation: calmCheckPop 0.4s ease-out 0.4s forwards; opacity: 0; }
+    @keyframes pulseSubtle {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.88; }
+    }
+    .animate-pulse-subtle { animation: pulseSubtle 3s infinite ease-in-out; }
+
     /* Logo Hero — Slow mesmerizing rotation */
     @keyframes logoSpin {
         0% { transform: rotate(0deg); }
@@ -290,7 +303,7 @@
             <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="3">
                 <div>
                     <span class="font-headline-md text-on-surface text-base block font-bold">Beginner (3 Habits)</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Maximum focus, low cognitive strain</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Perfect for getting started.</span>
                 </div>
                 <span class="material-symbols-outlined text-primary text-3xl shrink-0">filter_3</span>
             </div>
@@ -301,7 +314,7 @@
                         <span class="font-headline-md text-on-surface text-base font-bold">Intermediate (5 Habits)</span>
                         <span class="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary text-on-primary geist">Recommended</span>
                     </div>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Balanced personal growth horizon</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Great balance for most people.</span>
                 </div>
                 <span class="material-symbols-outlined text-secondary text-3xl shrink-0">filter_5</span>
             </div>
@@ -309,7 +322,7 @@
             <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="8">
                 <div>
                     <span class="font-headline-md text-on-surface text-base block font-bold">Advanced (8 Habits)</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">High discipline capacity</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Built for experienced habit builders.</span>
                 </div>
                 <span class="material-symbols-outlined text-tertiary text-3xl shrink-0">filter_8</span>
             </div>
@@ -317,7 +330,7 @@
             <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="later">
                 <div>
                     <span class="font-headline-md text-on-surface text-base block font-bold">I'll decide later</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Default to flexible limits</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">You can always change this later.</span>
                 </div>
                 <span class="material-symbols-outlined text-outline text-3xl shrink-0">schedule</span>
             </div>
@@ -331,7 +344,7 @@
             <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Customize your theme, grid style, and horizon duration.</p>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3.5">
             <!-- Theme Swatches -->
             <div>
                 <label class="block font-label-md text-xs sm:text-sm text-on-surface-variant mb-2 geist font-bold uppercase tracking-wider">Theme Palette</label>
@@ -363,12 +376,62 @@
                 </div>
             </div>
 
-            <!-- Live Preview -->
-            <div class="flex items-center gap-2.5 px-1">
-                <div id="preview-box" class="w-6 h-6 rounded-md bg-primary-container transition-all flex items-center justify-center text-on-primary shrink-0">
-                    <span class="material-symbols-outlined text-xs">check</span>
+            <!-- Miniature Dashboard Visual Preview (Visual Focus of Screen) -->
+            <div>
+                <label class="block font-label-md text-xs sm:text-sm text-on-surface-variant mb-1.5 geist font-bold uppercase tracking-wider">Live Preview</label>
+                <div id="mini-dashboard-preview" class="rounded-2xl p-3.5 transition-all duration-300 shadow-md border space-y-2.5" style="background:#ffffff; color:#012d1d; border-color:#e2e8f0;">
+                    <!-- Mini Header -->
+                    <div class="flex items-center justify-between border-b pb-2" id="mini-dash-header" style="border-color: rgba(1, 45, 29, 0.12);">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[10px] font-bold">AT</div>
+                            <div>
+                                <span class="text-[9px] uppercase font-bold tracking-wider opacity-60 block geist">DASHBOARD PREVIEW</span>
+                                <span class="text-xs font-bold font-headline-md block">Good morning, Alex</span>
+                            </div>
+                        </div>
+                        <span id="mini-horizon-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary text-on-primary geist">30-Day Horizon</span>
+                    </div>
+
+                    <!-- Mini Today's Progress Bar -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] font-semibold opacity-80 geist">
+                            <span>Today's Focus</span>
+                            <span>2 / 3 Completed</span>
+                        </div>
+                        <div class="w-full h-1.5 rounded-full bg-current/10 overflow-hidden">
+                            <div class="h-full bg-primary rounded-full transition-all duration-300" style="width: 66%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mini Habit Cards -->
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px] geist">
+                        <div class="p-2 rounded-xl bg-current/5 flex items-center justify-between border" id="mini-card-1" style="border-color: rgba(1, 45, 29, 0.1);">
+                            <div class="flex items-center gap-1.5 truncate">
+                                <span class="material-symbols-outlined text-xs text-primary fill">stars</span>
+                                <span class="font-bold truncate">Daily Meditation</span>
+                            </div>
+                            <span class="w-3.5 h-3.5 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 text-[9px] font-bold">✓</span>
+                        </div>
+                        <div class="p-2 rounded-xl bg-current/5 flex items-center justify-between border" id="mini-card-2" style="border-color: rgba(1, 45, 29, 0.1);">
+                            <div class="flex items-center gap-1.5 truncate">
+                                <span class="material-symbols-outlined text-xs text-primary">book</span>
+                                <span class="font-bold truncate">Read 20 Pages</span>
+                            </div>
+                            <span class="w-3.5 h-3.5 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 text-[9px] font-bold">✓</span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Contribution Grid -->
+                    <div class="pt-0.5">
+                        <div class="flex justify-between text-[10px] font-semibold opacity-70 mb-1 geist">
+                            <span>Consistency Arc</span>
+                            <span id="mini-grid-shape-tag" class="capitalize">Square Grid</span>
+                        </div>
+                        <div id="mini-grid-cells" class="grid grid-cols-12 gap-1">
+                            <!-- Cells generated dynamically -->
+                        </div>
+                    </div>
                 </div>
-                <span id="preview-text" class="font-label-sm text-on-surface-variant geist text-xs">LIGHT Theme • Square Grid • 30-Day Horizon</span>
             </div>
             
             <!-- Grid Shape & Horizon Duration -->
@@ -411,14 +474,45 @@
         </div>
     </div>
 
-    <!-- STEP 7: Create Account -->
-    <div id="step-7" class="step-card animate-in space-y-4 text-center">
+    <!-- STEP 7: North Star Habit -->
+    <div id="step-7" class="step-card animate-in space-y-4">
+        <div>
+            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold leading-tight">
+                If you could improve only ONE habit this year...<br/>
+                <span class="text-primary font-extrabold">What would it be?</span>
+            </h2>
+            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1 leading-relaxed">
+                This will become your personal north star. We'll remind you why you started whenever you lose consistency.
+            </p>
+        </div>
+
+        <div class="space-y-3 pt-1">
+            <input id="north-star-input" type="text" value="Daily Meditation & Mindful Reflection" class="w-full p-3.5 sm:p-4 rounded-xl border-2 border-primary bg-surface-container-lowest font-headline-md text-base sm:text-lg text-on-surface focus:ring-4 focus:ring-primary/15 focus:outline-none shadow-xs transition-all font-semibold" placeholder="e.g. Daily 20-minute Reading"/>
+            
+            <!-- Rotating Ideas Ticker -->
+            <div class="flex items-center gap-2 px-1 text-xs text-on-surface-variant geist">
+                <span class="font-bold text-outline uppercase tracking-wider text-[10px]">IDEAS:</span>
+                <div class="relative overflow-hidden h-5 flex-1">
+                    <span id="rotating-example" class="font-semibold text-primary absolute left-0 top-0 transition-all duration-300 cursor-pointer hover:underline">Read 20 Pages</span>
+                </div>
+            </div>
+
+            <div class="bg-primary-fixed/20 border border-primary-fixed/60 rounded-xl p-3.5 flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl fill">stars</span>
+                <span class="font-body-md text-xs sm:text-sm text-on-surface font-medium">Your North Star Habit anchors your daily routine.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 8: Create Account -->
+    <div id="step-8" class="step-card animate-in space-y-4 text-center">
         <img src="logo.png" alt="HabitArc Logo" class="w-24 h-24 sm:w-28 sm:h-28 object-contain logo-hero mx-auto block filter drop-shadow-xl mb-1"/>
         <div>
             <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold">Create Your Account</h2>
             <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Save your growth profile and sync seamlessly across devices.</p>
         </div>
 
+        <div class="space-y-2.5">
             <button id="google-signin-btn" class="w-full btn-press p-3.5 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 transition-all flex items-center justify-center gap-2.5 font-headline-md text-on-surface shadow-xs">
                 <svg class="w-5 h-5 shrink-0" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
                 <span class="font-semibold text-sm sm:text-base">Continue with Google</span>
@@ -443,33 +537,52 @@
                 </button>
             </div>
         </div>
+    </div>
 
-    <!-- STEP 8: North Star Habit -->
-    <div id="step-8" class="step-card animate-in space-y-4">
-        <div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold leading-tight">
-                If you could improve only ONE habit this year...<br/>
-                <span class="text-primary font-extrabold">What would it be?</span>
-            </h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1 leading-relaxed">
-                This will become your personal north star. We'll remind you why you started whenever you lose consistency.
+    <!-- STEP 9: Success Screen (Calm & Premium) -->
+    <div id="step-9" class="step-card animate-in space-y-5 text-center py-2">
+        <!-- Subtle Animated Success Icon -->
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/15 text-primary mx-auto flex items-center justify-center border border-primary/30 shadow-xs animate-pulse-subtle">
+            <span class="material-symbols-outlined text-3xl sm:text-4xl fill">check_circle</span>
+        </div>
+
+        <div class="space-y-1">
+            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-extrabold tracking-tight">You're Ready.</h2>
+            <p class="font-body-md text-sm sm:text-base text-on-surface-variant font-medium leading-relaxed">
+                Welcome to HabitArc.<br/>
+                <span class="text-on-surface font-semibold">Your journey starts today.</span>
             </p>
         </div>
 
-        <div class="space-y-3 pt-1">
-            <input id="north-star-input" type="text" value="Daily Meditation & Mindful Reflection" class="w-full p-3.5 sm:p-4 rounded-xl border-2 border-primary bg-surface-container-lowest font-headline-md text-base sm:text-lg text-on-surface focus:ring-4 focus:ring-primary/15 focus:outline-none shadow-xs transition-all font-semibold" placeholder="e.g. Daily 20-minute Reading"/>
-            
-            <div class="bg-primary-fixed/20 border border-primary-fixed/60 rounded-xl p-3.5 flex items-center gap-3">
-                <span class="material-symbols-outlined text-primary text-2xl fill">stars</span>
-                <span class="font-body-md text-xs sm:text-sm text-on-surface font-medium">Your North Star Habit anchors your daily routine.</span>
+        <!-- Clean Success Checklist with Staggered Fade-in -->
+        <div class="max-w-xs mx-auto space-y-2.5 pt-1 text-left text-sm font-semibold geist">
+            <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs animate-check-1">
+                <div class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                <span class="text-on-surface">Profile Created</span>
             </div>
+            <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs animate-check-2">
+                <div class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                <span class="text-on-surface">Preferences Saved</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs animate-check-3">
+                <div class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                <span class="text-on-surface">First Habit Created</span>
+            </div>
+        </div>
+
+        <!-- Primary CTA: Enter HabitArc → -->
+        <div class="pt-3">
+            <button id="enter-app-btn" class="w-full max-w-xs mx-auto btn-press bg-primary text-on-primary font-headline-md text-sm sm:text-base font-bold py-3.5 rounded-2xl hover:opacity-90 transition-all shadow-md flex items-center justify-center gap-2">
+                <span>Enter HabitArc</span>
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </button>
         </div>
     </div>
 
 </main>
 
 <!-- Floating Glassmorphism Bottom Navigation Bar (True Native Mobile App Style) -->
-<footer class="fixed bottom-3 left-3 right-3 z-50 max-w-xl mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between">
+<footer id="bottom-nav" class="fixed bottom-3 left-3 right-3 z-50 max-w-xl mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between">
     <button id="prev-step-btn" class="btn-press px-4 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs sm:text-sm font-bold hover:bg-surface-container transition-all disabled:opacity-30" disabled>
         Back
     </button>
@@ -483,7 +596,7 @@
 <script>
 (function() {
     let currentStep = 1;
-    const totalSteps = 8;
+    const totalSteps = 9;
 
     let selectedIntents = [];
     let selectedChallenge = 'consistency';
@@ -510,17 +623,28 @@
 
         document.getElementById('prev-step-btn').disabled = (currentStep === 1);
 
+        const bottomNav = document.getElementById('bottom-nav');
+        if (currentStep === 9) {
+            if (bottomNav) bottomNav.style.display = 'none';
+        } else {
+            if (bottomNav) bottomNav.style.display = 'flex';
+        }
+
         const nextBtn = document.getElementById('next-step-btn');
-        if (currentStep === totalSteps) {
-            nextBtn.querySelector('span').textContent = 'Start My Journey';
+        if (currentStep === 8) {
+            nextBtn.querySelector('span').textContent = 'Complete Profile';
         } else {
             nextBtn.querySelector('span').textContent = 'Continue';
+        }
+
+        if (currentStep === 5) {
+            updatePreview();
         }
     }
 
     function autoAdvance() {
         setTimeout(() => {
-            if (currentStep < totalSteps) {
+            if (currentStep < totalSteps - 1) {
                 currentStep++;
                 updateStep();
             }
@@ -567,7 +691,7 @@
         });
     });
 
-    // Step 5: Personalization Controls
+    // Step 5: Personalization Controls & Live Miniature Dashboard Preview
     document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.theme-btn').forEach(b => {
@@ -606,20 +730,52 @@
     });
 
     function updatePreview() {
-        const themeNames = {
-            'purple': 'PURPLE NIGHT', 'dark': 'DARK', 'light': 'LIGHT',
-            'forest': 'FOREST', 'ocean': 'OCEAN', 'sunset': 'SUNSET'
-        };
-        const colors = {
-            'purple': '#8b5cf6', 'dark': '#34d399', 'light': '#012d1d',
-            'forest': '#10b981', 'ocean': '#3b82f6', 'sunset': '#f43f5e'
+        const themes = {
+            'purple': { bg: '#181028', text: '#f3e8ff', cardBg: 'rgba(167, 139, 250, 0.1)', cardBorder: 'rgba(167, 139, 250, 0.2)', accent: '#8b5cf6' },
+            'dark':   { bg: '#15181e', text: '#f1f5f9', cardBg: 'rgba(148, 163, 184, 0.1)', cardBorder: 'rgba(148, 163, 184, 0.2)', accent: '#34d399' },
+            'light':  { bg: '#ffffff', text: '#012d1d', cardBg: 'rgba(1, 45, 29, 0.04)', cardBorder: 'rgba(1, 45, 29, 0.12)', accent: '#10b981' },
+            'forest': { bg: '#0b2419', text: '#ecfdf5', cardBg: 'rgba(110, 231, 183, 0.1)', cardBorder: 'rgba(110, 231, 183, 0.2)', accent: '#10b981' },
+            'ocean':  { bg: '#0f1d32', text: '#f0f9ff', cardBg: 'rgba(125, 211, 252, 0.1)', cardBorder: 'rgba(125, 211, 252, 0.2)', accent: '#3b82f6' },
+            'sunset': { bg: '#251017', text: '#fff1f2', cardBg: 'rgba(253, 164, 175, 0.1)', cardBorder: 'rgba(253, 164, 175, 0.2)', accent: '#f43f5e' }
         };
 
-        const tName = themeNames[selectedTheme] || selectedTheme.toUpperCase();
-        document.getElementById('preview-text').textContent = `${tName} Theme • ${selectedGridShape} Grid • ${selectedDuration}-Day Horizon`;
-        const box = document.getElementById('preview-box');
-        box.style.backgroundColor = colors[selectedTheme] || '#012d1d';
-        box.className = `w-6 h-6 ${selectedGridShape === 'circle' ? 'rounded-full' : 'rounded-md'} transition-all flex items-center justify-center text-on-primary shrink-0`;
+        const t = themes[selectedTheme] || themes['light'];
+        const miniDash = document.getElementById('mini-dashboard-preview');
+        if (miniDash) {
+            miniDash.style.backgroundColor = t.bg;
+            miniDash.style.color = t.text;
+            miniDash.style.borderColor = t.cardBorder;
+        }
+        const miniHeader = document.getElementById('mini-dash-header');
+        if (miniHeader) miniHeader.style.borderColor = t.cardBorder;
+
+        const miniCard1 = document.getElementById('mini-card-1');
+        const miniCard2 = document.getElementById('mini-card-2');
+        if (miniCard1) { miniCard1.style.backgroundColor = t.cardBg; miniCard1.style.borderColor = t.cardBorder; }
+        if (miniCard2) { miniCard2.style.backgroundColor = t.cardBg; miniCard2.style.borderColor = t.cardBorder; }
+
+        const badge = document.getElementById('mini-horizon-badge');
+        if (badge) {
+            badge.textContent = `${selectedDuration}-Day Horizon`;
+            badge.style.backgroundColor = t.accent;
+        }
+
+        const shapeTag = document.getElementById('mini-grid-shape-tag');
+        if (shapeTag) shapeTag.textContent = `${selectedGridShape} Grid`;
+
+        const gridCells = document.getElementById('mini-grid-cells');
+        if (gridCells) {
+            gridCells.innerHTML = '';
+            const isCircle = (selectedGridShape === 'circle');
+            const activePattern = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1];
+            activePattern.forEach(active => {
+                const cell = document.createElement('div');
+                cell.className = `w-full aspect-square ${isCircle ? 'rounded-full' : 'rounded-[2px]'} transition-all duration-300`;
+                cell.style.backgroundColor = active ? t.accent : (t.bg === '#ffffff' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)');
+                if (active) cell.style.opacity = '0.9';
+                gridCells.appendChild(cell);
+            });
+        }
     }
 
     // Step 6: Notifications
@@ -633,67 +789,115 @@
         });
     });
 
-    // Step 7: Create Account (Accordion Panel)
+    // Step 7: North Star Rotating Ideas Ticker
+    const northStarExamples = [
+        "Read 20 Pages",
+        "Workout Every Morning",
+        "Meditate Daily",
+        "Drink 3L Water",
+        "Wake Up at 6 AM"
+    ];
+    let exampleIdx = 0;
+    const exampleEl = document.getElementById('rotating-example');
+    if (exampleEl) {
+        setInterval(() => {
+            exampleEl.style.opacity = '0';
+            exampleEl.style.transform = 'translateY(-4px)';
+            setTimeout(() => {
+                exampleIdx = (exampleIdx + 1) % northStarExamples.length;
+                exampleEl.textContent = northStarExamples[exampleIdx];
+                exampleEl.style.opacity = '1';
+                exampleEl.style.transform = 'translateY(0)';
+            }, 300);
+        }, 3000);
+
+        exampleEl.addEventListener('click', () => {
+            const input = document.getElementById('north-star-input');
+            if (input) input.value = exampleEl.textContent;
+        });
+    }
+
+    // Step 8: Create Account (Accordion Panel & Sign-in Actions)
     const emailToggle = document.getElementById('email-accordion-toggle');
     const emailPanel = document.getElementById('email-inputs-panel');
     const emailChevron = document.getElementById('email-chevron');
 
-    emailToggle.addEventListener('click', function() {
-        const isOpen = emailPanel.classList.contains('open');
-        if (isOpen) {
-            emailPanel.classList.remove('open');
-            emailChevron.style.transform = 'rotate(0deg)';
-        } else {
-            emailPanel.classList.add('open');
-            emailChevron.style.transform = 'rotate(180deg)';
+    if (emailToggle && emailPanel) {
+        emailToggle.addEventListener('click', function() {
+            const isOpen = emailPanel.classList.contains('open');
+            if (isOpen) {
+                emailPanel.classList.remove('open');
+                emailChevron.style.transform = 'rotate(0deg)';
+            } else {
+                emailPanel.classList.add('open');
+                emailChevron.style.transform = 'rotate(180deg)';
+            }
+        });
+    }
+
+    function saveUserProfile() {
+        const userNameInput = document.getElementById('acc-name-input');
+        const userName = (userNameInput && userNameInput.value.trim()) ? userNameInput.value.trim() : 'Alex Thorne';
+        const northStarInput = document.getElementById('north-star-input');
+        const northStar = (northStarInput && northStarInput.value.trim()) ? northStarInput.value.trim() : 'Daily Meditation & Mindful Reflection';
+
+        HabitArc.updateSettings({
+            userName,
+            userBio: `North Star: ${northStar}`,
+            theme: selectedTheme,
+            goalDuration: parseInt(selectedDuration) || 30,
+            onboardingComplete: true
+        });
+
+        if (northStar) {
+            HabitArc.addHabit({
+                name: northStar,
+                icon: 'stars',
+                category: 'Mindfulness',
+                repeat: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+            });
         }
-    });
+    }
 
     document.getElementById('google-signin-btn').addEventListener('click', function() {
-        if (currentStep < totalSteps) { currentStep++; updateStep(); }
-    });
-    document.getElementById('guest-signin-btn').addEventListener('click', function() {
-        if (currentStep < totalSteps) { currentStep++; updateStep(); }
+        saveUserProfile();
+        currentStep = 9;
+        updateStep();
     });
 
-    // Navigation Controls
+    document.getElementById('guest-signin-btn').addEventListener('click', function() {
+        saveUserProfile();
+        currentStep = 9;
+        updateStep();
+    });
+
+    // Step 9: Enter App Button
+    const enterAppBtn = document.getElementById('enter-app-btn');
+    if (enterAppBtn) {
+        enterAppBtn.addEventListener('click', function() {
+            window.location.href = 'Dashboard.html';
+        });
+    }
+
+    // Bottom Navigation Controls
     document.getElementById('prev-step-btn').addEventListener('click', function() {
         if (currentStep > 1) { currentStep--; updateStep(); }
     });
 
     document.getElementById('next-step-btn').addEventListener('click', function() {
         if (currentStep < totalSteps) {
+            if (currentStep === 8) {
+                saveUserProfile();
+            }
             currentStep++;
             updateStep();
-        } else {
-            // Finish Journey (Step 8)
-            const userName = document.getElementById('acc-name-input').value.trim() || 'Alex Thorne';
-            const northStar = document.getElementById('north-star-input').value.trim() || 'Daily Meditation';
-
-            HabitArc.updateSettings({
-                userName,
-                userBio: `North Star: ${northStar}`,
-                theme: selectedTheme,
-                goalDuration: parseInt(selectedDuration) || 30,
-                onboardingComplete: true
-            });
-
-            if (northStar) {
-                HabitArc.addHabit({
-                    name: northStar,
-                    icon: 'stars',
-                    category: 'Mindfulness',
-                    repeat: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-                });
-            }
-
-            window.location.href = 'Dashboard.html';
         }
     });
 
     document.getElementById('skip-btn').addEventListener('click', function() {
-        HabitArc.updateSettings({ onboardingComplete: true });
-        window.location.href = 'Dashboard.html';
+        saveUserProfile();
+        currentStep = 9;
+        updateStep();
     });
 
     updateStep();
