@@ -547,9 +547,9 @@
     document.querySelectorAll('.challenge-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.challenge-opt').forEach(o => {
-                o.className = 'challenge-opt btn-press p-3 sm:p-3.5 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between';
+                o.className = 'challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
             });
-            this.className = 'challenge-opt btn-press p-3 sm:p-3.5 rounded-xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all flex items-center justify-between';
+            this.className = 'challenge-opt btn-press p-4 rounded-2xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
             selectedChallenge = this.dataset.val;
             autoAdvance();
         });
@@ -559,9 +559,9 @@
     document.querySelectorAll('.cap-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.cap-opt').forEach(o => {
-                o.className = 'cap-opt btn-press p-3 sm:p-3.5 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between';
+                o.className = 'cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
             });
-            this.className = 'cap-opt btn-press p-3 sm:p-3.5 rounded-xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all flex items-center justify-between';
+            this.className = 'cap-opt btn-press p-4 rounded-2xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
             selectedCap = this.dataset.val;
             autoAdvance();
         });
@@ -626,9 +626,9 @@
     document.querySelectorAll('.notif-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.notif-opt').forEach(o => {
-                o.className = 'notif-opt btn-press p-5 rounded-xl border border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-1.5';
+                o.className = 'notif-opt btn-press p-5 rounded-2xl border border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-2 shadow-2xs';
             });
-            this.className = 'notif-opt btn-press p-5 rounded-xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all text-center space-y-1.5';
+            this.className = 'notif-opt btn-press p-5 rounded-2xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all text-center space-y-2 shadow-2xs';
             notificationsEnabled = (this.dataset.val === 'true');
         });
     });
