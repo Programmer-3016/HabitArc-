@@ -56,10 +56,10 @@
 
     /* GitHub Contribution Calendar */
     .cal-cell {
-        width: 14px; height: 14px; border-radius: 3px;
-        transition: all 0.15s ease;
+        width: 13px; height: 13px; border-radius: 3px;
+        transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease;
     }
-    .cal-cell:hover { transform: scale(1.4); z-index: 10; }
+    .cal-cell:hover { transform: scale(1.4); z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .cal-completed { background-color: #1b4332; }
     .cal-missed { background-color: #ffdad6; border: 1px solid #f5b7b4; }
     .cal-rest { background-color: #f3f4f5; }
@@ -159,28 +159,45 @@
     <!-- GitHub Contribution Calendar -->
     <section class="animate-in animate-delay-2">
         <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-headline-md text-headline-md text-on-surface">Activity</h3>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <div>
+                    <h3 class="font-headline-md text-headline-md text-on-surface">Activity</h3>
+                    <p id="total-contributions-text" class="font-label-sm text-label-sm text-on-surface-variant geist mt-0.5">-- logs in past 6 months</p>
+                </div>
                 <div class="flex items-center gap-2">
                     <span class="font-label-sm text-label-sm text-on-surface-variant geist">Less</span>
-                    <div class="flex gap-1">
-                        <div class="cal-cell cal-none"></div>
-                        <div class="cal-cell cal-missed"></div>
-                        <div class="cal-cell" style="background:#a5d0b9;"></div>
-                        <div class="cal-cell cal-completed"></div>
+                    <div class="flex gap-1 items-center">
+                        <div class="cal-cell cal-none" title="No activity"></div>
+                        <div class="cal-cell cal-missed" title="Missed"></div>
+                        <div class="cal-cell cal-rest" title="Rest day"></div>
+                        <div class="cal-cell cal-completed" title="Completed"></div>
                     </div>
                     <span class="font-label-sm text-label-sm text-on-surface-variant geist">More</span>
                 </div>
             </div>
-            <!-- Month Labels -->
-            <div id="month-labels" class="flex mb-1 text-on-surface-variant font-label-sm text-[9px] geist"></div>
-            <!-- Calendar Grid -->
-            <div id="calendar-grid" class="flex gap-[3px] overflow-x-auto pb-2"></div>
-            <!-- Day Labels -->
-            <div class="flex mt-2 gap-1">
-                <span class="font-label-sm text-[9px] text-on-surface-variant geist w-3">M</span>
-                <span class="font-label-sm text-[9px] text-on-surface-variant geist w-3">W</span>
-                <span class="font-label-sm text-[9px] text-on-surface-variant geist w-3">F</span>
+            
+            <!-- Calendar Container with Left Day Labels & Top Month Labels -->
+            <div class="overflow-x-auto pb-2">
+                <div class="min-w-[320px]">
+                    <!-- Month Labels Header -->
+                    <div id="month-labels" class="flex text-on-surface-variant font-label-sm text-[10px] geist mb-1 pl-6"></div>
+                    
+                    <!-- Main Grid Area (Left Day Labels + Week Columns) -->
+                    <div class="flex gap-2">
+                        <!-- Left Day Labels (M, W, F) -->
+                        <div class="flex flex-col justify-between py-[1px] text-on-surface-variant font-label-sm text-[9px] geist shrink-0 w-4 text-right">
+                            <span></span>
+                            <span>M</span>
+                            <span></span>
+                            <span>W</span>
+                            <span></span>
+                            <span>F</span>
+                            <span></span>
+                        </div>
+                        <!-- Calendar Week Columns -->
+                        <div id="calendar-grid" class="flex gap-[3px]"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -311,7 +328,9 @@
     function renderCalendar() {
         const calData = HabitArc.getCalendarData(habitId, 5);
         const grid = document.getElementById('calendar-grid');
+        const monthHeader = document.getElementById('month-labels');
         grid.innerHTML = '';
+        monthHeader.innerHTML = '';
 
         // Group by weeks (columns)
         const weeks = [];
@@ -336,10 +355,29 @@
             weeks.push(currentWeek);
         }
 
-        // Render weeks as columns
-        for (const week of weeks) {
+        // Track total completions for badge subtitle
+        let completedCount = 0;
+        let lastMonthSeen = -1;
+
+        // Render weeks as columns + Month Header Labels
+        weeks.forEach((week, weekIdx) => {
             const col = document.createElement('div');
             col.className = 'flex flex-col gap-[3px]';
+
+            // Check if month changes in this week
+            const validDay = week.find(d => d !== null);
+            if (validDay) {
+                const dayMonth = validDay.month;
+                if (dayMonth !== lastMonthSeen) {
+                    lastMonthSeen = dayMonth;
+                    const monthName = new Date(validDay.date).toLocaleDateString('en-US', { month: 'short' });
+                    const mSpan = document.createElement('span');
+                    mSpan.textContent = monthName;
+                    mSpan.style.width = `${weeks.length > 0 ? (100 / (weeks.length / 5)) : 40}px`;
+                    mSpan.className = 'inline-block shrink-0';
+                    monthHeader.appendChild(mSpan);
+                }
+            }
 
             for (let row = 0; row < 7; row++) {
                 const cell = document.createElement('div');
@@ -348,8 +386,11 @@
                 if (row < week.length && week[row]) {
                     const day = week[row];
                     cell.classList.add('cal-' + day.status);
+                    if (day.status === 'completed') completedCount++;
                     if (day.isToday) cell.classList.add('cal-today');
-                    cell.title = day.date + (day.status === 'completed' ? ' ✓' : day.status === 'missed' ? ' ✗' : '');
+
+                    const statusText = day.status === 'completed' ? '✓ Completed' : day.status === 'missed' ? '✗ Missed' : day.status === 'rest' ? 'Rest Day' : '';
+                    cell.title = `${day.date}: ${statusText}`;
                 } else {
                     cell.classList.add('cal-none');
                     cell.style.opacity = '0';
@@ -358,7 +399,10 @@
                 col.appendChild(cell);
             }
             grid.appendChild(col);
-        }
+        });
+
+        // Update badge text
+        document.getElementById('total-contributions-text').textContent = `${completedCount} completed log${completedCount !== 1 ? 's' : ''} in past 6 months`;
     }
     renderCalendar();
 
