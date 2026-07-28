@@ -44,7 +44,6 @@
     html, body {
         height: 100%;
         height: 100dvh;
-        overflow: hidden;
     }
     body { font-family: 'Hanken Grotesk', sans-serif; }
     .geist { font-family: 'Geist', sans-serif; }
@@ -52,18 +51,18 @@
     .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(6px); }
+        from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    .animate-in { animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-in { animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .step-card { display: none; }
     .step-card.active { display: block; }
 
-    .btn-press { transition: transform 0.12s ease, border-color 0.12s ease, background-color 0.12s ease; }
+    .btn-press { transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease; }
     .btn-press:active { transform: scale(0.98); }
 
     .check-badge {
-        transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         transform: scale(0);
         opacity: 0;
     }
@@ -76,7 +75,7 @@
         max-height: 0;
         opacity: 0;
         overflow: hidden;
-        transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
     .expandable-panel.open {
         max-height: 200px;
@@ -84,10 +83,10 @@
     }
 </style>
 </head>
-<body class="bg-background text-on-background antialiased max-w-xl mx-auto p-4 sm:p-6">
+<body class="bg-background text-on-background antialiased h-screen h-[100dvh] flex flex-col justify-between p-4 sm:p-6 pb-24 overflow-x-hidden relative">
 
 <!-- Header Top Bar -->
-<header class="w-full flex items-center justify-between py-2">
+<header class="w-full max-w-xl mx-auto flex items-center justify-between py-2 shrink-0">
     <div class="flex items-center gap-2">
         <div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center text-on-primary font-bold text-xs shadow-xs">H</div>
         <span class="font-headline-md text-base text-primary font-semibold">HabitArc</span>
@@ -99,12 +98,12 @@
 </header>
 
 <!-- Progress Bar -->
-<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden my-2">
+<div class="w-full max-w-xl mx-auto h-1 bg-surface-container rounded-full overflow-hidden my-1 shrink-0">
     <div id="progress-bar" class="h-full bg-primary-container transition-all duration-300 ease-out rounded-full" style="width: 12.5%;"></div>
 </div>
 
 <!-- Main Stepper Wizard Canvas -->
-<main class="w-full py-6">
+<main class="flex-1 w-full max-w-xl mx-auto flex flex-col justify-center py-4 my-auto pb-24 overflow-y-auto">
 
     <!-- STEP 1: Welcome -->
     <div id="step-1" class="step-card active animate-in space-y-4 text-center sm:text-left">
@@ -402,12 +401,12 @@
 
 </main>
 
-<!-- Bottom Navigation Controls -->
-<footer class="w-full flex items-center justify-between py-4 border-t border-surface-container mt-4">
-    <button id="prev-step-btn" class="btn-press px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-xs hover:bg-surface-container transition-all disabled:opacity-30" disabled>
+<!-- Floating Glassmorphism Bottom Navigation Bar (True Native Mobile App Style) -->
+<footer class="fixed bottom-3 left-3 right-3 z-50 max-w-xl mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between">
+    <button id="prev-step-btn" class="btn-press px-4 py-2 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs hover:bg-surface-container transition-all disabled:opacity-30" disabled>
         Back
     </button>
-    <button id="next-step-btn" class="btn-press bg-primary text-on-primary font-headline-md text-xs sm:text-sm px-6 py-2.5 rounded-full hover:opacity-90 transition-all shadow-[0_4px_12px_rgba(1,45,29,0.25)] flex items-center gap-1.5">
+    <button id="next-step-btn" class="btn-press bg-primary text-on-primary font-headline-md text-xs sm:text-sm px-6 py-2 rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-1.5">
         <span>Continue</span>
         <span class="material-symbols-outlined text-xs">arrow_forward</span>
     </button>
