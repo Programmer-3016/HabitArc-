@@ -364,30 +364,28 @@
 	    </button>
 </div>
 </main>
-<!-- BottomNavBar -->
-<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface dark:bg-surface-container flex justify-around items-end pb-6 pt-2 px-2 border-t border-outline-variant dark:border-outline">
-<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Dashboard.html">
-<span class="material-symbols-outlined mb-1">home</span>
-<span class="font-label-md text-label-md">Dashboard</span>
+<!-- Floating Glassmorphism Bottom Nav Bar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto bg-surface/90 dark:bg-surface-container/90 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.15)] px-3 py-2 flex justify-between items-center">
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Dashboard.html">
+<span class="material-symbols-outlined text-[22px]">home</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-0.5">Dashboard</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Habits.html">
-<span class="material-symbols-outlined mb-1">format_list_bulleted</span>
-<span class="font-label-md text-label-md">Habits</span>
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Habits.html">
+<span class="material-symbols-outlined text-[22px]">format_list_bulleted</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-0.5">Habits</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Add_Habit.html">
-<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center mb-1 shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-outline-variant/20">
-<span class="material-symbols-outlined text-on-primary">add</span>
+<a class="flex items-center justify-center -mt-6" href="Add_Habit.html">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.35)] active:scale-90 hover:scale-105 transition-all">
+<span class="material-symbols-outlined text-[26px]">add</span>
 </div>
-<span class="font-label-md text-label-md sr-only">Add</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150" href="Insights.html">
-<span class="material-symbols-outlined mb-1">insights</span>
-<span class="font-label-md text-label-md">Insights</span>
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Insights.html">
+<span class="material-symbols-outlined text-[22px]">insights</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-0.5">Insights</span>
 </a>
-<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-semibold hover:bg-surface-container-low dark:hover:bg-surface-container-high rounded-full w-16 h-12 active:scale-90 transition-transform duration-150 relative" href="Profile.html">
-<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
-<span class="font-label-md text-label-md">Profile</span>
-<div class="absolute -top-1 w-12 h-1 bg-primary rounded-b-full"></div>
+<a class="flex flex-col items-center justify-center py-1 px-3 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Profile.html">
+<span class="material-symbols-outlined text-[22px]">person</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-0.5">Profile</span>
 </a>
 </nav>
 <script src="app.js"></script>
