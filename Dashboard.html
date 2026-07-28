@@ -151,8 +151,8 @@
 <main class="flex-1 w-full max-w-7xl px-container-padding pb-[100px] md:pb-8 pt-4 space-y-section-margin">
 <!-- Header Section -->
 <section class="flex flex-col space-y-2">
-<h1 class="font-headline-lg text-headline-lg text-on-surface">Good morning, Alex</h1>
-<p class="font-body-md text-body-md text-on-surface-variant">Tuesday, Oct 24</p>
+<h1 id="greeting" class="font-headline-lg text-headline-lg text-on-surface">Good morning, Alex</h1>
+<p id="today-date" class="font-body-md text-body-md text-on-surface-variant">Loading...</p>
 </section>
 <!-- Bento Grid Overview -->
 <section class="grid grid-cols-1 md:grid-cols-3 gap-stack-gap">
@@ -160,15 +160,15 @@
 <div class="col-span-1 md:col-span-2 bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex items-center justify-between">
 <div class="flex flex-col space-y-2 max-w-[200px]">
 <h2 class="font-headline-md text-headline-md text-on-surface">Daily Progress</h2>
-<p class="font-body-md text-body-md text-on-surface-variant">You're almost there! Keep up the great momentum today.</p>
+<p id="progress-msg" class="font-body-md text-body-md text-on-surface-variant">Keep up the great momentum today.</p>
 </div>
 <div class="relative w-32 h-32 flex items-center justify-center">
 <svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
 <path class="text-surface-container stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
-<path class="text-primary-container stroke-current progress-ring-circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="0, 100" stroke-linecap="round" stroke-width="3"></path>
+<path id="progress-arc" class="text-primary-container stroke-current progress-ring-circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="0, 100" stroke-linecap="round" stroke-width="3"></path>
 </svg>
 <div class="absolute inset-0 flex flex-col items-center justify-center">
-<span class="font-headline-md text-headline-md text-on-surface font-bold">75%</span>
+<span id="progress-pct" class="font-headline-md text-headline-md text-on-surface font-bold">0%</span>
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist">Done</span>
 </div>
 </div>
@@ -182,7 +182,7 @@
 </div>
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-1">Current Streak</span>
 <div class="flex items-baseline gap-1">
-<span class="font-headline-lg text-headline-lg text-on-surface font-bold">12</span>
+<span id="current-streak" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
 <span class="font-body-md text-body-md text-on-surface-variant">days</span>
 </div>
 </div>
@@ -193,7 +193,7 @@
 </div>
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-1">Longest</span>
 <div class="flex items-baseline gap-1">
-<span class="font-headline-lg text-headline-lg text-on-surface font-bold">28</span>
+<span id="longest-streak" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
 <span class="font-body-md text-body-md text-on-surface-variant">days</span>
 </div>
 </div>
@@ -202,68 +202,8 @@
 <!-- Today's Habits Section -->
 <section class="flex flex-col space-y-stack-gap">
 <h2 class="font-headline-md text-headline-md text-on-surface">Today's Habits</h2>
-<div class="grid grid-cols-1 gap-stack-gap">
-<!-- Habit Card: Hydrate -->
-<div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors duration-200 cursor-pointer">
-<div class="flex justify-between items-center">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full bg-primary-fixed/20 flex items-center justify-center text-primary-container">
-<span class="material-symbols-outlined fill">water_drop</span>
-</div>
-<div class="flex flex-col">
-<span class="font-headline-md text-headline-md text-on-surface text-base">Hydrate</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant geist">Streak: 12 days</span>
-</div>
-</div>
-<button class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-<span class="material-symbols-outlined text-[20px]">check</span>
-</button>
-</div>
-<!-- 7 Day Tracker -->
-<div class="flex justify-between mt-2 pt-3 border-t border-surface-container">
-<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-[12px] text-on-primary"><span class="material-symbols-outlined text-[14px]">check</span></span><span class="font-label-sm text-[8px] text-on-surface-variant">W</span></div>
-<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-[12px] text-on-primary"><span class="material-symbols-outlined text-[14px]">check</span></span><span class="font-label-sm text-[8px] text-on-surface-variant">T</span></div>
-<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-[12px] text-on-primary"><span class="material-symbols-outlined text-[14px]">check</span></span><span class="font-label-sm text-[8px] text-on-surface-variant">F</span></div>
-<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-[12px] text-on-primary"><span class="material-symbols-outlined text-[14px]">check</span></span><span class="font-label-sm text-[8px] text-on-surface-variant">S</span></div>
-<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant"></span><span class="font-label-sm text-[8px] text-on-surface-variant">S</span></div>
-<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-[12px] text-on-primary"><span class="material-symbols-outlined text-[14px]">check</span></span><span class="font-label-sm text-[8px] text-on-surface-variant">M</span></div>
-<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-surface-container border-2 border-primary-container"></span><span class="font-label-sm text-[8px] text-primary-container font-bold">T</span></div>
-</div>
-</div>
-<!-- Habit Card: Meditation -->
-<div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors duration-200 cursor-pointer opacity-70">
-<div class="flex justify-between items-center">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
-<span class="material-symbols-outlined">self_improvement</span>
-</div>
-<div class="flex flex-col">
-<span class="font-headline-md text-headline-md text-on-surface text-base line-through text-on-surface-variant">Meditation</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant geist">Streak: 5 days</span>
-</div>
-</div>
-<button class="w-8 h-8 rounded-full border-2 border-outline-variant flex items-center justify-center text-outline-variant">
-<span class="material-symbols-outlined text-[20px]">undo</span>
-</button>
-</div>
-</div>
-<!-- Habit Card: Reading -->
-<div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors duration-200 cursor-pointer">
-<div class="flex justify-between items-center">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full bg-tertiary-fixed/20 flex items-center justify-center text-tertiary">
-<span class="material-symbols-outlined fill">menu_book</span>
-</div>
-<div class="flex flex-col">
-<span class="font-headline-md text-headline-md text-on-surface text-base">Reading</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant geist">Streak: 0 days</span>
-</div>
-</div>
-<button class="w-8 h-8 rounded-full border-2 border-outline-variant flex items-center justify-center text-outline-variant hover:border-primary-container hover:text-primary-container active:scale-95 transition-all">
-<span class="material-symbols-outlined text-[20px]">check</span>
-</button>
-</div>
-</div>
+<div id="habits-container" class="grid grid-cols-1 gap-stack-gap">
+<!-- Habits rendered dynamically by app.js -->
 </div>
 </section>
 </main>
@@ -293,4 +233,102 @@
 <span class="font-label-md text-label-md mt-1">Profile</span>
 </a>
 </nav>
+<script src="app.js"></script>
+<script>
+(function() {
+    const settings = HabitArc.getSettings();
+
+    // Greeting & Date
+    document.getElementById('greeting').textContent = HabitArc.getGreeting() + ', ' + settings.userName.split(' ')[0];
+    document.getElementById('today-date').textContent = HabitArc.getFormattedToday();
+
+    function render() {
+        // Progress
+        const progress = HabitArc.getTodayProgress();
+        const pct = progress.percentage;
+        document.getElementById('progress-pct').textContent = pct + '%';
+        document.getElementById('progress-arc').setAttribute('stroke-dasharray', pct + ', 100');
+
+        const msgs = [
+            pct === 100 ? 'Perfect day! All habits completed.' :
+            pct >= 75 ? "You're almost there! Keep going." :
+            pct >= 50 ? 'Great progress! Stay consistent.' :
+            pct > 0 ? 'Good start. Build momentum today.' :
+            'Start your day strong. You got this!'
+        ];
+        document.getElementById('progress-msg').textContent = msgs[0];
+
+        // Streaks
+        document.getElementById('current-streak').textContent = HabitArc.getOverallCurrentStreak();
+        document.getElementById('longest-streak').textContent = HabitArc.getOverallLongestStreak();
+
+        // Today's Habits
+        const container = document.getElementById('habits-container');
+        container.innerHTML = '';
+        const todayHabits = HabitArc.getTodayHabits();
+
+        if (todayHabits.length === 0) {
+            container.innerHTML = '<div class="text-center py-8 text-on-surface-variant"><span class="material-symbols-outlined text-[48px] mb-2 block opacity-30">self_improvement</span><p class="font-body-md text-body-md">No habits scheduled for today</p></div>';
+            return;
+        }
+
+        todayHabits.forEach(habit => {
+            const isCompleted = HabitArc.isCompletedToday(habit.id);
+            const streak = HabitArc.getCurrentStreak(habit.id);
+            const style = HabitArc.getCategoryStyle(habit.category);
+            const last7 = HabitArc.getLast7Days(habit.id);
+
+            const card = document.createElement('div');
+            card.className = `bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors duration-200 cursor-pointer ${isCompleted ? 'opacity-70' : ''}`;
+
+            // 7 day dots
+            let dotsHtml = last7.map(d => {
+                if (d.isToday) {
+                    return `<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full ${isCompleted ? 'bg-primary-container flex items-center justify-center' : 'bg-surface-container border-2 border-primary-container'}"><span class="material-symbols-outlined text-[14px] ${isCompleted ? 'text-on-primary' : 'hidden'}">${isCompleted ? 'check' : ''}</span></span><span class="font-label-sm text-[8px] text-primary-container font-bold">${d.label}</span></div>`;
+                }
+                if (d.completed) {
+                    return `<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-[14px] text-on-primary">check</span></span><span class="font-label-sm text-[8px] text-on-surface-variant">${d.label}</span></div>`;
+                }
+                return `<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant"></span><span class="font-label-sm text-[8px] text-on-surface-variant">${d.label}</span></div>`;
+            }).join('');
+
+            card.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">
+                        <div class="w-10 h-10 rounded-full ${style.bg} flex items-center justify-center ${style.text}">
+                            <span class="material-symbols-outlined ${style.iconFill ? 'fill' : ''}">${habit.icon}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-headline-md text-headline-md text-on-surface text-base ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${habit.name}</span>
+                            <span class="font-label-sm text-label-sm text-on-surface-variant geist">Streak: ${streak} day${streak !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                    <button class="habit-toggle w-8 h-8 rounded-full ${isCompleted ? 'bg-primary-container flex items-center justify-center text-on-primary shadow-[0_4px_12px_rgba(0,0,0,0.05)]' : 'border-2 border-outline-variant flex items-center justify-center text-outline-variant hover:border-primary-container hover:text-primary-container'} active:scale-95 transition-all" data-id="${habit.id}">
+                        <span class="material-symbols-outlined text-[20px]">${isCompleted ? 'check' : 'check'}</span>
+                    </button>
+                </div>
+                <div class="flex justify-between mt-2 pt-3 border-t border-surface-container">${dotsHtml}</div>
+            `;
+
+            container.appendChild(card);
+        });
+
+        // Attach toggle handlers
+        document.querySelectorAll('.habit-toggle').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.dataset.id;
+                if (HabitArc.isCompletedToday(id)) {
+                    HabitArc.uncompleteHabit(id);
+                } else {
+                    HabitArc.completeHabit(id);
+                }
+                render();
+            });
+        });
+    }
+
+    render();
+})();
+</script>
 </body></html>

@@ -181,9 +181,9 @@
 <h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Data</h3>
 </div>
 <p class="font-body-md text-body-md text-on-surface-variant mb-4">Export your habit history as a CSV file for your own records.</p>
-<button class="mt-auto w-full py-2 px-4 bg-surface-container border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<button id="export-csv-btn" class="mt-auto w-full py-2 px-4 bg-surface-container border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
 <span class="material-symbols-outlined text-[18px]">export_notes</span>
-                    Export Data
+                    Export Data (CSV)
                 </button>
 </div>
 <!-- System Settings List -->
@@ -259,4 +259,15 @@
 </a>
 </div>
 </nav>
+<script src="app.js"></script>
+<script>
+(function() {
+    const btn = document.getElementById('export-csv-btn');
+    if (btn) {
+        btn.addEventListener('click', function() {
+            HabitArc.exportCSV();
+        });
+    }
+})();
+</script>
 </body></html>

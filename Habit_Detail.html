@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HabitArc - Habit Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "on-surface": "#191c1d", "on-background": "#191c1d", "surface-dim": "#d9dadb",
+                    "on-primary": "#ffffff", "error": "#ba1a1a", "inverse-surface": "#2e3132",
+                    "surface-container-lowest": "#ffffff", "on-error": "#ffffff",
+                    "surface-container-low": "#f3f4f5", "primary": "#012d1d", "on-secondary": "#ffffff",
+                    "secondary-container": "#a0f4c8", "on-surface-variant": "#414844",
+                    "primary-fixed": "#c1ecd4", "secondary": "#0e6c4a", "outline-variant": "#c1c8c2",
+                    "outline": "#717973", "surface-variant": "#e1e3e4", "primary-fixed-dim": "#a5d0b9",
+                    "surface-container": "#edeeef", "surface": "#f8f9fa", "surface-tint": "#3f6653",
+                    "primary-container": "#1b4332", "surface-container-highest": "#e1e3e4",
+                    "surface-container-high": "#e7e8e9", "background": "#f8f9fa",
+                    "tertiary": "#401b1b", "tertiary-fixed": "#ffdad8", "tertiary-fixed-dim": "#f5b7b4",
+                    "secondary-fixed-dim": "#85d7ad", "on-primary-container": "#86af99",
+                    "on-tertiary-container": "#d29895", "error-container": "#ffdad6",
+                    "on-error-container": "#93000a"
+                },
+                borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
+                spacing: {
+                    "container-padding": "20px", "element-gap": "12px",
+                    "stack-gap": "16px", "card-padding": "20px", "section-margin": "32px"
+                },
+                fontFamily: {
+                    "headline-md": ["Hanken Grotesk"], "label-sm": ["Geist"], "body-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"], "headline-lg": ["Hanken Grotesk"], "label-md": ["Geist"]
+                },
+                fontSize: {
+                    "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                    "label-sm": ["10px", { lineHeight: "12px", letterSpacing: "0.05em", fontWeight: "600" }],
+                    "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                    "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                    "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                    "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }]
+                }
+            }
+        }
+    };
+</script>
+<style>
+    body { font-family: 'Hanken Grotesk', sans-serif; }
+    .geist { font-family: 'Geist', sans-serif; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+    /* GitHub Contribution Calendar */
+    .cal-cell {
+        width: 14px; height: 14px; border-radius: 3px;
+        transition: all 0.15s ease;
+    }
+    .cal-cell:hover { transform: scale(1.4); z-index: 10; }
+    .cal-completed { background-color: #1b4332; }
+    .cal-missed { background-color: #ffdad6; border: 1px solid #f5b7b4; }
+    .cal-rest { background-color: #f3f4f5; }
+    .cal-none { background-color: #edeeef; }
+    .cal-today { outline: 2px solid #012d1d; outline-offset: 1px; }
+
+    .dark .cal-completed { background-color: #a5d0b9; }
+    .dark .cal-missed { background-color: #93000a; border-color: #ba1a1a; }
+    .dark .cal-rest { background-color: #2e3132; }
+    .dark .cal-none { background-color: #1e2122; }
+
+    /* Stat bar animation */
+    .stat-bar { transition: width 1s ease-out; }
+
+    /* Fade in animation */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeInUp 0.4s ease-out forwards; }
+    .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
+</style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+
+<!-- Top Bar -->
+<header class="w-full sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
+    <div class="flex items-center justify-between px-container-padding py-4 max-w-3xl mx-auto">
+        <a href="Habits.html" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low active:scale-90 transition-all">
+            <span class="material-symbols-outlined text-on-surface">arrow_back</span>
+        </a>
+        <h1 class="font-headline-md text-headline-md text-on-surface" id="habit-name-title">Habit Detail</h1>
+        <button id="delete-btn" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-error-container active:scale-90 transition-all">
+            <span class="material-symbols-outlined text-error">delete</span>
+        </button>
+    </div>
+</header>
+
+<main class="flex-1 w-full max-w-3xl mx-auto px-container-padding pb-12 pt-2 space-y-section-margin">
+
+    <!-- Habit Header Card -->
+    <section class="animate-in">
+        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex items-center gap-4">
+            <div id="habit-icon-wrap" class="w-14 h-14 rounded-2xl bg-primary-fixed/20 flex items-center justify-center">
+                <span id="habit-icon" class="material-symbols-outlined fill text-primary-container text-[28px]">check_circle</span>
+            </div>
+            <div class="flex-1">
+                <h2 id="habit-name" class="font-headline-md text-headline-md text-on-surface">Loading...</h2>
+                <div class="flex items-center gap-3 mt-1">
+                    <span id="habit-category" class="font-label-sm text-label-sm text-on-surface-variant uppercase geist">Category</span>
+                    <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                    <span id="habit-since" class="font-label-sm text-label-sm text-on-surface-variant geist">Since --</span>
+                </div>
+            </div>
+            <button id="complete-today-btn" class="w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90">
+                <span class="material-symbols-outlined text-[24px]">check</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="animate-in animate-delay-1">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-4 flex flex-col">
+                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-2">Current Streak</span>
+                <div class="flex items-baseline gap-1 mt-auto">
+                    <span id="stat-current-streak" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
+                    <span class="font-body-md text-body-md text-on-surface-variant">days</span>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-4 flex flex-col">
+                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-2">Longest Streak</span>
+                <div class="flex items-baseline gap-1 mt-auto">
+                    <span id="stat-longest-streak" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
+                    <span class="font-body-md text-body-md text-on-surface-variant">days</span>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-4 flex flex-col">
+                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-2">Completion</span>
+                <div class="flex items-baseline gap-1 mt-auto">
+                    <span id="stat-completion" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
+                    <span class="font-body-md text-body-md text-on-surface-variant">%</span>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-4 flex flex-col">
+                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-2">Total Done</span>
+                <div class="flex items-baseline gap-1 mt-auto">
+                    <span id="stat-total-done" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
+                    <span class="font-body-md text-body-md text-on-surface-variant">days</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GitHub Contribution Calendar -->
+    <section class="animate-in animate-delay-2">
+        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-headline-md text-headline-md text-on-surface">Activity</h3>
+                <div class="flex items-center gap-2">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant geist">Less</span>
+                    <div class="flex gap-1">
+                        <div class="cal-cell cal-none"></div>
+                        <div class="cal-cell cal-missed"></div>
+                        <div class="cal-cell" style="background:#a5d0b9;"></div>
+                        <div class="cal-cell cal-completed"></div>
+                    </div>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant geist">More</span>
+                </div>
+            </div>
+            <!-- Month Labels -->
+            <div id="month-labels" class="flex mb-1 text-on-surface-variant font-label-sm text-[9px] geist"></div>
+            <!-- Calendar Grid -->
+            <div id="calendar-grid" class="flex gap-[3px] overflow-x-auto pb-2"></div>
+            <!-- Day Labels -->
+            <div class="flex mt-2 gap-1">
+                <span class="font-label-sm text-[9px] text-on-surface-variant geist w-3">M</span>
+                <span class="font-label-sm text-[9px] text-on-surface-variant geist w-3">W</span>
+                <span class="font-label-sm text-[9px] text-on-surface-variant geist w-3">F</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Monthly Activity Bars -->
+    <section class="animate-in animate-delay-3">
+        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
+            <h3 class="font-headline-md text-headline-md text-on-surface mb-4">Monthly Activity</h3>
+            <div id="monthly-bars" class="space-y-3"></div>
+        </div>
+    </section>
+
+    <!-- Motivation Section -->
+    <section id="motivation-section" class="hidden animate-in">
+        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="material-symbols-outlined text-secondary fill">auto_awesome</span>
+                <h3 class="font-headline-md text-headline-md text-on-surface">Your Why</h3>
+            </div>
+            <p id="habit-why" class="font-body-lg text-body-lg text-on-surface-variant"></p>
+            <p id="habit-motivation" class="font-body-md text-body-md text-on-surface-variant mt-2 italic"></p>
+        </div>
+    </section>
+
+</main>
+
+<script src="app.js"></script>
+<script>
+(function() {
+    // Get habit ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const habitId = params.get('id');
+
+    if (!habitId) {
+        window.location.href = 'Habits.html';
+        return;
+    }
+
+    const habit = HabitArc.getHabitById(habitId);
+    if (!habit) {
+        window.location.href = 'Habits.html';
+        return;
+    }
+
+    // ─── Populate Header ────────────────────────
+    document.getElementById('habit-name-title').textContent = habit.name;
+    document.getElementById('habit-name').textContent = habit.name;
+    document.getElementById('habit-icon').textContent = habit.icon;
+    document.getElementById('habit-category').textContent = habit.category;
+
+    const createdDate = new Date(habit.createdAt);
+    document.getElementById('habit-since').textContent = 'Since ' + createdDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+    // Apply category style
+    const style = HabitArc.getCategoryStyle(habit.category);
+    const iconWrap = document.getElementById('habit-icon-wrap');
+    iconWrap.className = `w-14 h-14 rounded-2xl ${style.bg} flex items-center justify-center`;
+    const iconEl = document.getElementById('habit-icon');
+    iconEl.className = `material-symbols-outlined ${style.iconFill ? 'fill' : ''} ${style.text} text-[28px]`;
+
+    // ─── Complete Today Button ──────────────────
+    function updateCompleteButton() {
+        const btn = document.getElementById('complete-today-btn');
+        const isCompleted = HabitArc.isCompletedToday(habitId);
+
+        if (isCompleted) {
+            btn.className = 'w-12 h-12 rounded-full bg-primary-container flex items-center justify-center transition-all active:scale-90 shadow-[0_4px_12px_rgba(0,0,0,0.05)]';
+            btn.querySelector('span').className = 'material-symbols-outlined text-[24px] text-on-primary';
+            btn.querySelector('span').textContent = 'check';
+        } else {
+            btn.className = 'w-12 h-12 rounded-full border-2 border-outline-variant flex items-center justify-center transition-all active:scale-90 hover:border-primary-container';
+            btn.querySelector('span').className = 'material-symbols-outlined text-[24px] text-outline-variant';
+            btn.querySelector('span').textContent = 'check';
+        }
+    }
+
+    document.getElementById('complete-today-btn').addEventListener('click', function() {
+        if (HabitArc.isCompletedToday(habitId)) {
+            HabitArc.uncompleteHabit(habitId);
+        } else {
+            HabitArc.completeHabit(habitId);
+        }
+        updateCompleteButton();
+        renderStats();
+        renderCalendar();
+        renderMonthlyBars();
+    });
+
+    updateCompleteButton();
+
+    // ─── Stats ──────────────────────────────────
+    function renderStats() {
+        document.getElementById('stat-current-streak').textContent = HabitArc.getCurrentStreak(habitId);
+        document.getElementById('stat-longest-streak').textContent = HabitArc.getLongestStreak(habitId);
+        document.getElementById('stat-completion').textContent = HabitArc.getCompletionRate(habitId);
+
+        const totalDone = Object.keys(habit.completions || {}).length;
+        document.getElementById('stat-total-done').textContent = totalDone;
+    }
+    renderStats();
+
+    // ─── GitHub Contribution Calendar ───────────
+    function renderCalendar() {
+        const calData = HabitArc.getCalendarData(habitId, 5);
+        const grid = document.getElementById('calendar-grid');
+        grid.innerHTML = '';
+
+        // Group by weeks (columns)
+        const weeks = [];
+        let currentWeek = [];
+
+        // Pad start to align with day of week
+        if (calData.length > 0) {
+            const firstDayOfWeek = calData[0].dayOfWeek;
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                currentWeek.push(null);
+            }
+        }
+
+        for (const day of calData) {
+            currentWeek.push(day);
+            if (day.dayOfWeek === 6) { // Saturday = end of week
+                weeks.push(currentWeek);
+                currentWeek = [];
+            }
+        }
+        if (currentWeek.length > 0) {
+            weeks.push(currentWeek);
+        }
+
+        // Render weeks as columns
+        for (const week of weeks) {
+            const col = document.createElement('div');
+            col.className = 'flex flex-col gap-[3px]';
+
+            for (let row = 0; row < 7; row++) {
+                const cell = document.createElement('div');
+                cell.className = 'cal-cell';
+
+                if (row < week.length && week[row]) {
+                    const day = week[row];
+                    cell.classList.add('cal-' + day.status);
+                    if (day.isToday) cell.classList.add('cal-today');
+                    cell.title = day.date + (day.status === 'completed' ? ' ✓' : day.status === 'missed' ? ' ✗' : '');
+                } else {
+                    cell.classList.add('cal-none');
+                    cell.style.opacity = '0';
+                }
+
+                col.appendChild(cell);
+            }
+            grid.appendChild(col);
+        }
+    }
+    renderCalendar();
+
+    // ─── Monthly Activity Bars ──────────────────
+    function renderMonthlyBars() {
+        const monthly = HabitArc.getMonthlyActivity(habitId);
+        const container = document.getElementById('monthly-bars');
+        container.innerHTML = '';
+
+        for (const month of monthly) {
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-3';
+            row.innerHTML = `
+                <span class="font-label-sm text-label-sm text-on-surface-variant geist w-8 text-right">${month.label}</span>
+                <div class="flex-1 h-6 bg-surface-container rounded-full overflow-hidden">
+                    <div class="stat-bar h-full bg-primary-container rounded-full" style="width: ${month.rate}%"></div>
+                </div>
+                <span class="font-label-sm text-label-sm text-on-surface-variant geist w-10 text-right">${month.rate}%</span>
+            `;
+            container.appendChild(row);
+        }
+    }
+    renderMonthlyBars();
+
+    // ─── Motivation ─────────────────────────────
+    if (habit.why || habit.motivation) {
+        const section = document.getElementById('motivation-section');
+        section.classList.remove('hidden');
+        if (habit.why) document.getElementById('habit-why').textContent = habit.why;
+        if (habit.motivation) document.getElementById('habit-motivation').textContent = '"' + habit.motivation + '"';
+    }
+
+    // ─── Delete ─────────────────────────────────
+    document.getElementById('delete-btn').addEventListener('click', function() {
+        if (confirm('Delete "' + habit.name + '"? This action cannot be undone.')) {
+            HabitArc.deleteHabit(habitId);
+            window.location.href = 'Habits.html';
+        }
+    });
+})();
+</script>
+</body></html>

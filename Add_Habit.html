@@ -228,13 +228,12 @@
 <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Create New Habit</h1>
 <p class="font-body-md text-body-md text-on-surface-variant">Design a new mindful routine to anchor your day.</p>
 </div>
-<form class="space-y-stack-gap">
-<!-- Bento Box 1: Core Details -->
+<form id="add-habit-form" class="space-y-stack-gap">
+<!-- Bento Box 1: Core Info -->
 <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding shadow-sm space-y-6">
-<!-- Habit Name -->
 <div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2" for="habitName">Habit Name</label>
-<input class="input-elegant w-full font-body-lg text-body-lg text-on-surface placeholder-outline" id="habitName" name="habitName" placeholder="e.g., Morning Meditation" required="" type="text"/>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2" for="habit-name-input">Habit Name</label>
+<input class="input-elegant w-full font-headline-md text-headline-md text-on-surface placeholder-outline" id="habit-name-input" placeholder="e.g. Read 20 pages, Morning Run" required="" type="text"/>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-gap">
 <!-- Icon Picker -->
@@ -275,26 +274,27 @@
 <!-- Repeat Schedule -->
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Repeat</label>
-<select class="input-boxed w-full p-3 font-body-md text-on-surface">
-<option>Daily</option>
-<option>Weekdays</option>
-<option>Weekends</option>
-<option>Custom</option>
+<select id="repeat-select" class="input-boxed w-full p-3 font-body-md text-on-surface">
+<option value="daily">Daily</option>
+<option value="weekdays">Weekdays</option>
+<option value="weekends">Weekends</option>
 </select>
 </div>
 <!-- Reminder Time -->
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-2">Reminder</label>
 <div class="relative">
-<input class="input-boxed w-full p-3 font-body-md text-on-surface pl-10" type="time" value="08:00"/>
+<input id="reminder-time-input" class="input-boxed w-full p-3 font-body-md text-on-surface pl-10" type="time" value="08:00"/>
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">notifications</span>
 </div>
 </div>
 </div>
 <!-- Motivation Text Area -->
 <div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2" for="motivation">Motivation (Optional)</label>
-<textarea class="input-boxed w-full p-3 font-body-md text-on-surface placeholder-outline" id="motivation" placeholder="Why is this habit important to you?" rows="3"></textarea>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2" for="why-input">Why are you building this habit? (Optional)</label>
+<textarea id="why-input" class="input-boxed w-full p-3 font-body-md text-on-surface placeholder-outline mb-4" placeholder="e.g. Build mental clarity and strength" rows="2"></textarea>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2" for="motivation-input">Motivation Quote (Optional)</label>
+<textarea id="motivation-input" class="input-boxed w-full p-3 font-body-md text-on-surface placeholder-outline" placeholder="e.g. Action precedes motivation" rows="2"></textarea>
 </div>
 </div>
 <!-- Action Button -->
@@ -335,4 +335,65 @@
 <span class="font-label-sm text-label-sm">Profile</span>
 </a>
 </nav>
+<script src="app.js"></script>
+<script>
+(function() {
+    let selectedIcon = 'self_improvement';
+    let selectedCategory = 'Health';
+
+    // Icon buttons click
+    document.querySelectorAll('.icon-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.icon-btn').forEach(b => {
+                b.className = 'icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95';
+            });
+            this.className = 'icon-btn w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center transition-transform active:scale-95';
+            selectedIcon = this.dataset.icon;
+        });
+    });
+
+    // Category buttons click
+    document.querySelectorAll('.cat-pill').forEach(pill => {
+        pill.addEventListener('click', function() {
+            document.querySelectorAll('.cat-pill').forEach(p => {
+                p.className = 'cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors';
+            });
+            this.className = 'cat-pill px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md cursor-pointer border border-transparent';
+            selectedCategory = this.dataset.cat;
+        });
+    });
+
+    // Form submit
+    document.getElementById('add-habit-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('habit-name-input').value.trim();
+        if (!name) return;
+
+        const repeatVal = document.getElementById('repeat-select').value;
+        let repeatDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        if (repeatVal === 'weekdays') repeatDays = ['mon', 'tue', 'wed', 'thu', 'fri'];
+        if (repeatVal === 'weekends') repeatDays = ['sat', 'sun'];
+
+        const reminder = document.getElementById('reminder-time-input').value;
+        const why = document.getElementById('why-input').value.trim();
+        const motivation = document.getElementById('motivation-input').value.trim();
+
+        const result = HabitArc.addHabit({
+            name,
+            icon: selectedIcon,
+            category: selectedCategory,
+            reminder,
+            repeat: repeatDays,
+            why,
+            motivation
+        });
+
+        if (result.success) {
+            window.location.href = 'Habits.html';
+        } else {
+            alert(result.message);
+        }
+    });
+})();
+</script>
 </body></html>

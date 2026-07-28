@@ -124,100 +124,17 @@
 <!-- Page Header & Filters -->
 <section class="flex flex-col gap-stack-gap">
 <h2 class="font-headline-lg text-headline-lg text-on-background">My Habits</h2>
-<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-container-padding px-container-padding md:mx-0 md:px-0">
-<button class="px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform">All</button>
-<button class="px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95">Health</button>
-<button class="px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95">Mind</button>
-<button class="px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95">Focus</button>
+<div id="category-filters" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-container-padding px-container-padding md:mx-0 md:px-0">
+<button class="cat-filter px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform" data-cat="All">All</button>
+<button class="cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95" data-cat="Health">Health</button>
+<button class="cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95" data-cat="Mindfulness">Mindfulness</button>
+<button class="cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95" data-cat="Learning">Learning</button>
+<button class="cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95" data-cat="Focus">Focus</button>
 </div>
 </section>
-<!-- Habit List (Bento-ish / Elevated Cards) -->
-<section class="flex flex-col gap-stack-gap">
-<!-- Card 1: Daily Run -->
-<div class="bg-surface-container-lowest rounded-xl border border-surface-variant p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors">
-<div class="flex justify-between items-start">
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-2xl">directions_run</span>
+<div id="habits-list" class="flex flex-col gap-stack-gap">
+<!-- Rendered dynamically -->
 </div>
-<div class="flex flex-col">
-<h3 class="font-headline-md text-headline-md text-on-surface">Daily Run</h3>
-<span class="font-label-sm text-label-sm text-outline uppercase">Health • 12 Day Streak</span>
-</div>
-</div>
-<button class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-90 transition-transform">
-<span class="material-symbols-outlined">check</span>
-</button>
-</div>
-<div class="flex justify-between items-center mt-2 border-t border-surface-variant pt-4">
-<div class="flex gap-2">
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">M</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">T</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">W</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">T</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">F</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">S</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">S</span></div>
-</div>
-</div>
-</div>
-<!-- Card 2: Journaling -->
-<div class="bg-surface-container-lowest rounded-xl border border-surface-variant p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors">
-<div class="flex justify-between items-start">
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-2xl">book</span>
-</div>
-<div class="flex flex-col">
-<h3 class="font-headline-md text-headline-md text-on-surface">Journaling</h3>
-<span class="font-label-sm text-label-sm text-outline uppercase">Mind • 4 Day Streak</span>
-</div>
-</div>
-<button class="w-10 h-10 rounded-full border-2 border-outline-variant text-outline-variant hover:border-primary hover:text-primary flex items-center justify-center active:scale-90 transition-all">
-<span class="material-symbols-outlined">check</span>
-</button>
-</div>
-<div class="flex justify-between items-center mt-2 border-t border-surface-variant pt-4">
-<div class="flex gap-2">
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">M</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">T</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">W</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">T</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">F</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">S</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">S</span></div>
-</div>
-</div>
-</div>
-<!-- Card 3: Vitamin D -->
-<div class="bg-surface-container-lowest rounded-xl border border-surface-variant p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors">
-<div class="flex justify-between items-start">
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-2xl">wb_sunny</span>
-</div>
-<div class="flex flex-col">
-<h3 class="font-headline-md text-headline-md text-on-surface">Vitamin D</h3>
-<span class="font-label-sm text-label-sm text-outline uppercase">Health • 1 Day Streak</span>
-</div>
-</div>
-<button class="w-10 h-10 rounded-full border-2 border-outline-variant text-outline-variant hover:border-primary hover:text-primary flex items-center justify-center active:scale-90 transition-all">
-<span class="material-symbols-outlined">check</span>
-</button>
-</div>
-<div class="flex justify-between items-center mt-2 border-t border-surface-variant pt-4">
-<div class="flex gap-2">
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">M</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">T</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">W</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">T</span></div>
-<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">F</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">S</span></div>
-<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">S</span></div>
-</div>
-</div>
-</div>
-</section>
 </main>
 <!-- BottomNavBar -->
 <nav class="fixed bottom-0 w-full z-50 border-t border-outline-variant bg-surface md:hidden">
@@ -246,4 +163,93 @@
 </a>
 </div>
 </nav>
+<script src="app.js"></script>
+<script>
+(function() {
+    let currentFilter = 'All';
+
+    function render() {
+        const container = document.getElementById('habits-list');
+        container.innerHTML = '';
+
+        let habits = HabitArc.getHabits();
+        if (currentFilter !== 'All') {
+            habits = habits.filter(h => h.category.toLowerCase() === currentFilter.toLowerCase());
+        }
+
+        if (habits.length === 0) {
+            container.innerHTML = `<div class="text-center py-12 text-on-surface-variant"><span class="material-symbols-outlined text-[48px] mb-2 block opacity-30">checklist</span><p class="font-body-md text-body-md">No ${currentFilter !== 'All' ? currentFilter : ''} habits found. Create your first habit!</p></div>`;
+            return;
+        }
+
+        habits.forEach(habit => {
+            const isCompleted = HabitArc.isCompletedToday(habit.id);
+            const streak = HabitArc.getCurrentStreak(habit.id);
+            const style = HabitArc.getCategoryStyle(habit.category);
+            const last7 = HabitArc.getLast7Days(habit.id);
+
+            const card = document.createElement('div');
+            card.className = `bg-surface-container-lowest rounded-xl border border-surface-variant p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-all cursor-pointer ${isCompleted ? 'opacity-75' : ''}`;
+
+            let dotsHtml = last7.map(d => {
+                if (d.completed) {
+                    return `<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">${d.label}</span></div>`;
+                }
+                return `<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">${d.label}</span></div>`;
+            }).join('');
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-lg ${style.bg} flex items-center justify-center ${style.text}">
+                            <span class="material-symbols-outlined text-2xl ${style.iconFill ? 'fill' : ''}">${habit.icon}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <h3 class="font-headline-md text-headline-md text-on-surface ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${habit.name}</h3>
+                            <span class="font-label-sm text-label-sm text-outline uppercase">${habit.category} • ${streak} Day Streak</span>
+                        </div>
+                    </div>
+                    <button class="habit-toggle w-10 h-10 rounded-full ${isCompleted ? 'bg-primary text-on-primary' : 'border-2 border-outline-variant text-outline-variant hover:border-primary hover:text-primary'} flex items-center justify-center active:scale-90 transition-all" data-id="${habit.id}">
+                        <span class="material-symbols-outlined">check</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-center mt-2 border-t border-surface-variant pt-4">
+                    <div class="flex gap-2">${dotsHtml}</div>
+                    <span class="material-symbols-outlined text-on-surface-variant text-sm" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">chevron_right</span>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+
+        // Attach completion toggle
+        document.querySelectorAll('.habit-toggle').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.dataset.id;
+                if (HabitArc.isCompletedToday(id)) {
+                    HabitArc.uncompleteHabit(id);
+                } else {
+                    HabitArc.completeHabit(id);
+                }
+                render();
+            });
+        });
+    }
+
+    // Category filter clicks
+    document.querySelectorAll('.cat-filter').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.cat-filter').forEach(b => {
+                b.className = 'cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95';
+            });
+            this.className = 'cat-filter px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform';
+            currentFilter = this.dataset.cat;
+            render();
+        });
+    });
+
+    render();
+})();
+</script>
 </body></html>
