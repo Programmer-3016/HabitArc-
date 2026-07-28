@@ -82,14 +82,9 @@
         opacity: 1;
     }
 
-    /* Logo Hero Animation — Pure transform, zero filters */
-    @keyframes logoFloat {
-        0%, 100% { transform: translate3d(0, 0, 0); }
-        50% { transform: translate3d(0, -5px, 0); }
-    }
+    /* Logo Hero — Clean one-time entrance only, no continuous movement */
     .logo-hero {
-        will-change: transform;
-        animation: logoFloat 4s ease-in-out infinite;
+        animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 </style>
 </head>
