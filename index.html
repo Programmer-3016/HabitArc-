@@ -2,11 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0;url=Dashboard.html" />
-    <title>HabitArc - Redirecting...</title>
-    <script>window.location.replace("Dashboard.html");</script>
+    <title>HabitArc - AI-Powered Smart Habit Tracking</title>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const settings = HabitArc.getSettings();
+            if (!settings.onboardingComplete) {
+                window.location.replace("Onboarding.html");
+            } else {
+                window.location.replace("Dashboard.html");
+            }
+        });
+    </script>
 </head>
 <body>
-    <p>Redirecting to <a href="Dashboard.html">HabitArc Dashboard</a>...</p>
+    <p>Loading HabitArc...</p>
 </body>
 </html>
