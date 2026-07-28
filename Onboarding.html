@@ -82,13 +82,17 @@
         opacity: 1;
     }
 
-    /* Logo Hero — Fast snappy float */
-    @keyframes logoFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-3px); }
+    /* Logo Hero — Slow mesmerizing rotation */
+    @keyframes logoSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    @keyframes logoBreathe {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.04); opacity: 0.92; }
     }
     .logo-hero {
-        animation: fadeInUp 0.4s ease-out forwards, logoFloat 2s ease-in-out 0.5s infinite;
+        animation: fadeInUp 0.4s ease-out forwards, logoSpin 12s linear 0.5s infinite;
     }
 </style>
 </head>
