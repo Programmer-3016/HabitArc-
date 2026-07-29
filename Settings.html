@@ -187,44 +187,50 @@
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen pb-24 md:pb-0">
 <!-- Top App Bar (Mobile) -->
-<header class="w-full sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-surface-container/70 flex justify-between items-center px-4 py-3 max-w-7xl mx-auto md:hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-    <a href="Dashboard.html" class="flex items-center gap-2">
-        <img src="logo.png" alt="HabitArc Logo" class="w-8 h-8 rounded-lg object-contain"/>
-        <span class="font-headline-md text-lg text-primary font-bold tracking-tight">HabitArc</span>
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
+    <a href="Dashboard.html" class="flex items-center gap-2.5">
+        <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
+        <span class="text-lg text-primary font-bold tracking-tight">HabitArc</span>
     </a>
-    
-    <div class="flex items-center gap-2">
-        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1 font-semibold text-xs geist shadow-2xs">
+    <div class="flex items-center gap-2.5">
+        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
             <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
-            <span id="header-streak-count">5d</span>
+            <span id="header-streak-count">0d</span>
         </div>
-
-        <a class="w-8 h-8 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
-            <span class="material-symbols-outlined text-lg">settings</span>
+        <a class="w-8 h-8 rounded-full bg-primary/[0.08] border border-primary/20 flex items-center justify-center text-primary transition-colors active:scale-95" href="Settings.html">
+            <span class="material-symbols-outlined text-[18px]">settings</span>
         </a>
     </div>
 </header>
 
-<!-- Web Navigation (Hidden on Mobile) -->
-<header class="hidden md:flex w-full sticky top-0 z-50 bg-background/85 backdrop-blur-xl justify-between items-center px-container-padding py-3.5 max-w-7xl mx-auto border-b border-surface-container/70 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-    <a href="Dashboard.html" class="flex items-center gap-2.5">
-        <img src="logo.png" alt="HabitArc Logo" class="w-9 h-9 rounded-lg object-contain"/>
-        <span class="font-headline-lg text-xl text-primary font-bold tracking-tight">HabitArc</span>
-    </a>
-    <nav class="flex gap-8">
-        <a class="text-on-surface-variant font-headline-md text-headline-md hover:opacity-80 transition-opacity active:scale-95 duration-200" href="Dashboard.html">Dashboard</a>
-        <a class="text-on-surface-variant font-headline-md text-headline-md hover:opacity-80 transition-opacity active:scale-95 duration-200" href="Habits.html">Habits</a>
-        <a class="text-on-surface-variant font-headline-md text-headline-md hover:opacity-80 transition-opacity active:scale-95 duration-200" href="Insights.html">Insights</a>
-    </nav>
-    <div class="flex items-center gap-3">
-        <div class="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-semibold text-xs geist shadow-2xs">
-            <span class="material-symbols-outlined text-base fill text-amber-500">local_fire_department</span>
-            <span id="header-streak-count-web">5 Day Streak</span>
-        </div>
-
-        <a class="w-9 h-9 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
-            <span class="material-symbols-outlined text-lg">settings</span>
+<!-- Desktop Top Bar (Full-width, clean, minimal) -->
+<header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
+    <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
+        <a href="Dashboard.html" class="flex items-center gap-2.5">
+            <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
+            <span class="text-[22px] text-primary font-extrabold tracking-tight leading-none">HabitArc</span>
         </a>
+        <nav class="flex items-center gap-1">
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Dashboard.html">Dashboard</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Habits.html">Habits</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Insights.html">Insights</a>
+        </nav>
+        <div class="flex items-center gap-2.5">
+            <a href="Add_Habit.html" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">add</span>
+                New Habit
+            </a>
+            <div class="px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/15 text-amber-600 flex items-center gap-1.5 font-semibold text-xs geist">
+                <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+                <span id="header-streak-count-web">0 Day Streak</span>
+            </div>
+            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html">
+                <span class="material-symbols-outlined text-[20px]">person</span>
+            </a>
+            <a class="w-9 h-9 rounded-lg bg-primary/[0.08] border border-primary/20 flex items-center justify-center text-primary transition-colors active:scale-95" href="Settings.html">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+            </a>
+        </div>
     </div>
 </header>
 <!-- Main Content -->

@@ -5,8 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>HabitArc Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
@@ -102,168 +101,179 @@
         .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
         
         /* Progress Ring Animation */
-        @keyframes dash {
-            0% { stroke-dasharray: 0, 100; }
-            100% { stroke-dasharray: 75, 100; }
-        }
-        .progress-ring-circle {
-            animation: dash 1.5s ease-out forwards;
-        }
+        @keyframes dash { 0% { stroke-dasharray: 0, 100; } 100% { stroke-dasharray: var(--target), 100; } }
+        .progress-ring-circle { animation: dash 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+        /* Subtle entrance animation */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-up { animation: fadeUp 0.5s ease-out forwards; opacity: 0; }
+        .fade-up-1 { animation-delay: 0.05s; }
+        .fade-up-2 { animation-delay: 0.1s; }
+        .fade-up-3 { animation-delay: 0.15s; }
+        .fade-up-4 { animation-delay: 0.2s; }
+
+        /* Habit card completion animation */
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .pop { animation: pop 0.3s ease; }
     </style>
 </head>
-<body class="bg-background text-on-background antialiased min-h-screen flex flex-col items-center">
-<!-- Top App Bar (Mobile) -->
-<header class="w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-surface-container/70 dark:border-zinc-800 flex justify-between items-center px-4 py-3 md:hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-    <a href="Dashboard.html" class="flex items-center gap-2">
-        <img src="logo.png" alt="HabitArc Logo" class="w-8 h-8 object-contain"/>
-        <span class="font-headline-md text-lg text-primary dark:text-emerald-400 font-bold tracking-tight">HabitArc</span>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TOP BAR — Mobile -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
+    <a href="Dashboard.html" class="flex items-center gap-2.5">
+        <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
+        <span class="text-lg text-primary font-bold tracking-tight">HabitArc</span>
     </a>
-    
-    <div class="flex items-center gap-2">
-        <!-- Live Streak Counter Pill -->
-        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1 font-semibold text-xs geist shadow-2xs">
-            <span class="material-symbols-outlined text-sm fill text-amber-500 animate-pulse">local_fire_department</span>
+    <div class="flex items-center gap-2.5">
+        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
+            <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
             <span id="header-streak-count">0d</span>
         </div>
-
-        <!-- Quick Settings Button -->
-        <a class="w-8 h-8 rounded-full bg-surface-container-low dark:bg-zinc-900 border border-surface-container dark:border-zinc-800 flex items-center justify-center text-on-surface-variant dark:text-zinc-400 hover:text-primary transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
-            <span class="material-symbols-outlined text-lg">settings</span>
+        <a class="w-8 h-8 rounded-full bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Settings.html">
+            <span class="material-symbols-outlined text-[18px]">settings</span>
         </a>
     </div>
 </header>
 
-<!-- Desktop Web Navigation Header (Full Width Edge-to-Edge) -->
-<header class="hidden md:flex w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl justify-between items-center px-6 lg:px-12 py-3 border-b border-surface-container/70 dark:border-zinc-800 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-    <a href="Dashboard.html" class="flex items-center gap-2.5">
-        <img src="logo.png" alt="HabitArc Logo" class="w-9 h-9 object-contain"/>
-        <span class="font-headline-lg text-xl text-primary dark:text-emerald-400 font-bold tracking-tight">HabitArc</span>
-    </a>
-    
-    <!-- Segmented Navigation Bar -->
-    <nav class="flex items-center gap-1 bg-surface-container-low/80 dark:bg-zinc-900/80 p-1.5 rounded-full border border-surface-container/80 dark:border-zinc-800 shadow-2xs">
-        <a class="bg-primary text-on-primary font-semibold text-xs px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs transition-all" href="Dashboard.html">
-            <span class="material-symbols-outlined text-base fill">home</span>
-            Dashboard
-        </a>
-        <a class="text-on-surface-variant dark:text-zinc-400 font-medium text-xs px-4 py-1.5 rounded-full hover:text-primary dark:hover:text-emerald-400 hover:bg-surface-container/50 transition-all flex items-center gap-1.5" href="Habits.html">
-            <span class="material-symbols-outlined text-base">format_list_bulleted</span>
-            Habits
-        </a>
-        <a class="text-on-surface-variant dark:text-zinc-400 font-medium text-xs px-4 py-1.5 rounded-full hover:text-primary dark:hover:text-emerald-400 hover:bg-surface-container/50 transition-all flex items-center gap-1.5" href="Insights.html">
-            <span class="material-symbols-outlined text-base">insights</span>
-            Insights
-        </a>
-    </nav>
-
-    <div class="flex items-center gap-3">
-        <!-- Quick Add Habit CTA -->
-        <a href="Add_Habit.html" class="bg-primary hover:bg-primary-container text-on-primary px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 shadow-xs active:scale-95">
-            <span class="material-symbols-outlined text-sm">add</span>
-            Habit
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TOP BAR — Desktop (Full-width, clean, minimal) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
+    <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
+        <!-- Logo -->
+        <a href="Dashboard.html" class="flex items-center gap-2.5">
+            <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
+            <span class="text-[22px] text-primary font-extrabold tracking-tight leading-none">HabitArc</span>
         </a>
 
-        <!-- Live Streak Counter Pill -->
-        <div class="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-semibold text-xs geist shadow-2xs">
-            <span class="material-symbols-outlined text-base fill text-amber-500 animate-pulse">local_fire_department</span>
-            <span id="header-streak-count-web">0 Day Streak</span>
+        <!-- Center Navigation — clean text links -->
+        <nav class="flex items-center gap-1">
+            <a class="px-4 py-2 rounded-lg text-sm font-semibold text-primary bg-primary/[0.06] transition-colors" href="Dashboard.html">Dashboard</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Habits.html">Habits</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Insights.html">Insights</a>
+        </nav>
+
+        <!-- Right actions -->
+        <div class="flex items-center gap-2.5">
+            <a href="Add_Habit.html" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">add</span>
+                New Habit
+            </a>
+            <div class="px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/15 text-amber-600 flex items-center gap-1.5 font-semibold text-xs geist">
+                <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+                <span id="header-streak-count-web">0 Day Streak</span>
+            </div>
+            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html" aria-label="Profile">
+                <span class="material-symbols-outlined text-[20px]">person</span>
+            </a>
+            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Settings.html" aria-label="Settings">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<main class="flex-1 w-full max-w-5xl mx-auto px-5 md:px-8 pb-32 md:pb-12 pt-6 md:pt-8">
+
+    <!-- Greeting -->
+    <section class="fade-up fade-up-1 mb-8">
+        <h1 id="greeting" class="text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">Good morning</h1>
+        <p id="today-date" class="text-sm text-on-surface-variant mt-1.5 geist font-medium">Loading...</p>
+    </section>
+
+    <!-- ─── Stats Row ───────────────────────────────── -->
+    <section class="fade-up fade-up-2 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
+        <!-- Daily Progress -->
+        <div class="col-span-2 bg-white border border-outline-variant/25 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden group hover:border-outline-variant/50 transition-colors">
+            <div class="flex flex-col gap-1.5 z-10">
+                <span class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider geist">Daily Progress</span>
+                <p id="progress-msg" class="text-sm text-on-surface-variant leading-relaxed max-w-[200px]">Start your day strong.</p>
+            </div>
+            <div class="relative w-[100px] h-[100px] md:w-[120px] md:h-[120px] flex items-center justify-center shrink-0">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" class="stroke-surface-container"/>
+                    <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" stroke-dasharray="0, 100" stroke-linecap="round" class="stroke-primary-container progress-ring-circle" style="--target: 0"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="progress-pct" class="text-2xl md:text-3xl font-extrabold text-on-surface geist">0%</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Profile Icon -->
-        <a class="w-9 h-9 rounded-full bg-surface-container-low dark:bg-zinc-900 border border-surface-container dark:border-zinc-800 flex items-center justify-center text-on-surface-variant dark:text-zinc-400 hover:text-primary dark:hover:text-emerald-400 transition-all active:scale-95 shadow-2xs" href="Profile.html" aria-label="Profile">
-            <span class="material-symbols-outlined text-lg">person</span>
-        </a>
+        <!-- Current Streak -->
+        <div class="bg-white border border-outline-variant/25 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-outline-variant/50 transition-colors">
+            <span class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider geist">Current Streak</span>
+            <div class="flex items-baseline gap-1 mt-3">
+                <span id="current-streak" class="text-3xl font-extrabold text-on-surface geist">0</span>
+                <span class="text-sm text-on-surface-variant font-medium">days</span>
+            </div>
+            <div class="absolute -right-2 -bottom-2 opacity-[0.06] group-hover:opacity-[0.1] transition-opacity">
+                <span class="material-symbols-outlined text-[72px] fill text-primary">local_fire_department</span>
+            </div>
+        </div>
 
-        <!-- Settings Button -->
-        <a class="w-9 h-9 rounded-full bg-surface-container-low dark:bg-zinc-900 border border-surface-container dark:border-zinc-800 flex items-center justify-center text-on-surface-variant dark:text-zinc-400 hover:text-primary dark:hover:text-emerald-400 transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
-            <span class="material-symbols-outlined text-lg">settings</span>
-        </a>
-    </div>
-</header>
-<!-- Main Content Canvas -->
-<main class="flex-1 w-full max-w-7xl px-container-padding pb-32 md:pb-8 pt-4 space-y-section-margin">
-<!-- Header Section -->
-<section class="flex flex-col space-y-2">
-<h1 id="greeting" class="font-headline-lg text-headline-lg text-on-surface">Good morning, Alex</h1>
-<p id="today-date" class="font-body-md text-body-md text-on-surface-variant">Loading...</p>
-</section>
-<!-- Bento Grid Overview -->
-<section class="grid grid-cols-1 md:grid-cols-3 gap-stack-gap">
-<!-- Progress Ring Card -->
-<div class="col-span-1 md:col-span-2 bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex items-center justify-between">
-<div class="flex flex-col space-y-2 max-w-[200px]">
-<h2 class="font-headline-md text-headline-md text-on-surface">Daily Progress</h2>
-<p id="progress-msg" class="font-body-md text-body-md text-on-surface-variant">Keep up the great momentum today.</p>
-</div>
-<div class="relative w-32 h-32 flex items-center justify-center">
-<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
-<path class="text-surface-container stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
-<path id="progress-arc" class="text-primary-container stroke-current progress-ring-circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="0, 100" stroke-linecap="round" stroke-width="3"></path>
-</svg>
-<div class="absolute inset-0 flex flex-col items-center justify-center">
-<span id="progress-pct" class="font-headline-md text-headline-md text-on-surface font-bold">0%</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist">Done</span>
-</div>
-</div>
-</div>
-<!-- Streaks Stack -->
-<div class="col-span-1 flex flex-col gap-stack-gap">
-<!-- Current Streak -->
-<div class="flex-1 bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex flex-col justify-center relative overflow-hidden">
-<div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4">
-<span class="material-symbols-outlined text-[80px] fill">local_fire_department</span>
-</div>
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-1">Current Streak</span>
-<div class="flex items-baseline gap-1">
-<span id="current-streak" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
-<span class="font-body-md text-body-md text-on-surface-variant">days</span>
-</div>
-</div>
-<!-- Longest Streak -->
-<div class="flex-1 bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex flex-col justify-center relative overflow-hidden">
-<div class="absolute right-0 top-0 opacity-10 transform translate-x-4 -translate-y-4">
-<span class="material-symbols-outlined text-[80px] fill">emoji_events</span>
-</div>
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-1">Longest</span>
-<div class="flex items-baseline gap-1">
-<span id="longest-streak" class="font-headline-lg text-headline-lg text-on-surface font-bold">0</span>
-<span class="font-body-md text-body-md text-on-surface-variant">days</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Today's Habits Section -->
-<section class="flex flex-col space-y-stack-gap">
-<h2 class="font-headline-md text-headline-md text-on-surface">Today's Habits</h2>
-<div id="habits-container" class="grid grid-cols-1 gap-stack-gap">
-<!-- Habits rendered dynamically by app.js -->
-</div>
-</section>
+        <!-- Longest Streak -->
+        <div class="bg-white border border-outline-variant/25 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-outline-variant/50 transition-colors">
+            <span class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider geist">Best Streak</span>
+            <div class="flex items-baseline gap-1 mt-3">
+                <span id="longest-streak" class="text-3xl font-extrabold text-on-surface geist">0</span>
+                <span class="text-sm text-on-surface-variant font-medium">days</span>
+            </div>
+            <div class="absolute -right-2 -bottom-2 opacity-[0.06] group-hover:opacity-[0.1] transition-opacity">
+                <span class="material-symbols-outlined text-[72px] fill text-primary">emoji_events</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Today's Habits ──────────────────────────── -->
+    <section class="fade-up fade-up-3">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-on-surface">Today's Habits</h2>
+            <a href="Habits.html" class="text-xs text-on-surface-variant hover:text-primary transition-colors font-semibold geist flex items-center gap-0.5">
+                View all
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+            </a>
+        </div>
+        <div id="habits-container" class="flex flex-col gap-3">
+            <!-- Habits rendered dynamically -->
+        </div>
+    </section>
+
 </main>
-<!-- Floating Glassmorphism Bottom Nav Bar (Mobile Only) -->
-<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-3xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] px-2 py-2 grid grid-cols-5 items-center">
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary-container text-on-primary font-semibold shadow-sm transition-all duration-200" href="Dashboard.html">
-<span class="material-symbols-outlined text-[22px] leading-none fill">home</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Habits.html">
-<span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
-</a>
-<a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
-<div class="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background dark:ring-surface-container active:scale-90 hover:scale-105 transition-all">
-<span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
-</div>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Insights.html">
-<span class="material-symbols-outlined text-[22px] leading-none">insights</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Profile.html">
-<span class="material-symbols-outlined text-[22px] leading-none">person</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Profile</span>
-</a>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- BOTTOM NAV — Mobile -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-white/90 backdrop-blur-xl border border-outline-variant/25 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] px-2 py-2 grid grid-cols-5 items-center">
+    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl bg-primary/[0.08] text-primary font-semibold transition-all" href="Dashboard.html">
+        <span class="material-symbols-outlined text-[22px] leading-none fill">home</span>
+        <span class="text-[10px] tracking-tight mt-1 leading-none geist font-semibold">Dashboard</span>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all" href="Habits.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
+        <span class="text-[10px] tracking-tight mt-1 leading-none geist">Habits</span>
+    </a>
+    <a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
+        <div class="w-[52px] h-[52px] rounded-full bg-primary text-on-primary flex items-center justify-center shadow-[0_6px_20px_rgba(1,45,29,0.35)] ring-4 ring-background active:scale-90 hover:scale-105 transition-all">
+            <span class="material-symbols-outlined text-[28px] leading-none">add</span>
+        </div>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all" href="Insights.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">insights</span>
+        <span class="text-[10px] tracking-tight mt-1 leading-none geist">Insights</span>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all" href="Profile.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">person</span>
+        <span class="text-[10px] tracking-tight mt-1 leading-none geist">Profile</span>
+    </a>
 </nav>
+
 <script src="app.js"></script>
 <script>
 (function() {
@@ -273,17 +283,23 @@
     document.getElementById('greeting').textContent = HabitArc.getGreeting() + ', ' + settings.userName.split(' ')[0];
     document.getElementById('today-date').textContent = HabitArc.getFormattedToday();
 
+    // Header streaks
+    const overallStreak = HabitArc.getOverallCurrentStreak();
+    if (document.getElementById('header-streak-count')) document.getElementById('header-streak-count').textContent = overallStreak + 'd';
+    if (document.getElementById('header-streak-count-web')) document.getElementById('header-streak-count-web').textContent = overallStreak + ' Day Streak';
+
     function render() {
         // Progress
         const progress = HabitArc.getTodayProgress();
         const pct = progress.percentage;
         document.getElementById('progress-pct').textContent = pct + '%';
         document.getElementById('progress-arc').setAttribute('stroke-dasharray', pct + ', 100');
+        document.getElementById('progress-arc').style.setProperty('--target', pct);
 
         const msgs = [
-            pct === 100 ? 'Perfect day! All habits completed.' :
-            pct >= 75 ? "You're almost there! Keep going." :
-            pct >= 50 ? 'Great progress! Stay consistent.' :
+            pct === 100 ? 'Perfect day! All habits completed. 🎉' :
+            pct >= 75 ? "Almost there! Keep the momentum going." :
+            pct >= 50 ? 'Great progress so far. Stay consistent.' :
             pct > 0 ? 'Good start. Build momentum today.' :
             'Start your day strong. You got this!'
         ];
@@ -299,7 +315,14 @@
         const todayHabits = HabitArc.getTodayHabits();
 
         if (todayHabits.length === 0) {
-            container.innerHTML = '<div class="text-center py-8 text-on-surface-variant"><span class="material-symbols-outlined text-[48px] mb-2 block opacity-30">self_improvement</span><p class="font-body-md text-body-md">No habits scheduled for today</p></div>';
+            container.innerHTML = `
+                <div class="text-center py-16 flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[32px] text-on-surface-variant/40">self_improvement</span>
+                    </div>
+                    <p class="text-sm text-on-surface-variant">No habits scheduled for today</p>
+                    <a href="Add_Habit.html" class="text-xs text-primary font-semibold hover:underline mt-1">+ Create your first habit</a>
+                </div>`;
             return;
         }
 
@@ -310,35 +333,40 @@
             const last7 = HabitArc.getLast7Days(habit.id);
 
             const card = document.createElement('div');
-            card.className = `bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-colors duration-200 cursor-pointer ${isCompleted ? 'opacity-70' : ''}`;
+            card.className = `bg-white border rounded-2xl p-4 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${isCompleted ? 'border-primary/15 bg-primary/[0.02]' : 'border-outline-variant/25 hover:border-outline-variant/50'}`;
 
-            // 7 day dots
+            // 7-day dots
             let dotsHtml = last7.map(d => {
+                const base = 'flex flex-col items-center gap-1';
+                const label = `<span class="text-[9px] geist font-medium ${d.isToday ? 'text-primary font-bold' : 'text-on-surface-variant/60'}">${d.label}</span>`;
+                if (d.isToday && isCompleted) {
+                    return `<div class="${base}"><span class="w-6 h-6 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-[13px] text-on-primary">check</span></span>${label}</div>`;
+                }
                 if (d.isToday) {
-                    return `<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full ${isCompleted ? 'bg-primary-container flex items-center justify-center' : 'bg-surface-container border-2 border-primary-container'}"><span class="material-symbols-outlined text-[14px] ${isCompleted ? 'text-on-primary' : 'hidden'}">${isCompleted ? 'check' : ''}</span></span><span class="font-label-sm text-[8px] text-primary-container font-bold">${d.label}</span></div>`;
+                    return `<div class="${base}"><span class="w-6 h-6 rounded-full border-2 border-primary/40 bg-primary/[0.06]"></span>${label}</div>`;
                 }
                 if (d.completed) {
-                    return `<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-[14px] text-on-primary">check</span></span><span class="font-label-sm text-[8px] text-on-surface-variant">${d.label}</span></div>`;
+                    return `<div class="${base}"><span class="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center"><span class="material-symbols-outlined text-[12px] text-primary/70">check</span></span>${label}</div>`;
                 }
-                return `<div class="flex flex-col items-center gap-1"><span class="w-6 h-6 rounded-full bg-surface-container border border-outline-variant"></span><span class="font-label-sm text-[8px] text-on-surface-variant">${d.label}</span></div>`;
+                return `<div class="${base}"><span class="w-6 h-6 rounded-full bg-surface-container/80"></span>${label}</div>`;
             }).join('');
 
             card.innerHTML = `
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-3" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">
-                        <div class="w-10 h-10 rounded-full ${style.bg} flex items-center justify-center ${style.text}">
-                            <span class="material-symbols-outlined ${style.iconFill ? 'fill' : ''}">${habit.icon}</span>
+                    <div class="flex items-center gap-3 flex-1 min-w-0" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">
+                        <div class="w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center ${style.text} shrink-0">
+                            <span class="material-symbols-outlined text-xl ${style.iconFill ? 'fill' : ''}">${habit.icon}</span>
                         </div>
-                        <div class="flex flex-col">
-                            <span class="font-headline-md text-headline-md text-on-surface text-base ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${habit.name}</span>
-                            <span class="font-label-sm text-label-sm text-on-surface-variant geist">Streak: ${streak} day${streak !== 1 ? 's' : ''}</span>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[15px] font-semibold text-on-surface truncate ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${habit.name}</span>
+                            <span class="text-[11px] text-on-surface-variant geist font-medium">${streak > 0 ? streak + ' day streak · ' : ''}${habit.category}</span>
                         </div>
                     </div>
-                    <button class="habit-toggle w-8 h-8 rounded-full ${isCompleted ? 'bg-primary-container flex items-center justify-center text-on-primary shadow-[0_4px_12px_rgba(0,0,0,0.05)]' : 'border-2 border-outline-variant flex items-center justify-center text-outline-variant hover:border-primary-container hover:text-primary-container'} active:scale-95 transition-all" data-id="${habit.id}">
-                        <span class="material-symbols-outlined text-[20px]">${isCompleted ? 'check' : 'check'}</span>
+                    <button class="habit-toggle w-9 h-9 rounded-xl shrink-0 flex items-center justify-center active:scale-90 transition-all ${isCompleted ? 'bg-primary text-on-primary shadow-sm' : 'border border-outline-variant/40 text-outline-variant hover:border-primary/40 hover:text-primary'}" data-id="${habit.id}">
+                        <span class="material-symbols-outlined text-[20px]">check</span>
                     </button>
                 </div>
-                <div class="flex justify-between mt-2 pt-3 border-t border-surface-container">${dotsHtml}</div>
+                <div class="flex justify-between items-center pt-2 border-t border-outline-variant/15">${dotsHtml}</div>
             `;
 
             container.appendChild(card);
@@ -353,6 +381,8 @@
                     HabitArc.uncompleteHabit(id);
                 } else {
                     HabitArc.completeHabit(id);
+                    this.classList.add('pop');
+                    setTimeout(() => this.classList.remove('pop'), 300);
                 }
                 render();
             });
