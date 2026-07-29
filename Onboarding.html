@@ -140,58 +140,61 @@
     .setup-logo {
         animation: logoBreathe 2.5s ease-in-out infinite, logoSpin 30s linear infinite;
     }
-    /* Setup Transition Screen — Single Card Reel Slide (Bulletproof) */
-    .card-reel-viewport {
-        height: 64px;
-        overflow: hidden;
-        position: relative;
+    /* Spotify Queue-Style Stack Animation */
+    .queue-viewport {
         width: 100%;
-    }
-    .card-reel-item {
-        position: absolute;
-        inset: 0;
+        max-width: 360px;
+        height: 210px;
+        position: relative;
+        overflow: hidden;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 16px;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    .queue-card {
+        width: 100%;
+        height: 60px;
         border-radius: 16px;
-        border: 2px solid #edeeef;
-        background-color: #ffffff;
-        transform: translateY(100%);
-        opacity: 0;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, border-color 0.3s ease, background-color 0.3s ease;
+        padding: 10px 14px;
+        display: flex;
+        items-center;
+        justify-content: space-between;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-sizing: border-box;
     }
-    .card-reel-item.active {
-        transform: translateY(0);
+    .queue-card-slot1 {
+        opacity: 0.4;
+        transform: translateY(-8px) scale(0.94);
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid #e2e8f0;
+    }
+    .queue-card-slot2 {
+        opacity: 0.75;
+        transform: translateY(-4px) scale(0.97);
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid #cbd5e1;
+    }
+    .queue-card-slot3 {
         opacity: 1;
-        border-color: #012d1d;
-        background-color: rgba(193, 236, 212, 0.25);
-    }
-    .card-reel-item.exit {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    .card-reel-item.ready-card {
-        border-color: #012d1d !important;
-        background-color: #012d1d !important;
-        color: #ffffff !important;
+        transform: translateY(0) scale(1);
+        background: #012d1d;
+        color: #ffffff;
+        border: 1px solid #012d1d;
         box-shadow: 0 8px 24px rgba(1, 45, 29, 0.2);
     }
-    .card-reel-item.ready-card * {
+    .queue-card-slot3 * {
         color: #ffffff !important;
     }
-    .reel-check {
-        transform: scale(0.3);
-        opacity: 0;
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+    @keyframes queueSlideIn {
+        0% { opacity: 0; transform: translateY(24px) scale(0.95); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .card-reel-item.active .reel-check,
-    .card-reel-item.ready-card .reel-check {
-        transform: scale(1);
-        opacity: 1;
+    .queue-card-enter {
+        animation: queueSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     #setup-progress-fill {
-        transition: width 0.35s ease-out;
+        transition: width 3.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes auraPulse {
         0%, 100% { transform: scale(1); opacity: 0.15; }
@@ -634,14 +637,14 @@
     </button>
 </footer>
 
-<!-- Single Card Reel Setup Transition Screen (100% Bulletproof UI) -->
+<!-- Fast Vertical Ticker Setup Transition Screen (White Theme) -->
 <div id="setup-transition">
     <!-- Ultra-Thin Top Progress Line -->
     <div class="absolute top-0 left-0 right-0 h-[2px] bg-surface-container overflow-hidden">
         <div id="setup-progress-fill" class="h-full bg-primary w-0"></div>
     </div>
 
-    <div class="relative z-10 flex flex-col items-center justify-center gap-4 px-6 max-w-sm mx-auto text-center w-full">
+    <div class="relative z-10 flex flex-col items-center justify-center gap-3 px-6 max-w-sm mx-auto text-center w-full">
         <!-- Hero Logo with Ambient Aura Ring -->
         <div class="relative flex items-center justify-center my-1">
             <div class="logo-aura-ring"></div>
@@ -657,12 +660,52 @@
             <p id="setup-subtitle" class="font-body-md text-xs sm:text-sm text-on-surface-variant font-semibold transition-all duration-300">Initializing Habit Engine...</p>
         </div>
 
-        <!-- Single Card Reel Viewport -->
-        <div class="w-full card-reel-viewport mt-2">
-            <div id="reel-items-container" class="relative w-full h-full">
-                <!-- Reel Cards inserted / controlled via JS -->
+        <!-- Spotify Queue-Style Animated Viewport -->
+        <div class="w-full flex justify-center mt-2">
+            <div id="queue-viewport" class="queue-viewport">
+                <!-- 3 Stacked Queue Cards dynamically shifted via JS -->
+                <div id="q-card-1" class="queue-card queue-card-slot1">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-primary text-base">bolt</span>
+                        </div>
+                        <div class="text-left leading-tight">
+                            <span class="q-title font-bold text-xs sm:text-sm text-on-surface block">Initializing Habit Engine</span>
+                            <span class="q-sub text-[10px] sm:text-xs text-on-surface-variant font-medium block">Core Logic</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-outline text-base">more_horiz</span>
+                </div>
+
+                <div id="q-card-2" class="queue-card queue-card-slot2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-emerald-600 text-base">palette</span>
+                        </div>
+                        <div class="text-left leading-tight">
+                            <span class="q-title font-bold text-xs sm:text-sm text-on-surface block">Applying Visual Theme</span>
+                            <span class="q-sub text-[10px] sm:text-xs text-on-surface-variant font-medium block">Visual Preferences</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-outline text-base">more_horiz</span>
+                </div>
+
+                <div id="q-card-3" class="queue-card queue-card-slot3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-white text-base">psychology</span>
+                        </div>
+                        <div class="text-left leading-tight">
+                            <span class="q-title font-bold text-xs sm:text-sm text-white block">Tuning AI Coach Engine</span>
+                            <span class="q-sub text-[10px] sm:text-xs text-white/80 font-medium block">Behavioral Analytics</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-white text-base">more_horiz</span>
+                </div>
             </div>
         </div>
+    </div>
+</div>
     </div>
 </div>
 
@@ -970,73 +1013,85 @@
         const fillBar = document.getElementById('setup-progress-fill');
         if (fillBar) setTimeout(() => { fillBar.style.width = '100%'; }, 50);
 
-        // Single-Card Step Slide Transition Logic (100% Bulletproof)
-        const container = document.getElementById('reel-items-container');
+        // Spotify-Style Queue Shift Animation Engine
         const subtitleEl = document.getElementById('setup-subtitle');
         const badgeEl = document.getElementById('setup-percent-badge');
+        const card1 = document.getElementById('q-card-1');
+        const card2 = document.getElementById('q-card-2');
+        const card3 = document.getElementById('q-card-3');
 
-        const steps = [
-            { icon: 'bolt', color: 'text-primary', title: 'Initializing Habit Engine', msg: 'Setting up core habit tracking...' },
-            { icon: 'palette', color: 'text-emerald-600', title: 'Applying Theme & Palette', msg: 'Customizing visual preferences...' },
-            { icon: 'psychology', color: 'text-teal-600', title: 'Tuning AI Coach Engine', msg: 'Calibrating behavioral recommendations...' },
-            { icon: 'stars', color: 'text-amber-600', title: 'Anchoring North Star Goal', msg: 'Locking in your core focus...' },
-            { icon: 'grid_view', color: 'text-sky-600', title: 'Building Contribution Arc', msg: 'Generating 30-day heatmap...' },
-            { icon: 'notifications_active', color: 'text-indigo-600', title: 'Setting Contextual Prompts', msg: 'Configuring daily reminders...' },
-            { icon: 'shield', color: 'text-purple-600', title: 'Securing Growth Profile', msg: 'Encrypting local profile storage...' },
-            { icon: 'auto_awesome', color: 'text-on-primary', title: 'Workspace Ready!', msg: 'Welcome to HabitArc. Redirecting...', isReady: true }
+        const queueItems = [
+            { title: 'Initializing Habit Engine', sub: 'Core System', icon: 'bolt', color: 'text-primary' },
+            { title: 'Applying Visual Theme', sub: 'Visual Preferences', icon: 'palette', color: 'text-emerald-600' },
+            { title: 'Tuning AI Coach Engine', sub: 'Behavioral Analytics', icon: 'psychology', color: 'text-teal-600' },
+            { title: 'Anchoring North Star Goal', sub: 'Personal Target', icon: 'stars', color: 'text-amber-600' },
+            { title: 'Building Contribution Arc', sub: 'Heatmap Grid', icon: 'grid_view', color: 'text-sky-600' },
+            { title: 'Setting Contextual Prompts', sub: 'Notification Prompts', icon: 'notifications_active', color: 'text-indigo-600' },
+            { title: 'Securing Growth Profile', sub: 'User Encryption', icon: 'shield', color: 'text-purple-600' },
+            { title: 'Finalizing Account Setup', sub: 'Syncing Cloud Profile', icon: 'verified', color: 'text-rose-600' },
+            { title: 'Workspace Ready!', sub: 'Welcome to HabitArc', icon: 'auto_awesome', color: 'text-white', ready: true }
         ];
 
-        let activeIdx = 0;
-        let activeEl = null;
+        function updateCardContent(cardEl, data, isSlot3) {
+            if (!cardEl || !data) return;
+            const iconEl = cardEl.querySelector('.material-symbols-outlined:first-child');
+            const titleEl = cardEl.querySelector('.q-title');
+            const subEl = cardEl.querySelector('.q-sub');
 
-        function showStep(idx) {
-            if (idx >= steps.length) {
-                setTimeout(() => {
-                    setupScreen.classList.add('fade-out');
-                    setTimeout(() => { window.location.href = 'Dashboard.html'; }, 400);
-                }, 600);
+            if (titleEl) titleEl.textContent = data.title;
+            if (subEl) subEl.textContent = data.sub;
+            if (iconEl) {
+                iconEl.textContent = data.icon;
+                if (!isSlot3) {
+                    iconEl.className = `material-symbols-outlined text-base ${data.color}`;
+                }
+            }
+        }
+
+        let itemIndex = 2; // Starts with first 3 items populated
+        const totalItems = queueItems.length;
+
+        const queueInterval = setInterval(() => {
+            itemIndex++;
+            if (itemIndex >= totalItems) {
+                clearInterval(queueInterval);
                 return;
             }
 
-            const step = steps[idx];
-            const pct = Math.round(((idx + 1) / steps.length) * 100);
-
-            if (fillBar) fillBar.style.width = `${pct}%`;
+            const nextData = queueItems[itemIndex];
+            const pct = Math.round(((itemIndex + 1) / totalItems) * 100);
             if (badgeEl) badgeEl.textContent = `${pct}% Configured`;
-            if (subtitleEl) subtitleEl.textContent = step.msg;
+            if (subtitleEl) subtitleEl.textContent = nextData.title;
 
-            const cardEl = document.createElement('div');
-            cardEl.className = `card-reel-item ${step.isReady ? 'ready-card' : ''}`;
-            cardEl.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined ${step.isReady ? 'text-on-primary' : step.color} text-xl">${step.icon}</span>
-                    <span class="text-xs sm:text-sm font-bold">${step.title}</span>
-                </div>
-                <div class="reel-check w-5 h-5 rounded-full ${step.isReady ? 'bg-on-primary text-primary' : 'bg-primary text-on-primary'} flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
-            `;
+            // Shift queue items upwards
+            const dataSlot1 = queueItems[itemIndex - 2];
+            const dataSlot2 = queueItems[itemIndex - 1];
+            const dataSlot3 = queueItems[itemIndex];
 
-            if (container) container.appendChild(cardEl);
+            updateCardContent(card1, dataSlot1, false);
+            updateCardContent(card2, dataSlot2, false);
+            updateCardContent(card3, dataSlot3, true);
 
-            // Animate card slide in
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    if (activeEl) {
-                        activeEl.classList.remove('active');
-                        activeEl.classList.add('exit');
-                        setTimeout(() => { if (activeEl && activeEl.parentNode) activeEl.remove(); }, 400);
-                    }
-                    cardEl.classList.add('active');
-                    activeEl = cardEl;
-                });
-            });
+            if (card3) {
+                card3.classList.remove('queue-card-enter');
+                void card3.offsetWidth;
+                card3.classList.add('queue-card-enter');
+            }
 
-            const stepDelay = step.isReady ? 900 : 420;
+            if (nextData.ready) {
+                if (badgeEl) badgeEl.textContent = '100% Complete';
+                if (subtitleEl) subtitleEl.textContent = 'Workspace Ready! Welcome to HabitArc.';
+            }
+        }, 480);
+
+        // Complete queue & navigate after 4.4s
+        setTimeout(() => {
+            clearInterval(queueInterval);
+            setupScreen.classList.add('fade-out');
             setTimeout(() => {
-                showStep(idx + 1);
-            }, stepDelay);
-        }
-
-        showStep(0);
+                window.location.href = 'Dashboard.html';
+            }, 450);
+        }, 4400);
     }
 
     // Direct triggers from Step 8 sign-in actions (No need to click Enter HabitArc!)
