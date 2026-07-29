@@ -109,9 +109,9 @@
 <!-- Subtle Background Pattern -->
 <div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
 <!-- Top App Bar (Mobile) -->
-<header class="w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-surface-container/70 dark:border-zinc-800 flex justify-between items-center px-4 py-3 max-w-7xl mx-auto md:hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+<header class="w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-surface-container/70 dark:border-zinc-800 flex justify-between items-center px-4 py-3 md:hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
     <a href="Dashboard.html" class="flex items-center gap-2">
-        <img src="logo.png" alt="HabitArc Logo" class="w-8 h-8 rounded-lg object-contain ring-1 ring-primary/20"/>
+        <img src="logo.png" alt="HabitArc Logo" class="w-8 h-8 object-contain"/>
         <span class="font-headline-md text-lg text-primary dark:text-emerald-400 font-bold tracking-tight">HabitArc</span>
     </a>
     
@@ -129,14 +129,11 @@
     </div>
 </header>
 
-<!-- Desktop Web Navigation Header -->
-<header class="hidden md:flex w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl justify-between items-center px-container-padding py-3 max-w-7xl mx-auto border-b border-surface-container/70 dark:border-zinc-800 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-    <a href="Dashboard.html" class="flex items-center gap-2.5 group">
-        <img src="logo.png" alt="HabitArc Logo" class="w-9 h-9 rounded-xl object-contain ring-2 ring-primary/15 group-hover:scale-105 transition-transform"/>
-        <div class="flex flex-col">
-            <span class="font-headline-lg text-xl text-primary dark:text-emerald-400 font-bold tracking-tight leading-tight">HabitArc</span>
-            <span class="text-[10px] text-on-surface-variant/70 font-semibold tracking-wider uppercase geist">Mindful Growth</span>
-        </div>
+<!-- Desktop Web Navigation Header (Full Width Edge-to-Edge) -->
+<header class="hidden md:flex w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl justify-between items-center px-6 lg:px-12 py-3 border-b border-surface-container/70 dark:border-zinc-800 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+    <a href="Dashboard.html" class="flex items-center gap-2.5">
+        <img src="logo.png" alt="HabitArc Logo" class="w-9 h-9 object-contain"/>
+        <span class="font-headline-lg text-xl text-primary dark:text-emerald-400 font-bold tracking-tight">HabitArc</span>
     </a>
     
     <!-- Segmented Navigation Bar -->
