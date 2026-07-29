@@ -142,7 +142,7 @@
     }
     /* Fast Vertical Ticker Reel & Spotlight Scanner */
     .ticker-viewport {
-        height: 185px;
+        height: 160px;
         overflow: hidden;
         position: relative;
         mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
@@ -151,7 +151,7 @@
     .ticker-track {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         transform: translateY(0);
     }
     .ticker-track.spinning {
@@ -159,10 +159,12 @@
     }
     @keyframes rapidTickerScroll {
         0% { transform: translateY(0); }
-        85% { transform: translateY(-520px); }
-        100% { transform: translateY(-600px); }
+        75% { transform: translateY(-448px); }
+        100% { transform: translateY(-504px); }
     }
     .ticker-card {
+        height: 48px;
+        box-sizing: border-box;
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         opacity: 0.45;
         transform: scale(0.97);
@@ -171,8 +173,8 @@
         opacity: 1;
         border-color: #012d1d !important;
         background-color: rgba(193, 236, 212, 0.4) !important;
-        transform: scale(1.03);
-        box-shadow: 0 6px 16px rgba(1, 45, 29, 0.1);
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(1, 45, 29, 0.08);
     }
     .ticker-card .card-check {
         opacity: 0;
@@ -192,8 +194,8 @@
     }
     .logo-aura-ring {
         position: absolute;
-        width: 160px;
-        height: 160px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
         background: radial-gradient(circle, rgba(1, 45, 29, 0.2) 0%, rgba(16, 185, 129, 0.1) 50%, transparent 70%);
         animation: auraPulse 2.5s infinite ease-in-out;
@@ -638,12 +640,12 @@
         <!-- Hero Logo with Ambient Aura Ring -->
         <div class="relative flex items-center justify-center my-1">
             <div class="logo-aura-ring"></div>
-            <img src="logo.png" alt="HabitArc" class="w-32 h-32 sm:w-40 sm:h-40 object-contain setup-logo filter drop-shadow-xl relative z-10"/>
+            <img src="logo.png" alt="HabitArc" class="w-24 h-24 sm:w-28 sm:h-28 object-contain setup-logo filter drop-shadow-xl relative z-10"/>
         </div>
 
         <!-- Dynamic Title & Live Status -->
         <div class="space-y-1">
-            <div class="flex items-center justify-center gap-2 mb-1">
+            <div class="flex items-center justify-center gap-2 mb-0.5">
                 <span id="setup-percent-badge" class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold geist uppercase tracking-wider">0% Configured</span>
             </div>
             <h2 class="font-headline-lg text-xl sm:text-2xl text-on-surface font-bold tracking-tight">Setting Up Your Workspace</h2>
@@ -653,7 +655,7 @@
         <!-- Fast Vertical Scroll Reel Viewport with Central Spotlight Lens -->
         <div class="w-full ticker-viewport mt-1">
             <!-- Central Spotlight Scanner Lens -->
-            <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[52px] border-2 border-primary/30 bg-primary/5 rounded-2xl pointer-events-none shadow-[0_0_20px_rgba(1,45,29,0.06)] z-20"></div>
+            <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[48px] border-2 border-primary/30 bg-primary/5 rounded-2xl pointer-events-none shadow-[0_0_16px_rgba(1,45,29,0.06)] z-20"></div>
 
             <div id="ticker-track" class="ticker-track relative z-10">
                 <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
@@ -728,9 +730,9 @@
                     <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
                 </div>
 
-                <div class="ticker-card selected p-3.5 rounded-2xl bg-primary text-on-primary border border-primary flex items-center justify-between text-left font-bold opacity-100 shadow-md">
+                <div class="ticker-card selected px-3 py-2.5 rounded-2xl bg-primary text-on-primary border border-primary flex items-center justify-between text-left font-bold opacity-100 shadow-md">
                     <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-on-primary text-xl">auto_awesome</span>
+                        <span class="material-symbols-outlined text-on-primary text-lg">auto_awesome</span>
                         <span class="text-xs sm:text-sm text-on-primary">Workspace Ready!</span>
                     </div>
                     <div class="w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0 opacity-100">✓</div>
