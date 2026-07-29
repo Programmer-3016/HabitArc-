@@ -105,6 +105,50 @@
     .logo-hero {
         animation: fadeInUp 0.4s ease-out forwards, logoSpin 30s linear 0.5s infinite;
     }
+
+    /* Setup Transition Screen */
+    #setup-transition {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+    }
+    #setup-transition.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    #setup-transition.fade-out {
+        opacity: 0;
+    }
+    .setup-logo {
+        animation: logoBreathe 3s ease-in-out infinite, logoSpin 30s linear infinite;
+    }
+    @keyframes setupItemIn {
+        0% { opacity: 0; transform: translateY(6px) scale(0.97); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .setup-item {
+        opacity: 0;
+    }
+    .setup-item.show {
+        animation: setupItemIn 0.35s ease-out forwards;
+    }
+    .setup-check {
+        opacity: 0;
+        transform: scale(0.5);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .setup-item.show .setup-check {
+        opacity: 1;
+        transform: scale(1);
+    }
 </style>
 </head>
 <body class="bg-background text-on-background antialiased h-[100dvh] max-h-[100dvh] flex flex-col justify-between p-4 sm:p-6 overflow-hidden relative">
@@ -533,6 +577,44 @@
     </button>
 </footer>
 
+<!-- Premium Setup Transition Screen -->
+<div id="setup-transition">
+    <div class="flex flex-col items-center justify-center gap-5 px-6 max-w-sm mx-auto">
+        <!-- Breathing Logo -->
+        <img src="logo.png" alt="HabitArc" class="w-20 h-20 sm:w-24 sm:h-24 object-contain setup-logo filter drop-shadow-lg"/>
+
+        <!-- Headline -->
+        <div class="text-center space-y-1.5">
+            <h2 class="font-headline-lg text-xl sm:text-2xl text-on-surface font-bold tracking-tight">Preparing your personalized workspace...</h2>
+            <p class="font-body-md text-sm text-on-surface-variant font-medium">Setting everything up based on your preferences.</p>
+        </div>
+
+        <!-- Animated Checklist -->
+        <div class="w-full space-y-2.5 pt-2 text-left text-sm geist font-semibold">
+            <div class="setup-item flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-surface-container">
+                <div class="setup-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
+                <span class="text-on-surface">Creating your contribution grid</span>
+            </div>
+            <div class="setup-item flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-surface-container">
+                <div class="setup-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
+                <span class="text-on-surface">Personalizing your AI Coach</span>
+            </div>
+            <div class="setup-item flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-surface-container">
+                <div class="setup-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
+                <span class="text-on-surface">Setting up your dashboard</span>
+            </div>
+            <div class="setup-item flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-surface-container">
+                <div class="setup-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
+                <span class="text-on-surface">Creating your first habit</span>
+            </div>
+            <div class="setup-item flex items-center gap-3 p-3 rounded-xl bg-surface-container-lowest border border-surface-container">
+                <div class="setup-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
+                <span class="text-on-surface text-primary font-bold">Almost ready...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="app.js"></script>
 <script>
 (function() {
@@ -827,11 +909,36 @@
         updateStep();
     });
 
-    // Step 9: Enter App Button
+    // Step 9: Enter App Button → Premium Setup Transition
     const enterAppBtn = document.getElementById('enter-app-btn');
     if (enterAppBtn) {
         enterAppBtn.addEventListener('click', function() {
-            window.location.href = 'Dashboard.html';
+            // Scale button press feedback
+            this.style.transform = 'scale(0.96)';
+            this.style.opacity = '0.7';
+
+            // Fade in setup transition screen
+            setTimeout(() => {
+                const setupScreen = document.getElementById('setup-transition');
+                setupScreen.classList.add('visible');
+
+                // Animate checklist items sequentially
+                const items = setupScreen.querySelectorAll('.setup-item');
+                items.forEach((item, idx) => {
+                    setTimeout(() => {
+                        item.classList.add('show');
+                    }, 400 * (idx + 1));
+                });
+
+                // After all items + 400ms delay, navigate to Dashboard
+                const totalTime = 400 * (items.length + 1) + 400;
+                setTimeout(() => {
+                    setupScreen.classList.add('fade-out');
+                    setTimeout(() => {
+                        window.location.href = 'Dashboard.html';
+                    }, 400);
+                }, totalTime);
+            }, 250);
         });
     }
 
