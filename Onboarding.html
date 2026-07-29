@@ -606,31 +606,62 @@
     </div>
 
     <!-- STEP 7: North Star Habit -->
-    <div id="step-7" class="step-card animate-in space-y-4">
+    <div id="step-7" class="step-card animate-in space-y-3.5">
         <div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold leading-tight">
-                If you could improve only ONE habit this year...<br/>
-                <span class="text-primary font-extrabold">What would it be?</span>
-            </h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1 leading-relaxed">
-                This will become your personal north star. We'll remind you why you started whenever you lose consistency.
-            </p>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold geist uppercase tracking-wider mb-1">
+                <span class="material-symbols-outlined text-xs fill">stars</span>
+                <span>Primary Goal</span>
+            </div>
+            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold leading-tight">Define Your North Star</h2>
+            <p class="font-body-md text-xs sm:text-sm text-on-surface-variant mt-0.5">If you could improve only ONE habit this year, what would it be?</p>
         </div>
 
-        <div class="space-y-3 pt-1">
-            <input id="north-star-input" type="text" value="Daily Meditation & Mindful Reflection" class="w-full p-3.5 sm:p-4 rounded-xl border-2 border-primary bg-surface-container-lowest font-headline-md text-base sm:text-lg text-on-surface focus:ring-4 focus:ring-primary/15 focus:outline-none shadow-xs transition-all font-semibold" placeholder="e.g. Daily 20-minute Reading"/>
-            
-            <!-- Rotating Ideas Ticker -->
-            <div class="flex items-center gap-2 px-1 text-xs text-on-surface-variant geist">
-                <span class="font-bold text-outline uppercase tracking-wider text-[10px]">IDEAS:</span>
-                <div class="relative overflow-hidden h-5 flex-1">
-                    <span id="rotating-example" class="font-semibold text-primary absolute left-0 top-0 transition-all duration-300 cursor-pointer hover:underline">Read 20 Pages</span>
+        <!-- Live North Star Card Preview (Matching Step 5 Visual Preview Pattern) -->
+        <div id="north-star-card-preview" class="rounded-2xl p-4 transition-all duration-300 shadow-sm border bg-surface-container-lowest border-surface-container space-y-2.5">
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm fill">stars</span>
+                    </span>
+                    <span class="text-[11px] font-bold font-headline-md uppercase tracking-wider text-on-surface-variant geist">North Star Anchor</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary geist">Daily Focus</span>
+            </div>
+
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1">
+                    <h3 id="preview-habit-name" class="font-headline-md text-base sm:text-lg font-bold text-on-surface leading-snug">Daily Meditation & Mindful Reflection</h3>
+                    <p id="preview-habit-sub" class="font-body-md text-xs text-on-surface-variant geist">Building stillness and focus, one day at a time.</p>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-xs">
+                    <span class="material-symbols-outlined text-xl">auto_awesome</span>
                 </div>
             </div>
 
-            <div class="bg-primary-fixed/20 border border-primary-fixed/60 rounded-xl p-3.5 flex items-center gap-3">
-                <span class="material-symbols-outlined text-primary text-2xl fill">stars</span>
-                <span class="font-body-md text-xs sm:text-sm text-on-surface font-medium">Your North Star Habit anchors your daily routine.</span>
+            <div class="flex items-center gap-3 text-[11px] font-semibold text-on-surface-variant geist pt-1 border-t border-outline-variant/20">
+                <span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-xs">local_fire_department</span> 1-Day Streak Target</span>
+                <span>•</span>
+                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">schedule</span> Every Morning</span>
+            </div>
+        </div>
+
+        <!-- Input Field & Quick Select Pills -->
+        <div class="space-y-3 pt-0.5">
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-primary text-xl pointer-events-none fill">stars</span>
+                <input id="north-star-input" type="text" value="Daily Meditation & Mindful Reflection" class="w-full pl-11 pr-4 py-3 sm:py-3.5 rounded-xl border-2 border-primary bg-surface-container-lowest font-headline-md text-sm sm:text-base text-on-surface focus:ring-4 focus:ring-primary/15 focus:outline-none shadow-xs transition-all font-semibold" placeholder="e.g. Daily 20-minute Reading"/>
+            </div>
+
+            <!-- Quick Choice Idea Pills -->
+            <div class="space-y-1.5">
+                <span class="block font-label-md text-[10px] text-on-surface-variant geist font-bold uppercase tracking-wider">Quick Suggestions:</span>
+                <div class="flex flex-wrap gap-1.5" id="north-star-pills">
+                    <button class="ns-pill btn-press px-2.5 py-1 rounded-lg border border-surface-container bg-surface-container-low hover:border-primary/40 text-on-surface text-xs font-semibold geist transition-all flex items-center gap-1" data-val="Daily Meditation & Mindfulness">🧘 Meditation</button>
+                    <button class="ns-pill btn-press px-2.5 py-1 rounded-lg border border-surface-container bg-surface-container-low hover:border-primary/40 text-on-surface text-xs font-semibold geist transition-all flex items-center gap-1" data-val="Read 20 Pages Daily">📚 Read 20 Pages</button>
+                    <button class="ns-pill btn-press px-2.5 py-1 rounded-lg border border-surface-container bg-surface-container-low hover:border-primary/40 text-on-surface text-xs font-semibold geist transition-all flex items-center gap-1" data-val="30-Minute Morning Workout">🏃 30m Workout</button>
+                    <button class="ns-pill btn-press px-2.5 py-1 rounded-lg border border-surface-container bg-surface-container-low hover:border-primary/40 text-on-surface text-xs font-semibold geist transition-all flex items-center gap-1" data-val="Drink 3L Water Every Day">💧 Drink 3L Water</button>
+                    <button class="ns-pill btn-press px-2.5 py-1 rounded-lg border border-surface-container bg-surface-container-low hover:border-primary/40 text-on-surface text-xs font-semibold geist transition-all flex items-center gap-1" data-val="Code for 1 Hour Daily">💻 Code 1 Hour</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1034,33 +1065,33 @@
         });
     });
 
-    // Step 7: North Star Rotating Ideas Ticker
-    const northStarExamples = [
-        "Read 20 Pages",
-        "Workout Every Morning",
-        "Meditate Daily",
-        "Drink 3L Water",
-        "Wake Up at 6 AM"
-    ];
-    let exampleIdx = 0;
-    const exampleEl = document.getElementById('rotating-example');
-    if (exampleEl) {
-        setInterval(() => {
-            exampleEl.style.opacity = '0';
-            exampleEl.style.transform = 'translateY(-4px)';
-            setTimeout(() => {
-                exampleIdx = (exampleIdx + 1) % northStarExamples.length;
-                exampleEl.textContent = northStarExamples[exampleIdx];
-                exampleEl.style.opacity = '1';
-                exampleEl.style.transform = 'translateY(0)';
-            }, 300);
-        }, 3000);
+    // Step 7: North Star Live Preview & Pills Interactivity
+    const nsInput = document.getElementById('north-star-input');
+    const nsPreviewTitle = document.getElementById('preview-habit-name');
+    const nsPreviewCard = document.getElementById('north-star-card-preview');
 
-        exampleEl.addEventListener('click', () => {
-            const input = document.getElementById('north-star-input');
-            if (input) input.value = exampleEl.textContent;
+    function updateNorthStarPreview(val) {
+        const cleanVal = val.trim() || 'Daily Meditation & Mindful Reflection';
+        if (nsPreviewTitle) nsPreviewTitle.textContent = cleanVal;
+        if (nsPreviewCard) {
+            nsPreviewCard.style.transform = 'scale(1.01)';
+            setTimeout(() => { nsPreviewCard.style.transform = 'scale(1)'; }, 150);
+        }
+    }
+
+    if (nsInput) {
+        nsInput.addEventListener('input', function() {
+            updateNorthStarPreview(this.value);
         });
     }
+
+    document.querySelectorAll('.ns-pill').forEach(pill => {
+        pill.addEventListener('click', function() {
+            const val = this.dataset.val;
+            if (nsInput) nsInput.value = val;
+            updateNorthStarPreview(val);
+        });
+    });
 
     // Step 8: Create Account (Accordion Panel & Sign-in Actions)
     const emailToggle = document.getElementById('email-accordion-toggle');
