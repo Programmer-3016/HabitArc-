@@ -102,6 +102,14 @@
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         
+        /* Grid Background Pattern */
+        .grid-bg {
+            background-image: linear-gradient(to right, #e1e3e4 1px, transparent 1px),
+                              linear-gradient(to bottom, #e1e3e4 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+        }
+
         /* Subtle glassmorphism */
         .glass-panel {
             background: rgba(255, 255, 255, 0.85);
@@ -111,7 +119,10 @@
         }
     </style>
 </head>
-<body class="bg-background text-on-background font-body-lg antialiased min-h-screen flex flex-col pb-24 md:pb-8">
+<body class="bg-background text-on-background font-body-lg antialiased min-h-screen flex flex-col pb-24 md:pb-8 relative overflow-x-hidden">
+
+<!-- Subtle Background Pattern -->
+<div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
 <!-- Top App Bar (Mobile) -->
 <header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
     <a href="Dashboard.html" class="flex items-center gap-2.5">

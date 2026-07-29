@@ -100,6 +100,14 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
         
+        /* Grid Background Pattern */
+        .grid-bg {
+            background-image: linear-gradient(to right, #e1e3e4 1px, transparent 1px),
+                              linear-gradient(to bottom, #e1e3e4 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+        }
+
         /* Progress Ring Animation */
         @keyframes dash { 0% { stroke-dasharray: 0, 100; } 100% { stroke-dasharray: var(--target), 100; } }
         .progress-ring-circle { animation: dash 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
@@ -117,7 +125,10 @@
         .pop { animation: pop 0.3s ease; }
     </style>
 </head>
-<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+
+<!-- Subtle Background Pattern -->
+<div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
 
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- TOP BAR — Mobile -->
