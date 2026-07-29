@@ -1152,11 +1152,11 @@
 
         function updateLiveTask(message) {
             if (!liveTaskEl) return;
-            liveTaskEl.textContent = message;
             liveTaskEl.style.opacity = '0';
-            requestAnimationFrame(() => {
+            setTimeout(() => {
+                liveTaskEl.textContent = message;
                 liveTaskEl.style.opacity = '1';
-            });
+            }, 150);
         }
 
         if (!tickerTrack) {
