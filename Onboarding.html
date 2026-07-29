@@ -106,21 +106,22 @@
         animation: fadeInUp 0.4s ease-out forwards, logoSpin 30s linear 0.5s infinite;
     }
 
-    /* Setup Transition Screen — Spotify Canvas Ambient Style */
+    /* Setup Transition Screen — Fast Ticker Reel Style (Light Theme) */
     #setup-transition {
         position: fixed;
         inset: 0;
         z-index: 9999;
-        background: #061510;
-        color: #ecfdf5;
+        background: #f8f9fa;
+        color: #191c1d;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.4s ease;
         overflow: hidden;
+        animation: bgShift 2.2s ease-in-out infinite alternate;
     }
     #setup-transition.visible {
         opacity: 1;
@@ -128,43 +129,42 @@
     }
     #setup-transition.fade-out {
         opacity: 0;
-        transform: scale(1.02);
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        transform: scale(0.98);
+        transition: opacity 0.4s ease, transform 0.4s ease;
     }
-    .spotify-glow {
-        position: absolute;
-        width: 320px;
-        height: 320px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(1, 45, 29, 0.15) 50%, transparent 70%);
-        filter: blur(40px);
-        animation: pulseSubtle 4s infinite ease-in-out;
-        pointer-events: none;
+    @keyframes bgShift {
+        0% { background-color: #f8f9fa; }
+        50% { background-color: #f0fdf4; }
+        100% { background-color: #ecfdf5; }
     }
     .setup-logo {
-        animation: logoBreathe 3s ease-in-out infinite, logoSpin 30s linear infinite;
+        animation: logoBreathe 2.5s ease-in-out infinite, logoSpin 30s linear infinite;
     }
-    @keyframes setupItemIn {
-        0% { opacity: 0; transform: translateY(8px) scale(0.96); }
-        100% { opacity: 1; transform: translateY(0) scale(1); }
+
+    /* Fast Vertical Ticker Reel */
+    .ticker-viewport {
+        height: 150px;
+        overflow: hidden;
+        position: relative;
+        mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
     }
-    .setup-item {
-        opacity: 0;
+    .ticker-track {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transform: translateY(0);
     }
-    .setup-item.show {
-        animation: setupItemIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    .ticker-track.spinning {
+        animation: rapidTickerScroll 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
-    .setup-check {
-        opacity: 0;
-        transform: scale(0.4);
-        transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .setup-item.show .setup-check {
-        opacity: 1;
-        transform: scale(1);
+    @keyframes rapidTickerScroll {
+        0% { transform: translateY(0); }
+        80% { transform: translateY(-320px); }
+        100% { transform: translateY(-380px); }
     }
     #setup-progress-fill {
-        transition: width 2.2s linear;
+        transition: width 1.9s cubic-bezier(0.25, 1, 0.5, 1);
     }
 </style>
 </head>
@@ -594,47 +594,58 @@
     </button>
 </footer>
 
-<!-- Spotify-Style Premium Ambient Setup Transition Screen -->
+<!-- Fast Vertical Ticker Setup Transition Screen (White Theme) -->
 <div id="setup-transition">
-    <!-- Top Track Progress Bar -->
-    <div class="absolute top-0 left-0 right-0 h-1 bg-white/10 overflow-hidden">
-        <div id="setup-progress-fill" class="h-full bg-emerald-400 w-0"></div>
+    <!-- Top Progress Line -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-surface-container overflow-hidden">
+        <div id="setup-progress-fill" class="h-full bg-primary w-0"></div>
     </div>
 
-    <!-- Radial Glow Background -->
-    <div class="spotify-glow"></div>
+    <div class="relative z-10 flex flex-col items-center justify-center gap-4 px-6 max-w-sm mx-auto text-center w-full">
+        <!-- Logo -->
+        <img src="logo.png" alt="HabitArc" class="w-20 h-20 sm:w-24 sm:h-24 object-contain setup-logo filter drop-shadow-md"/>
 
-    <div class="relative z-10 flex flex-col items-center justify-center gap-5 px-6 max-w-sm mx-auto text-center">
-        <!-- Breathing Rotating Logo -->
-        <img src="logo.png" alt="HabitArc" class="w-20 h-20 sm:w-24 sm:h-24 object-contain setup-logo filter drop-shadow-[0_10px_25px_rgba(16,185,129,0.3)]"/>
-
-        <!-- Headline & Subtitle -->
-        <div class="space-y-1.5">
-            <h2 class="font-headline-lg text-xl sm:text-2xl text-emerald-50 font-bold tracking-tight">Preparing your personalized workspace...</h2>
-            <p class="font-body-md text-xs sm:text-sm text-emerald-200/70 font-medium">Setting everything up based on your preferences.</p>
+        <!-- Title -->
+        <div class="space-y-1">
+            <h2 class="font-headline-lg text-xl sm:text-2xl text-on-surface font-bold tracking-tight">Setting Up Your Workspace</h2>
+            <p class="font-body-md text-xs sm:text-sm text-on-surface-variant font-medium">Configuring your personal HabitArc experience...</p>
         </div>
 
-        <!-- Spotify-Style Frosted Checklist -->
-        <div class="w-full space-y-2 pt-2 text-left text-xs sm:text-sm geist font-medium">
-            <div class="setup-item flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg">
-                <div class="setup-check w-5 h-5 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
-                <span class="text-emerald-100">Creating your contribution grid</span>
-            </div>
-            <div class="setup-item flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg">
-                <div class="setup-check w-5 h-5 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
-                <span class="text-emerald-100">Personalizing your AI Coach</span>
-            </div>
-            <div class="setup-item flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg">
-                <div class="setup-check w-5 h-5 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                <span class="text-emerald-100">Setting up your dashboard</span>
-            </div>
-            <div class="setup-item flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-lg">
-                <div class="setup-check w-5 h-5 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                <span class="text-emerald-100">Creating your first habit</span>
-            </div>
-            <div class="setup-item flex items-center gap-3 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 backdrop-blur-md shadow-lg">
-                <div class="setup-check w-5 h-5 rounded-full bg-emerald-400 text-slate-950 flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                <span class="text-emerald-300 font-bold">Almost ready...</span>
+        <!-- Fast Vertical Scroll Reel Viewport -->
+        <div class="w-full ticker-viewport mt-2">
+            <div id="ticker-track" class="ticker-track">
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-primary text-lg">bolt</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Initializing Habit Engine...</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-emerald-600 text-lg">palette</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Applying Theme & Grid Layout...</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-teal-600 text-lg">psychology</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Tuning AI Coach & Insights...</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-amber-600 text-lg">stars</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Anchoring North Star Goal...</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-sky-600 text-lg">grid_view</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Building 30-Day Contribution Arc...</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-indigo-600 text-lg">notifications_active</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Setting Contextual Prompts...</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-purple-600 text-lg">shield</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Securing Growth Profile...</span>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-primary text-on-primary border border-primary flex items-center gap-3 shadow-md text-left font-bold">
+                    <div class="w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
+                    <span class="text-xs sm:text-sm">Workspace Ready!</span>
+                </div>
             </div>
         </div>
     </div>
@@ -940,25 +951,25 @@
 
         setupScreen.classList.add('visible');
 
-        // Animate top progress bar
+        // Animate top progress fill
         const fillBar = document.getElementById('setup-progress-fill');
         if (fillBar) setTimeout(() => { fillBar.style.width = '100%'; }, 50);
 
-        // Animate checklist items
-        const items = setupScreen.querySelectorAll('.setup-item');
-        items.forEach((item, idx) => {
+        // Start fast vertical reel ticker animation
+        const tickerTrack = document.getElementById('ticker-track');
+        if (tickerTrack) {
             setTimeout(() => {
-                item.classList.add('show');
-            }, 380 * (idx + 1));
-        });
+                tickerTrack.classList.add('spinning');
+            }, 100);
+        }
 
-        const totalTime = 380 * (items.length + 1) + 300;
+        // Wait 1.9s for reel to complete & settle on Workspace Ready, then fade out
         setTimeout(() => {
             setupScreen.classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = 'Dashboard.html';
-            }, 450);
-        }, totalTime);
+            }, 400);
+        }, 2100);
     }
 
     // Direct triggers from Step 8 sign-in actions (No need to click Enter HabitArc!)
