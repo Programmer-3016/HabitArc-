@@ -140,74 +140,51 @@
     .setup-logo {
         animation: logoBreathe 2.5s ease-in-out infinite, logoSpin 30s linear infinite;
     }
-    /* Spotify Queue-Style Stack Animation */
-    .queue-viewport {
-        width: 100%;
-        max-width: 360px;
-        height: 210px;
-        position: relative;
+
+    /* Fast Vertical Ticker Reel */
+    .ticker-viewport {
+        height: 180px;
         overflow: hidden;
+        position: relative;
+        mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    }
+    .ticker-track {
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
-        gap: 8px;
+        gap: 10px;
+        transform: translateY(0);
     }
-    .queue-card {
-        width: 100%;
-        height: 60px;
-        border-radius: 16px;
-        padding: 10px 14px;
-        display: flex;
-        items-center;
-        justify-content: space-between;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        box-sizing: border-box;
+    .ticker-track.spinning {
+        animation: rapidTickerScroll 3.8s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
     }
-    .queue-card-slot1 {
-        opacity: 0.4;
-        transform: translateY(-8px) scale(0.94);
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid #e2e8f0;
+    @keyframes rapidTickerScroll {
+        0% { transform: translateY(0); }
+        85% { transform: translateY(-520px); }
+        100% { transform: translateY(-600px); }
     }
-    .queue-card-slot2 {
-        opacity: 0.75;
-        transform: translateY(-4px) scale(0.97);
-        background: rgba(255, 255, 255, 0.85);
-        border: 1px solid #cbd5e1;
+    .ticker-card {
+        transition: all 0.25s ease-out;
+        opacity: 0.55;
     }
-    .queue-card-slot3 {
+    .ticker-card.selected {
         opacity: 1;
-        transform: translateY(0) scale(1);
-        background: #012d1d;
-        color: #ffffff;
-        border: 1px solid #012d1d;
-        box-shadow: 0 8px 24px rgba(1, 45, 29, 0.2);
+        border-color: #012d1d !important;
+        background-color: rgba(193, 236, 212, 0.35) !important;
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(1, 45, 29, 0.08);
     }
-    .queue-card-slot3 * {
-        color: #ffffff !important;
+    .ticker-card .card-check {
+        opacity: 0;
+        transform: scale(0.4);
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    @keyframes queueSlideIn {
-        0% { opacity: 0; transform: translateY(24px) scale(0.95); }
-        100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .queue-card-enter {
-        animation: queueSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    .ticker-card.selected .card-check {
+        opacity: 1;
+        transform: scale(1);
     }
     #setup-progress-fill {
-        transition: width 3.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes auraPulse {
-        0%, 100% { transform: scale(1); opacity: 0.15; }
-        50% { transform: scale(1.15); opacity: 0.3; }
-    }
-    .logo-aura-ring {
-        position: absolute;
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(1, 45, 29, 0.2) 0%, rgba(16, 185, 129, 0.1) 50%, transparent 70%);
-        animation: auraPulse 2.5s infinite ease-in-out;
-        pointer-events: none;
+        transition: width 3.8s cubic-bezier(0.2, 0.9, 0.3, 1);
     }
 </style>
 </head>
@@ -644,68 +621,100 @@
         <div id="setup-progress-fill" class="h-full bg-primary w-0"></div>
     </div>
 
-    <div class="relative z-10 flex flex-col items-center justify-center gap-3 px-6 max-w-sm mx-auto text-center w-full">
-        <!-- Hero Logo with Ambient Aura Ring -->
-        <div class="relative flex items-center justify-center my-1">
-            <div class="logo-aura-ring"></div>
-            <img src="logo.png" alt="HabitArc" class="w-24 h-24 sm:w-28 sm:h-28 object-contain setup-logo filter drop-shadow-xl relative z-10"/>
-        </div>
+    <div class="relative z-10 flex flex-col items-center justify-center gap-4 px-6 max-w-sm mx-auto text-center w-full">
+        <!-- Hero Bigger Logo -->
+        <img src="logo.png" alt="HabitArc" class="w-32 h-32 sm:w-40 sm:h-40 object-contain setup-logo filter drop-shadow-xl my-1"/>
 
-        <!-- Dynamic Title & Live Status -->
+        <!-- Title -->
         <div class="space-y-1">
-            <div class="flex items-center justify-center gap-2 mb-0.5">
-                <span id="setup-percent-badge" class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold geist uppercase tracking-wider">0% Configured</span>
-            </div>
             <h2 class="font-headline-lg text-xl sm:text-2xl text-on-surface font-bold tracking-tight">Setting Up Your Workspace</h2>
-            <p id="setup-subtitle" class="font-body-md text-xs sm:text-sm text-on-surface-variant font-semibold transition-all duration-300">Initializing Habit Engine...</p>
+            <p class="font-body-md text-xs sm:text-sm text-on-surface-variant font-medium">Selecting and configuring your preferences...</p>
         </div>
 
-        <!-- Spotify Queue-Style Animated Viewport -->
-        <div class="w-full flex justify-center mt-2">
-            <div id="queue-viewport" class="queue-viewport">
-                <!-- 3 Stacked Queue Cards dynamically shifted via JS -->
-                <div id="q-card-1" class="queue-card queue-card-slot1">
+        <!-- Fast Vertical Scroll Reel Viewport -->
+        <div class="w-full ticker-viewport mt-1">
+            <div id="ticker-track" class="ticker-track">
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-primary text-base">bolt</span>
-                        </div>
-                        <div class="text-left leading-tight">
-                            <span class="q-title font-bold text-xs sm:text-sm text-on-surface block">Initializing Habit Engine</span>
-                            <span class="q-sub text-[10px] sm:text-xs text-on-surface-variant font-medium block">Core Logic</span>
-                        </div>
+                        <span class="material-symbols-outlined text-primary text-lg">bolt</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Initializing Habit Engine</span>
                     </div>
-                    <span class="material-symbols-outlined text-outline text-base">more_horiz</span>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
                 </div>
 
-                <div id="q-card-2" class="queue-card queue-card-slot2">
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-emerald-600 text-base">palette</span>
-                        </div>
-                        <div class="text-left leading-tight">
-                            <span class="q-title font-bold text-xs sm:text-sm text-on-surface block">Applying Visual Theme</span>
-                            <span class="q-sub text-[10px] sm:text-xs text-on-surface-variant font-medium block">Visual Preferences</span>
-                        </div>
+                        <span class="material-symbols-outlined text-emerald-600 text-lg">palette</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Applying Theme & Palette</span>
                     </div>
-                    <span class="material-symbols-outlined text-outline text-base">more_horiz</span>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
                 </div>
 
-                <div id="q-card-3" class="queue-card queue-card-slot3">
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-white text-base">psychology</span>
-                        </div>
-                        <div class="text-left leading-tight">
-                            <span class="q-title font-bold text-xs sm:text-sm text-white block">Tuning AI Coach Engine</span>
-                            <span class="q-sub text-[10px] sm:text-xs text-white/80 font-medium block">Behavioral Analytics</span>
-                        </div>
+                        <span class="material-symbols-outlined text-teal-600 text-lg">psychology</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Tuning AI Coach & Insights</span>
                     </div>
-                    <span class="material-symbols-outlined text-white text-base">more_horiz</span>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                </div>
+
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-amber-600 text-lg">stars</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Anchoring North Star Goal</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                </div>
+
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sky-600 text-lg">grid_view</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Building 30-Day Contribution Arc</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                </div>
+
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-indigo-600 text-lg">notifications_active</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Setting Contextual Prompts</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                </div>
+
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-purple-600 text-lg">shield</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Securing Growth Profile</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                </div>
+
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-rose-600 text-lg">genetics</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Calibrating Behavioral Insights</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                </div>
+
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-emerald-600 text-lg">verified</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Finalizing Account Setup</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
+                </div>
+
+                <div class="ticker-card selected p-3.5 rounded-2xl bg-primary text-on-primary border border-primary flex items-center justify-between text-left font-bold opacity-100 shadow-md">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-on-primary text-xl">auto_awesome</span>
+                        <span class="text-xs sm:text-sm text-on-primary">Workspace Ready!</span>
+                    </div>
+                    <div class="w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0 opacity-100">✓</div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
     </div>
 </div>
 
@@ -1013,85 +1022,29 @@
         const fillBar = document.getElementById('setup-progress-fill');
         if (fillBar) setTimeout(() => { fillBar.style.width = '100%'; }, 50);
 
-        // Spotify-Style Queue Shift Animation Engine
-        const subtitleEl = document.getElementById('setup-subtitle');
-        const badgeEl = document.getElementById('setup-percent-badge');
-        const card1 = document.getElementById('q-card-1');
-        const card2 = document.getElementById('q-card-2');
-        const card3 = document.getElementById('q-card-3');
+        // Start fast vertical reel ticker animation
+        const tickerTrack = document.getElementById('ticker-track');
+        if (tickerTrack) {
+            setTimeout(() => {
+                tickerTrack.classList.add('spinning');
+            }, 100);
 
-        const queueItems = [
-            { title: 'Initializing Habit Engine', sub: 'Core System', icon: 'bolt', color: 'text-primary' },
-            { title: 'Applying Visual Theme', sub: 'Visual Preferences', icon: 'palette', color: 'text-emerald-600' },
-            { title: 'Tuning AI Coach Engine', sub: 'Behavioral Analytics', icon: 'psychology', color: 'text-teal-600' },
-            { title: 'Anchoring North Star Goal', sub: 'Personal Target', icon: 'stars', color: 'text-amber-600' },
-            { title: 'Building Contribution Arc', sub: 'Heatmap Grid', icon: 'grid_view', color: 'text-sky-600' },
-            { title: 'Setting Contextual Prompts', sub: 'Notification Prompts', icon: 'notifications_active', color: 'text-indigo-600' },
-            { title: 'Securing Growth Profile', sub: 'User Encryption', icon: 'shield', color: 'text-purple-600' },
-            { title: 'Finalizing Account Setup', sub: 'Syncing Cloud Profile', icon: 'verified', color: 'text-rose-600' },
-            { title: 'Workspace Ready!', sub: 'Welcome to HabitArc', icon: 'auto_awesome', color: 'text-white', ready: true }
-        ];
-
-        function updateCardContent(cardEl, data, isSlot3) {
-            if (!cardEl || !data) return;
-            const iconEl = cardEl.querySelector('.material-symbols-outlined:first-child');
-            const titleEl = cardEl.querySelector('.q-title');
-            const subEl = cardEl.querySelector('.q-sub');
-
-            if (titleEl) titleEl.textContent = data.title;
-            if (subEl) subEl.textContent = data.sub;
-            if (iconEl) {
-                iconEl.textContent = data.icon;
-                if (!isSlot3) {
-                    iconEl.className = `material-symbols-outlined text-base ${data.color}`;
-                }
-            }
+            // Sequentially select/check cards every 340ms as they pass through
+            const cards = tickerTrack.querySelectorAll('.ticker-card:not(.selected)');
+            cards.forEach((card, idx) => {
+                setTimeout(() => {
+                    card.classList.add('selected');
+                }, 340 * (idx + 1));
+            });
         }
 
-        let itemIndex = 2; // Starts with first 3 items populated
-        const totalItems = queueItems.length;
-
-        const queueInterval = setInterval(() => {
-            itemIndex++;
-            if (itemIndex >= totalItems) {
-                clearInterval(queueInterval);
-                return;
-            }
-
-            const nextData = queueItems[itemIndex];
-            const pct = Math.round(((itemIndex + 1) / totalItems) * 100);
-            if (badgeEl) badgeEl.textContent = `${pct}% Configured`;
-            if (subtitleEl) subtitleEl.textContent = nextData.title;
-
-            // Shift queue items upwards
-            const dataSlot1 = queueItems[itemIndex - 2];
-            const dataSlot2 = queueItems[itemIndex - 1];
-            const dataSlot3 = queueItems[itemIndex];
-
-            updateCardContent(card1, dataSlot1, false);
-            updateCardContent(card2, dataSlot2, false);
-            updateCardContent(card3, dataSlot3, true);
-
-            if (card3) {
-                card3.classList.remove('queue-card-enter');
-                void card3.offsetWidth;
-                card3.classList.add('queue-card-enter');
-            }
-
-            if (nextData.ready) {
-                if (badgeEl) badgeEl.textContent = '100% Complete';
-                if (subtitleEl) subtitleEl.textContent = 'Workspace Ready! Welcome to HabitArc.';
-            }
-        }, 480);
-
-        // Complete queue & navigate after 4.4s
+        // Wait 4.2s for reel to complete & settle on Workspace Ready, then fade out
         setTimeout(() => {
-            clearInterval(queueInterval);
             setupScreen.classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = 'Dashboard.html';
             }, 450);
-        }, 4400);
+        }, 4200);
     }
 
     // Direct triggers from Step 8 sign-in actions (No need to click Enter HabitArc!)
