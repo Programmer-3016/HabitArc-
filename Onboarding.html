@@ -408,7 +408,7 @@
                 <span class="font-headline-md text-on-surface text-base sm:text-lg block font-bold">Yes, notify me</span>
                 <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block leading-normal">Small reminders.<br/>Big consistency.</span>
             </div>
-            <div class="notif-opt btn-press p-5 rounded-2xl border border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-2 shadow-2xs" data-val="false">
+            <div class="notif-opt btn-press p-5 rounded-2xl border-2 border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-2 shadow-2xs" data-val="false">
                 <span class="material-symbols-outlined text-outline text-4xl block">notifications_off</span>
                 <span class="font-headline-md text-on-surface text-base sm:text-lg block font-bold">No thanks</span>
                 <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block leading-normal">I'll track manually</span>
@@ -613,9 +613,11 @@
     document.querySelectorAll('.challenge-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.challenge-opt').forEach(o => {
-                o.className = 'challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
+                o.classList.remove('border-primary', 'bg-primary-fixed/15');
+                o.classList.add('border-surface-container', 'bg-surface-container-lowest');
             });
-            this.className = 'challenge-opt btn-press p-4 rounded-2xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
+            this.classList.remove('border-surface-container', 'bg-surface-container-lowest');
+            this.classList.add('border-primary', 'bg-primary-fixed/15');
             selectedChallenge = this.dataset.val;
             autoAdvance();
         });
@@ -625,9 +627,11 @@
     document.querySelectorAll('.cap-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.cap-opt').forEach(o => {
-                o.className = 'cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
+                o.classList.remove('border-primary', 'bg-primary-fixed/15');
+                o.classList.add('border-surface-container', 'bg-surface-container-lowest');
             });
-            this.className = 'cap-opt btn-press p-4 rounded-2xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all flex items-center justify-between shadow-2xs';
+            this.classList.remove('border-surface-container', 'bg-surface-container-lowest');
+            this.classList.add('border-primary', 'bg-primary-fixed/15');
             selectedCap = this.dataset.val;
             autoAdvance();
         });
@@ -652,9 +656,11 @@
     document.querySelectorAll('.grid-shape-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.grid-shape-btn').forEach(b => {
-                b.className = 'grid-shape-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs sm:text-sm font-bold text-center';
+                b.classList.remove('border-primary', 'bg-primary-container', 'text-on-primary');
+                b.classList.add('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
             });
-            this.className = 'grid-shape-btn btn-press p-3 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs sm:text-sm font-bold text-center';
+            this.classList.remove('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
+            this.classList.add('border-primary', 'bg-primary-container', 'text-on-primary');
             selectedGridShape = this.dataset.shape;
             updatePreview();
         });
@@ -663,9 +669,11 @@
     document.querySelectorAll('.horizon-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.horizon-btn').forEach(b => {
-                b.className = 'horizon-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs sm:text-sm font-bold text-center';
+                b.classList.remove('border-primary', 'bg-primary-container', 'text-on-primary');
+                b.classList.add('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
             });
-            this.className = 'horizon-btn btn-press p-3 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs sm:text-sm font-bold text-center';
+            this.classList.remove('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
+            this.classList.add('border-primary', 'bg-primary-container', 'text-on-primary');
             selectedDuration = this.dataset.dur;
             updatePreview();
         });
@@ -724,9 +732,11 @@
     document.querySelectorAll('.notif-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.notif-opt').forEach(o => {
-                o.className = 'notif-opt btn-press p-5 rounded-2xl border border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-2 shadow-2xs';
+                o.classList.remove('border-primary', 'bg-primary-fixed/15');
+                o.classList.add('border-surface-container', 'bg-surface-container-lowest');
             });
-            this.className = 'notif-opt btn-press p-5 rounded-2xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all text-center space-y-2 shadow-2xs';
+            this.classList.remove('border-surface-container', 'bg-surface-container-lowest');
+            this.classList.add('border-primary', 'bg-primary-fixed/15');
             notificationsEnabled = (this.dataset.val === 'true');
         });
     });
