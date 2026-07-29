@@ -169,12 +169,45 @@
         opacity: 0.45;
         transition: opacity 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
         flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .ticker-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg, transparent 22%, rgba(193, 236, 212, 0.82) 50%, transparent 78%);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(-115%);
     }
     .ticker-card.checked {
         opacity: 1;
         border-color: #1b4332 !important;
         background-color: rgba(193, 236, 212, 0.3) !important;
         box-shadow: 0 2px 8px rgba(1, 45, 29, 0.06);
+        animation: tickerCardEnterLeft 0.48s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+    }
+    .ticker-card:nth-child(even).checked {
+        animation-name: tickerCardEnterRight;
+    }
+    .ticker-card.checked::before {
+        animation: tickerCardSweep 0.58s ease-out both;
+    }
+    @keyframes tickerCardEnterLeft {
+        0% { opacity: 0.4; transform: translateX(-22px) scale(0.94); }
+        68% { opacity: 1; transform: translateX(3px) scale(1.015); }
+        100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    @keyframes tickerCardEnterRight {
+        0% { opacity: 0.4; transform: translateX(22px) scale(0.94); }
+        68% { opacity: 1; transform: translateX(-3px) scale(1.015); }
+        100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    @keyframes tickerCardSweep {
+        0% { opacity: 0; transform: translateX(-115%); }
+        26% { opacity: 0.7; }
+        100% { opacity: 0; transform: translateX(115%); }
     }
     .ticker-card .card-check,
     .ticker-card-final .final-card-symbol {
@@ -243,7 +276,9 @@
         .ticker-track.spinning,
         .ticker-card.checked .card-check::after,
         .ticker-card-final.checked .final-card-symbol,
-        #setup-counter.complete {
+        #setup-counter.complete,
+        .ticker-card.checked,
+        .ticker-card.checked::before {
             animation: none;
         }
         #setup-progress-fill,
