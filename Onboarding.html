@@ -327,7 +327,7 @@
             <div class="flex items-center justify-between border-b pb-1.5" id="mini-dash-header" style="border-color: rgba(1, 45, 29, 0.1);">
                 <div class="flex items-center gap-1.5">
                     <span class="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[9px] font-bold geist">AT</span>
-                    <span class="text-xs font-bold font-headline-md">Good morning, Alex</span>
+                    <span class="text-xs font-bold font-headline-md">Good morning , Alex</span>
                 </div>
                 <span id="mini-horizon-badge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary text-on-primary geist">30-Day Horizon</span>
             </div>
@@ -338,7 +338,7 @@
             </div>
 
             <!-- Mini Contribution Grid Arc -->
-            <div id="mini-grid-cells" class="grid grid-cols-12 gap-1 py-0.5" style="min-height: 52px; max-height: 52px; overflow: hidden;">
+            <div id="mini-grid-cells" class="grid grid-cols-12 gap-1 py-0.5" style="height: 48px;">
                 <!-- Cells generated dynamically -->
             </div>
         </div>
@@ -720,9 +720,11 @@
             const pattern30 = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1];
             const pattern90 = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1];
             const activePattern = (selectedDuration === '90') ? pattern90 : pattern30;
+            // Adjust gap: smaller for 90 days so 4 rows fit in fixed height
+            gridCells.style.gap = (selectedDuration === '90') ? '2px' : '4px';
             activePattern.forEach(active => {
                 const cell = document.createElement('div');
-                cell.className = `w-full aspect-square ${isCircle ? 'rounded-full' : 'rounded-[2px]'} transition-all duration-300`;
+                cell.className = `w-full ${isCircle ? 'rounded-full' : 'rounded-[2px]'} transition-all duration-300`;
                 cell.style.backgroundColor = active ? t.accent : (t.bg === '#ffffff' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)');
                 if (active) cell.style.opacity = '0.9';
                 gridCells.appendChild(cell);
