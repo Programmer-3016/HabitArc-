@@ -376,21 +376,21 @@
                 </div>
             </div>
 
-            <!-- Grid Shape & Horizon Duration -->
-            <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                    <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1 geist font-bold uppercase tracking-wider">Grid Shape</label>
-                    <div class="grid grid-cols-2 gap-1.5" id="grid-shape-opts">
-                        <button class="grid-shape-btn btn-press p-2 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs font-bold text-center" data-shape="square">Square</button>
-                        <button class="grid-shape-btn btn-press p-2 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs font-bold text-center" data-shape="circle">Circle</button>
-                    </div>
+            <!-- Grid Shape -->
+            <div>
+                <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1.5 geist font-bold uppercase tracking-wider">Contribution Grid Shape</label>
+                <div class="grid grid-cols-2 gap-2" id="grid-shape-opts">
+                    <button class="grid-shape-btn btn-press p-2.5 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs font-bold text-center" data-shape="square">Square</button>
+                    <button class="grid-shape-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs font-bold text-center" data-shape="circle">Circle</button>
                 </div>
-                <div>
-                    <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1 geist font-bold uppercase tracking-wider">Horizon</label>
-                    <div class="grid grid-cols-2 gap-1.5" id="horizon-dur-opts">
-                        <button class="horizon-btn btn-press p-2 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs font-bold text-center" data-dur="30">30 Days</button>
-                        <button class="horizon-btn btn-press p-2 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs font-bold text-center" data-dur="90">90 Days</button>
-                    </div>
+            </div>
+
+            <!-- Horizon Duration -->
+            <div>
+                <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1.5 geist font-bold uppercase tracking-wider">Horizon Duration</label>
+                <div class="grid grid-cols-2 gap-2" id="horizon-dur-opts">
+                    <button class="horizon-btn btn-press p-2.5 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs font-bold text-center" data-dur="30">30 Days</button>
+                    <button class="horizon-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs font-bold text-center" data-dur="90">90 Days</button>
                 </div>
             </div>
         </div>
@@ -717,7 +717,10 @@
         if (gridCells) {
             gridCells.innerHTML = '';
             const isCircle = (selectedGridShape === 'circle');
-            const activePattern = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1];
+            // 30 Days = 2 rows of 12 (24 cells), 90 Days = 4 rows of 12 (48 cells)
+            const pattern30 = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1];
+            const pattern90 = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1];
+            const activePattern = (selectedDuration === '90') ? pattern90 : pattern30;
             activePattern.forEach(active => {
                 const cell = document.createElement('div');
                 cell.className = `w-full aspect-square ${isCircle ? 'rounded-full' : 'rounded-[2px]'} transition-all duration-300`;
