@@ -108,6 +108,8 @@
 
     /* Setup Transition Screen — Fast Ticker Reel (Light Theme) */
     #setup-transition {
+        --setup-duration: 4s;
+        --ticker-final-offset: -465px;
         position: fixed;
         inset: 0;
         z-index: 9999;
@@ -154,14 +156,13 @@
         gap: 8px;
     }
     .ticker-track.spinning {
-        animation: tickerScroll 4s cubic-bezier(0.22, 0.9, 0.36, 1) forwards;
+        animation: tickerScroll var(--setup-duration) linear forwards;
+        will-change: transform;
     }
-    /* 10 cards: each ~52px (p-3 = 12+12+~16 content + 2 border = ~52px) + 8px gap = 60px per card
-       Last card center at: 9 * 60 = 540px. Viewport center ~90px. So translate = -(540 - 90 + 10) = -460px */
+    /* The final position is calculated from the rendered card layout in JavaScript. */
     @keyframes tickerScroll {
         0% { transform: translateY(0); }
-        90% { transform: translateY(-450px); }
-        100% { transform: translateY(-465px); }
+        100% { transform: translateY(var(--ticker-final-offset)); }
     }
 
     .ticker-card {
@@ -175,25 +176,69 @@
         background-color: rgba(193, 236, 212, 0.3) !important;
         box-shadow: 0 2px 8px rgba(1, 45, 29, 0.06);
     }
-    .ticker-card .card-check {
+    .ticker-card .card-check,
+    .ticker-card-final .final-card-check {
         opacity: 0;
         transform: scale(0.3);
         transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
     }
-    .ticker-card.checked .card-check {
+    .ticker-card.checked .card-check,
+    .ticker-card-final.checked .final-card-check {
         opacity: 1;
         transform: scale(1);
     }
+    /* Pulse ring on check */
+    .ticker-card.checked .card-check::after,
+    .ticker-card-final.checked .final-card-check::after {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        border: 2px solid #012d1d;
+        animation: checkPulse 0.4s ease-out forwards;
+    }
+    @keyframes checkPulse {
+        0% { transform: scale(0.8); opacity: 0.6; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
     .ticker-card-final {
         opacity: 0.45;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.4s ease, box-shadow 0.4s ease;
         flex-shrink: 0;
     }
     .ticker-card-final.checked {
         opacity: 1;
+        box-shadow: 0 0 20px rgba(1, 45, 29, 0.15), 0 4px 12px rgba(1, 45, 29, 0.12);
     }
     #setup-progress-fill {
-        transition: width 4s cubic-bezier(0.22, 0.9, 0.36, 1);
+        transition: width var(--setup-duration) linear;
+    }
+    /* Live counter badge */
+    #setup-counter {
+        transition: all 0.2s ease;
+    }
+    /* Dynamic subtitle */
+    #setup-live-task {
+        transition: opacity 0.15s ease;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        #setup-transition.visible,
+        .setup-logo,
+        .ticker-track.spinning,
+        .ticker-card.checked .card-check::after,
+        .ticker-card-final.checked .card-check::after {
+            animation: none;
+        }
+        #setup-progress-fill,
+        #setup-counter,
+        #setup-live-task,
+        .ticker-card,
+        .ticker-card-final,
+        .ticker-card .card-check,
+        .ticker-card-final .final-card-check {
+            transition-duration: 0.01ms;
+        }
     }
 </style>
 </head>
@@ -634,10 +679,13 @@
         <!-- Hero Logo -->
         <img src="logo.png" alt="HabitArc" class="w-28 h-28 sm:w-36 sm:h-36 object-contain setup-logo filter drop-shadow-xl"/>
 
-        <!-- Title -->
-        <div class="space-y-1">
+        <!-- Title + Live Counter -->
+        <div class="space-y-1.5">
             <h2 class="font-headline-lg text-xl sm:text-2xl text-on-surface font-bold tracking-tight">Setting Up Your Workspace</h2>
-            <p class="font-body-md text-xs sm:text-sm text-on-surface-variant font-medium">Selecting and configuring your preferences...</p>
+            <p id="setup-live-task" class="font-body-md text-xs sm:text-sm text-on-surface-variant font-medium" aria-live="polite">Preparing your personalized experience...</p>
+            <div class="flex items-center justify-center gap-2 pt-0.5">
+                <span id="setup-counter" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold geist uppercase tracking-wider bg-primary/10 text-primary" aria-live="polite">0 / 9</span>
+            </div>
         </div>
 
         <!-- Ticker Viewport -->
@@ -712,7 +760,7 @@
                         <span class="material-symbols-outlined text-on-primary text-xl">auto_awesome</span>
                         <span class="text-xs sm:text-sm">Workspace Ready!</span>
                     </div>
-                    <div class="w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
+                    <div class="final-card-check w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
             </div>
         </div>
@@ -1019,35 +1067,114 @@
 
         setupScreen.classList.add('visible');
 
-        // Start progress bar
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const tickerDuration = 4000;
+        const completionPause = prefersReducedMotion ? 300 : 700;
         const fillBar = document.getElementById('setup-progress-fill');
-        if (fillBar) setTimeout(() => { fillBar.style.width = '100%'; }, 50);
-
-        // Start ticker reel scroll
         const tickerTrack = document.getElementById('ticker-track');
-        if (tickerTrack) {
-            setTimeout(() => tickerTrack.classList.add('spinning'), 150);
+        const counterEl = document.getElementById('setup-counter');
+        const liveTaskEl = document.getElementById('setup-live-task');
 
-            // Check each card in sync with scroll speed (4s scroll / 10 cards ≈ 400ms per card)
-            const cards = tickerTrack.querySelectorAll('.ticker-card:not(.checked)');
-            cards.forEach((card, idx) => {
-                setTimeout(() => card.classList.add('checked'), 400 * (idx + 1));
-            });
+        const taskNames = [
+            'Initializing Habit Engine...',
+            'Applying your theme preferences...',
+            'Tuning AI Coach for your goals...',
+            'Anchoring your North Star...',
+            'Building your contribution grid...',
+            'Setting up smart reminders...',
+            'Securing your growth profile...',
+            'Calibrating behavioral insights...',
+            'Finalizing account setup...'
+        ];
 
-            // Check final card at end
-            const finalCard = tickerTrack.querySelector('.ticker-card-final');
-            if (finalCard) {
-                setTimeout(() => finalCard.classList.add('checked'), 400 * (cards.length + 1));
-            }
-        }
-
-        // Fade out and navigate after animation completes
-        setTimeout(() => {
+        function finishSetupTransition() {
             setupScreen.classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = 'Dashboard.html';
             }, 500);
-        }, 4600);
+        }
+
+        function updateLiveTask(message) {
+            if (!liveTaskEl) return;
+            liveTaskEl.textContent = message;
+            liveTaskEl.style.opacity = '0';
+            requestAnimationFrame(() => {
+                liveTaskEl.style.opacity = '1';
+            });
+        }
+
+        if (!tickerTrack) {
+            if (fillBar) fillBar.style.width = '100%';
+            setTimeout(finishSetupTransition, completionPause);
+            return;
+        }
+
+        const tickerViewport = tickerTrack.closest('.ticker-viewport');
+        const cards = Array.from(tickerTrack.querySelectorAll('.ticker-card'));
+        const finalCard = tickerTrack.querySelector('.ticker-card-final');
+
+        // Align the completion state with the card currently passing the viewport centre.
+        let completedCardCount = 0;
+        function markNextCardComplete() {
+            const card = cards[completedCardCount];
+            if (!card) return;
+
+            card.classList.add('checked');
+            completedCardCount += 1;
+            if (counterEl) counterEl.textContent = `${completedCardCount} / ${cards.length}`;
+            updateLiveTask(taskNames[completedCardCount - 1] || 'Preparing your workspace...');
+        }
+
+        function syncCardProgress() {
+            if (!tickerViewport || completedCardCount >= cards.length) return;
+
+            const viewportRect = tickerViewport.getBoundingClientRect();
+            const viewportCentre = viewportRect.top + (viewportRect.height / 2);
+            const nextCard = cards[completedCardCount];
+            const nextCardRect = nextCard.getBoundingClientRect();
+            const nextCardCentre = nextCardRect.top + (nextCardRect.height / 2);
+
+            if (nextCardCentre <= viewportCentre) markNextCardComplete();
+            requestAnimationFrame(syncCardProgress);
+        }
+
+        let transitionCompleted = false;
+        function completeTransition() {
+            if (transitionCompleted) return;
+            transitionCompleted = true;
+            cards.forEach((card) => card.classList.add('checked'));
+            if (finalCard) finalCard.classList.add('checked');
+            if (counterEl) {
+                counterEl.textContent = `${cards.length} / ${cards.length} ✓`;
+                counterEl.classList.remove('bg-primary/10', 'text-primary');
+                counterEl.classList.add('bg-primary', 'text-on-primary');
+            }
+            updateLiveTask('Workspace ready — Welcome to HabitArc!');
+            setTimeout(finishSetupTransition, completionPause);
+        }
+
+        if (tickerViewport && finalCard) {
+            const finalCardCentre = finalCard.offsetTop + (finalCard.offsetHeight / 2);
+            const finalOffset = (tickerViewport.clientHeight / 2) - finalCardCentre;
+            setupScreen.style.setProperty('--ticker-final-offset', `${finalOffset}px`);
+        }
+        setupScreen.style.setProperty('--setup-duration', `${tickerDuration}ms`);
+        if (fillBar) requestAnimationFrame(() => { fillBar.style.width = '100%'; });
+
+        if (prefersReducedMotion) {
+            if (finalCard) tickerTrack.style.transform = `translateY(${setupScreen.style.getPropertyValue('--ticker-final-offset')})`;
+            completeTransition();
+            return;
+        }
+
+        tickerTrack.addEventListener('animationend', (event) => {
+            if (event.animationName === 'tickerScroll') completeTransition();
+        }, { once: true });
+        requestAnimationFrame(syncCardProgress);
+        requestAnimationFrame(() => tickerTrack.classList.add('spinning'));
+        // Some embedded browsers do not reliably emit animationend for a filled CSS animation.
+        // This guarded fallback guarantees the transition completes exactly once.
+        setTimeout(completeTransition, tickerDuration + 100);
     }
 
     // Direct triggers from Step 8 sign-in actions (No need to click Enter HabitArc!)
