@@ -153,17 +153,10 @@
         flex-direction: column;
         gap: 8px;
         transform: translateY(0);
-    }
-    .ticker-track.spinning {
-        animation: rapidTickerScroll 3.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    @keyframes rapidTickerScroll {
-        0% { transform: translateY(0); }
-        70% { transform: translateY(-400px); }
-        100% { transform: translateY(-448px); }
+        transition: transform 3.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .ticker-card {
-        height: 48px;
+        min-height: 48px;
         box-sizing: border-box;
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         opacity: 0.45;
@@ -176,20 +169,23 @@
         transform: scale(1);
         box-shadow: 0 4px 12px rgba(1, 45, 29, 0.08);
     }
-    .ticker-card-ready.selected {
+    .ticker-card-ready {
         opacity: 1 !important;
         background-color: #012d1d !important;
         color: #ffffff !important;
         border-color: #012d1d !important;
-        transform: scale(1.02);
         box-shadow: 0 6px 20px rgba(1, 45, 29, 0.25);
+    }
+    .ticker-card-ready * {
+        color: #ffffff !important;
     }
     .ticker-card .card-check {
         opacity: 0;
         transform: scale(0.3);
         transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .ticker-card.selected .card-check {
+    .ticker-card.selected .card-check,
+    .ticker-card-ready .card-check {
         opacity: 1;
         transform: scale(1);
     }
@@ -1054,17 +1050,25 @@
         const fillBar = document.getElementById('setup-progress-fill');
         if (fillBar) setTimeout(() => { fillBar.style.width = '100%'; }, 50);
 
-        // Start fast vertical reel ticker animation & live synced indicators
+        // Dynamic DOM measurement for 100% exact reel stop offset
         const tickerTrack = document.getElementById('ticker-track');
         const subtitleEl = document.getElementById('setup-subtitle');
         const badgeEl = document.getElementById('setup-percent-badge');
 
         if (tickerTrack) {
+            // Measure actual rendered DOM height to calculate exact translateY target
             setTimeout(() => {
-                tickerTrack.classList.add('spinning');
-            }, 100);
+                const trackHeight = tickerTrack.scrollHeight;
+                const viewportHeight = 160;
+                // Position last card centered in 160px viewport
+                const lastCard = tickerTrack.querySelector('.ticker-card-ready');
+                const lastCardHeight = lastCard ? lastCard.offsetHeight : 48;
+                const targetY = -(trackHeight - (viewportHeight + lastCardHeight) / 2 - 4);
+                
+                tickerTrack.style.transform = `translateY(${targetY}px)`;
+            }, 50);
 
-            const cards = tickerTrack.querySelectorAll('.ticker-card:not(.selected)');
+            const cards = tickerTrack.querySelectorAll('.ticker-card:not(.ticker-card-ready)');
             const statusMessages = [
                 'Initializing Habit Engine...',
                 'Applying Theme & Palette...',
