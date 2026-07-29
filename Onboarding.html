@@ -602,8 +602,8 @@
     </div>
 
     <div class="relative z-10 flex flex-col items-center justify-center gap-4 px-6 max-w-sm mx-auto text-center w-full">
-        <!-- Logo -->
-        <img src="logo.png" alt="HabitArc" class="w-20 h-20 sm:w-24 sm:h-24 object-contain setup-logo filter drop-shadow-md"/>
+        <!-- Larger Prominent Hero Logo -->
+        <img src="logo.png" alt="HabitArc" class="w-28 h-28 sm:w-36 sm:h-36 object-contain setup-logo filter drop-shadow-xl mb-1"/>
 
         <!-- Title -->
         <div class="space-y-1">
@@ -611,48 +611,78 @@
             <p class="font-body-md text-xs sm:text-sm text-on-surface-variant font-medium">Configuring your personal HabitArc experience...</p>
         </div>
 
-        <!-- Fast Vertical Scroll Reel Viewport -->
+        <!-- Fast Vertical Scroll Reel Viewport with Selective Card Highlights -->
         <div class="w-full ticker-viewport mt-2">
             <div id="ticker-track" class="ticker-track">
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-primary text-lg">bolt</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Initializing Habit Engine...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-lg">bolt</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Initializing Habit Engine...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-emerald-600 text-lg">palette</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Applying Theme & Grid Layout...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-emerald-600 text-lg">palette</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Applying Theme & Grid Layout...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-teal-600 text-lg">psychology</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Tuning AI Coach & Insights...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-teal-600 text-lg">psychology</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Tuning AI Coach & Insights...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-amber-600 text-lg">stars</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Anchoring North Star Goal...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-amber-600 text-lg">stars</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Anchoring North Star Goal...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-sky-600 text-lg">grid_view</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Building 30-Day Contribution Arc...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sky-600 text-lg">grid_view</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Building 30-Day Contribution Arc...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-indigo-600 text-lg">notifications_active</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Setting Contextual Prompts...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-indigo-600 text-lg">notifications_active</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Setting Contextual Prompts...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-purple-600 text-lg">shield</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Securing Growth Profile...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-purple-600 text-lg">shield</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Securing Growth Profile...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-rose-600 text-lg">genetics</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Calibrating Personal Insights Engine...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-rose-600 text-lg">genetics</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Calibrating Personal Insights...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
-                    <span class="material-symbols-outlined text-emerald-600 text-lg">verified</span>
-                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Finalizing Account Setup...</span>
+                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between shadow-2xs text-left transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-emerald-600 text-lg">verified</span>
+                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Finalizing Account Setup...</span>
+                    </div>
+                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary opacity-0 scale-50 transition-all duration-200 flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                 </div>
-                <div class="p-3.5 rounded-2xl bg-primary text-on-primary border border-primary flex items-center gap-3 shadow-md text-left font-bold">
+                <div class="ticker-card p-3.5 rounded-2xl bg-primary text-on-primary border-2 border-primary flex items-center justify-between shadow-md text-left font-bold transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-on-primary text-lg">check_circle</span>
+                        <span class="text-xs sm:text-sm">Workspace Ready!</span>
+                    </div>
                     <div class="w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
-                    <span class="text-xs sm:text-sm">Workspace Ready!</span>
                 </div>
             </div>
         </div>
@@ -968,6 +998,21 @@
         if (tickerTrack) {
             setTimeout(() => {
                 tickerTrack.classList.add('spinning');
+
+                // Rapidly highlight & check off cards as they pass through the viewport
+                const cards = tickerTrack.querySelectorAll('.ticker-card');
+                cards.forEach((card, idx) => {
+                    if (idx < cards.length - 1) {
+                        setTimeout(() => {
+                            card.classList.add('border-primary', 'bg-primary-fixed/20');
+                            const check = card.querySelector('.card-check');
+                            if (check) {
+                                check.classList.remove('opacity-0', 'scale-50');
+                                check.classList.add('opacity-100', 'scale-100');
+                            }
+                        }, 350 * idx + 150);
+                    }
+                });
             }, 100);
         }
 
