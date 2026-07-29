@@ -108,7 +108,7 @@
 
     /* Setup Transition Screen — Fast Ticker Reel (Light Theme) */
     #setup-transition {
-        --setup-duration: 4s;
+        --setup-duration: 3.2s;
         --ticker-final-offset: -465px;
         position: fixed;
         inset: 0;
@@ -177,20 +177,19 @@
         box-shadow: 0 2px 8px rgba(1, 45, 29, 0.06);
     }
     .ticker-card .card-check,
-    .ticker-card-final .final-card-check {
+    .ticker-card-final .final-card-symbol {
         opacity: 0;
-        transform: scale(0.3);
+        transform: scale(0.6) translateX(-6px) rotate(-16deg);
         transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         position: relative;
     }
     .ticker-card.checked .card-check,
-    .ticker-card-final.checked .final-card-check {
+    .ticker-card-final.checked .final-card-symbol {
         opacity: 1;
         transform: scale(1);
     }
     /* Pulse ring on check */
-    .ticker-card.checked .card-check::after,
-    .ticker-card-final.checked .final-card-check::after {
+    .ticker-card.checked .card-check::after {
         content: '';
         position: absolute;
         inset: -3px;
@@ -201,6 +200,14 @@
     @keyframes checkPulse {
         0% { transform: scale(0.8); opacity: 0.6; }
         100% { transform: scale(1.5); opacity: 0; }
+    }
+    .ticker-card-final.checked .final-card-symbol {
+        animation: finalLaunch 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+    }
+    @keyframes finalLaunch {
+        0% { transform: scale(0.55) translateX(-8px) rotate(-22deg); opacity: 0; }
+        65% { transform: scale(1.13) translateX(2px) rotate(6deg); opacity: 1; }
+        100% { transform: scale(1) translateX(0) rotate(0); opacity: 1; }
     }
     .ticker-card-final {
         opacity: 0.45;
@@ -218,6 +225,14 @@
     #setup-counter {
         transition: all 0.2s ease;
     }
+    #setup-counter.complete {
+        animation: completionGlow 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+    }
+    @keyframes completionGlow {
+        0% { transform: scale(0.9); box-shadow: 0 0 0 rgba(1, 45, 29, 0); }
+        60% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(1, 45, 29, 0.12); }
+        100% { transform: scale(1); box-shadow: 0 0 0 rgba(1, 45, 29, 0); }
+    }
     /* Dynamic subtitle */
     #setup-live-task {
         transition: opacity 0.15s ease;
@@ -227,7 +242,8 @@
         .setup-logo,
         .ticker-track.spinning,
         .ticker-card.checked .card-check::after,
-        .ticker-card-final.checked .card-check::after {
+        .ticker-card-final.checked .final-card-symbol,
+        #setup-counter.complete {
             animation: none;
         }
         #setup-progress-fill,
@@ -236,7 +252,7 @@
         .ticker-card,
         .ticker-card-final,
         .ticker-card .card-check,
-        .ticker-card-final .final-card-check {
+        .ticker-card-final .final-card-symbol {
             transition-duration: 0.01ms;
         }
     }
@@ -684,7 +700,7 @@
             <h2 class="font-headline-lg text-xl sm:text-2xl text-on-surface font-bold tracking-tight">Setting Up Your Workspace</h2>
             <p id="setup-live-task" class="font-body-md text-xs sm:text-sm text-on-surface-variant font-medium" aria-live="polite">Preparing your personalized experience...</p>
             <div class="flex items-center justify-center gap-2 pt-0.5">
-                <span id="setup-counter" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold geist uppercase tracking-wider bg-primary/10 text-primary" aria-live="polite">0 / 9</span>
+                <span id="setup-counter" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold geist uppercase tracking-wider bg-primary/10 text-primary" aria-live="polite">0% Complete</span>
             </div>
         </div>
 
@@ -760,7 +776,7 @@
                         <span class="material-symbols-outlined text-on-primary text-xl">auto_awesome</span>
                         <span class="text-xs sm:text-sm">Workspace Ready!</span>
                     </div>
-                    <div class="final-card-check w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
+                    <span class="final-card-symbol material-symbols-outlined w-7 h-7 rounded-full bg-on-primary/15 text-on-primary flex items-center justify-center text-base shrink-0" aria-hidden="true">rocket_launch</span>
                 </div>
             </div>
         </div>
@@ -1068,8 +1084,8 @@
         setupScreen.classList.add('visible');
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const tickerDuration = 4000;
-        const completionPause = prefersReducedMotion ? 300 : 700;
+        const tickerDuration = 3200;
+        const completionPause = prefersReducedMotion ? 300 : 1800;
         const fillBar = document.getElementById('setup-progress-fill');
         const tickerTrack = document.getElementById('ticker-track');
         const counterEl = document.getElementById('setup-counter');
@@ -1121,7 +1137,10 @@
 
             card.classList.add('checked');
             completedCardCount += 1;
-            if (counterEl) counterEl.textContent = `${completedCardCount} / ${cards.length}`;
+            if (counterEl) {
+                const completionPercentage = Math.round((completedCardCount / cards.length) * 100);
+                counterEl.textContent = `${completionPercentage}% Complete`;
+            }
             updateLiveTask(taskNames[completedCardCount - 1] || 'Preparing your workspace...');
         }
 
@@ -1145,9 +1164,10 @@
             cards.forEach((card) => card.classList.add('checked'));
             if (finalCard) finalCard.classList.add('checked');
             if (counterEl) {
-                counterEl.textContent = `${cards.length} / ${cards.length} ✓`;
+                counterEl.textContent = '100% Complete';
                 counterEl.classList.remove('bg-primary/10', 'text-primary');
                 counterEl.classList.add('bg-primary', 'text-on-primary');
+                counterEl.classList.add('complete');
             }
             updateLiveTask('Workspace ready — Welcome to HabitArc!');
             setTimeout(finishSetupTransition, completionPause);
