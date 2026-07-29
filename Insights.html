@@ -1,545 +1,460 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>HabitArc - Insights</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HabitArc - Insights</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    colors: {
-                        "primary": "#012d1d",
-                        "primary-container": "#1b4332",
-                        "primary-fixed-dim": "#a5d0b9",
-                        "secondary": "#0e6c4a",
+                    "colors": {
+                        "on-tertiary-fixed": "#331111",
+                        "tertiary": "#401b1b",
+                        "outline-variant": "#c1c8c2",
+                        "surface-bright": "#f8f9fa",
                         "secondary-container": "#a0f4c8",
-                        "on-secondary-container": "#19724f",
-                        "background": "#f8f9fa",
-                        "surface": "#f8f9fa",
-                        "surface-container": "#edeeef",
-                        "surface-container-low": "#f3f4f5",
+                        "tertiary-fixed": "#ffdad8",
                         "surface-container-high": "#e7e8e9",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2e3132",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary": "#ffffff",
                         "surface-container-lowest": "#ffffff",
-                        "surface-variant": "#e1e3e4",
-                        "on-background": "#191c1d",
-                        "on-surface": "#191c1d",
+                        "on-primary-fixed": "#002114",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-secondary-container": "#19724f",
+                        "on-primary-container": "#86af99",
+                        "surface-dim": "#d9dadb",
+                        "on-tertiary-container": "#d29895",
+                        "secondary-fixed": "#a0f4c8",
                         "on-surface-variant": "#414844",
+                        "on-error": "#ffffff",
+                        "secondary": "#0e6c4a",
                         "outline": "#717973",
-                        "outline-variant": "#c1c8c2"
+                        "surface-variant": "#e1e3e4",
+                        "error": "#ba1a1a",
+                        "background": "#f8f9fa",
+                        "on-surface": "#191c1d",
+                        "primary-fixed": "#c1ecd4",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "surface": "#f8f9fa",
+                        "tertiary-fixed-dim": "#f5b7b4",
+                        "primary-container": "#1b4332",
+                        "on-tertiary-fixed-variant": "#673a39",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "tertiary-container": "#5a302f",
+                        "inverse-primary": "#a5d0b9",
+                        "secondary-fixed-dim": "#85d7ad",
+                        "on-background": "#191c1d",
+                        "surface-tint": "#3f6653",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-low": "#f3f4f5",
+                        "primary": "#012d1d",
+                        "surface-container": "#edeeef",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "error-container": "#ffdad6"
                     },
-                    borderRadius: {
-                        "DEFAULT": "0.5rem",
-                        "lg": "0.75rem",
-                        "xl": "1rem",
-                        "2xl": "1.25rem",
-                        "3xl": "1.5rem"
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
                     },
-                    spacing: {
-                        "container-padding": "24px",
+                    "spacing": {
+                        "section-margin": "32px",
+                        "container-padding": "20px",
+                        "stack-gap": "16px",
                         "card-padding": "20px",
-                        "stack-gap": "16px"
+                        "element-gap": "12px"
                     },
-                    fontFamily: {
+                    "fontFamily": {
                         "headline-lg": ["Hanken Grotesk", "sans-serif"],
-                        "headline-md": ["Hanken Grotesk", "sans-serif"],
                         "body-lg": ["Hanken Grotesk", "sans-serif"],
+                        "headline-md": ["Hanken Grotesk", "sans-serif"],
                         "body-md": ["Hanken Grotesk", "sans-serif"],
                         "label-md": ["Geist", "sans-serif"],
                         "label-sm": ["Geist", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "600" }]
                     }
-                }
-            }
+                },
+            },
         }
     </script>
-    <style>
-        body { font-family: 'Hanken Grotesk', sans-serif; }
-        .geist { font-family: 'Geist', sans-serif; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
-        .tab-btn { border-bottom: 2px solid transparent; transition: all 0.2s ease; }
-        .tab-btn.active { border-bottom-color: #012d1d; color: #012d1d; font-weight: 600; }
-        .dark .tab-btn.active { border-bottom-color: #a5d0b9; color: #a5d0b9; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Subtle glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
     </style>
 </head>
-<body class="bg-background dark:bg-zinc-950 text-on-background dark:text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500/20">
-
-<!-- Top App Bar (Mobile Only) -->
-<header class="w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-surface-container/70 dark:border-zinc-800 flex justify-between items-center px-4 py-3 max-w-7xl mx-auto md:hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-    <a href="Dashboard.html" class="flex items-center gap-2">
-        <img src="logo.png" alt="HabitArc Logo" class="w-8 h-8 rounded-lg object-contain"/>
-        <span class="font-headline-md text-lg text-primary dark:text-emerald-400 font-bold tracking-tight">HabitArc</span>
-    </a>
-    
-    <div class="flex items-center gap-2">
-        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1 font-semibold text-xs geist shadow-2xs">
-            <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
-            <span id="header-streak-count">0d</span>
-        </div>
-
-        <a class="w-8 h-8 rounded-full bg-surface-container-low dark:bg-zinc-900 border border-surface-container dark:border-zinc-800 flex items-center justify-center text-on-surface-variant dark:text-zinc-400 hover:text-primary transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
-            <span class="material-symbols-outlined text-lg">settings</span>
-        </a>
-    </div>
+<body class="bg-background text-on-background font-body-lg antialiased min-h-screen flex flex-col pb-24 md:pb-8">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-background dark:bg-background border-b border-outline-variant/30 glass-panel">
+<div class="flex justify-between items-center px-container-padding py-4 w-full max-w-7xl mx-auto">
+<!-- Leading / Brand -->
+<a href="Dashboard.html" class="flex items-center gap-2.5">
+<img src="logo.png" alt="HabitArc Logo" class="w-8 h-8 rounded-lg object-contain"/>
+<span class="font-headline-lg text-headline-lg text-primary dark:text-primary-fixed tracking-tight font-bold">HabitArc</span>
+</a>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-label-md flex items-center gap-2" href="Dashboard.html">
+<span class="material-symbols-outlined" style="font-size: 18px;">home</span>
+                    Dashboard
+                </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-label-md flex items-center gap-2" href="Habits.html">
+<span class="material-symbols-outlined" style="font-size: 18px;">format_list_bulleted</span>
+                    Habits
+                </a>
+<a class="text-primary dark:text-primary-fixed font-bold hover:opacity-80 transition-opacity font-label-md text-label-md flex items-center gap-2" href="Insights.html">
+<span class="material-symbols-outlined fill" style="font-size: 18px;">insights</span>
+                    Insights
+                </a>
+</nav>
+<!-- Trailing / Profile -->
+<div class="flex items-center gap-4">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200" href="Settings.html" aria-label="Settings">
+<span class="material-symbols-outlined">settings</span>
+</a>
+<a href="Profile.html" class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant border border-outline-variant/50 flex items-center justify-center text-primary font-bold text-xs">
+<span class="material-symbols-outlined text-lg">person</span>
+</a>
+</div>
+</div>
 </header>
 
-<!-- Desktop Navigation Header -->
-<header class="hidden md:flex w-full sticky top-0 z-50 bg-background/85 dark:bg-zinc-950/85 backdrop-blur-xl justify-between items-center px-container-padding py-3.5 max-w-7xl mx-auto border-b border-surface-container/70 dark:border-zinc-800 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-    <a href="Dashboard.html" class="flex items-center gap-2.5">
-        <img src="logo.png" alt="HabitArc Logo" class="w-9 h-9 rounded-lg object-contain"/>
-        <span class="font-headline-lg text-xl text-primary dark:text-emerald-400 font-bold tracking-tight">HabitArc</span>
-    </a>
-    <nav class="flex gap-8">
-        <a class="text-on-surface-variant dark:text-zinc-400 font-headline-md text-base hover:text-primary dark:hover:text-emerald-400 transition-colors active:scale-95 duration-200" href="Dashboard.html">Dashboard</a>
-        <a class="text-on-surface-variant dark:text-zinc-400 font-headline-md text-base hover:text-primary dark:hover:text-emerald-400 transition-colors active:scale-95 duration-200" href="Habits.html">Habits</a>
-        <a class="text-primary dark:text-emerald-400 font-bold font-headline-md text-base active:scale-95 duration-200" href="Insights.html">Insights</a>
-    </nav>
-    <div class="flex items-center gap-3">
-        <div class="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-semibold text-xs geist shadow-2xs">
-            <span class="material-symbols-outlined text-base fill text-amber-500">local_fire_department</span>
-            <span id="header-streak-count-web">0 Day Streak</span>
-        </div>
-
-        <a class="w-9 h-9 rounded-full bg-surface-container-low dark:bg-zinc-900 border border-surface-container dark:border-zinc-800 flex items-center justify-center text-on-surface-variant dark:text-zinc-400 hover:text-primary dark:hover:text-emerald-400 transition-all active:scale-95 shadow-2xs" href="Settings.html" aria-label="Settings">
-            <span class="material-symbols-outlined text-lg">settings</span>
-        </a>
-    </div>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-container-padding py-section-margin grid grid-cols-1 lg:grid-cols-12 gap-section-margin">
+<!-- Left/Main Column -->
+<div class="lg:col-span-8 flex flex-col gap-section-margin">
+<!-- Hero Journey Section -->
+<section class="bg-surface rounded-xl p-card-padding border border-surface-container-high relative overflow-hidden">
+<!-- Subtle decorative background -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none"></div>
+<header class="mb-stack-gap relative z-10">
+<h1 id="hero-title" class="font-headline-lg text-headline-lg text-primary font-bold">Your Journey</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">A look at your mindful progress over time.</p>
 </header>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-element-gap relative z-10 mt-stack-gap">
+<!-- Metric Card 1 -->
+<div class="flex flex-col gap-1 p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/20">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Overall Progress</span>
+<span id="metric-progress" class="font-headline-md text-headline-md text-primary font-bold">0%</span>
+</div>
+<!-- Metric Card 2 -->
+<div class="flex flex-col gap-1 p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/20">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Consistency Score</span>
+<span id="metric-consistency" class="font-headline-md text-headline-md text-secondary font-bold">--</span>
+</div>
+<!-- Metric Card 3 -->
+<div class="flex flex-col gap-1 p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/20">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Best Streak</span>
+<span id="metric-streak" class="font-headline-md text-headline-md text-primary font-bold">0d</span>
+</div>
+<!-- Metric Card 4 -->
+<div class="flex flex-col gap-1 p-3 bg-primary-container text-on-primary-container rounded-lg">
+<span class="font-label-sm text-label-sm uppercase tracking-wider opacity-90">Weekly Trend</span>
+<div class="flex items-center gap-1">
+<span id="metric-trend" class="font-headline-md text-headline-md text-on-primary font-bold">+12%</span>
+<span class="material-symbols-outlined text-secondary-fixed text-sm">trending_up</span>
+</div>
+</div>
+</div>
+</section>
 
-<main class="flex-grow pb-28 md:pb-12 max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-container-padding">
-    <!-- Page Title Header -->
-    <section class="mt-6 mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-            <h1 class="font-headline-lg text-2xl md:text-3xl font-bold text-on-background dark:text-zinc-100 tracking-tight">Behavioral Insights 🧠</h1>
-            <p class="font-body-md text-sm md:text-base text-on-surface-variant dark:text-zinc-400 mt-1">Data-driven analysis of your consistency & behavioral patterns.</p>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-full text-xs font-semibold geist bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                30-Day Analysis
-            </span>
-        </div>
-    </section>
+<!-- Growth Timeline & Today's Story (Horizontal split) -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-stack-gap">
+<!-- Today's Story -->
+<div class="bg-surface rounded-xl p-card-padding border border-surface-container-high flex flex-col gap-stack-gap">
+<h2 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">auto_stories</span>
+                        Today's Story
+                    </h2>
+<ul id="todays-story-list" class="flex flex-col gap-element-gap font-body-md text-body-md text-on-surface">
+<!-- Dynamic Story Bullet Points -->
+</ul>
+</div>
 
-    <!-- Sub-tabs Navigation -->
-    <nav class="flex space-x-6 mb-6 border-b border-surface-variant dark:border-zinc-800 overflow-x-auto hide-scrollbar">
-        <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn active pb-3 font-label-md text-sm px-1 whitespace-nowrap">Overview</button>
-        <button onclick="switchTab('patterns')" id="tab-btn-patterns" class="tab-btn pb-3 font-label-md text-sm text-on-surface-variant dark:text-zinc-400 px-1 whitespace-nowrap">Patterns</button>
-        <button onclick="switchTab('weekly')" id="tab-btn-weekly" class="tab-btn pb-3 font-label-md text-sm text-on-surface-variant dark:text-zinc-400 px-1 whitespace-nowrap">Weekly Breakdowns</button>
-    </nav>
+<!-- Growth Timeline -->
+<div class="bg-surface rounded-xl p-card-padding border border-surface-container-high flex flex-col gap-stack-gap">
+<h2 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">timeline</span>
+                        Growth Timeline
+                    </h2>
+<div class="relative pl-4 border-l-2 border-surface-container mt-2 flex flex-col gap-stack-gap">
+<!-- Node 1 -->
+<div class="relative">
+<div class="absolute -left-[23px] top-1 w-3 h-3 bg-primary rounded-full ring-4 ring-surface"></div>
+<h3 class="font-label-md text-label-md text-primary font-semibold">This Week</h3>
+<p id="timeline-node-1" class="font-body-md text-body-md text-on-surface-variant mt-1">Focusing on daily habits & consistency.</p>
+</div>
+<!-- Node 2 -->
+<div class="relative">
+<div class="absolute -left-[23px] top-1 w-3 h-3 bg-secondary-fixed rounded-full ring-4 ring-surface border border-primary"></div>
+<h3 class="font-label-md text-label-md text-primary font-semibold">Last Week</h3>
+<p id="timeline-node-2" class="font-body-md text-body-md text-on-surface-variant mt-1">Maintained solid completion rate.</p>
+</div>
+<!-- Node 3 -->
+<div class="relative">
+<div class="absolute -left-[23px] top-1 w-3 h-3 bg-surface-variant rounded-full ring-4 ring-surface border border-outline"></div>
+<h3 class="font-label-md text-label-md text-primary font-semibold">2 Weeks Ago</h3>
+<p id="timeline-node-3" class="font-body-md text-body-md text-on-surface-variant mt-1">Started new habit tracking routines.</p>
+</div>
+</div>
+</div>
+</section>
 
-    <!-- Tab Content: OVERVIEW -->
-    <div id="overview-tab" class="space-y-6">
-        <!-- Top Metrics Row: 4 Equal Columns on Desktop -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-            <!-- Stat Card 1 -->
-            <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between">
-                    <span class="font-label-sm text-xs text-on-surface-variant dark:text-zinc-400 uppercase tracking-wider font-semibold geist">Completion Rate</span>
-                    <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-lg">trending_up</span>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span id="stat-rate" class="font-headline-lg text-3xl font-bold text-primary dark:text-emerald-400 geist">0%</span>
-                    <p class="text-xs text-on-surface-variant dark:text-zinc-500 mt-1">Over last 30 days</p>
-                </div>
-            </div>
+<!-- Weekly Journey Chart -->
+<section class="bg-surface rounded-xl p-card-padding border border-surface-container-high">
+<h2 class="font-headline-md text-headline-md text-primary font-bold mb-stack-gap flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">bar_chart</span>
+                    Weekly Journey
+                </h2>
+<!-- Abstract Representation of a wider chart using flex boxes -->
+<div id="weekly-chart-bars" class="h-48 flex items-end justify-between gap-2 mt-4 px-2">
+<!-- Dynamic Bars generated via JS -->
+</div>
+<div class="flex justify-between mt-2 text-xs text-outline font-label-sm uppercase">
+<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+</div>
+</section>
+</div>
 
-            <!-- Stat Card 2 -->
-            <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between">
-                    <span class="font-label-sm text-xs text-on-surface-variant dark:text-zinc-400 uppercase tracking-wider font-semibold geist">Consistency Score</span>
-                    <div class="w-8 h-8 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-lg fill">star</span>
-                    </div>
+<!-- Right Sidebar -->
+<aside class="lg:col-span-4 flex flex-col gap-section-margin">
+<!-- AI Coach Spotlight -->
+<section class="bg-surface-container-lowest rounded-xl p-card-padding border-2 border-primary-fixed/50 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 p-3 opacity-10">
+<span class="material-symbols-outlined" style="font-size: 64px;">psychology</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2 relative z-10">
+<span class="material-symbols-outlined text-secondary fill">psychiatry</span>
+                    Coach Note
+                </h2>
+<div id="coach-note-text" class="mt-stack-gap font-body-md text-body-md text-on-surface-variant leading-relaxed relative z-10 italic">
+                    "Your consistency with morning habits is remarkable this month. However, there's a slight drop-off in evening routines. Consider setting a gentle wind-down alarm 30 minutes earlier to bridge this gap."
                 </div>
-                <div class="mt-4 flex items-baseline gap-2">
-                    <span id="stat-consistency" class="font-headline-lg text-3xl font-bold text-primary dark:text-emerald-400 geist">--</span>
-                    <span id="stat-consistency-label" class="text-xs font-semibold px-2 py-0.5 rounded bg-surface-container dark:bg-zinc-800 text-on-surface-variant dark:text-zinc-300">Grade</span>
-                </div>
-            </div>
+<a href="Dashboard.html" class="mt-4 flex items-center gap-2 text-xs text-primary font-label-sm uppercase tracking-wider relative z-10 hover:underline">
+                    View today's schedule <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
+</a>
+</section>
 
-            <!-- Stat Card 3 -->
-            <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between">
-                    <span class="font-label-sm text-xs text-on-surface-variant dark:text-zinc-400 uppercase tracking-wider font-semibold geist">Best Streak</span>
-                    <div class="w-8 h-8 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-lg fill">local_fire_department</span>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span id="stat-best-streak" class="font-headline-lg text-3xl font-bold text-primary dark:text-emerald-400 geist">0 d</span>
-                    <p class="text-xs text-on-surface-variant dark:text-zinc-500 mt-1">All-time record</p>
-                </div>
-            </div>
+<!-- Habit Spotlight -->
+<section class="flex flex-col gap-stack-gap">
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Habit Spotlight</h2>
+<!-- Strongest Habit -->
+<div class="bg-surface rounded-xl p-card-padding border border-surface-container-high flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+<span id="strongest-icon" class="material-symbols-outlined">menu_book</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider text-xs font-semibold">Strongest</h3>
+<p id="strongest-name" class="font-headline-md text-headline-md text-primary font-bold mt-1">Daily Reading</p>
+</div>
+<div class="text-right">
+<span id="strongest-streak" class="font-headline-md text-headline-md text-secondary font-bold block">18d</span>
+<span class="text-xs text-outline font-label-sm">Streak</span>
+</div>
+</div>
 
-            <!-- Stat Card 4 -->
-            <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between">
-                    <span class="font-label-sm text-xs text-on-surface-variant dark:text-zinc-400 uppercase tracking-wider font-semibold geist">Active Habits</span>
-                    <div class="w-8 h-8 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-lg">task_alt</span>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span id="stat-active" class="font-headline-lg text-3xl font-bold text-primary dark:text-emerald-400 geist">0</span>
-                    <p class="text-xs text-on-surface-variant dark:text-zinc-500 mt-1">Currently tracked</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Middle Row: Bento Layout (Weekly Pattern Chart + Top Habit Card) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5">
-            <!-- Weekly Bar Chart Card (2 Cols on Desktop) -->
-            <div class="lg:col-span-2 bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-6 flex flex-col justify-between shadow-2xs">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="font-headline-md text-lg font-bold text-primary dark:text-emerald-400">Weekly Consistency Pattern</h3>
-                        <p class="text-xs text-on-surface-variant dark:text-zinc-400 mt-0.5">Completion distribution across days of the week</p>
-                    </div>
-                    <span class="material-symbols-outlined text-on-surface-variant/40 text-xl">bar_chart</span>
-                </div>
-
-                <!-- Custom Bar Chart Container -->
-                <div id="weekly-chart-container" class="w-full h-48 flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-surface-variant/50 dark:border-zinc-800">
-                    <!-- Dynamic Bars will be inserted via JS -->
-                </div>
-                
-                <!-- Day Labels -->
-                <div class="flex justify-between px-2 pt-3 text-xs font-semibold geist text-on-surface-variant dark:text-zinc-400">
-                    <span class="w-8 text-center">Mon</span>
-                    <span class="w-8 text-center">Tue</span>
-                    <span class="w-8 text-center">Wed</span>
-                    <span class="w-8 text-center">Thu</span>
-                    <span class="w-8 text-center">Fri</span>
-                    <span class="w-8 text-center">Sat</span>
-                    <span class="w-8 text-center">Sun</span>
-                </div>
-            </div>
-
-            <!-- Top Habit & Quick Summary Card (1 Col on Desktop) -->
-            <div class="lg:col-span-1 flex flex-col gap-4">
-                <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-6 flex-1 flex flex-col justify-between shadow-2xs">
-                    <div>
-                        <span class="font-label-sm text-xs text-on-surface-variant dark:text-zinc-400 uppercase tracking-wider font-semibold geist">Top Performing Habit</span>
-                        <div class="flex items-center gap-3 mt-4">
-                            <div class="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                <span id="stat-top-habit-icon" class="material-symbols-outlined text-2xl">star</span>
-                            </div>
-                            <div class="overflow-hidden">
-                                <h4 id="stat-top-habit" class="font-headline-md text-lg font-bold text-primary dark:text-emerald-400 truncate">--</h4>
-                                <p id="stat-top-habit-sub" class="text-xs text-on-surface-variant dark:text-zinc-400 truncate">Highest consistency rate</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-6 pt-4 border-t border-surface-variant/60 dark:border-zinc-800 flex items-center justify-between text-xs geist">
-                        <span class="text-on-surface-variant dark:text-zinc-400">Performance Status</span>
-                        <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">Excellent</span>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-2xl p-5 shadow-sm">
-                    <div class="flex items-center gap-2 text-emerald-300 font-semibold text-xs uppercase tracking-wider geist">
-                        <span class="material-symbols-outlined text-base">psychology</span>
-                        Behavioral Tip
-                    </div>
-                    <p class="text-sm mt-2 text-emerald-100 leading-relaxed">
-                        Consistency beats intensity. Micro-habits done daily create stronger neural pathways than large efforts done occasionally.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Row: AI Insights & Action Cards (2 Columns on Desktop) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-            <!-- Takeaway 1 Card -->
-            <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-6 flex gap-4 items-start shadow-2xs">
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-2xl">auto_awesome</span>
-                </div>
-                <div>
-                    <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider geist">Peak Activity Insight</span>
-                    <h4 id="takeaway-1-title" class="font-headline-md text-base md:text-lg text-primary dark:text-emerald-300 font-bold mt-0.5">Analyzing patterns...</h4>
-                    <p id="takeaway-1-desc" class="font-body-md text-sm text-on-surface-variant dark:text-zinc-400 mt-1.5 leading-relaxed">Keep tracking your habits to unlock personalized behavioral insights.</p>
-                </div>
-            </div>
-
-            <!-- Takeaway 2 Card -->
-            <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-6 flex gap-4 items-start shadow-2xs">
-                <div class="w-12 h-12 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-2xl">target</span>
-                </div>
-                <div>
-                    <span class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider geist">Focus Area</span>
-                    <h4 id="takeaway-2-title" class="font-headline-md text-base md:text-lg text-primary dark:text-emerald-300 font-bold mt-0.5">AI Insights Ready</h4>
-                    <p id="takeaway-2-desc" class="font-body-md text-sm text-on-surface-variant dark:text-zinc-400 mt-1.5 leading-relaxed">Consistency score is calculated from your last 30 days of activity.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab Content: PATTERNS (Hidden by Default) -->
-    <div id="patterns-tab" class="hidden space-y-6">
-        <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-6">
-            <h3 class="font-headline-md text-lg font-bold text-primary dark:text-emerald-400 mb-2">Category Performance Breakdowns</h3>
-            <p class="text-sm text-on-surface-variant dark:text-zinc-400 mb-6">Comparison of consistency across Health, Mindfulness, Focus & Learning.</p>
-            
-            <div id="category-breakdown-container" class="space-y-4">
-                <!-- Inserted via JS -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab Content: WEEKLY BREAKDOWNS (Hidden by Default) -->
-    <div id="weekly-tab" class="hidden space-y-6">
-        <div class="bg-surface-container-lowest dark:bg-zinc-900 border border-surface-variant/80 dark:border-zinc-800/80 rounded-2xl p-6">
-            <h3 class="font-headline-md text-lg font-bold text-primary dark:text-emerald-400 mb-2">Habit Completion Matrix</h3>
-            <p class="text-sm text-on-surface-variant dark:text-zinc-400 mb-6">Detailed list of active habits and their recent 7-day performance.</p>
-            <div id="habit-matrix-container" class="divide-y divide-surface-variant/50 dark:divide-zinc-800">
-                <!-- Inserted via JS -->
-            </div>
-        </div>
-    </div>
+<!-- Opportunity Habit -->
+<div class="bg-surface rounded-xl p-card-padding border border-surface-container-high flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center shrink-0">
+<span id="opportunity-icon" class="material-symbols-outlined">edit_note</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider text-xs font-semibold">Opportunity</h3>
+<p id="opportunity-name" class="font-headline-md text-headline-md text-primary font-bold mt-1">Evening Journal</p>
+</div>
+<div class="text-right">
+<span id="opportunity-streak" class="font-headline-md text-headline-md text-on-surface-variant font-bold block">4d</span>
+<span class="text-xs text-outline font-label-sm">Streak</span>
+</div>
+</div>
+</section>
+</aside>
 </main>
 
 <!-- Floating Glassmorphism Bottom Nav Bar (Mobile Only) -->
-<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-surface/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-outline-variant/30 dark:border-zinc-800 rounded-3xl shadow-[0_12px_32px_rgba(0,0,0,0.15)] px-2 py-2 grid grid-cols-5 items-center">
-    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant dark:text-zinc-400 hover:text-on-surface transition-all duration-200" href="Dashboard.html">
-        <span class="material-symbols-outlined text-[22px] leading-none">home</span>
-        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
-    </a>
-    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant dark:text-zinc-400 hover:text-on-surface transition-all duration-200" href="Habits.html">
-        <span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
-        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
-    </a>
-    <a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
-        <div class="w-[52px] h-[52px] rounded-full bg-primary-container dark:bg-emerald-600 text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background dark:ring-zinc-950 active:scale-90 hover:scale-105 transition-all">
-            <span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
-        </div>
-    </a>
-    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary-container dark:bg-emerald-600 text-on-primary font-semibold shadow-sm transition-all duration-200" href="Insights.html">
-        <span class="material-symbols-outlined text-[22px] leading-none fill">insights</span>
-        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
-    </a>
-    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant dark:text-zinc-400 hover:text-on-surface transition-all duration-200" href="Profile.html">
-        <span class="material-symbols-outlined text-[22px] leading-none">person</span>
-        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Profile</span>
-    </a>
+<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 rounded-3xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] px-2 py-2 grid grid-cols-5 items-center">
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Dashboard.html">
+<span class="material-symbols-outlined text-[22px] leading-none">home</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
+</a>
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Habits.html">
+<span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
+</a>
+<a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
+<div class="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background active:scale-90 hover:scale-105 transition-all">
+<span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
+</div>
+</a>
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary-container text-on-primary font-semibold shadow-sm transition-all duration-200" href="Insights.html">
+<span class="material-symbols-outlined text-[22px] leading-none fill">insights</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
+</a>
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Profile.html">
+<span class="material-symbols-outlined text-[22px] leading-none">person</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Profile</span>
+</a>
 </nav>
 
 <script src="app.js"></script>
 <script>
-    // Tab switching function
-    function switchTab(tabName) {
-        ['overview', 'patterns', 'weekly'].forEach(t => {
-            const el = document.getElementById(t + '-tab');
-            const btn = document.getElementById('tab-btn-' + t);
-            if (el) el.classList.add('hidden');
-            if (btn) btn.classList.remove('active');
-        });
+(function initDashboardJourney() {
+    if (typeof HabitArc === 'undefined') return;
 
-        const activeEl = document.getElementById(tabName + '-tab');
-        const activeBtn = document.getElementById('tab-btn-' + tabName);
-        if (activeEl) activeEl.classList.remove('hidden');
-        if (activeBtn) activeBtn.classList.add('active');
+    // Load Settings & User Name
+    const settings = HabitArc.getSettings ? HabitArc.getSettings() : {};
+    const name = settings.userName || 'Sarthak';
+    const firstName = name.split(' ')[0];
+    document.getElementById('hero-title').textContent = `${firstName}'s Journey`;
+
+    // Metrics Data
+    const overallRate = HabitArc.getOverallCompletionRate();
+    const consistencyScore = HabitArc.getConsistencyScore();
+    const bestStreak = HabitArc.getOverallLongestStreak();
+
+    document.getElementById('metric-progress').textContent = overallRate + '%';
+    document.getElementById('metric-consistency').textContent = consistencyScore;
+    document.getElementById('metric-streak').textContent = bestStreak + 'd';
+    document.getElementById('metric-trend').textContent = (overallRate >= 70 ? '+' : '') + Math.round(overallRate * 0.15) + '%';
+
+    // Populate Today's Story
+    const storyContainer = document.getElementById('todays-story-list');
+    storyContainer.innerHTML = '';
+
+    const habits = HabitArc.getHabits();
+    if (habits.length > 0) {
+        const bestHabit = HabitArc.getBestHabit();
+        const weakestHabit = HabitArc.getWeakestHabit();
+
+        if (bestHabit && bestHabit.habit) {
+            const streak = HabitArc.getCurrentStreak(bestHabit.habit.id);
+            storyContainer.innerHTML += `
+                <li class="flex gap-3 items-start p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+                    <span class="material-symbols-outlined text-primary-fixed-dim mt-0.5">check_circle</span>
+                    <span><strong>${bestHabit.habit.name}</strong> has been consistent with a ${streak}-day streak.</span>
+                </li>`;
+        }
+
+        const completedToday = habits.filter(h => HabitArc.isCompletedToday(h.id));
+        if (completedToday.length > 0) {
+            storyContainer.innerHTML += `
+                <li class="flex gap-3 items-start p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+                    <span class="material-symbols-outlined text-primary-fixed-dim mt-0.5">check_circle</span>
+                    <span>${completedToday.length} of ${habits.length} habits already completed today.</span>
+                </li>`;
+        }
+
+        if (weakestHabit && weakestHabit.habit && weakestHabit.rate < 80) {
+            storyContainer.innerHTML += `
+                <li class="flex gap-3 items-start p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+                    <span class="material-symbols-outlined text-outline mt-0.5">info</span>
+                    <span class="text-on-surface-variant">Focus area: <strong>${weakestHabit.habit.name}</strong> at ${weakestHabit.rate}% completion.</span>
+                </li>`;
+        }
+    } else {
+        storyContainer.innerHTML = `
+            <li class="flex gap-3 items-start p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+                <span class="material-symbols-outlined text-outline mt-0.5">info</span>
+                <span class="text-on-surface-variant">Add habits to build your daily progress story.</span>
+            </li>`;
     }
 
-    (function initInsights() {
-        if (typeof HabitArc === 'undefined') return;
+    // Dynamic Timeline Text
+    const bestDay = HabitArc.getBestDay();
+    if (bestDay && bestDay.day) {
+        document.getElementById('timeline-node-1').textContent = `Peak activity recorded on ${bestDay.day}s (${bestDay.rate}% rate).`;
+    }
 
-        // Render Streaks in Headers
-        const streak = HabitArc.getOverallCurrentStreak();
-        const streakText = streak + 'd';
-        const streakWebText = streak + ' Day Streak';
-        if (document.getElementById('header-streak-count')) document.getElementById('header-streak-count').textContent = streakText;
-        if (document.getElementById('header-streak-count-web')) document.getElementById('header-streak-count-web').textContent = streakWebText;
+    // Render Dynamic Weekly Chart Bars
+    const chartContainer = document.getElementById('weekly-chart-bars');
+    chartContainer.innerHTML = '';
+    const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-        // Overview Stats
-        const rate = HabitArc.getOverallCompletionRate();
-        const consistencyScore = HabitArc.getConsistencyScore();
-        document.getElementById('stat-rate').textContent = rate + '%';
-        document.getElementById('stat-consistency').textContent = consistencyScore;
-        document.getElementById('stat-best-streak').textContent = HabitArc.getOverallLongestStreak() + ' d';
-        document.getElementById('stat-active').textContent = HabitArc.getHabits().length;
+    dayKeys.forEach((key, idx) => {
+        let totalScheduled = 0;
+        let totalCompleted = 0;
 
-        // Top Habit
-        const best = HabitArc.getBestHabit();
-        if (best && best.habit) {
-            document.getElementById('stat-top-habit').textContent = best.habit.name;
-            if (best.habit.icon) {
-                document.getElementById('stat-top-habit-icon').textContent = best.habit.icon;
+        for (let i = 1; i <= 28; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase().slice(0, 3);
+
+            if (dayName === key) {
+                habits.forEach(h => {
+                    if (!h.repeat || h.repeat.includes(key)) {
+                        totalScheduled++;
+                        if (h.completions && h.completions[dateStr]) totalCompleted++;
+                    }
+                });
             }
-            document.getElementById('stat-top-habit-sub').textContent = `${best.rate}% completion rate`;
         }
 
-        // Takeaway 1: Peak Day
-        const bestDay = HabitArc.getBestDay();
-        if (bestDay && bestDay.day) {
-            document.getElementById('takeaway-1-title').textContent = `Peak Day: ${bestDay.day}s`;
-            document.getElementById('takeaway-1-desc').textContent = `Your completion rate reaches ${bestDay.rate}% on ${bestDay.day}s. Schedule your most important habits for this day!`;
-        } else {
-            document.getElementById('takeaway-1-title').textContent = `Consistent Daily Rhythm`;
-            document.getElementById('takeaway-1-desc').textContent = `Keep logging habits daily to pinpoint your highest productivity days.`;
-        }
-
-        // Takeaway 2: Focus Area / Weakest Habit
-        const weakest = HabitArc.getWeakestHabit();
-        if (weakest && weakest.habit) {
-            document.getElementById('takeaway-2-title').textContent = `Focus Area: ${weakest.habit.name}`;
-            document.getElementById('takeaway-2-desc').textContent = `Currently at ${weakest.rate}% completion. Try lowering friction or setting a specific reminder time.`;
-        } else {
-            document.getElementById('takeaway-2-title').textContent = `Strong Performance`;
-            document.getElementById('takeaway-2-desc').textContent = `All your active habits have high completion rates! Keep up the momentum.`;
-        }
-
-        // Render Dynamic Bar Chart for Weekly Pattern
-        renderWeeklyChart();
-
-        // Render Categories & Matrix
-        renderCategoryBreakdown();
-        renderHabitMatrix();
-    })();
-
-    function renderWeeklyChart() {
-        const container = document.getElementById('weekly-chart-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        const habits = HabitArc.getHabits();
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        const pct = totalScheduled > 0 ? Math.round((totalCompleted / totalScheduled) * 100) : (40 + idx * 8);
+        const heights = ['h-[40%]', 'h-[65%]', 'h-[90%]', 'h-[100%]', 'h-[75%]', 'h-[30%]', 'h-[45%]'];
+        const barHeightClass = heights[idx % heights.length];
         
-        // Calculate completion rates per day of week over last 30 days
-        const dayStats = dayKeys.map(key => {
-            let totalScheduled = 0;
-            let totalCompleted = 0;
+        const barBg = pct >= 80 ? 'bg-secondary' : (pct >= 60 ? 'bg-primary-container' : 'bg-primary-fixed-dim');
+        const dayLabel = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][idx];
 
-            for (let i = 1; i <= 28; i++) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase().slice(0, 3);
-                
-                if (dayName === key) {
-                    habits.forEach(h => {
-                        if (!h.repeat || h.repeat.includes(key)) {
-                            totalScheduled++;
-                            if (h.completions && h.completions[dateStr]) totalCompleted++;
-                        }
-                    });
-                }
-            }
-
-            const pct = totalScheduled > 0 ? Math.round((totalCompleted / totalScheduled) * 100) : 40;
-            return Math.max(pct, 15); // min 15% height for visual aesthetics
-        });
-
-        const maxVal = Math.max(...dayStats, 100);
-
-        dayStats.forEach((pct, idx) => {
-            const barWrapper = document.createElement('div');
-            barWrapper.className = 'flex-1 flex flex-col items-center h-full justify-end group relative';
-            
-            const heightPct = Math.round((pct / maxVal) * 100);
-            const isTop = pct === maxVal;
-            
-            barWrapper.innerHTML = `
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-7 bg-zinc-800 text-white text-[10px] py-0.5 px-1.5 rounded geist font-semibold whitespace-nowrap z-10">
-                    ${pct}%
+        chartContainer.innerHTML += `
+            <div class="w-full ${barBg} rounded-t-sm ${barHeightClass} hover:opacity-90 transition-opacity relative group cursor-pointer">
+                <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                    ${dayLabel}: ${pct}%
                 </div>
-                <div style="height: ${heightPct}%" class="w-full max-w-[36px] rounded-t-md transition-all duration-500 ${isTop ? 'bg-emerald-600 dark:bg-emerald-400 shadow-xs' : 'bg-emerald-900/30 dark:bg-emerald-500/30 group-hover:bg-emerald-600/60'}"></div>
-            `;
-            container.appendChild(barWrapper);
-        });
+            </div>`;
+    });
+
+    // Populate Habit Spotlights
+    const strongest = HabitArc.getBestHabit();
+    const opportunity = HabitArc.getWeakestHabit();
+
+    if (strongest && strongest.habit) {
+        document.getElementById('strongest-name').textContent = strongest.habit.name;
+        document.getElementById('strongest-icon').textContent = strongest.habit.icon || 'menu_book';
+        document.getElementById('strongest-streak').textContent = HabitArc.getCurrentStreak(strongest.habit.id) + 'd';
     }
 
-    function renderCategoryBreakdown() {
-        const container = document.getElementById('category-breakdown-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        const habits = HabitArc.getHabits();
-        const categories = {};
-
-        habits.forEach(h => {
-            const cat = h.category || 'General';
-            if (!categories[cat]) categories[cat] = { count: 0, completed: 0, total: 0 };
-            categories[cat].count++;
-            
-            // Calc completion over 30 days
-            for (let i = 0; i < 30; i++) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                categories[cat].total++;
-                if (h.completions && h.completions[dateStr]) categories[cat].completed++;
-            }
-        });
-
-        if (Object.keys(categories).length === 0) {
-            container.innerHTML = `<p class="text-sm text-on-surface-variant">No habits found. Add habits to see category performance.</p>`;
-            return;
-        }
-
-        Object.keys(categories).forEach(cat => {
-            const data = categories[cat];
-            const pct = data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0;
-            
-            const row = document.createElement('div');
-            row.className = 'space-y-1.5';
-            row.innerHTML = `
-                <div class="flex justify-between items-center text-sm font-semibold">
-                    <span class="text-primary dark:text-emerald-300 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                        ${cat} (${data.count} habits)
-                    </span>
-                    <span class="geist text-xs text-on-surface-variant dark:text-zinc-400">${pct}% completion</span>
-                </div>
-                <div class="w-full h-2.5 bg-surface-container dark:bg-zinc-800 rounded-full overflow-hidden">
-                    <div class="h-full bg-emerald-600 dark:bg-emerald-400 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
-                </div>
-            `;
-            container.appendChild(row);
-        });
+    if (opportunity && opportunity.habit) {
+        document.getElementById('opportunity-name').textContent = opportunity.habit.name;
+        document.getElementById('opportunity-icon').textContent = opportunity.habit.icon || 'edit_note';
+        document.getElementById('opportunity-streak').textContent = HabitArc.getCurrentStreak(opportunity.habit.id) + 'd';
     }
 
-    function renderHabitMatrix() {
-        const container = document.getElementById('habit-matrix-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        const habits = HabitArc.getHabits();
-        if (habits.length === 0) {
-            container.innerHTML = `<p class="py-4 text-sm text-on-surface-variant">No habits added yet.</p>`;
-            return;
-        }
-
-        habits.forEach(h => {
-            const streak = HabitArc.getCurrentStreak(h.id);
-            const item = document.createElement('div');
-            item.className = 'py-3.5 flex items-center justify-between';
-            item.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-xl">${h.icon || 'check_circle'}</span>
-                    <div>
-                        <h4 class="text-sm font-semibold text-primary dark:text-zinc-100">${h.name}</h4>
-                        <span class="text-xs text-on-surface-variant dark:text-zinc-400">${h.category || 'General'}</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 geist text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
-                    <span class="material-symbols-outlined text-sm fill">local_fire_department</span>
-                    ${streak}d streak
-                </div>
-            `;
-            container.appendChild(item);
-        });
+    // Dynamic Coach Note
+    const coachNoteEl = document.getElementById('coach-note-text');
+    if (bestDay && bestDay.day) {
+        coachNoteEl.textContent = `"Your consistency is strongest on ${bestDay.day}s (${bestDay.rate}% rate). Keep up your morning routines and consider pacing evening habits for maximum balance."`;
     }
+})();
 </script>
 </body>
 </html>
