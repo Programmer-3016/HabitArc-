@@ -115,9 +115,8 @@
         <img src="logo.png" alt="HabitArc Logo" class="w-7 h-7 rounded-lg object-contain"/>
         <span class="font-headline-md text-base text-primary font-bold">HabitArc</span>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center">
         <span id="step-indicator" class="font-label-sm text-sm text-on-surface-variant geist font-semibold">Step 1 of 8</span>
-        <button id="skip-btn" class="font-label-sm text-sm text-on-surface-variant hover:text-primary font-semibold transition-colors">Skip</button>
     </div>
 </header>
 
@@ -349,29 +348,29 @@
             <div>
                 <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1.5 geist font-bold uppercase tracking-wider">Theme Palette</label>
                 <div class="grid grid-cols-3 gap-2" id="theme-grid">
-                    <button class="theme-btn btn-press rounded-xl border overflow-hidden font-label-sm text-[11px] font-bold flex flex-col items-center" style="background:#181028; color:#a78bfa; border-color:#2d1b4e;" data-theme="purple">
-                        <span class="w-full h-5 block" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa, #6d28d9);"></span>
-                        <span class="py-1.5">Purple</span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#181028; color:#a78bfa; border-color:#2d1b4e;" data-theme="purple">
+                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);"></span>
+                        <span>Purple</span>
                     </button>
-                    <button class="theme-btn btn-press rounded-xl border overflow-hidden font-label-sm text-[11px] font-bold flex flex-col items-center" style="background:#15181e; color:#94a3b8; border-color:#232833;" data-theme="dark">
-                        <span class="w-full h-5 block" style="background: linear-gradient(135deg, #34d399, #6ee7b7, #059669);"></span>
-                        <span class="py-1.5">Dark</span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#15181e; color:#94a3b8; border-color:#232833;" data-theme="dark">
+                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #34d399, #059669);"></span>
+                        <span>Dark</span>
                     </button>
-                    <button class="theme-btn btn-press rounded-xl border-2 border-primary overflow-hidden font-label-sm text-[11px] font-bold flex flex-col items-center selected-theme" style="background:#ffffff; color:#012d1d;" data-theme="light">
-                        <span class="w-full h-5 block" style="background: linear-gradient(135deg, #012d1d, #1b4332, #10b981);"></span>
-                        <span class="py-1.5">Light</span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border-2 border-primary font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center selected-theme" style="background:#ffffff; color:#012d1d;" data-theme="light">
+                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #012d1d, #10b981);"></span>
+                        <span>Light</span>
                     </button>
-                    <button class="theme-btn btn-press rounded-xl border overflow-hidden font-label-sm text-[11px] font-bold flex flex-col items-center" style="background:#0b2419; color:#6ee7b7; border-color:#16402d;" data-theme="forest">
-                        <span class="w-full h-5 block" style="background: linear-gradient(135deg, #10b981, #059669, #047857);"></span>
-                        <span class="py-1.5">Forest</span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#0b2419; color:#6ee7b7; border-color:#16402d;" data-theme="forest">
+                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #10b981, #047857);"></span>
+                        <span>Forest</span>
                     </button>
-                    <button class="theme-btn btn-press rounded-xl border overflow-hidden font-label-sm text-[11px] font-bold flex flex-col items-center" style="background:#0f1d32; color:#7dd3fc; border-color:#1d3356;" data-theme="ocean">
-                        <span class="w-full h-5 block" style="background: linear-gradient(135deg, #3b82f6, #7dd3fc, #1d4ed8);"></span>
-                        <span class="py-1.5">Ocean</span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#0f1d32; color:#7dd3fc; border-color:#1d3356;" data-theme="ocean">
+                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"></span>
+                        <span>Ocean</span>
                     </button>
-                    <button class="theme-btn btn-press rounded-xl border overflow-hidden font-label-sm text-[11px] font-bold flex flex-col items-center" style="background:#251017; color:#fda4af; border-color:#421d28;" data-theme="sunset">
-                        <span class="w-full h-5 block" style="background: linear-gradient(135deg, #f43f5e, #fda4af, #e11d48);"></span>
-                        <span class="py-1.5">Sunset</span>
+                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#251017; color:#fda4af; border-color:#421d28;" data-theme="sunset">
+                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #f43f5e, #e11d48);"></span>
+                        <span>Sunset</span>
                     </button>
                 </div>
             </div>
@@ -849,11 +848,6 @@
         }
     });
 
-    document.getElementById('skip-btn').addEventListener('click', function() {
-        saveUserProfile();
-        currentStep = 9;
-        updateStep();
-    });
 
     updateStep();
 })();
