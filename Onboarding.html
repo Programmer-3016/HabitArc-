@@ -154,6 +154,8 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        padding: 56px 0;
+        transform-origin: center;
     }
     .ticker-track.spinning {
         animation: tickerScroll var(--setup-duration) linear forwards;
@@ -166,8 +168,10 @@
     }
 
     .ticker-card {
-        opacity: 0.45;
-        transition: opacity 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        opacity: 0.3;
+        filter: blur(0.7px) saturate(0.75);
+        transform: scale(0.94);
+        transition: opacity 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, transform 0.28s cubic-bezier(0.2, 0.9, 0.25, 1);
         flex-shrink: 0;
         position: relative;
         overflow: hidden;
@@ -182,31 +186,26 @@
         transform: translateX(-115%);
     }
     .ticker-card.checked {
-        opacity: 1;
+        opacity: 0.55;
         border-color: #1b4332 !important;
         background-color: rgba(193, 236, 212, 0.3) !important;
         box-shadow: 0 2px 8px rgba(1, 45, 29, 0.06);
-        animation: tickerCardEnterLeft 0.48s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+        filter: blur(0.2px) saturate(0.9);
     }
-    .ticker-card:nth-child(even).checked {
-        animation-name: tickerCardEnterRight;
+    .ticker-card.is-current,
+    .ticker-card-final.is-current {
+        opacity: 1;
+        filter: blur(0) saturate(1);
+        transform: scale(1);
+        border-color: rgba(193, 236, 212, 0.75);
+        box-shadow: 0 10px 24px rgba(1, 45, 29, 0.16);
     }
-    .ticker-card.checked::before {
+    .ticker-card.is-current::before {
         animation: tickerCardSweep 0.58s ease-out both;
-    }
-    @keyframes tickerCardEnterLeft {
-        0% { opacity: 0.4; transform: translateX(-22px) scale(0.94); }
-        68% { opacity: 1; transform: translateX(3px) scale(1.015); }
-        100% { opacity: 1; transform: translateX(0) scale(1); }
-    }
-    @keyframes tickerCardEnterRight {
-        0% { opacity: 0.4; transform: translateX(22px) scale(0.94); }
-        68% { opacity: 1; transform: translateX(-3px) scale(1.015); }
-        100% { opacity: 1; transform: translateX(0) scale(1); }
     }
     @keyframes tickerCardSweep {
         0% { opacity: 0; transform: translateX(-115%); }
-        26% { opacity: 0.7; }
+        30% { opacity: 0.5; }
         100% { opacity: 0; transform: translateX(115%); }
     }
     .ticker-card .card-check,
@@ -243,8 +242,10 @@
         100% { transform: scale(1) translateX(0) rotate(0); opacity: 1; }
     }
     .ticker-card-final {
-        opacity: 0.45;
-        transition: opacity 0.4s ease, box-shadow 0.4s ease;
+        opacity: 0.3;
+        filter: blur(0.7px) saturate(0.75);
+        transform: scale(0.94);
+        transition: opacity 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.25, 1);
         flex-shrink: 0;
     }
     .ticker-card-final.checked {
@@ -277,8 +278,7 @@
         .ticker-card.checked .card-check::after,
         .ticker-card-final.checked .final-card-symbol,
         #setup-counter.complete,
-        .ticker-card.checked,
-        .ticker-card.checked::before {
+        .ticker-card.is-current::before {
             animation: none;
         }
         #setup-progress-fill,
@@ -1164,8 +1164,9 @@
         const cards = Array.from(tickerTrack.querySelectorAll('.ticker-card'));
         const finalCard = tickerTrack.querySelector('.ticker-card-final');
 
-        // Align the completion state with the card currently passing the viewport centre.
+        // The reel behaves like a music queue: cards continuously roll through the centre focus line.
         let completedCardCount = 0;
+        let activeCard = null;
         function markNextCardComplete() {
             const card = cards[completedCardCount];
             if (!card) return;
@@ -1179,17 +1180,41 @@
             updateLiveTask(taskNames[completedCardCount - 1] || 'Preparing your workspace...');
         }
 
-        function syncCardProgress() {
-            if (!tickerViewport || completedCardCount >= cards.length) return;
+        function updateActiveCard() {
+            if (!tickerViewport) return;
 
             const viewportRect = tickerViewport.getBoundingClientRect();
             const viewportCentre = viewportRect.top + (viewportRect.height / 2);
-            const nextCard = cards[completedCardCount];
-            const nextCardRect = nextCard.getBoundingClientRect();
-            const nextCardCentre = nextCardRect.top + (nextCardRect.height / 2);
+            const reelCards = finalCard ? [...cards, finalCard] : cards;
+            const closestCard = reelCards.reduce((closest, card) => {
+                const cardRect = card.getBoundingClientRect();
+                const distance = Math.abs((cardRect.top + (cardRect.height / 2)) - viewportCentre);
+                if (!closest || distance < closest.distance) return { card, distance };
+                return closest;
+            }, null)?.card;
 
-            if (nextCardCentre <= viewportCentre) markNextCardComplete();
-            requestAnimationFrame(syncCardProgress);
+            if (closestCard === activeCard) return;
+            if (activeCard) activeCard.classList.remove('is-current');
+            activeCard = closestCard;
+            if (activeCard) activeCard.classList.add('is-current');
+        }
+
+        function syncTickerReel() {
+            if (!tickerViewport || transitionCompleted) return;
+
+            updateActiveCard();
+
+            if (completedCardCount < cards.length) {
+                const viewportRect = tickerViewport.getBoundingClientRect();
+                const viewportCentre = viewportRect.top + (viewportRect.height / 2);
+                const nextCard = cards[completedCardCount];
+                const nextCardRect = nextCard.getBoundingClientRect();
+                const nextCardCentre = nextCardRect.top + (nextCardRect.height / 2);
+
+                if (nextCardCentre <= viewportCentre) markNextCardComplete();
+            }
+
+            requestAnimationFrame(syncTickerReel);
         }
 
         let transitionCompleted = false;
@@ -1198,6 +1223,9 @@
             transitionCompleted = true;
             cards.forEach((card) => card.classList.add('checked'));
             if (finalCard) finalCard.classList.add('checked');
+            if (activeCard) activeCard.classList.remove('is-current');
+            activeCard = finalCard;
+            if (activeCard) activeCard.classList.add('is-current');
             if (counterEl) {
                 counterEl.textContent = '100% Complete';
                 counterEl.classList.remove('bg-primary/10', 'text-primary');
@@ -1225,7 +1253,7 @@
         tickerTrack.addEventListener('animationend', (event) => {
             if (event.animationName === 'tickerScroll') completeTransition();
         }, { once: true });
-        requestAnimationFrame(syncCardProgress);
+        requestAnimationFrame(syncTickerReel);
         requestAnimationFrame(() => tickerTrack.classList.add('spinning'));
         // Some embedded browsers do not reliably emit animationend for a filled CSS animation.
         // This guarded fallback guarantees the transition completes exactly once.
