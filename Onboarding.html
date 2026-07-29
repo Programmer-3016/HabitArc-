@@ -156,15 +156,15 @@
         transform: translateY(0);
     }
     .ticker-track.spinning {
-        animation: rapidTickerScroll 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        animation: rapidTickerScroll 3.8s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
     }
     @keyframes rapidTickerScroll {
         0% { transform: translateY(0); }
-        80% { transform: translateY(-320px); }
-        100% { transform: translateY(-380px); }
+        85% { transform: translateY(-420px); }
+        100% { transform: translateY(-480px); }
     }
     #setup-progress-fill {
-        transition: width 1.9s cubic-bezier(0.25, 1, 0.5, 1);
+        transition: width 3.8s cubic-bezier(0.2, 0.9, 0.3, 1);
     }
 </style>
 </head>
@@ -642,6 +642,14 @@
                     <span class="material-symbols-outlined text-purple-600 text-lg">shield</span>
                     <span class="text-xs sm:text-sm font-semibold text-on-surface">Securing Growth Profile...</span>
                 </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-rose-600 text-lg">genetics</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Calibrating Personal Insights Engine...</span>
+                </div>
+                <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs text-left">
+                    <span class="material-symbols-outlined text-emerald-600 text-lg">verified</span>
+                    <span class="text-xs sm:text-sm font-semibold text-on-surface">Finalizing Account Setup...</span>
+                </div>
                 <div class="p-3.5 rounded-2xl bg-primary text-on-primary border border-primary flex items-center gap-3 shadow-md text-left font-bold">
                     <div class="w-5 h-5 rounded-full bg-on-primary text-primary flex items-center justify-center text-[10px] font-extrabold shrink-0">✓</div>
                     <span class="text-xs sm:text-sm">Workspace Ready!</span>
@@ -963,13 +971,13 @@
             }, 100);
         }
 
-        // Wait 1.9s for reel to complete & settle on Workspace Ready, then fade out
+        // Wait 4.2s for reel to complete & settle on Workspace Ready, then fade out
         setTimeout(() => {
             setupScreen.classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = 'Dashboard.html';
-            }, 400);
-        }, 2100);
+            }, 450);
+        }, 4200);
     }
 
     // Direct triggers from Step 8 sign-in actions (No need to click Enter HabitArc!)
