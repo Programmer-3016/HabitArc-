@@ -103,6 +103,14 @@
             background-size: 24px 24px;
             opacity: 0.4;
         }
+        /* Keep category chips swipeable without exposing a transient horizontal scrollbar. */
+        #category-filters {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        #category-filters::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background antialiased min-h-screen pb-24 relative overflow-x-hidden">
