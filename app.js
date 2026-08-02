@@ -194,7 +194,7 @@ const HabitArc = (() => {
         if (!data) {
             data = JSON.parse(JSON.stringify(DEFAULT_DATA));
             data.habits = SEED_HABITS.map(h => ({...h, id: _generateId()}));
-            data.onboardingComplete = true;
+            data.onboardingComplete = false;
             _save(data);
         }
         return data;

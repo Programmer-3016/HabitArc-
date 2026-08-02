@@ -87,5 +87,17 @@ HabitArc/
 
 ---
 
+## Firebase Authentication
+
+HabitArc uses Firebase Authentication for the Step 8 account flow. In Firebase Console, enable these providers under **Authentication → Sign-in method**:
+
+- Google
+- Email/Password
+- Anonymous
+
+Add `habit-arc.vercel.app` to **Authentication → Settings → Authorized domains** before testing the production deployment. The web configuration is kept in `firebase-auth.js`; it intentionally uses only the Firebase App and Authentication SDKs.
+
+---
+
 ## 📜 License
 This project is open source under the [MIT License](LICENSE).
