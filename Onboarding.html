@@ -1181,6 +1181,11 @@
         button.setAttribute('aria-busy', String(loading));
         button.classList.toggle('opacity-70', loading);
         button.classList.toggle('cursor-wait', loading);
+        if (button === googleSignInBtn && googleBtnText) {
+            googleBtnText.textContent = loading
+                ? 'Opening Google...'
+                : (authMode === 'login' ? 'Log in with Google' : 'Sign up with Google');
+        }
     }
 
     async function getFirebaseAuth() {
@@ -1214,16 +1219,16 @@
         };
     }
 
-    async function completeAuthentication(button, authenticate) {
+    async function completeAuthentication(button, authenticate, { showHandoff = true } = {}) {
         clearAuthError();
         setAuthButtonLoading(button, true);
-        const cancelAuthHandoff = beginAuthHandoff();
+        const cancelAuthHandoff = showHandoff ? beginAuthHandoff() : null;
 
         try {
             const user = await authenticate();
             runSetupTransition(user);
         } catch (error) {
-            cancelAuthHandoff();
+            cancelAuthHandoff?.();
             const message = error?.code === 'auth/not-ready'
                 ? 'Authentication is still loading. Please try again in a moment.'
                 : (window.HabitArcAuth?.getAuthErrorMessage(error) || 'We could not sign you in. Please try again.');
@@ -1453,7 +1458,11 @@
     // Step 8 authentication actions
     if (googleSignInBtn) {
         googleSignInBtn.addEventListener('click', () => {
-            completeAuthentication(googleSignInBtn, async () => (await getFirebaseAuth()).signInWithGoogle());
+            completeAuthentication(
+                googleSignInBtn,
+                async () => (await getFirebaseAuth()).signInWithGoogle(),
+                { showHandoff: false }
+            );
         });
     }
 
