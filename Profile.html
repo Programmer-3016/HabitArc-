@@ -161,8 +161,8 @@
 <div class="w-24 h-24 rounded-full border-2 border-primary-container p-1 mb-4">
 <img alt="User Avatar" class="w-full h-full rounded-full object-cover" data-alt="A portrait of a thoughtful, serene individual in an uncluttered, modern environment with soft, natural lighting. The color palette emphasizes clean whites, muted grays, and touches of forest green. High-quality, editorial style photography suitable for a mindful productivity app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPdV2DhoEXerSgWa9vH2g01A_odNiCJJybvoUK0reYw00Bcx0T9u2Kl-lifgda2th8pf6krtStRODTA5_GZOzDiUHMOFs06qoy4Khvw-gRvrmx9E9RfNC6Y3Qf7_m2LAN8S65TIHwyuKJESEf1z91oxHhzP0ZWuiY3CbShfAZS-BGnZNekMTjmlbXUK34T_Bgfz21CrpLYIunvdB0Gi6cqk3jOTTQo7T7ozlPjYfv2XXhJ3CF3hXkR"/>
 </div>
-<h2 class="font-headline-md text-headline-md text-on-surface mb-1">Alex Thorne</h2>
-<p class="font-body-md text-body-md text-on-surface-variant">Building stillness, one day at a time.</p>
+<h2 id="profile-display-name" class="font-headline-md text-headline-md text-on-surface mb-1">Alex Thorne</h2>
+<p id="profile-display-bio" class="font-body-md text-body-md text-on-surface-variant">Building stillness, one day at a time.</p>
 </section>
 <!-- Bento Grid for Profile Settings -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-gap">
@@ -288,6 +288,17 @@
 <script src="app.js"></script>
 <script>
 (function() {
+    const settings = HabitArc.getSettings();
+    const profileName = document.getElementById('profile-display-name');
+    const profileBio = document.getElementById('profile-display-bio');
+
+    if (profileName && settings.userName) {
+        profileName.textContent = settings.userName;
+    }
+    if (profileBio && settings.userBio) {
+        profileBio.textContent = settings.userBio;
+    }
+
     const btn = document.getElementById('export-csv-btn');
     if (btn) {
         btn.addEventListener('click', function() {

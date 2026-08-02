@@ -1192,11 +1192,19 @@
     async function completeAuthentication(button, authenticate) {
         clearAuthError();
         setAuthButtonLoading(button, true);
+        const previousStep = currentStep;
+
+        // Move the user out of the account form immediately. This keeps the
+        // Firebase request from leaving Step 8 visible while it finishes.
+        currentStep = totalSteps;
+        updateStep();
 
         try {
             const user = await authenticate();
             runSetupTransition(user);
         } catch (error) {
+            currentStep = previousStep;
+            updateStep();
             const message = error?.code === 'auth/not-ready'
                 ? 'Authentication is still loading. Please try again in a moment.'
                 : (window.HabitArcAuth?.getAuthErrorMessage(error) || 'We could not sign you in. Please try again.');
