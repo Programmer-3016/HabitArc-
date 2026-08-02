@@ -1189,22 +1189,41 @@
         throw new Error('auth/not-ready');
     }
 
+    function beginAuthHandoff() {
+        const bottomNav = document.getElementById('bottom-nav');
+        const setupScreen = document.getElementById('setup-transition');
+        const counterEl = document.getElementById('setup-counter');
+        const liveTaskEl = document.getElementById('setup-live-task');
+
+        if (!setupScreen) return () => {};
+
+        if (bottomNav) bottomNav.style.display = 'none';
+        setupScreen.classList.remove('fade-out');
+        setupScreen.classList.add('visible');
+        document.body.classList.add('setup-transition-running');
+
+        if (counterEl) counterEl.textContent = 'Signing you in...';
+        if (liveTaskEl) liveTaskEl.textContent = 'Securing your HabitArc account...';
+
+        return () => {
+            setupScreen.classList.remove('visible', 'fade-out');
+            document.body.classList.remove('setup-transition-running');
+            if (counterEl) counterEl.textContent = '0% Complete';
+            if (liveTaskEl) liveTaskEl.textContent = 'Preparing your workspace...';
+            updateStep();
+        };
+    }
+
     async function completeAuthentication(button, authenticate) {
         clearAuthError();
         setAuthButtonLoading(button, true);
-        const previousStep = currentStep;
-
-        // Move the user out of the account form immediately. This keeps the
-        // Firebase request from leaving Step 8 visible while it finishes.
-        currentStep = totalSteps;
-        updateStep();
+        const cancelAuthHandoff = beginAuthHandoff();
 
         try {
             const user = await authenticate();
             runSetupTransition(user);
         } catch (error) {
-            currentStep = previousStep;
-            updateStep();
+            cancelAuthHandoff();
             const message = error?.code === 'auth/not-ready'
                 ? 'Authentication is still loading. Please try again in a moment.'
                 : (window.HabitArcAuth?.getAuthErrorMessage(error) || 'We could not sign you in. Please try again.');
@@ -1289,6 +1308,13 @@
         const tickerTrack = document.getElementById('ticker-track');
         const counterEl = document.getElementById('setup-counter');
         const liveTaskEl = document.getElementById('setup-live-task');
+
+        if (counterEl) {
+            counterEl.textContent = '0% Complete';
+            counterEl.classList.remove('bg-primary', 'text-on-primary', 'complete');
+            counterEl.classList.add('bg-primary/10', 'text-primary');
+        }
+        if (liveTaskEl) liveTaskEl.textContent = 'Preparing your workspace...';
 
         const taskNames = [
             'Initializing Habit Engine...',
