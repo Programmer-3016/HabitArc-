@@ -180,6 +180,23 @@
 <div class="w-full h-px bg-surface-variant"></div>
 <div class="flex justify-between items-center">
 <span class="font-body-md text-body-md text-on-surface-variant">Current Streak</span>
+</section>
+<!-- Bento Grid for Profile Settings -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-gap">
+<!-- Account & Goals Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary-container">flag</span>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Goals</h3>
+</div>
+<div class="flex flex-col gap-4 flex-grow justify-center">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Daily Habit Target</span>
+<span class="font-label-md text-label-md text-primary-container bg-secondary-fixed-dim px-2 py-1 rounded-DEFAULT">5 Habits</span>
+</div>
+<div class="w-full h-px bg-surface-variant"></div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Current Streak</span>
 <span class="font-label-md text-label-md text-primary-container font-bold">12 Days</span>
 </div>
 </div>
@@ -191,72 +208,44 @@
 <h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Appearance</h3>
 </div>
 <div class="flex flex-col gap-4">
-<div class="flex justify-between items-center cursor-pointer hover:bg-surface-container-low p-2 -mx-2 rounded-lg transition-colors">
+<a href="Settings.html" class="flex justify-between items-center cursor-pointer hover:bg-surface-container-low p-2 -mx-2 rounded-lg transition-colors">
 <span class="font-body-md text-body-md text-on-surface">Theme</span>
 <div class="flex items-center gap-2 text-on-surface-variant">
-<span class="font-body-md text-body-md">Light</span>
+<span class="font-body-md text-body-md">Light / Multi</span>
 <span class="material-symbols-outlined text-[18px]">chevron_right</span>
 </div>
-</div>
-<div class="flex justify-between items-center cursor-pointer hover:bg-surface-container-low p-2 -mx-2 rounded-lg transition-colors">
-<span class="font-body-md text-body-md text-on-surface">App Icon</span>
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="font-body-md text-body-md">Default</span>
-<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</a>
 </div>
 </div>
+
+<!-- Trophies & Badges Card (Option 5) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding md:col-span-2 lg:col-span-3 flex flex-col">
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary-container">workspace_premium</span>
+            <h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Trophies & Badges</h3>
+        </div>
+        <a href="Insights.html" class="text-xs text-primary font-bold geist hover:underline flex items-center gap-1">
+            View Insights <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </a>
+    </div>
+    <div id="profile-badges-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        <!-- Dynamic Badges -->
+    </div>
 </div>
-</div>
+
 <!-- Data & Export Card -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding md:col-span-2 lg:col-span-3 flex flex-col">
 <div class="flex items-center gap-3 mb-4">
 <span class="material-symbols-outlined text-primary-container">download</span>
-<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Data</h3>
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Data Export</h3>
 </div>
-<p class="font-body-md text-body-md text-on-surface-variant mb-4">Export your habit history as a CSV file for your own records.</p>
-<button id="export-csv-btn" class="mt-auto w-full py-2 px-4 bg-surface-container border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<div class="flex items-center justify-between flex-wrap gap-3">
+<p class="font-body-md text-body-md text-on-surface-variant">Export your habit history as a CSV file for your own records.</p>
+<button id="export-csv-btn" class="py-2 px-4 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
 <span class="material-symbols-outlined text-[18px]">export_notes</span>
                     Export Data (CSV)
                 </button>
-</div>
-<!-- System Settings List -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding md:col-span-2 lg:col-span-3 flex flex-col">
-<div class="flex items-center gap-3 mb-4">
-<span class="material-symbols-outlined text-primary-container">tune</span>
-<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">System Settings</h3>
-</div>
-<div class="flex flex-col divide-y divide-surface-variant">
-<div class="py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container-low -mx-4 px-4 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-<span class="font-body-md text-body-md text-on-surface">Notifications</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-</div>
-<div class="py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container-low -mx-4 px-4 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant">lock</span>
-<span class="font-body-md text-body-md text-on-surface">Privacy &amp; Security</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-</div>
-<div class="py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container-low -mx-4 px-4 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant">help</span>
-<span class="font-body-md text-body-md text-on-surface">Help &amp; Support</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-</div>
-<div class="py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container-low -mx-4 px-4 transition-colors">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-on-surface-variant">info</span>
-<span class="font-body-md text-body-md text-on-surface">About HabitArc</span>
-</div>
-<span class="font-label-sm text-label-sm text-outline">v2.1.0</span>
-</div>
-</div>
-<div class="mt-6 pt-4 border-t border-surface-variant">
-<button class="font-label-md text-label-md text-error hover:opacity-80 transition-opacity">Log Out</button>
 </div>
 </div>
 </div>
@@ -305,6 +294,21 @@
             HabitArc.exportCSV();
         });
     }
+
+    // Render Badges Shelf
+    const profileBadges = document.getElementById('profile-badges-container');
+    if (profileBadges) {
+        const badges = HabitArc.getBadges();
+        profileBadges.innerHTML = badges.map(b => `
+            <div class="p-3 rounded-xl border ${b.unlocked ? 'border-primary/30 bg-primary/[0.04]' : 'border-surface-container bg-surface-container-low opacity-60'} flex flex-col items-center text-center gap-1.5" title="${b.description}">
+                <div class="w-9 h-9 rounded-lg ${b.unlocked ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-high text-outline'} flex items-center justify-center">
+                    <span class="material-symbols-outlined text-lg">${b.icon}</span>
+                </div>
+                <span class="font-headline-md text-xs font-bold ${b.unlocked ? 'text-primary' : 'text-on-surface-variant'} truncate max-w-full">${b.title}</span>
+            </div>
+        `).join('');
+    }
 })();
 </script>
-</body></html>
+</body>
+</html>

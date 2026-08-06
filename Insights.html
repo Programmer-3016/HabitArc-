@@ -252,19 +252,48 @@
 </div>
 </section>
 
-<!-- Weekly Journey Chart -->
+</section>
+
+<!-- 365-Day Contribution Heatmap (Option 5) -->
 <section class="bg-surface rounded-xl p-card-padding border border-surface-container-high">
-<h2 class="font-headline-md text-headline-md text-primary font-bold mb-stack-gap flex items-center gap-2">
-<span class="material-symbols-outlined text-secondary">bar_chart</span>
-                    Weekly Journey
-                </h2>
-<!-- Abstract Representation of a wider chart using flex boxes -->
-<div id="weekly-chart-bars" class="h-48 flex items-end justify-between gap-2 mt-4 px-2">
-<!-- Dynamic Bars generated via JS -->
-</div>
-<div class="flex justify-between mt-2 text-xs text-outline font-label-sm uppercase">
-<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
-</div>
+    <div class="flex items-center justify-between mb-stack-gap flex-wrap gap-2">
+        <div>
+            <h2 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">grid_view</span>
+                365-Day Contribution Arc
+            </h2>
+            <p class="font-body-md text-xs sm:text-sm text-on-surface-variant mt-0.5 geist">Your yearly habit activity mapped day by day.</p>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-outline geist">
+            <span>Less</span>
+            <div class="w-3 h-3 rounded-xs bg-surface-container-high border border-surface-container"></div>
+            <div class="w-3 h-3 rounded-xs bg-primary/25"></div>
+            <div class="w-3 h-3 rounded-xs bg-primary/55"></div>
+            <div class="w-3 h-3 rounded-xs bg-primary/85"></div>
+            <div class="w-3 h-3 rounded-xs bg-primary"></div>
+            <span>More</span>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto pb-2">
+        <div id="heatmap-grid-365" class="inline-grid grid-rows-7 grid-flow-col gap-1.5 min-w-[680px]">
+            <!-- Dynamic 365-day Heatmap Grid -->
+        </div>
+    </div>
+</section>
+
+<!-- Achievements & Badges Shelf (Option 5) -->
+<section class="bg-surface rounded-xl p-card-padding border border-surface-container-high">
+    <header class="mb-stack-gap">
+        <h2 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary">workspace_premium</span>
+            Achievements & Trophies
+        </h2>
+        <p class="font-body-md text-xs sm:text-sm text-on-surface-variant mt-0.5 geist">Unlock milestones as you build consistency.</p>
+    </header>
+    <div id="badges-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-stack-gap">
+        <!-- Dynamic Badges -->
+    </div>
 </section>
 </div>
 
@@ -477,6 +506,43 @@
     const coachNoteEl = document.getElementById('coach-note-text');
     if (bestDay && bestDay.day) {
         coachNoteEl.textContent = `"Your consistency is strongest on ${bestDay.day}s (${bestDay.rate}% rate). Keep up your morning routines and consider pacing evening habits for maximum balance."`;
+    }
+
+    // Render 365-Day Contribution Heatmap (Option 5)
+    const heatmapGrid = document.getElementById('heatmap-grid-365');
+    if (heatmapGrid) {
+        const heatmapData = HabitArc.get365DayHeatmap();
+        heatmapGrid.innerHTML = heatmapData.map(item => {
+            let colorClass = 'bg-surface-container-high border-surface-container/50';
+            if (item.level === 1) colorClass = 'bg-primary/25 border-primary/20';
+            else if (item.level === 2) colorClass = 'bg-primary/55 border-primary/40';
+            else if (item.level === 3) colorClass = 'bg-primary/85 border-primary/70';
+            else if (item.level === 4) colorClass = 'bg-primary border-primary';
+
+            return `<div class="w-3.5 h-3.5 rounded-xs ${colorClass} border transition-transform hover:scale-125 relative group cursor-pointer" title="${item.date}: ${item.count} completions">
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded shadow-md whitespace-nowrap z-30 pointer-events-none geist">
+                    ${item.date}: ${item.count} habits
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // Render Badges Shelf (Option 5)
+    const badgesGrid = document.getElementById('badges-grid');
+    if (badgesGrid) {
+        const badges = HabitArc.getBadges();
+        badgesGrid.innerHTML = badges.map(b => `
+            <div class="p-3.5 rounded-2xl border ${b.unlocked ? 'border-primary/30 bg-primary/[0.04]' : 'border-surface-container bg-surface-container-low opacity-60'} flex items-center gap-3 relative overflow-hidden group">
+                <div class="w-10 h-10 rounded-xl ${b.unlocked ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-high text-outline'} flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-xl">${b.icon}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <span class="font-headline-md text-xs sm:text-sm font-bold block ${b.unlocked ? 'text-primary' : 'text-on-surface-variant'} truncate">${b.title}</span>
+                    <span class="font-label-sm text-[11px] text-on-surface-variant/80 geist block truncate mt-0.5">${b.description}</span>
+                </div>
+                ${b.unlocked ? `<span class="material-symbols-outlined text-sm text-primary font-bold shrink-0">verified</span>` : ''}
+            </div>
+        `).join('');
     }
 })();
 </script>

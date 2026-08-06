@@ -236,44 +236,40 @@
 <!-- Main Content -->
 <main class="max-w-3xl mx-auto px-container-padding py-stack-gap md:py-section-margin pb-32 md:pb-8">
 <h2 class="font-headline-md text-headline-md text-on-surface mb-stack-gap">Settings</h2>
-<!-- Appearance Section -->
+<!-- Appearance Section (Option 7) -->
 <section class="mb-section-margin">
-<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Appearance</h3>
-<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
-<!-- Theme -->
-<div id="theme-toggle-btn" class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
-<div class="flex items-center gap-element-gap">
-<span class="material-symbols-outlined text-primary-container">palette</span>
-<span class="font-body-lg text-body-lg text-on-surface">Theme</span>
-</div>
-<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
-<span id="theme-label">Light</span>
-<span class="material-symbols-outlined text-sm">chevron_right</span>
-</div>
-</div>
-<!-- Accent Color -->
-<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
-<div class="flex items-center gap-element-gap">
-<span class="material-symbols-outlined text-primary-container">format_color_fill</span>
-<span class="font-body-lg text-body-lg text-on-surface">Accent Color</span>
-</div>
-<div class="flex items-center gap-2">
-<div class="w-6 h-6 rounded-full bg-primary-container border border-outline-variant/50"></div>
-<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
-</div>
-</div>
-<!-- Font Size -->
-<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
-<div class="flex items-center gap-element-gap">
-<span class="material-symbols-outlined text-primary-container">text_fields</span>
-<span class="font-body-lg text-body-lg text-on-surface">Font Size</span>
-</div>
-<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
-<span>Medium</span>
-<span class="material-symbols-outlined text-sm">chevron_right</span>
-</div>
-</div>
-</div>
+    <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Theme & Appearance</h3>
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="theme-selector-grid">
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="light">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">light_mode</span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Light</span>
+            </button>
+
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="dark">
+                <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">dark_mode</span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Dark</span>
+            </button>
+
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="forest">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">park</span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Forest</span>
+            </button>
+
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="midnight">
+                <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">bedtime</span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Midnight</span>
+            </button>
+        </div>
+    </div>
 </section>
 <!-- Notifications Section -->
 <section class="mb-section-margin">
@@ -426,20 +422,36 @@
 <script src="app.js"></script>
 <script>
 (function() {
-    const themeLabel = document.getElementById('theme-label');
-    if (themeLabel) themeLabel.textContent = HabitArc.getTheme() === 'dark' ? 'Dark' : 'Light';
+    function updateThemeUI() {
+        const currentTheme = HabitArc.getTheme() || 'light';
+        document.querySelectorAll('.theme-select-btn').forEach(btn => {
+            const isMatch = btn.dataset.themeVal === currentTheme;
+            btn.classList.toggle('border-primary', isMatch);
+            btn.classList.toggle('bg-primary/[0.06]', isMatch);
+            btn.classList.toggle('border-outline-variant/30', !isMatch);
+            btn.classList.toggle('bg-surface-container-low', !isMatch);
+        });
+    }
 
-    document.getElementById('theme-toggle-btn').addEventListener('click', function() {
-        const newTheme = HabitArc.toggleTheme();
-        if (themeLabel) themeLabel.textContent = newTheme === 'dark' ? 'Dark' : 'Light';
+    document.querySelectorAll('.theme-select-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const chosen = this.dataset.themeVal;
+            HabitArc.setTheme(chosen);
+            updateThemeUI();
+        });
     });
 
-    document.getElementById('reset-data-btn').addEventListener('click', function() {
-        if (confirm('Are you sure you want to reset all app data to defaults?')) {
-            HabitArc.resetAllData();
-            window.location.reload();
-        }
-    });
+    updateThemeUI();
+
+    const resetBtn = document.getElementById('reset-data-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to reset all app data to defaults?')) {
+                HabitArc.resetAllData();
+                window.location.reload();
+            }
+        });
+    }
 })();
 </script>
 </body></html>
