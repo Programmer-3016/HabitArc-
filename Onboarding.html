@@ -69,6 +69,14 @@
         opacity: 1;
     }
 
+    .intent-opt.selected .intent-icon-box,
+    .challenge-opt.border-primary .challenge-icon-box,
+    .cap-opt.border-primary .cap-icon-box {
+        background-color: #012d1d !important;
+        color: #ffffff !important;
+        border-color: #012d1d !important;
+    }
+
     .expandable-panel {
         max-height: 0;
         opacity: 0;
@@ -336,72 +344,86 @@
             <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Select all areas you want to transform.</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="intent-options">
-            <div class="intent-opt btn-press p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="Health">
+            <div class="intent-opt btn-press p-3.5 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Health">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-emerald-600 text-2xl">favorite</span>
-                    <span class="font-headline-md text-on-surface text-base font-semibold">Health</span>
+                    <div class="intent-icon-box w-10 h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                        <span class="material-symbols-outlined text-xl">favorite</span>
+                    </div>
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Health</span>
                 </div>
-                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
                     <span class="material-symbols-outlined text-xs font-bold">check</span>
                 </div>
             </div>
 
-            <div class="intent-opt btn-press p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="Fitness">
+            <div class="intent-opt btn-press p-3.5 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Fitness">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-2xl">fitness_center</span>
-                    <span class="font-headline-md text-on-surface text-base font-semibold">Fitness</span>
+                    <div class="intent-icon-box w-10 h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                        <span class="material-symbols-outlined text-xl">fitness_center</span>
+                    </div>
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Fitness</span>
                 </div>
-                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
                     <span class="material-symbols-outlined text-xs font-bold">check</span>
                 </div>
             </div>
 
-            <div class="intent-opt btn-press p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="Study">
+            <div class="intent-opt btn-press p-3.5 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Study">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-amber-600 text-2xl">school</span>
-                    <span class="font-headline-md text-on-surface text-base font-semibold">Study</span>
+                    <div class="intent-icon-box w-10 h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                        <span class="material-symbols-outlined text-xl">auto_stories</span>
+                    </div>
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Study</span>
                 </div>
-                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
                     <span class="material-symbols-outlined text-xs font-bold">check</span>
                 </div>
             </div>
 
-            <div class="intent-opt btn-press p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="Productivity">
+            <div class="intent-opt btn-press p-3.5 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Productivity">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-sky-600 text-2xl">bolt</span>
-                    <span class="font-headline-md text-on-surface text-base font-semibold">Productivity</span>
+                    <div class="intent-icon-box w-10 h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                        <span class="material-symbols-outlined text-xl">bolt</span>
+                    </div>
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Productivity</span>
                 </div>
-                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
                     <span class="material-symbols-outlined text-xs font-bold">check</span>
                 </div>
             </div>
 
-            <div class="intent-opt btn-press p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="Mindfulness">
+            <div class="intent-opt btn-press p-3.5 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Mindfulness">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-teal-600 text-2xl">self_improvement</span>
-                    <span class="font-headline-md text-on-surface text-base font-semibold">Mindfulness</span>
+                    <div class="intent-icon-box w-10 h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                        <span class="material-symbols-outlined text-xl">self_improvement</span>
+                    </div>
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Mindfulness</span>
                 </div>
-                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
                     <span class="material-symbols-outlined text-xs font-bold">check</span>
                 </div>
             </div>
 
-            <div class="intent-opt btn-press p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="Finance">
+            <div class="intent-opt btn-press p-3.5 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Finance">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-indigo-600 text-2xl">payments</span>
-                    <span class="font-headline-md text-on-surface text-base font-semibold">Finance</span>
+                    <div class="intent-icon-box w-10 h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                        <span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+                    </div>
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Finance</span>
                 </div>
-                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
                     <span class="material-symbols-outlined text-xs font-bold">check</span>
                 </div>
             </div>
 
-            <div class="intent-opt btn-press sm:col-span-2 p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="Other">
+            <div class="intent-opt btn-press sm:col-span-2 p-3.5 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Other">
                 <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-outline text-2xl">more_horiz</span>
-                    <span class="font-headline-md text-on-surface text-base font-semibold">Other</span>
+                    <div class="intent-icon-box w-10 h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                        <span class="material-symbols-outlined text-xl">sparkles</span>
+                    </div>
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Other</span>
                 </div>
-                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+                <div class="check-badge w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
                     <span class="material-symbols-outlined text-xs font-bold">check</span>
                 </div>
             </div>
@@ -415,44 +437,54 @@
             <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">This helps our AI personalize your behavioral insights.</p>
         </div>
         <div class="space-y-3" id="challenge-options">
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="consistency">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base font-bold block">I lose consistency</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Difficulty staying consistent daily</span>
+            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="consistency">
+                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">event_repeat</span>
                 </div>
-                <span class="material-symbols-outlined text-amber-500 text-3xl shrink-0">sync_problem</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I lose consistency</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Difficulty staying consistent daily</span>
+                </div>
             </div>
 
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="distracted">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base font-bold block">I get distracted</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Screen time & focus drift</span>
+            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="distracted">
+                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">center_focus_weak</span>
                 </div>
-                <span class="material-symbols-outlined text-purple-500 text-3xl shrink-0">center_focus_weak</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I get distracted</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Screen time & focus drift</span>
+                </div>
             </div>
 
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="time">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base font-bold block">I don't have enough time</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Busy schedule & overload</span>
+            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="time">
+                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">schedule</span>
                 </div>
-                <span class="material-symbols-outlined text-sky-500 text-3xl shrink-0">schedule</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I don't have enough time</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Busy schedule & overload</span>
+                </div>
             </div>
 
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="motivation">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base font-bold block">I lose motivation</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Initial spark fades quickly</span>
+            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="motivation">
+                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">local_fire_department</span>
                 </div>
-                <span class="material-symbols-outlined text-rose-500 text-3xl shrink-0">local_fire_department</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I lose motivation</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Initial spark fades quickly</span>
+                </div>
             </div>
 
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="forget">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base font-bold block">I forget my habits</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Need timely contextual prompts</span>
+            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="forget">
+                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">psychology</span>
                 </div>
-                <span class="material-symbols-outlined text-teal-500 text-3xl shrink-0">psychology</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I forget my habits</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Need timely contextual prompts</span>
+                </div>
             </div>
         </div>
     </div>
@@ -464,39 +496,47 @@
             <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Starting small guarantees long-term success. You can change this anytime.</p>
         </div>
         <div class="space-y-3" id="capacity-options">
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="3">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base block font-bold">Beginner (3 Habits)</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Perfect for getting started.</span>
+            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="3">
+                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">filter_3</span>
                 </div>
-                <span class="material-symbols-outlined text-primary text-3xl shrink-0">filter_3</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">Beginner (3 Habits)</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Perfect for getting started.</span>
+                </div>
             </div>
 
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="5">
-                <div>
+            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="5">
+                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">filter_5</span>
+                </div>
+                <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-0.5">
-                        <span class="font-headline-md text-on-surface text-base font-bold">Intermediate (5 Habits)</span>
+                        <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold">Intermediate (5 Habits)</span>
                         <span class="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary text-on-primary geist">Recommended</span>
                     </div>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Great balance for most people.</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Great balance for most people.</span>
                 </div>
-                <span class="material-symbols-outlined text-secondary text-3xl shrink-0">filter_5</span>
             </div>
 
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="8">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base block font-bold">Advanced (8 Habits)</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">Built for experienced habit builders.</span>
+            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="8">
+                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">filter_8</span>
                 </div>
-                <span class="material-symbols-outlined text-tertiary text-3xl shrink-0">filter_8</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">Advanced (8 Habits)</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Built for experienced habit builders.</span>
+                </div>
             </div>
 
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/50 cursor-pointer transition-all flex items-center justify-between shadow-2xs" data-val="later">
-                <div>
-                    <span class="font-headline-md text-on-surface text-base block font-bold">I'll decide later</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm">You can always change this later.</span>
+            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="later">
+                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
+                    <span class="material-symbols-outlined text-2xl">schedule</span>
                 </div>
-                <span class="material-symbols-outlined text-outline text-3xl shrink-0">schedule</span>
+                <div class="flex-1 min-w-0">
+                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I'll decide later</span>
+                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">You can always change this later.</span>
+                </div>
             </div>
         </div>
     </div>
