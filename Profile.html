@@ -1,112 +1,51 @@
 <!DOCTYPE html>
-
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Profile - HabitArc</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Profile - HabitArc</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Geist:wght@500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    "colors": {
+                    colors: {
                         "surface-container-high": "#e7e8e9",
                         "on-primary": "#ffffff",
-                        "on-error-container": "#93000a",
                         "on-surface": "#191c1d",
-                        "on-primary-fixed": "#002114",
                         "secondary-container": "#a0f4c8",
                         "error": "#ba1a1a",
-                        "secondary-fixed": "#a0f4c8",
-                        "on-secondary-fixed": "#002113",
-                        "on-tertiary": "#ffffff",
-                        "tertiary-fixed": "#ffdad8",
-                        "error-container": "#ffdad6",
-                        "on-tertiary-fixed-variant": "#673a39",
-                        "surface-dim": "#d9dadb",
-                        "surface-variant": "#e1e3e4",
                         "surface-container-low": "#f3f4f5",
-                        "tertiary-fixed-dim": "#f5b7b4",
-                        "tertiary-container": "#5a302f",
-                        "surface-container-highest": "#e1e3e4",
-                        "on-secondary": "#ffffff",
-                        "on-tertiary-fixed": "#331111",
-                        "inverse-surface": "#2e3132",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#edeeef",
                         "surface": "#f8f9fa",
                         "primary": "#012d1d",
-                        "tertiary": "#401b1b",
-                        "secondary-fixed-dim": "#85d7ad",
-                        "on-primary-container": "#86af99",
-                        "on-primary-fixed-variant": "#274e3d",
-                        "inverse-primary": "#a5d0b9",
+                        "secondary": "#0e6c4a",
                         "primary-container": "#1b4332",
                         "background": "#f8f9fa",
-                        "primary-fixed-dim": "#a5d0b9",
-                        "on-secondary-container": "#19724f",
-                        "surface-tint": "#3f6653",
-                        "secondary": "#0e6c4a",
                         "on-surface-variant": "#414844",
-                        "on-tertiary-container": "#d29895",
-                        "surface-container": "#edeeef",
                         "outline": "#717973",
-                        "on-error": "#ffffff",
-                        "surface-bright": "#f8f9fa",
-                        "surface-container-lowest": "#ffffff",
-                        "primary-fixed": "#c1ecd4",
-                        "on-background": "#191c1d",
-                        "on-secondary-fixed-variant": "#005236",
-                        "inverse-on-surface": "#f0f1f2",
-                        "outline-variant": "#c1c8c2"
+                        "outline-variant": "#c1c8c2",
+                        "secondary-fixed-dim": "#85d7ad"
                     },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "section-margin": "32px",
-                        "container-padding": "20px",
-                        "card-padding": "20px",
-                        "element-gap": "12px",
-                        "stack-gap": "16px"
-                    },
-                    "fontFamily": {
-                        "headline-md": ["Hanken Grotesk"],
-                        "body-md": ["Hanken Grotesk"],
-                        "label-sm": ["Geist"],
-                        "headline-lg": ["Hanken Grotesk"],
-                        "body-lg": ["Hanken Grotesk"],
-                        "label-md": ["Geist"]
-                    },
-                    "fontSize": {
-                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
-                        "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "600" }],
-                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
-                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
-                    }
+                    borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
+                    spacing: { "section-margin": "32px", "container-padding": "20px", "card-padding": "20px", "stack-gap": "16px" },
+                    fontFamily: { "headline-md": ["Hanken Grotesk"], "body-md": ["Hanken Grotesk"], "label-sm": ["Geist"] }
                 }
             }
-        }
+        };
     </script>
-<style>
+    <style>
         body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; user-select: none; }
         .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        
-        /* Subtle scrollbar for elegant UI */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: theme('colors.surface-variant'); border-radius: 4px; }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col font-body-md">
+
 <!-- Top App Bar (Mobile) -->
 <header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
     <a href="Dashboard.html" class="flex items-center gap-2.5">
@@ -154,126 +93,112 @@
         </div>
     </div>
 </header>
+
 <!-- Main Content Canvas -->
 <main class="flex-grow w-full max-w-7xl mx-auto px-container-padding pb-32 pt-4">
-<!-- Profile Header Section -->
-<section class="flex flex-col items-center justify-center text-center mb-section-margin pt-4">
-<div class="w-24 h-24 rounded-full border-2 border-primary-container p-1 mb-4">
-<img alt="User Avatar" class="w-full h-full rounded-full object-cover" data-alt="A portrait of a thoughtful, serene individual in an uncluttered, modern environment with soft, natural lighting. The color palette emphasizes clean whites, muted grays, and touches of forest green. High-quality, editorial style photography suitable for a mindful productivity app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPdV2DhoEXerSgWa9vH2g01A_odNiCJJybvoUK0reYw00Bcx0T9u2Kl-lifgda2th8pf6krtStRODTA5_GZOzDiUHMOFs06qoy4Khvw-gRvrmx9E9RfNC6Y3Qf7_m2LAN8S65TIHwyuKJESEf1z91oxHhzP0ZWuiY3CbShfAZS-BGnZNekMTjmlbXUK34T_Bgfz21CrpLYIunvdB0Gi6cqk3jOTTQo7T7ozlPjYfv2XXhJ3CF3hXkR"/>
-</div>
-<h2 id="profile-display-name" class="font-headline-md text-headline-md text-on-surface mb-1">Alex Thorne</h2>
-<p id="profile-display-bio" class="font-body-md text-body-md text-on-surface-variant">Building stillness, one day at a time.</p>
-</section>
-<!-- Bento Grid for Profile Settings -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-gap">
-<!-- Account & Goals Card -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
-<div class="flex items-center gap-3 mb-4">
-<span class="material-symbols-outlined text-primary-container">flag</span>
-<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Goals</h3>
-</div>
-<div class="flex flex-col gap-4 flex-grow justify-center">
-<div class="flex justify-between items-center">
-<span class="font-body-md text-body-md text-on-surface-variant">Daily Habit Target</span>
-<span class="font-label-md text-label-md text-primary-container bg-secondary-fixed-dim px-2 py-1 rounded-DEFAULT">5 Habits</span>
-</div>
-<div class="w-full h-px bg-surface-variant"></div>
-<div class="flex justify-between items-center">
-<span class="font-body-md text-body-md text-on-surface-variant">Current Streak</span>
-</section>
-<!-- Bento Grid for Profile Settings -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-gap">
-<!-- Account & Goals Card -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
-<div class="flex items-center gap-3 mb-4">
-<span class="material-symbols-outlined text-primary-container">flag</span>
-<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Goals</h3>
-</div>
-<div class="flex flex-col gap-4 flex-grow justify-center">
-<div class="flex justify-between items-center">
-<span class="font-body-md text-body-md text-on-surface-variant">Daily Habit Target</span>
-<span class="font-label-md text-label-md text-primary-container bg-secondary-fixed-dim px-2 py-1 rounded-DEFAULT">5 Habits</span>
-</div>
-<div class="w-full h-px bg-surface-variant"></div>
-<div class="flex justify-between items-center">
-<span class="font-body-md text-body-md text-on-surface-variant">Current Streak</span>
-<span class="font-label-md text-label-md text-primary-container font-bold">12 Days</span>
-</div>
-</div>
-</div>
-<!-- Appearance & Customization Card -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
-<div class="flex items-center gap-3 mb-4">
-<span class="material-symbols-outlined text-primary-container">palette</span>
-<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Appearance</h3>
-</div>
-<div class="flex flex-col gap-4">
-<a href="Settings.html" class="flex justify-between items-center cursor-pointer hover:bg-surface-container-low p-2 -mx-2 rounded-lg transition-colors">
-<span class="font-body-md text-body-md text-on-surface">Theme</span>
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="font-body-md text-body-md">Light / Multi</span>
-<span class="material-symbols-outlined text-[18px]">chevron_right</span>
-</div>
-</a>
-</div>
-</div>
-
-<!-- Trophies & Badges Card (Option 5) -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding md:col-span-2 lg:col-span-3 flex flex-col">
-    <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-primary-container">workspace_premium</span>
-            <h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Trophies & Badges</h3>
+    <!-- Profile Header Section -->
+    <section class="flex flex-col items-center justify-center text-center mb-section-margin pt-4">
+        <div class="w-24 h-24 rounded-full border-2 border-primary-container p-1 mb-4">
+            <img alt="User Avatar" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPdV2DhoEXerSgWa9vH2g01A_odNiCJJybvoUK0reYw00Bcx0T9u2Kl-lifgda2th8pf6krtStRODTA5_GZOzDiUHMOFs06qoy4Khvw-gRvrmx9E9RfNC6Y3Qf7_m2LAN8S65TIHwyuKJESEf1z91oxHhzP0ZWuiY3CbShfAZS-BGnZNekMTjmlbXUK34T_Bgfz21CrpLYIunvdB0Gi6cqk3jOTTQo7T7ozlPjYfv2XXhJ3CF3hXkR"/>
         </div>
-        <a href="Insights.html" class="text-xs text-primary font-bold geist hover:underline flex items-center gap-1">
-            View Insights <span class="material-symbols-outlined text-sm">arrow_forward</span>
-        </a>
-    </div>
-    <div id="profile-badges-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-        <!-- Dynamic Badges -->
-    </div>
-</div>
+        <h2 id="profile-display-name" class="font-headline-md text-2xl text-on-surface mb-1 font-bold">Alex Thorne</h2>
+        <p id="profile-display-bio" class="font-body-md text-sm text-on-surface-variant">Building stillness, one day at a time.</p>
+    </section>
 
-<!-- Data & Export Card -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding md:col-span-2 lg:col-span-3 flex flex-col">
-<div class="flex items-center gap-3 mb-4">
-<span class="material-symbols-outlined text-primary-container">download</span>
-<h3 class="font-body-lg text-body-lg text-on-surface font-semibold">Data Export</h3>
-</div>
-<div class="flex items-center justify-between flex-wrap gap-3">
-<p class="font-body-md text-body-md text-on-surface-variant">Export your habit history as a CSV file for your own records.</p>
-<button id="export-csv-btn" class="py-2 px-4 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-[18px]">export_notes</span>
-                    Export Data (CSV)
-                </button>
-</div>
-</div>
-</div>
+    <!-- Bento Grid for Profile Settings -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-stack-gap">
+        <!-- Goals Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="material-symbols-outlined text-primary-container">flag</span>
+                <h3 class="font-body-lg text-lg text-on-surface font-semibold">Goals</h3>
+            </div>
+            <div class="flex flex-col gap-4 flex-grow justify-center">
+                <div class="flex justify-between items-center">
+                    <span class="font-body-md text-sm text-on-surface-variant">Daily Habit Target</span>
+                    <span class="font-label-md text-xs text-primary-container font-bold bg-secondary-fixed-dim px-2.5 py-1 rounded-full">5 Habits</span>
+                </div>
+                <div class="w-full h-px bg-surface-variant"></div>
+                <div class="flex justify-between items-center">
+                    <span class="font-body-md text-sm text-on-surface-variant">Current Streak</span>
+                    <span id="profile-streak-val" class="font-label-md text-sm text-primary-container font-bold">0 Days</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appearance Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="material-symbols-outlined text-primary-container">palette</span>
+                <h3 class="font-body-lg text-lg text-on-surface font-semibold">Appearance</h3>
+            </div>
+            <div class="flex flex-col gap-4 flex-grow justify-center">
+                <a href="Settings.html" class="flex justify-between items-center cursor-pointer hover:bg-surface-container-low p-2 -mx-2 rounded-lg transition-colors">
+                    <span class="font-body-md text-sm text-on-surface">Theme</span>
+                    <div class="flex items-center gap-2 text-on-surface-variant">
+                        <span id="profile-theme-name" class="font-body-md text-sm capitalize">Light</span>
+                        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Data Export Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding flex flex-col">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="material-symbols-outlined text-primary-container">download</span>
+                <h3 class="font-body-lg text-lg text-on-surface font-semibold">Data</h3>
+            </div>
+            <p class="font-body-md text-sm text-on-surface-variant mb-4">Export your habit history as a CSV file for your own records.</p>
+            <button id="export-csv-btn" class="mt-auto w-full py-2 px-4 bg-primary text-on-primary rounded-lg font-label-md text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 font-semibold">
+                <span class="material-symbols-outlined text-[18px]">export_notes</span>
+                Export Data (CSV)
+            </button>
+        </div>
+
+        <!-- Trophies & Badges Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding md:col-span-2 lg:col-span-3 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary-container">workspace_premium</span>
+                    <h3 class="font-body-lg text-lg text-on-surface font-semibold">Trophies & Badges</h3>
+                </div>
+                <a href="Insights.html" class="text-xs text-primary font-bold geist hover:underline flex items-center gap-1">
+                    View Insights <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+            </div>
+            <div id="profile-badges-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                <!-- Dynamic Badges -->
+            </div>
+        </div>
+    </div>
 </main>
+
 <!-- Floating Glassmorphism Bottom Nav Bar (Mobile Only) -->
 <nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-3xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] px-2 py-2 grid grid-cols-5 items-center">
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Dashboard.html">
-<span class="material-symbols-outlined text-[22px] leading-none">home</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Habits.html">
-<span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
-</a>
-<a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
-<div class="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background dark:ring-surface-container active:scale-90 hover:scale-105 transition-all">
-<span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
-</div>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Insights.html">
-<span class="material-symbols-outlined text-[22px] leading-none">insights</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary/[0.08] text-primary font-semibold shadow-sm transition-all duration-200" href="Profile.html">
-<span class="material-symbols-outlined text-[22px] leading-none fill">person</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Profile</span>
-</a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Dashboard.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">home</span>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Habits.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
+    </a>
+    <a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
+        <div class="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background dark:ring-surface-container active:scale-90 hover:scale-105 transition-all">
+            <span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
+        </div>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Insights.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">insights</span>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary/[0.08] text-primary font-semibold shadow-sm transition-all duration-200" href="Profile.html">
+        <span class="material-symbols-outlined text-[22px] leading-none fill">person</span>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Profile</span>
+    </a>
 </nav>
+
 <script src="app.js"></script>
 <script>
 (function() {
@@ -281,12 +206,14 @@
     const profileName = document.getElementById('profile-display-name');
     const profileBio = document.getElementById('profile-display-bio');
 
-    if (profileName && settings.userName) {
-        profileName.textContent = settings.userName;
-    }
-    if (profileBio && settings.userBio) {
-        profileBio.textContent = settings.userBio;
-    }
+    if (profileName && settings.userName) profileName.textContent = settings.userName;
+    if (profileBio && settings.userBio) profileBio.textContent = settings.userBio;
+
+    const streakVal = document.getElementById('profile-streak-val');
+    if (streakVal) streakVal.textContent = (HabitArc.getCurrentStreak() || 0) + ' Days';
+
+    const themeName = document.getElementById('profile-theme-name');
+    if (themeName) themeName.textContent = HabitArc.getTheme() || 'Light';
 
     const btn = document.getElementById('export-csv-btn');
     if (btn) {
@@ -301,7 +228,7 @@
         const badges = HabitArc.getBadges();
         profileBadges.innerHTML = badges.map(b => `
             <div class="p-3 rounded-xl border ${b.unlocked ? 'border-primary/30 bg-primary/[0.04]' : 'border-surface-container bg-surface-container-low opacity-60'} flex flex-col items-center text-center gap-1.5" title="${b.description}">
-                <div class="w-9 h-9 rounded-lg ${b.unlocked ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-high text-outline'} flex items-center justify-center">
+                <div class="w-9 h-9 rounded-lg ${b.unlocked ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-high text-outline'} flex items-center justify-center shrink-0">
                     <span class="material-symbols-outlined text-lg">${b.icon}</span>
                 </div>
                 <span class="font-headline-md text-xs font-bold ${b.unlocked ? 'text-primary' : 'text-on-surface-variant'} truncate max-w-full">${b.title}</span>
