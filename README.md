@@ -95,7 +95,17 @@ HabitArc uses Firebase Authentication for the Step 8 account flow. In Firebase C
 - Email/Password
 - Anonymous
 
-Add `habit-arc.vercel.app` to **Authentication → Settings → Authorized domains** before testing the production deployment. The web configuration is kept in `firebase-auth.js`; it intentionally uses only the Firebase App and Authentication SDKs.
+Add `habit-arc.vercel.app` to **Authentication → Settings → Authorized domains** before testing the production deployment.
+
+### Google sign-in on mobile
+
+HabitArc uses Firebase's redirect flow for Google on mobile so that leaving or cancelling the account picker cannot leave the onboarding UI stuck. The production Vercel configuration proxies Firebase's required helper routes under the HabitArc domain.
+
+After the next deployment, add this exact redirect URI to the Google OAuth web client that Firebase uses for this project:
+
+`https://habit-arc.vercel.app/__/auth/handler`
+
+The web configuration is kept in `firebase-auth.js`; it intentionally uses only the Firebase App and Authentication SDKs.
 
 ---
 

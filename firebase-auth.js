@@ -1,6 +1,11 @@
+const productionAuthDomain = 'habit-arc.vercel.app';
 const firebaseConfig = {
     apiKey: 'AIzaSyCjsz72IRvCX0sb8IxfSILCkAI0915iBi8',
-    authDomain: 'habitarc-dfa40.firebaseapp.com',
+    // Vercel proxies Firebase's redirect helper under this same production
+    // domain. Local and preview environments keep Firebase's default domain.
+    authDomain: window.location.hostname === productionAuthDomain
+        ? productionAuthDomain
+        : 'habitarc-dfa40.firebaseapp.com',
     projectId: 'habitarc-dfa40',
     storageBucket: 'habitarc-dfa40.firebasestorage.app',
     messagingSenderId: '580827993891',
@@ -17,6 +22,9 @@ function getAuthErrorMessage(error) {
         'auth/weak-password': 'Use a password with at least 6 characters.',
         'auth/popup-blocked': 'Allow pop-ups for HabitArc, then try Google sign-in again.',
         'auth/popup-closed-by-user': 'Google sign-in was cancelled. Please try again.',
+        'auth/redirect-cancelled-by-user': 'Google sign-in was cancelled. Please try again.',
+        'auth/redirect-operation-pending': 'Google sign-in is already in progress. Please finish or cancel it first.',
+        'auth/unauthorized-domain': 'This domain is not authorized for Google sign-in yet.',
         'auth/operation-not-allowed': 'This sign-in method is not enabled yet. Please contact HabitArc support.',
         'auth/network-request-failed': 'Check your internet connection and try again.',
         'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.'
@@ -33,10 +41,11 @@ window.HabitArcAuthReady = (async () => {
             browserLocalPersistence,
             createUserWithEmailAndPassword,
             getAuth,
+            getRedirectResult,
             setPersistence,
             signInAnonymously,
             signInWithEmailAndPassword,
-            signInWithPopup,
+            signInWithRedirect,
             updateProfile
         } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js');
 
@@ -46,6 +55,12 @@ window.HabitArcAuthReady = (async () => {
 
         googleProvider.setCustomParameters({ prompt: 'select_account' });
         await setPersistence(auth, browserLocalPersistence);
+
+        // Keep one shared result promise so the onboarding UI can safely
+        // resume a completed mobile redirect after this page reloads.
+        const googleRedirectResult = getRedirectResult(auth)
+            .then((result) => ({ user: result?.user || null, error: null }))
+            .catch((error) => ({ user: null, error }));
 
         const authClient = Object.freeze({
             getAuthErrorMessage,
@@ -66,9 +81,11 @@ window.HabitArcAuthReady = (async () => {
                 const result = await signInWithEmailAndPassword(auth, email, password);
                 return result.user;
             },
-            async signInWithGoogle() {
-                const result = await signInWithPopup(auth, googleProvider);
-                return result.user;
+            async getGoogleRedirectResult() {
+                return googleRedirectResult;
+            },
+            async startGoogleRedirect() {
+                await signInWithRedirect(auth, googleProvider);
             }
         });
 

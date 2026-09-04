@@ -922,6 +922,77 @@
     let selectedGridShape = 'square';
     let selectedDuration = '30';
     let notificationsEnabled = true;
+    const googleRedirectDraftKey = 'habitarc.googleRedirectDraft.v1';
+
+    function readGoogleRedirectDraft() {
+        try {
+            const rawDraft = window.sessionStorage.getItem(googleRedirectDraftKey);
+            if (!rawDraft) return null;
+
+            const draft = JSON.parse(rawDraft);
+            return draft?.version === 1 ? draft : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function writeGoogleRedirectDraft() {
+        const northStarInput = document.getElementById('north-star-input');
+        const nameInput = document.getElementById('acc-name-input');
+
+        try {
+            window.sessionStorage.setItem(googleRedirectDraftKey, JSON.stringify({
+                version: 1,
+                currentStep,
+                selectedIntents,
+                selectedChallenge,
+                selectedCap,
+                selectedTheme,
+                selectedGridShape,
+                selectedDuration,
+                notificationsEnabled,
+                northStar: northStarInput?.value || '',
+                name: nameInput?.value || '',
+                authMode
+            }));
+        } catch {
+            // The redirect can still continue when storage is unavailable.
+        }
+    }
+
+    function clearGoogleRedirectDraft() {
+        try {
+            window.sessionStorage.removeItem(googleRedirectDraftKey);
+        } catch {
+            // Nothing to clean up when storage is unavailable.
+        }
+    }
+
+    let pendingGoogleRedirectDraft = readGoogleRedirectDraft();
+    if (pendingGoogleRedirectDraft) {
+        currentStep = 8;
+        if (Array.isArray(pendingGoogleRedirectDraft.selectedIntents)) {
+            selectedIntents = pendingGoogleRedirectDraft.selectedIntents;
+        }
+        if (typeof pendingGoogleRedirectDraft.selectedChallenge === 'string') {
+            selectedChallenge = pendingGoogleRedirectDraft.selectedChallenge;
+        }
+        if (typeof pendingGoogleRedirectDraft.selectedCap === 'string') {
+            selectedCap = pendingGoogleRedirectDraft.selectedCap;
+        }
+        if (typeof pendingGoogleRedirectDraft.selectedTheme === 'string') {
+            selectedTheme = pendingGoogleRedirectDraft.selectedTheme;
+        }
+        if (typeof pendingGoogleRedirectDraft.selectedGridShape === 'string') {
+            selectedGridShape = pendingGoogleRedirectDraft.selectedGridShape;
+        }
+        if (typeof pendingGoogleRedirectDraft.selectedDuration === 'string') {
+            selectedDuration = pendingGoogleRedirectDraft.selectedDuration;
+        }
+        if (typeof pendingGoogleRedirectDraft.notificationsEnabled === 'boolean') {
+            notificationsEnabled = pendingGoogleRedirectDraft.notificationsEnabled;
+        }
+    }
 
     function updateStep() {
         document.querySelectorAll('.step-card').forEach((card, idx) => {
@@ -1164,7 +1235,7 @@
     const emailInput = document.getElementById('acc-email-input');
     const passwordInput = document.getElementById('acc-password-input');
     const authError = document.getElementById('auth-error');
-    let authMode = 'register';
+    let authMode = pendingGoogleRedirectDraft?.authMode === 'login' ? 'login' : 'register';
 
     function setAuthMode(mode) {
         authMode = mode;
@@ -1201,6 +1272,21 @@
             if (googleBtnText) googleBtnText.textContent = 'Log in with Google';
             if (emailSubmitText) emailSubmitText.textContent = 'Sign In & Continue';
         }
+    }
+
+    function restoreGoogleRedirectDraft(draft = pendingGoogleRedirectDraft) {
+        if (!draft) return;
+
+        if (typeof draft.northStar === 'string') {
+            const northStarInput = document.getElementById('north-star-input');
+            if (northStarInput) northStarInput.value = draft.northStar;
+        }
+        if (typeof draft.name === 'string' && nameInput) {
+            nameInput.value = draft.name;
+        }
+
+        setAuthMode(draft.authMode === 'login' ? 'login' : 'register');
+        updatePreview();
     }
 
     function clearAuthError() {
@@ -1275,6 +1361,64 @@
             showAuthError(message);
         } finally {
             if (!transitionRunning) setAuthButtonLoading(button, false);
+        }
+    }
+
+    function recoverFromGoogleRedirect(message) {
+        restoreGoogleRedirectDraft();
+        clearGoogleRedirectDraft();
+        pendingGoogleRedirectDraft = null;
+        currentStep = 8;
+        updateStep();
+        setAuthButtonLoading(googleSignInBtn, false);
+        showAuthError(message);
+    }
+
+    async function resumePendingGoogleRedirect() {
+        if (!pendingGoogleRedirectDraft) return;
+
+        restoreGoogleRedirectDraft();
+        currentStep = 8;
+        updateStep();
+        setAuthButtonLoading(googleSignInBtn, true);
+        if (googleBtnText) googleBtnText.textContent = 'Finishing Google sign-in...';
+
+        try {
+            const firebaseAuth = await getFirebaseAuth();
+            const { user, error } = await firebaseAuth.getGoogleRedirectResult();
+
+            if (error) throw error;
+            if (!user) {
+                recoverFromGoogleRedirect('Google sign-in was cancelled. Please try again.');
+                return;
+            }
+
+            clearGoogleRedirectDraft();
+            pendingGoogleRedirectDraft = null;
+            runSetupTransition(user);
+        } catch (error) {
+            recoverFromGoogleRedirect(
+                window.HabitArcAuth?.getAuthErrorMessage(error) || 'We could not complete Google sign-in. Please try again.'
+            );
+        }
+    }
+
+    async function startGoogleRedirect() {
+        clearAuthError();
+        setAuthButtonLoading(googleSignInBtn, true);
+        writeGoogleRedirectDraft();
+        pendingGoogleRedirectDraft = readGoogleRedirectDraft();
+
+        try {
+            const firebaseAuth = await getFirebaseAuth();
+            await firebaseAuth.startGoogleRedirect();
+        } catch (error) {
+            clearGoogleRedirectDraft();
+            pendingGoogleRedirectDraft = null;
+            setAuthButtonLoading(googleSignInBtn, false);
+            showAuthError(
+                window.HabitArcAuth?.getAuthErrorMessage(error) || 'We could not start Google sign-in. Please try again.'
+            );
         }
     }
 
@@ -1498,11 +1642,7 @@
     // Step 8 authentication actions
     if (googleSignInBtn) {
         googleSignInBtn.addEventListener('click', () => {
-            completeAuthentication(
-                googleSignInBtn,
-                async () => (await getFirebaseAuth()).signInWithGoogle(),
-                { showHandoff: false }
-            );
+            startGoogleRedirect();
         });
     }
 
@@ -1536,7 +1676,36 @@
         }
     });
 
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted) return;
+
+        const restoredGoogleDraft = readGoogleRedirectDraft();
+        if (!restoredGoogleDraft) return;
+
+        pendingGoogleRedirectDraft = restoredGoogleDraft;
+        recoverFromGoogleRedirect('Google sign-in was cancelled. Please try again.');
+    });
+
+    function resumeGoogleRedirectWhenAuthIsReady() {
+        if (!pendingGoogleRedirectDraft) return;
+
+        const resume = () => {
+            void resumePendingGoogleRedirect();
+        };
+
+        // Module scripts are deferred, so Firebase normally initializes after
+        // this inline onboarding script. Wait for its ready event rather than
+        // treating that normal startup gap as a cancelled redirect.
+        if (window.HabitArcAuthReady || window.HabitArcAuth) {
+            resume();
+            return;
+        }
+
+        window.addEventListener('habitarc-auth-ready', resume, { once: true });
+    }
+
     updateStep();
+    resumeGoogleRedirectWhenAuthIsReady();
 })();
 </script>
 </body></html>
