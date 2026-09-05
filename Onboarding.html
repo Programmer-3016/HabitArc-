@@ -114,6 +114,62 @@
         animation: fadeInUp 0.4s ease-out forwards, logoSpin 30s linear 0.5s infinite;
     }
 
+    /* Google Redirect Handoff — replaces the Step 8 form while Firebase resolves the return. */
+    #google-auth-handoff {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #f8f9fa;
+        color: #191c1d;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.18s ease, visibility 0s linear 0.18s;
+    }
+    #google-auth-handoff.visible {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transition: opacity 0.18s ease;
+    }
+    body.google-auth-handoff-running > :not(#google-auth-handoff) {
+        visibility: hidden;
+    }
+    .google-auth-handoff-mark {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 88px;
+        height: 88px;
+        border-radius: 30px;
+        background: rgba(193, 236, 212, 0.38);
+        box-shadow: 0 16px 38px rgba(1, 45, 29, 0.12);
+    }
+    .google-auth-handoff-logo {
+        width: 62px;
+        height: 62px;
+        object-fit: contain;
+        animation: googleAuthHandoffBreathe 1.9s ease-in-out infinite;
+    }
+    .google-auth-handoff-loader {
+        position: absolute;
+        inset: -7px;
+        border: 2px solid rgba(1, 45, 29, 0.12);
+        border-top-color: #0e6c4a;
+        border-radius: 999px;
+        animation: googleAuthHandoffSpin 0.82s linear infinite;
+    }
+    @keyframes googleAuthHandoffSpin {
+        to { transform: rotate(360deg); }
+    }
+    @keyframes googleAuthHandoffBreathe {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.045); opacity: 0.92; }
+    }
+
     /* Setup Transition Screen — Fast Ticker Reel (Light Theme) */
     #setup-transition {
         --setup-duration: 3.2s;
@@ -284,7 +340,10 @@
         transition: opacity 0.15s ease;
     }
     @media (prefers-reduced-motion: reduce) {
+        #google-auth-handoff,
         #setup-transition.visible,
+        .google-auth-handoff-logo,
+        .google-auth-handoff-loader,
         .setup-logo,
         .ticker-track.spinning,
         .ticker-card.checked .card-check::after,
@@ -292,6 +351,9 @@
         #setup-counter.complete,
         .ticker-card.is-current::before {
             animation: none;
+        }
+        #google-auth-handoff {
+            transition-duration: 0.01ms;
         }
         #setup-progress-fill,
         #setup-counter,
@@ -809,6 +871,21 @@
     </button>
 </footer>
 
+<!-- Google Redirect Handoff — shown while Firebase verifies a returning Google sign-in. -->
+<section id="google-auth-handoff" aria-hidden="true" aria-label="Completing Google sign-in">
+    <div class="flex flex-col items-center gap-5 max-w-xs text-center" role="status" aria-live="polite">
+        <div class="google-auth-handoff-mark" aria-hidden="true">
+            <img src="logo.png" alt="" class="google-auth-handoff-logo filter drop-shadow-lg"/>
+            <span class="google-auth-handoff-loader"></span>
+        </div>
+        <div class="space-y-1.5">
+            <p class="font-label-sm geist text-[10px] font-bold uppercase tracking-[0.16em] text-secondary">Secure connection</p>
+            <h2 class="font-headline-lg text-xl sm:text-2xl font-bold tracking-tight text-on-surface">Completing Google sign-in</h2>
+            <p class="font-body-md text-sm text-on-surface-variant">Preparing your HabitArc workspace…</p>
+        </div>
+    </div>
+</section>
+
 <!-- Fast Vertical Ticker Setup Transition Screen (White Theme) -->
 <div id="setup-transition">
     <!-- Ultra-Thin Top Progress Line -->
@@ -1235,6 +1312,7 @@
     const emailInput = document.getElementById('acc-email-input');
     const passwordInput = document.getElementById('acc-password-input');
     const authError = document.getElementById('auth-error');
+    const googleAuthHandoff = document.getElementById('google-auth-handoff');
     let authMode = pendingGoogleRedirectDraft?.authMode === 'login' ? 'login' : 'register';
 
     function setAuthMode(mode) {
@@ -1320,6 +1398,20 @@
         throw new Error('auth/not-ready');
     }
 
+    function showGoogleAuthHandoff() {
+        if (!googleAuthHandoff) return;
+        googleAuthHandoff.setAttribute('aria-hidden', 'false');
+        googleAuthHandoff.classList.add('visible');
+        document.body.classList.add('google-auth-handoff-running');
+    }
+
+    function hideGoogleAuthHandoff() {
+        if (!googleAuthHandoff) return;
+        googleAuthHandoff.classList.remove('visible');
+        googleAuthHandoff.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('google-auth-handoff-running');
+    }
+
     function beginAuthHandoff() {
         const bottomNav = document.getElementById('bottom-nav');
         const setupScreen = document.getElementById('setup-transition');
@@ -1365,6 +1457,7 @@
     }
 
     function recoverFromGoogleRedirect(message) {
+        hideGoogleAuthHandoff();
         restoreGoogleRedirectDraft();
         clearGoogleRedirectDraft();
         pendingGoogleRedirectDraft = null;
@@ -1377,6 +1470,7 @@
     async function resumePendingGoogleRedirect() {
         if (!pendingGoogleRedirectDraft) return;
 
+        showGoogleAuthHandoff();
         restoreGoogleRedirectDraft();
         currentStep = 8;
         updateStep();
@@ -1476,6 +1570,7 @@
         if (transitionRunning) return;
         transitionRunning = true;
 
+        hideGoogleAuthHandoff();
         saveUserProfile(authUser);
 
         const bottomNav = document.getElementById('bottom-nav');
@@ -1704,6 +1799,7 @@
         window.addEventListener('habitarc-auth-ready', resume, { once: true });
     }
 
+    if (pendingGoogleRedirectDraft) showGoogleAuthHandoff();
     updateStep();
     resumeGoogleRedirectWhenAuthIsReady();
 })();
