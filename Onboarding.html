@@ -1000,6 +1000,8 @@
     let selectedDuration = '30';
     let notificationsEnabled = true;
     const googleRedirectDraftKey = 'habitarc.googleRedirectDraft.v1';
+    const googleRedirectDraftVersion = 2;
+    const googleRedirectDraftMaxAgeMs = 10 * 60 * 1000;
 
     function readGoogleRedirectDraft() {
         try {
@@ -1007,7 +1009,17 @@
             if (!rawDraft) return null;
 
             const draft = JSON.parse(rawDraft);
-            return draft?.version === 1 ? draft : null;
+            const draftIsCurrent = draft?.version === googleRedirectDraftVersion
+                && Number.isFinite(draft?.startedAt)
+                && (Date.now() - draft.startedAt) >= 0
+                && (Date.now() - draft.startedAt) < googleRedirectDraftMaxAgeMs;
+
+            if (draftIsCurrent) return draft;
+
+            // A cancelled redirect or a draft created by an older deployment
+            // must never reopen the Google handoff screen on a later visit.
+            window.sessionStorage.removeItem(googleRedirectDraftKey);
+            return null;
         } catch {
             return null;
         }
@@ -1019,7 +1031,7 @@
 
         try {
             window.sessionStorage.setItem(googleRedirectDraftKey, JSON.stringify({
-                version: 1,
+                version: googleRedirectDraftVersion,
                 currentStep,
                 selectedIntents,
                 selectedChallenge,
