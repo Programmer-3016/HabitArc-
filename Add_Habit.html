@@ -192,7 +192,7 @@
         }
     </style>
 </head>
-<body class="h-full flex flex-col md:flex-row">
+<body class="min-h-full flex flex-col">
 <!-- Top App Bar (Mobile) -->
 <header class="w-full sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-surface-container/70 flex justify-between items-center px-4 py-3 max-w-7xl mx-auto md:hidden shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
     <a href="Dashboard.html" class="flex items-center gap-2">
@@ -253,16 +253,16 @@
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-3">Icon</label>
 <div class="flex gap-3 flex-wrap">
-<button class="w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center transition-transform active:scale-95" type="button">
+<button class="icon-btn w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center transition-transform active:scale-95" data-icon="self_improvement" type="button" aria-label="Choose meditation icon">
 <span class="material-symbols-outlined">self_improvement</span>
 </button>
-<button class="w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" type="button">
+<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="directions_run" type="button" aria-label="Choose running icon">
 <span class="material-symbols-outlined">directions_run</span>
 </button>
-<button class="w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" type="button">
+<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="menu_book" type="button" aria-label="Choose reading icon">
 <span class="material-symbols-outlined">menu_book</span>
 </button>
-<button class="w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" type="button">
+<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="local_drink" type="button" aria-label="Choose water icon">
 <span class="material-symbols-outlined">local_drink</span>
 </button>
 <button class="w-12 h-12 rounded-full border border-dashed border-outline-variant text-outline flex items-center justify-center hover:bg-surface-container transition-colors" type="button">
@@ -274,9 +274,9 @@
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-3">Category</label>
 <div class="flex flex-wrap gap-2">
-<span class="px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors">Wellness</span>
-<span class="px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md cursor-pointer border border-transparent">Focus</span>
-<span class="px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors">Health</span>
+<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Wellness" type="button">Wellness</button>
+<button class="cat-pill px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md cursor-pointer border border-transparent" data-cat="Focus" type="button">Focus</button>
+<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Health" type="button">Health</button>
 </div>
 </div>
 </div>
@@ -350,7 +350,7 @@
 <script>
 (function() {
     let selectedIcon = 'self_improvement';
-    let selectedCategory = 'Health';
+    let selectedCategory = 'Focus';
 
     // Icon buttons click
     document.querySelectorAll('.icon-btn').forEach(btn => {
