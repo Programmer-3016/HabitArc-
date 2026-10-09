@@ -5,13 +5,11 @@
     <title>HabitArc - AI-Powered Smart Habit Tracking</title>
     <script src="app.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const settings = HabitArc.getSettings();
-            if (!settings.onboardingComplete) {
-                window.location.replace("Onboarding.html");
-            } else {
-                window.location.replace("Dashboard.html");
-            }
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait for Firebase to restore the user's session before routing.
+            // This prevents a signed-in user from briefly seeing onboarding.
+            const user = await HabitArc.whenAuthReady();
+            window.location.replace(user ? 'Dashboard.html' : 'Onboarding.html');
         });
     </script>
 </head>

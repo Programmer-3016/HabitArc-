@@ -54,7 +54,7 @@ Access the deployed application on Vercel:
 
 ## 🛠️ Technology Stack
 - **Frontend**: HTML5, Tailwind CSS (CDN with container queries & custom color system), Vanilla JavaScript (ES6 Module pattern)
-- **State & Storage**: `localStorage` (full CRUD, streaks, calendar generation, offline-first)
+- **State & Storage**: User-scoped `localStorage` cache plus Firebase Firestore sync (full CRUD, streaks, calendar generation, offline-first fallback)
 - **Typography & Icons**: Material Symbols Outlined, Google Fonts (Hanken Grotesk & Geist)
 - **Deployment**: Vercel Static Hosting with rewrite routing (`vercel.json`)
 
@@ -71,7 +71,9 @@ HabitArc/
 ├── Insights.html      # Behavioral analytics & consistency score
 ├── Profile.html       # Goals & CSV data export
 ├── Settings.html      # Theme toggle & system preferences
-├── app.js             # Central data engine & localStorage logic
+├── app.js             # Central data engine, auth-aware local cache & sync orchestration
+├── firebase-auth.js   # Firebase Auth and Firestore client integration
+├── firestore.rules    # Private per-user Firestore access rules
 └── vercel.json        # Vercel deployment configuration
 ```
 
@@ -87,7 +89,7 @@ HabitArc/
 
 ---
 
-## Firebase Authentication
+## Firebase Authentication & Cloud Sync
 
 HabitArc uses Firebase Authentication for the Step 8 account flow. In Firebase Console, enable these providers under **Authentication → Sign-in method**:
 
@@ -105,7 +107,22 @@ After the next deployment, add this exact redirect URI to the Google OAuth web c
 
 `https://habit-arc.vercel.app/__/auth/handler`
 
-The web configuration is kept in `firebase-auth.js`; it intentionally uses only the Firebase App and Authentication SDKs.
+### Enable Firestore before using cloud sync
+
+HabitArc keeps each signed-in user's settings in `users/{uid}` and habits in
+`users/{uid}/habits/{habitId}`. The app remains usable from its local cache if
+Firestore is temporarily unavailable, but cloud backup and multi-device sync
+need one Firebase Console setup step:
+
+1. Open **Firebase Console → Build → Firestore Database** and create the database.
+2. Open the **Rules** tab.
+3. Replace the default rules with the contents of [`firestore.rules`](firestore.rules), then click **Publish**.
+
+The rules require a Firebase-authenticated user and restrict every document to
+its matching `uid`; do not use test-mode rules in production.
+
+The web configuration is kept in `firebase-auth.js`; it uses the Firebase App,
+Authentication, and Firestore SDKs.
 
 ---
 

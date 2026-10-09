@@ -31,6 +31,10 @@
 const HabitArc = (() => {
     // ─── Storage Keys ───────────────────────────────
     const STORAGE_KEY = 'habitarc_data';
+    const ACTIVE_USER_KEY = 'habitarc_active_uid';
+    const LEGACY_MIGRATION_OWNER_KEY = 'habitarc_legacy_owner_uid';
+    const USER_STORAGE_PREFIX = `${STORAGE_KEY}:`;
+    const PENDING_SYNC_PREFIX = `${STORAGE_KEY}:pending-sync`;
 
     // ─── Default Data ───────────────────────────────
     const DEFAULT_DATA = {
@@ -45,6 +49,68 @@ const HabitArc = (() => {
         },
         onboardingComplete: false
     };
+
+    // A signed-in user's data is kept in a separate local cache. This prevents
+    // profiles on a shared device from seeing one another's habits while the
+    // cloud document is loading.
+    let activeUserId = _readStorageValue(ACTIVE_USER_KEY);
+    let activeStorageKey = activeUserId ? `${USER_STORAGE_PREFIX}${activeUserId}` : STORAGE_KEY;
+    let cloudClient = null;
+    let cloudUnsubscribe = null;
+    let cloudSaveTimer = null;
+    let cloudSaveChain = Promise.resolve();
+    let cloudSyncReady = false;
+    let cloudApplyingRemoteData = false;
+    let cloudActivatedUserId = null;
+    let cloudHydratingUserId = null;
+    let cloudRetryTimer = null;
+    let cloudRetryAttempts = 0;
+    let localMutationRevision = 0;
+    let authReadyPromise = null;
+
+    const CLOUD_RETRY_DELAYS = [1000, 3000, 10000];
+
+    function _readStorageValue(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch {
+            return null;
+        }
+    }
+
+    function _writeStorageValue(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (error) {
+            console.error('HabitArc: Failed to save data', error);
+            return false;
+        }
+    }
+
+    function _removeStorageValue(key) {
+        try {
+            localStorage.removeItem(key);
+        } catch {
+            // Storage is optional; the in-memory page remains usable.
+        }
+    }
+
+    function _pendingSyncKey(userId = activeUserId) {
+        return userId ? `${PENDING_SYNC_PREFIX}:${userId}` : `${PENDING_SYNC_PREFIX}:legacy`;
+    }
+
+    function _hasPendingLocalSync(userId = activeUserId) {
+        return _readStorageValue(_pendingSyncKey(userId)) === '1';
+    }
+
+    function _markPendingLocalSync(userId = activeUserId) {
+        _writeStorageValue(_pendingSyncKey(userId), '1');
+    }
+
+    function _clearPendingLocalSync(userId = activeUserId) {
+        _removeStorageValue(_pendingSyncKey(userId));
+    }
 
     // ─── Audio Chime Synthesizer (Option 3) ─────────
     function playCompletionSound() {
@@ -211,32 +277,143 @@ const HabitArc = (() => {
     }
 
     // ─── Core Data Access ───────────────────────────
-    function _load() {
+    function _cloneData(data) {
+        return JSON.parse(JSON.stringify(data || {}));
+    }
+
+    function _normaliseData(rawData) {
+        const source = rawData && typeof rawData === 'object' ? rawData : {};
+        const sourceSettings = source.settings && typeof source.settings === 'object'
+            ? source.settings
+            : {};
+        const { onboardingComplete: legacyOnboardingComplete, ...settings } = sourceSettings;
+
+        return {
+            habits: Array.isArray(source.habits)
+                ? _cloneData(source.habits).filter((habit) => habit && typeof habit === 'object')
+                : [],
+            settings: {
+                ...DEFAULT_DATA.settings,
+                ..._cloneData(settings)
+            },
+            // Older builds stored this flag inside settings while the root
+            // default remained false. Preserve a completed onboarding flow if
+            // either representation says it is complete, then keep the
+            // canonical value at the root of the data object.
+            onboardingComplete: Boolean(source.onboardingComplete || legacyOnboardingComplete)
+        };
+    }
+
+    function _createInitialData() {
+        return _normaliseData({
+            ...DEFAULT_DATA,
+            habits: SEED_HABITS.map((habit) => ({
+                ..._cloneData(habit),
+                id: _generateId()
+            })),
+            onboardingComplete: false
+        });
+    }
+
+    function _loadStorageData(storageKey) {
+        const raw = _readStorageValue(storageKey);
+        if (!raw) return null;
+
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return null;
-            return JSON.parse(raw);
-        } catch (e) {
-            console.error('HabitArc: Failed to load data', e);
+            return _normaliseData(JSON.parse(raw));
+        } catch (error) {
+            console.error('HabitArc: Failed to load data', error);
             return null;
         }
     }
 
-    function _save(data) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        } catch (e) {
-            console.error('HabitArc: Failed to save data', e);
+    function _writeStorageData(storageKey, data) {
+        return _writeStorageValue(storageKey, JSON.stringify(_normaliseData(data)));
+    }
+
+    function _load() {
+        return _loadStorageData(activeStorageKey);
+    }
+
+    function _emitDataChange(source = 'local', initial = false) {
+        window.dispatchEvent(new CustomEvent('habitarc:data-changed', {
+            detail: {
+                source,
+                initial,
+                userId: activeUserId
+            }
+        }));
+    }
+
+    function _emitCloudSyncError(error) {
+        window.dispatchEvent(new CustomEvent('habitarc:cloud-sync-error', {
+            detail: {
+                code: error?.code || 'cloud-sync-failed',
+                message: error?.message || 'Cloud sync is temporarily unavailable.'
+            }
+        }));
+    }
+
+    function _sameData(left, right) {
+        return JSON.stringify(_normaliseData(left)) === JSON.stringify(_normaliseData(right));
+    }
+
+    function _scheduleCloudSave() {
+        if (cloudApplyingRemoteData || !cloudClient || !activeUserId) return;
+
+        if (!cloudSyncReady) {
+            const user = cloudClient.getCurrentUser?.();
+            if (user?.uid === activeUserId) {
+                // A fresh local action is a useful chance to retry a failed
+                // initial connection without making the user lose that edit.
+                if (cloudRetryAttempts >= CLOUD_RETRY_DELAYS.length) {
+                    cloudRetryAttempts = 0;
+                }
+                _scheduleCloudRetry(user);
+            }
+            return;
         }
+
+        if (cloudSaveTimer) window.clearTimeout(cloudSaveTimer);
+        const scheduledUserId = activeUserId;
+
+        cloudSaveTimer = window.setTimeout(() => {
+            cloudSaveTimer = null;
+            cloudSaveChain = cloudSaveChain
+                .catch(() => undefined)
+                .then(async () => {
+                    const user = cloudClient?.getCurrentUser?.();
+                    if (!user || user.uid !== scheduledUserId || activeUserId !== scheduledUserId) return;
+
+                    await _persistUserData(_getData(), user);
+                })
+                .catch((error) => {
+                    console.warn('HabitArc: Cloud sync save failed. Local changes remain safe on this device.', error);
+                    _emitCloudSyncError(error);
+                });
+        }, 350);
+    }
+
+    function _save(data, { source = 'local', initial = false, emit = true } = {}) {
+        const normalisedData = _normaliseData(data);
+        _writeStorageData(activeStorageKey, normalisedData);
+
+        if (!cloudApplyingRemoteData && source !== 'cloud') {
+            localMutationRevision += 1;
+            _markPendingLocalSync();
+        }
+
+        if (emit) _emitDataChange(source, initial);
+        if (!cloudApplyingRemoteData) _scheduleCloudSave();
+
+        return normalisedData;
     }
 
     function _getData() {
         let data = _load();
         if (!data) {
-            data = JSON.parse(JSON.stringify(DEFAULT_DATA));
-            data.habits = SEED_HABITS.map(h => ({...h, id: _generateId()}));
-            data.onboardingComplete = false;
-            _save(data);
+            data = _createInitialData();
+            _save(data, { source: 'initial', initial: true });
         }
         return data;
     }
@@ -693,10 +870,20 @@ const HabitArc = (() => {
         return _getData().settings;
     }
 
-    function updateSettings(updates) {
+    function updateSettings(updates = {}) {
         const data = _getData();
-        data.settings = { ...data.settings, ...updates };
+        const { onboardingComplete, ...settingsUpdates } = updates;
+
+        data.settings = { ...data.settings, ...settingsUpdates };
+        if (typeof onboardingComplete === 'boolean') {
+            data.onboardingComplete = onboardingComplete;
+        }
+
         _save(data);
+    }
+
+    function isOnboardingComplete() {
+        return Boolean(_getData().onboardingComplete);
     }
 
     // ─── Theme ──────────────────────────────────────
@@ -768,7 +955,7 @@ const HabitArc = (() => {
 
     // ─── Reset ──────────────────────────────────────
     function resetAllData() {
-        localStorage.removeItem(STORAGE_KEY);
+        _save(_createInitialData());
     }
 
     // ─── Greeting ───────────────────────────────────
@@ -905,6 +1092,270 @@ const HabitArc = (() => {
         ];
     }
 
+    // ─── Firebase Auth & Cloud Sync ─────────────────
+    function _clearCloudSubscription() {
+        if (cloudUnsubscribe) {
+            cloudUnsubscribe();
+            cloudUnsubscribe = null;
+        }
+        if (cloudSaveTimer) {
+            window.clearTimeout(cloudSaveTimer);
+            cloudSaveTimer = null;
+        }
+        if (cloudRetryTimer) {
+            window.clearTimeout(cloudRetryTimer);
+            cloudRetryTimer = null;
+        }
+        cloudSyncReady = false;
+    }
+
+    async function _persistUserData(data, user) {
+        const snapshot = _normaliseData(data);
+        await cloudClient.saveUserData(snapshot, user);
+
+        // Do not clear the durable dirty marker if the user made another edit
+        // while this write was in flight. The next debounced save will carry it.
+        if (activeUserId === user.uid && _sameData(_getData(), snapshot)) {
+            _clearPendingLocalSync(user.uid);
+        }
+    }
+
+    function _scheduleCloudRetry(user) {
+        if (
+            !user?.uid ||
+            user.uid !== cloudActivatedUserId ||
+            cloudRetryTimer ||
+            cloudHydratingUserId === user.uid ||
+            cloudRetryAttempts >= CLOUD_RETRY_DELAYS.length
+        ) return;
+
+        const retryDelay = CLOUD_RETRY_DELAYS[cloudRetryAttempts];
+        cloudRetryAttempts += 1;
+        cloudRetryTimer = window.setTimeout(() => {
+            cloudRetryTimer = null;
+            if (user.uid === cloudActivatedUserId) {
+                void _hydrateCloudUser(user);
+            }
+        }, retryDelay);
+    }
+
+    function _activateScopedStorage(userId) {
+        const nextStorageKey = `${USER_STORAGE_PREFIX}${userId}`;
+        const storageChanged = activeStorageKey !== nextStorageKey;
+        activeUserId = userId;
+        activeStorageKey = nextStorageKey;
+
+        if (_loadStorageData(activeStorageKey)) return storageChanged;
+
+        const legacyData = _loadStorageData(STORAGE_KEY);
+        const legacyOwner = _readStorageValue(LEGACY_MIGRATION_OWNER_KEY);
+        const canClaimLegacyData = legacyData && (!legacyOwner || legacyOwner === userId);
+        const initialData = canClaimLegacyData ? legacyData : _createInitialData();
+        const legacyHadPendingChanges = canClaimLegacyData && _hasPendingLocalSync(null);
+
+        _writeStorageData(activeStorageKey, initialData);
+        if (canClaimLegacyData && !legacyOwner) {
+            _writeStorageValue(LEGACY_MIGRATION_OWNER_KEY, userId);
+        }
+        if (legacyHadPendingChanges) {
+            _markPendingLocalSync(userId);
+            _clearPendingLocalSync(null);
+        }
+
+        return storageChanged;
+    }
+
+    function _isProtectedAppPage() {
+        const pageName = window.location.pathname.split('/').pop()?.toLowerCase() || '';
+        return !['', 'index.html', 'onboarding.html'].includes(pageName);
+    }
+
+    function _handleSignedOutState() {
+        _clearCloudSubscription();
+        cloudActivatedUserId = null;
+        activeUserId = null;
+        activeStorageKey = STORAGE_KEY;
+        _removeStorageValue(ACTIVE_USER_KEY);
+        _emitDataChange('signed-out', true);
+
+        if (_isProtectedAppPage()) {
+            window.location.replace('Onboarding.html');
+        }
+    }
+
+    async function _hydrateCloudUser(user) {
+        const userId = user.uid;
+        if (cloudHydratingUserId === userId) return;
+        cloudHydratingUserId = userId;
+        let retryAfterFailure = false;
+
+        try {
+            // Resolve the current local snapshot before the network request.
+            // If the user changes data while Firestore is loading, that newer
+            // local edit wins rather than being replaced by a stale snapshot.
+            _getData();
+            const mutationRevisionAtStart = localMutationRevision;
+            const remoteSnapshot = await cloudClient.loadUserData(user);
+            if (cloudActivatedUserId !== userId || activeUserId !== userId) return;
+
+            const localChangedDuringHydration = localMutationRevision !== mutationRevisionAtStart;
+            const localDataNeedsUpload = localChangedDuringHydration || _hasPendingLocalSync(userId);
+
+            if (remoteSnapshot.exists && !localDataNeedsUpload) {
+                const remoteData = _normaliseData(remoteSnapshot.data);
+                if (!_sameData(remoteData, _getData())) {
+                    cloudApplyingRemoteData = true;
+                    try {
+                        _save(remoteData, { source: 'cloud', initial: true });
+                        _clearPendingLocalSync(userId);
+                        applyTheme();
+                    } finally {
+                        cloudApplyingRemoteData = false;
+                    }
+                }
+            } else {
+                // A new account starts by backing up its local onboarding
+                // state. A local mutation made during hydration is also sent
+                // first so it cannot be overwritten by an older cloud copy.
+                await _persistUserData(_getData(), user);
+            }
+
+            if (cloudActivatedUserId !== userId || activeUserId !== userId) return;
+
+            cloudSyncReady = true;
+            cloudRetryAttempts = 0;
+            cloudUnsubscribe = cloudClient.subscribeToUserData(
+                (remoteSnapshot) => {
+                    if (cloudActivatedUserId !== userId || activeUserId !== userId || !remoteSnapshot.exists) return;
+
+                    // A local action is waiting to be written. Keep it as the
+                    // last writer instead of replacing it with an older
+                    // realtime snapshot that arrived first.
+                    if (_hasPendingLocalSync(userId)) {
+                        _scheduleCloudSave();
+                        return;
+                    }
+
+                    const remoteData = _normaliseData(remoteSnapshot.data);
+                    if (_sameData(remoteData, _getData())) return;
+
+                    cloudApplyingRemoteData = true;
+                    try {
+                        _save(remoteData, { source: 'cloud', initial: false });
+                        applyTheme();
+                    } finally {
+                        cloudApplyingRemoteData = false;
+                    }
+                },
+                (error) => {
+                    if (cloudActivatedUserId !== userId) return;
+                    _clearCloudSubscription();
+                    console.warn('HabitArc: Cloud sync is unavailable. Local data remains available on this device.', error);
+                    _emitCloudSyncError(error);
+                    _scheduleCloudRetry(user);
+                },
+                user
+            );
+
+            // If the user completed onboarding while the initial cloud read
+            // was in flight, send that newer local state too.
+            _scheduleCloudSave();
+        } catch (error) {
+            if (cloudActivatedUserId !== userId) return;
+            cloudSyncReady = false;
+            console.warn('HabitArc: Cloud sync could not start. Local data remains available on this device.', error);
+            _emitCloudSyncError(error);
+            retryAfterFailure = true;
+        } finally {
+            if (cloudHydratingUserId === userId) {
+                cloudHydratingUserId = null;
+            }
+            if (retryAfterFailure && cloudActivatedUserId === userId) {
+                _scheduleCloudRetry(user);
+            }
+        }
+    }
+
+    function _handleSignedInState(user) {
+        if (!user?.uid) {
+            _handleSignedOutState();
+            return;
+        }
+        if (cloudActivatedUserId === user.uid) {
+            if (!cloudSyncReady && !cloudRetryTimer && cloudHydratingUserId !== user.uid) {
+                void _hydrateCloudUser(user);
+            }
+            return;
+        }
+
+        _clearCloudSubscription();
+        cloudActivatedUserId = user.uid;
+        const storageChanged = _activateScopedStorage(user.uid);
+        _emitDataChange('user-cache', storageChanged);
+        void _hydrateCloudUser(user);
+    }
+
+    function _initializeAuthAndCloudSync() {
+        authReadyPromise = import('./firebase-auth.js')
+            .then(() => window.HabitArcAuthReady)
+            .then(async (authClient) => {
+                cloudClient = authClient;
+                await authClient.waitForInitialAuthState();
+                authClient.subscribe((user) => {
+                    if (user) {
+                        _handleSignedInState(user);
+                    } else {
+                        _handleSignedOutState();
+                    }
+                });
+                return authClient;
+            })
+            .catch((error) => {
+                // Authentication remains optional for local development and
+                // the app deliberately keeps its local cache usable here.
+                console.warn('HabitArc: Firebase could not be initialized. Continuing with local data.', error);
+                return null;
+            });
+
+        window.addEventListener('online', () => {
+            const user = cloudClient?.getCurrentUser?.();
+            if (!user || cloudSyncReady || user.uid !== cloudActivatedUserId) return;
+
+            cloudRetryAttempts = 0;
+            _scheduleCloudRetry(user);
+        });
+    }
+
+    function getAuthUser() {
+        return cloudClient?.getPublicUser?.() || window.HabitArcAuth?.getPublicUser?.() || null;
+    }
+
+    async function whenAuthReady() {
+        const authClient = await authReadyPromise;
+        if (!authClient) return null;
+
+        await authClient.waitForInitialAuthState();
+        return authClient.getPublicUser();
+    }
+
+    async function signOutUser() {
+        const authClient = await authReadyPromise;
+        if (!authClient) {
+            throw new Error('Authentication is not available right now.');
+        }
+        await authClient.signOut();
+    }
+
+    function getCloudSyncStatus() {
+        return {
+            signedIn: Boolean(getAuthUser()),
+            connected: cloudSyncReady,
+            userId: activeUserId
+        };
+    }
+
+    _initializeAuthAndCloudSync();
+
     // ─── Public API ─────────────────────────────────
     return {
         // Habits
@@ -948,10 +1399,17 @@ const HabitArc = (() => {
         // Settings
         getSettings,
         updateSettings,
+        isOnboardingComplete,
         getTheme,
         setTheme,
         toggleTheme,
         applyTheme,
+
+        // Authentication & sync
+        getAuthUser,
+        whenAuthReady,
+        signOut: signOutUser,
+        getCloudSyncStatus,
 
         // Audio
         playCompletionSound,
@@ -980,5 +1438,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (webEl) webEl.textContent = `${streak} Day Streak`;
     } catch (e) {
         console.warn('Header streak calculation deferred:', e);
+    }
+});
+
+// Pages render synchronously from the local cache. When a returning user opens
+// HabitArc on a new device, one safe reload after the initial cloud hydrate lets
+// every existing page render its already-synced data without duplicating render
+// logic across the static HTML views.
+let cloudHydrationRefreshPending = false;
+window.addEventListener('habitarc:data-changed', (event) => {
+    const detail = event.detail || {};
+    if (
+        !['cloud', 'user-cache'].includes(detail.source) ||
+        !detail.initial ||
+        cloudHydrationRefreshPending ||
+        !HabitArc.getAuthUser()
+    ) return;
+
+    const pageName = window.location.pathname.split('/').pop()?.toLowerCase() || '';
+    if (['', 'index.html', 'onboarding.html'].includes(pageName)) return;
+
+    cloudHydrationRefreshPending = true;
+    const refreshPage = () => window.setTimeout(() => window.location.reload(), 0);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', refreshPage, { once: true });
+    } else {
+        refreshPage();
     }
 });

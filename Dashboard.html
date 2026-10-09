@@ -177,8 +177,9 @@
                 <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
                 <span id="header-streak-count-web">0 Day Streak</span>
             </div>
-            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html" aria-label="Profile">
-                <span class="material-symbols-outlined text-[20px]">person</span>
+            <a id="dashboard-profile-link" class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center overflow-hidden text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html" aria-label="Profile">
+                <img id="dashboard-profile-avatar" class="hidden w-full h-full object-cover" alt="" referrerpolicy="no-referrer" />
+                <span id="dashboard-profile-icon" class="material-symbols-outlined text-[20px]">person</span>
             </a>
             <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Settings.html" aria-label="Settings">
                 <span class="material-symbols-outlined text-[20px]">settings</span>
@@ -288,18 +289,49 @@
 <script src="app.js"></script>
 <script>
 (function() {
-    const settings = HabitArc.getSettings();
+    let signedInUser = HabitArc.getAuthUser();
 
-    // Greeting & Date
-    document.getElementById('greeting').textContent = HabitArc.getGreeting() + ', ' + settings.userName.split(' ')[0];
-    document.getElementById('today-date').textContent = HabitArc.getFormattedToday();
+    function getDisplayName() {
+        const settings = HabitArc.getSettings();
+        return signedInUser?.displayName?.trim() || settings.userName?.trim() || 'HabitArc Member';
+    }
 
-    // Header streaks
-    const overallStreak = HabitArc.getOverallCurrentStreak();
-    if (document.getElementById('header-streak-count')) document.getElementById('header-streak-count').textContent = overallStreak + 'd';
-    if (document.getElementById('header-streak-count-web')) document.getElementById('header-streak-count-web').textContent = overallStreak + ' Day Streak';
+    function updateProfileShortcut() {
+        const avatar = document.getElementById('dashboard-profile-avatar');
+        const icon = document.getElementById('dashboard-profile-icon');
+        const profileLink = document.getElementById('dashboard-profile-link');
+        const displayName = getDisplayName();
+
+        if (profileLink) profileLink.setAttribute('aria-label', `${displayName}'s profile`);
+        if (!avatar || !icon) return;
+
+        if (signedInUser?.photoURL) {
+            avatar.src = signedInUser.photoURL;
+            avatar.alt = `${displayName}'s profile photo`;
+            avatar.classList.remove('hidden');
+            icon.classList.add('hidden');
+        } else {
+            avatar.removeAttribute('src');
+            avatar.alt = '';
+            avatar.classList.add('hidden');
+            icon.classList.remove('hidden');
+        }
+    }
+
+    function renderHeader() {
+        const firstName = getDisplayName().split(/\s+/)[0] || 'there';
+        document.getElementById('greeting').textContent = HabitArc.getGreeting() + ', ' + firstName;
+        document.getElementById('today-date').textContent = HabitArc.getFormattedToday();
+
+        const overallStreak = HabitArc.getOverallCurrentStreak();
+        if (document.getElementById('header-streak-count')) document.getElementById('header-streak-count').textContent = overallStreak + 'd';
+        if (document.getElementById('header-streak-count-web')) document.getElementById('header-streak-count-web').textContent = overallStreak + ' Day Streak';
+        updateProfileShortcut();
+    }
 
     function render() {
+        renderHeader();
+
         // Progress
         const progress = HabitArc.getTodayProgress();
         const pct = progress.percentage;
@@ -401,6 +433,18 @@
     }
 
     render();
+
+    function applyAuthenticatedUser(user) {
+        signedInUser = user || null;
+        renderHeader();
+    }
+
+    window.addEventListener('habitarc-auth-state-changed', (event) => {
+        applyAuthenticatedUser(event.detail?.user || null);
+    });
+    void HabitArc.whenAuthReady().then(applyAuthenticatedUser).catch(() => {
+        // Keep the local profile name available when Firebase is offline.
+    });
 })();
 </script>
 </body></html>

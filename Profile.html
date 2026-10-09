@@ -99,7 +99,7 @@
     <!-- Profile Header Section -->
     <section class="flex flex-col items-center justify-center text-center mb-section-margin pt-4">
         <div class="w-24 h-24 rounded-full border-2 border-primary-container p-1 mb-4">
-            <img alt="User Avatar" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPdV2DhoEXerSgWa9vH2g01A_odNiCJJybvoUK0reYw00Bcx0T9u2Kl-lifgda2th8pf6krtStRODTA5_GZOzDiUHMOFs06qoy4Khvw-gRvrmx9E9RfNC6Y3Qf7_m2LAN8S65TIHwyuKJESEf1z91oxHhzP0ZWuiY3CbShfAZS-BGnZNekMTjmlbXUK34T_Bgfz21CrpLYIunvdB0Gi6cqk3jOTTQo7T7ozlPjYfv2XXhJ3CF3hXkR"/>
+            <img id="profile-avatar" alt="User Avatar" class="w-full h-full rounded-full object-cover" referrerpolicy="no-referrer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPdV2DhoEXerSgWa9vH2g01A_odNiCJJybvoUK0reYw00Bcx0T9u2Kl-lifgda2th8pf6krtStRODTA5_GZOzDiUHMOFs06qoy4Khvw-gRvrmx9E9RfNC6Y3Qf7_m2LAN8S65TIHwyuKJESEf1z91oxHhzP0ZWuiY3CbShfAZS-BGnZNekMTjmlbXUK34T_Bgfz21CrpLYIunvdB0Gi6cqk3jOTTQo7T7ozlPjYfv2XXhJ3CF3hXkR"/>
         </div>
         <h2 id="profile-display-name" class="font-headline-md text-2xl text-on-surface mb-1 font-bold">Alex Thorne</h2>
         <p id="profile-display-bio" class="font-body-md text-sm text-on-surface-variant">Building stillness, one day at a time.</p>
@@ -154,6 +154,11 @@
                 <span class="material-symbols-outlined text-[18px]">export_notes</span>
                 Export Data (CSV)
             </button>
+            <button id="profile-sign-out-btn" type="button" class="mt-2 w-full py-2 px-4 border border-outline-variant/50 text-on-surface-variant rounded-lg font-label-md text-sm hover:border-primary/40 hover:text-primary transition-colors flex items-center justify-center gap-2 font-semibold">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+                Sign Out
+            </button>
+            <p id="profile-sign-out-status" class="hidden mt-2 text-xs text-error text-center" role="status" aria-live="polite"></p>
         </div>
 
         <!-- Trophies & Badges Card -->
@@ -202,39 +207,99 @@
 <script src="app.js"></script>
 <script>
 (function() {
-    const settings = HabitArc.getSettings();
+    let signedInUser = HabitArc.getAuthUser();
     const profileName = document.getElementById('profile-display-name');
     const profileBio = document.getElementById('profile-display-bio');
+    const profileAvatar = document.getElementById('profile-avatar');
 
-    if (profileName && settings.userName) profileName.textContent = settings.userName;
-    if (profileBio && settings.userBio) profileBio.textContent = settings.userBio;
+    function getDisplayName() {
+        const settings = HabitArc.getSettings();
+        return signedInUser?.displayName?.trim() || settings.userName?.trim() || 'HabitArc Member';
+    }
 
-    const streakVal = document.getElementById('profile-streak-val');
-    if (streakVal) streakVal.textContent = (HabitArc.getCurrentStreak() || 0) + ' Days';
+    function updateProfileAvatar() {
+        if (!profileAvatar) return;
 
-    const themeName = document.getElementById('profile-theme-name');
-    if (themeName) themeName.textContent = HabitArc.getTheme() || 'Light';
+        const displayName = getDisplayName();
+        if (signedInUser?.photoURL) {
+            profileAvatar.src = signedInUser.photoURL;
+            profileAvatar.alt = `${displayName}'s profile photo`;
+        } else {
+            profileAvatar.alt = `${displayName}'s profile avatar`;
+        }
+    }
 
-    const btn = document.getElementById('export-csv-btn');
-    if (btn) {
-        btn.addEventListener('click', function() {
+    function renderProfile() {
+        const settings = HabitArc.getSettings();
+
+        if (profileName) profileName.textContent = getDisplayName();
+        if (profileBio && settings.userBio) profileBio.textContent = settings.userBio;
+        updateProfileAvatar();
+
+        const streakVal = document.getElementById('profile-streak-val');
+        if (streakVal) streakVal.textContent = (HabitArc.getOverallCurrentStreak() || 0) + ' Days';
+
+        const themeName = document.getElementById('profile-theme-name');
+        if (themeName) themeName.textContent = HabitArc.getTheme() || 'Light';
+
+        // Render Badges Shelf
+        const profileBadges = document.getElementById('profile-badges-container');
+        if (profileBadges) {
+            const badges = HabitArc.getBadges();
+            profileBadges.innerHTML = badges.map(b => `
+                <div class="p-3 rounded-xl border ${b.unlocked ? 'border-primary/30 bg-primary/[0.04]' : 'border-surface-container bg-surface-container-low opacity-60'} flex flex-col items-center text-center gap-1.5" title="${b.description}">
+                    <div class="w-9 h-9 rounded-lg ${b.unlocked ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-high text-outline'} flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-lg">${b.icon}</span>
+                    </div>
+                    <span class="font-headline-md text-xs font-bold ${b.unlocked ? 'text-primary' : 'text-on-surface-variant'} truncate max-w-full">${b.title}</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    const exportButton = document.getElementById('export-csv-btn');
+    if (exportButton) {
+        exportButton.addEventListener('click', function() {
             HabitArc.exportCSV();
         });
     }
 
-    // Render Badges Shelf
-    const profileBadges = document.getElementById('profile-badges-container');
-    if (profileBadges) {
-        const badges = HabitArc.getBadges();
-        profileBadges.innerHTML = badges.map(b => `
-            <div class="p-3 rounded-xl border ${b.unlocked ? 'border-primary/30 bg-primary/[0.04]' : 'border-surface-container bg-surface-container-low opacity-60'} flex flex-col items-center text-center gap-1.5" title="${b.description}">
-                <div class="w-9 h-9 rounded-lg ${b.unlocked ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-high text-outline'} flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-lg">${b.icon}</span>
-                </div>
-                <span class="font-headline-md text-xs font-bold ${b.unlocked ? 'text-primary' : 'text-on-surface-variant'} truncate max-w-full">${b.title}</span>
-            </div>
-        `).join('');
+    const signOutButton = document.getElementById('profile-sign-out-btn');
+    const signOutStatus = document.getElementById('profile-sign-out-status');
+    if (signOutButton) {
+        signOutButton.addEventListener('click', async () => {
+            const originalContent = signOutButton.innerHTML;
+            signOutButton.disabled = true;
+            signOutButton.setAttribute('aria-busy', 'true');
+            signOutButton.innerHTML = '<span class="material-symbols-outlined text-[18px]">progress_activity</span> Signing out…';
+            if (signOutStatus) signOutStatus.classList.add('hidden');
+
+            try {
+                await HabitArc.signOut();
+            } catch (error) {
+                signOutButton.disabled = false;
+                signOutButton.removeAttribute('aria-busy');
+                signOutButton.innerHTML = originalContent;
+                if (signOutStatus) {
+                    signOutStatus.textContent = 'We could not sign you out. Please try again.';
+                    signOutStatus.classList.remove('hidden');
+                }
+            }
+        });
     }
+
+    function applyAuthenticatedUser(user) {
+        signedInUser = user || null;
+        renderProfile();
+    }
+
+    renderProfile();
+    window.addEventListener('habitarc-auth-state-changed', (event) => {
+        applyAuthenticatedUser(event.detail?.user || null);
+    });
+    void HabitArc.whenAuthReady().then(applyAuthenticatedUser).catch(() => {
+        // Local profile details remain usable while Firebase is offline.
+    });
 })();
 </script>
 </body>

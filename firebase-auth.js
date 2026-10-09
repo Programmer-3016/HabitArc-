@@ -42,15 +42,28 @@ window.HabitArcAuthReady = (async () => {
             createUserWithEmailAndPassword,
             getAuth,
             getRedirectResult,
+            onAuthStateChanged,
             setPersistence,
+            signOut,
             signInAnonymously,
             signInWithEmailAndPassword,
             signInWithRedirect,
             updateProfile
         } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js');
+        const {
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            getFirestore,
+            onSnapshot,
+            serverTimestamp,
+            writeBatch
+        } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js');
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const firestore = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
         googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -62,8 +75,211 @@ window.HabitArcAuthReady = (async () => {
             .then((result) => ({ user: result?.user || null, error: null }))
             .catch((error) => ({ user: null, error }));
 
+        let currentUser = null;
+        let initialAuthStateResolved = false;
+        let resolveInitialAuthState;
+        const authStateListeners = new Set();
+        const initialAuthState = new Promise((resolve) => {
+            resolveInitialAuthState = resolve;
+        });
+
+        function toPublicUser(user) {
+            if (!user) return null;
+            return {
+                uid: user.uid,
+                displayName: user.displayName || '',
+                email: user.email || '',
+                photoURL: user.photoURL || '',
+                isAnonymous: Boolean(user.isAnonymous)
+            };
+        }
+
+        function cloneData(data) {
+            return JSON.parse(JSON.stringify(data || {}));
+        }
+
+        function userDocument(user) {
+            return doc(firestore, 'users', user.uid);
+        }
+
+        function habitsCollection(user) {
+            return collection(userDocument(user), 'habits');
+        }
+
+        function stripCloudMetadata(habit, fallbackId) {
+            const { _updatedAt, ...plainHabit } = habit || {};
+            return {
+                ...cloneData(plainHabit),
+                id: plainHabit?.id || fallbackId
+            };
+        }
+
+        function notifyAuthState(user) {
+            authStateListeners.forEach((listener) => {
+                try {
+                    listener(user);
+                } catch (error) {
+                    console.error('HabitArc: auth state listener failed.', error);
+                }
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+
+            try {
+                if (user) {
+                    localStorage.setItem('habitarc_active_uid', user.uid);
+                } else {
+                    localStorage.removeItem('habitarc_active_uid');
+                }
+            } catch {
+                // The app still works when browser storage is unavailable.
+            }
+
+            if (!initialAuthStateResolved) {
+                initialAuthStateResolved = true;
+                resolveInitialAuthState(user);
+            }
+
+            notifyAuthState(user);
+            window.dispatchEvent(new CustomEvent('habitarc-auth-state-changed', {
+                detail: { user: toPublicUser(user) }
+            }));
+        });
+
+        async function loadUserData(user = currentUser) {
+            if (!user) {
+                throw Object.assign(new Error('No signed-in user.'), { code: 'auth/no-current-user' });
+            }
+
+            const [profileSnapshot, habitsSnapshot] = await Promise.all([
+                getDoc(userDocument(user)),
+                getDocs(habitsCollection(user))
+            ]);
+            const profileData = profileSnapshot.exists() ? profileSnapshot.data() : {};
+            const habits = habitsSnapshot.docs.map((habitSnapshot) =>
+                stripCloudMetadata(habitSnapshot.data(), habitSnapshot.id)
+            );
+
+            return {
+                exists: profileSnapshot.exists() || habits.length > 0,
+                profile: cloneData(profileData.profile || {}),
+                data: {
+                    habits,
+                    settings: cloneData(profileData.settings || {}),
+                    onboardingComplete: Boolean(profileData.onboardingComplete)
+                }
+            };
+        }
+
+        async function saveUserData(data, user = currentUser) {
+            if (!user) {
+                throw Object.assign(new Error('No signed-in user.'), { code: 'auth/no-current-user' });
+            }
+
+            const safeData = cloneData(data);
+            const safeHabits = Array.isArray(safeData.habits) ? safeData.habits : [];
+            const userRef = userDocument(user);
+            const existingHabits = await getDocs(habitsCollection(user));
+            const incomingHabitIds = new Set();
+            const batch = writeBatch(firestore);
+
+            batch.set(userRef, {
+                schemaVersion: 1,
+                profile: toPublicUser(user),
+                settings: safeData.settings || {},
+                onboardingComplete: Boolean(safeData.onboardingComplete),
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+
+            safeHabits.forEach((habit) => {
+                if (!habit?.id) return;
+                incomingHabitIds.add(habit.id);
+                batch.set(doc(userRef, 'habits', habit.id), {
+                    ...stripCloudMetadata(habit, habit.id),
+                    _updatedAt: serverTimestamp()
+                });
+            });
+
+            existingHabits.docs.forEach((habitSnapshot) => {
+                if (!incomingHabitIds.has(habitSnapshot.id)) {
+                    batch.delete(habitSnapshot.ref);
+                }
+            });
+
+            await batch.commit();
+        }
+
+        function subscribeToUserData(onChange, onError, user = currentUser) {
+            if (!user) return () => {};
+
+            let profileSnapshotData = null;
+            let habitsSnapshotData = null;
+
+            function emitIfReady() {
+                if (profileSnapshotData === null || habitsSnapshotData === null) return;
+
+                const profileData = profileSnapshotData.exists()
+                    ? profileSnapshotData.data()
+                    : {};
+                const habits = habitsSnapshotData.docs.map((habitSnapshot) =>
+                    stripCloudMetadata(habitSnapshot.data(), habitSnapshot.id)
+                );
+
+                onChange({
+                    exists: profileSnapshotData.exists() || habits.length > 0,
+                    profile: cloneData(profileData.profile || {}),
+                    data: {
+                        habits,
+                        settings: cloneData(profileData.settings || {}),
+                        onboardingComplete: Boolean(profileData.onboardingComplete)
+                    }
+                });
+            }
+
+            const unsubscribeProfile = onSnapshot(
+                userDocument(user),
+                (snapshot) => {
+                    profileSnapshotData = snapshot;
+                    emitIfReady();
+                },
+                onError
+            );
+            const unsubscribeHabits = onSnapshot(
+                habitsCollection(user),
+                (snapshot) => {
+                    habitsSnapshotData = snapshot;
+                    emitIfReady();
+                },
+                onError
+            );
+
+            return () => {
+                unsubscribeProfile();
+                unsubscribeHabits();
+            };
+        }
+
         const authClient = Object.freeze({
             getAuthErrorMessage,
+            getCurrentUser() {
+                return currentUser;
+            },
+            getPublicUser() {
+                return toPublicUser(currentUser);
+            },
+            async waitForInitialAuthState() {
+                await initialAuthState;
+                return currentUser;
+            },
+            subscribe(listener) {
+                authStateListeners.add(listener);
+                if (initialAuthStateResolved) {
+                    queueMicrotask(() => listener(currentUser));
+                }
+                return () => authStateListeners.delete(listener);
+            },
             async registerWithEmail({ email, password, displayName }) {
                 const result = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -86,7 +302,13 @@ window.HabitArcAuthReady = (async () => {
             },
             async startGoogleRedirect() {
                 await signInWithRedirect(auth, googleProvider);
-            }
+            },
+            async signOut() {
+                await signOut(auth);
+            },
+            loadUserData,
+            saveUserData,
+            subscribeToUserData
         });
 
         window.HabitArcAuth = authClient;
