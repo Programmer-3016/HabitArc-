@@ -354,8 +354,38 @@ const HabitArc = (() => {
         }));
     }
 
+    function _stableSerialize(value) {
+        if (Array.isArray(value)) {
+            return `[${value.map(_stableSerialize).join(',')}]`;
+        }
+
+        if (value && typeof value === 'object') {
+            return `{${Object.keys(value)
+                .sort()
+                .map((key) => `${JSON.stringify(key)}:${_stableSerialize(value[key])}`)
+                .join(',')}}`;
+        }
+
+        return JSON.stringify(value);
+    }
+
     function _sameData(left, right) {
-        return JSON.stringify(_normaliseData(left)) === JSON.stringify(_normaliseData(right));
+        // Firestore does not guarantee JavaScript property insertion order and
+        // returns habit documents as a collection. Compare a canonical form so
+        // equivalent cloud snapshots never look like fresh data just because
+        // field or document order differs.
+        const normaliseForComparison = (data) => {
+            const normalised = _normaliseData(data);
+            return {
+                ...normalised,
+                habits: [...normalised.habits].sort((first, second) =>
+                    String(first.id || '').localeCompare(String(second.id || ''))
+                )
+            };
+        };
+
+        return _stableSerialize(normaliseForComparison(left))
+            === _stableSerialize(normaliseForComparison(right));
     }
 
     function _scheduleCloudSave() {
@@ -1441,28 +1471,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Pages render synchronously from the local cache. When a returning user opens
-// HabitArc on a new device, one safe reload after the initial cloud hydrate lets
-// every existing page render its already-synced data without duplicating render
-// logic across the static HTML views.
-let cloudHydrationRefreshPending = false;
-window.addEventListener('habitarc:data-changed', (event) => {
-    const detail = event.detail || {};
-    if (
-        !['cloud', 'user-cache'].includes(detail.source) ||
-        !detail.initial ||
-        cloudHydrationRefreshPending ||
-        !HabitArc.getAuthUser()
-    ) return;
-
-    const pageName = window.location.pathname.split('/').pop()?.toLowerCase() || '';
-    if (['', 'index.html', 'onboarding.html'].includes(pageName)) return;
-
-    cloudHydrationRefreshPending = true;
-    const refreshPage = () => window.setTimeout(() => window.location.reload(), 0);
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', refreshPage, { once: true });
-    } else {
-        refreshPage();
-    }
-});
+// Pages receive `habitarc:data-changed` when authentication or cloud hydration
+// changes their cache. Individual pages can re-render the affected UI without
+// reloading the document. Reloading here caused a loop whenever Firestore
+// returned semantically identical data with a different field/document order.

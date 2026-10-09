@@ -1030,7 +1030,9 @@
                 notificationsEnabled,
                 northStar: northStarInput?.value || '',
                 name: nameInput?.value || '',
-                authMode
+                authMode,
+                startedAt: Date.now(),
+                initiatingUserId: HabitArc.getAuthUser?.()?.uid || null
             }));
         } catch {
             // The redirect can still continue when storage is unavailable.
@@ -1314,6 +1316,7 @@
     const authError = document.getElementById('auth-error');
     const googleAuthHandoff = document.getElementById('google-auth-handoff');
     let authMode = pendingGoogleRedirectDraft?.authMode === 'login' ? 'login' : 'register';
+    let googleRedirectResumeRunning = false;
 
     function setAuthMode(mode) {
         authMode = mode;
@@ -1468,7 +1471,9 @@
     }
 
     async function resumePendingGoogleRedirect() {
-        if (!pendingGoogleRedirectDraft) return;
+        if (!pendingGoogleRedirectDraft || googleRedirectResumeRunning || transitionRunning) return;
+
+        googleRedirectResumeRunning = true;
 
         showGoogleAuthHandoff();
         restoreGoogleRedirectDraft();
@@ -1479,7 +1484,32 @@
 
         try {
             const firebaseAuth = await getFirebaseAuth();
-            const { user, error } = await firebaseAuth.getGoogleRedirectResult();
+            const redirectOutcome = await Promise.race([
+                firebaseAuth.getGoogleRedirectResult(),
+                new Promise((resolve) => {
+                    window.setTimeout(() => resolve({ timedOut: true }), 8000);
+                })
+            ]);
+
+            if (redirectOutcome?.timedOut) {
+                const currentUser = firebaseAuth.getCurrentUser?.();
+                const initialUserId = pendingGoogleRedirectDraft?.initiatingUserId || null;
+
+                // Firebase has already restored a new session, so the visual
+                // redirect result is no longer needed. This prevents a browser
+                // storage edge case from leaving the handoff screen forever.
+                if (currentUser?.uid && currentUser.uid !== initialUserId) {
+                    clearGoogleRedirectDraft();
+                    pendingGoogleRedirectDraft = null;
+                    runSetupTransition(currentUser);
+                    return;
+                }
+
+                recoverFromGoogleRedirect('Google sign-in is taking too long. Please try again.');
+                return;
+            }
+
+            const { user, error } = redirectOutcome;
 
             if (error) throw error;
             if (!user) {
@@ -1494,6 +1524,8 @@
             recoverFromGoogleRedirect(
                 window.HabitArcAuth?.getAuthErrorMessage(error) || 'We could not complete Google sign-in. Please try again.'
             );
+        } finally {
+            googleRedirectResumeRunning = false;
         }
     }
 

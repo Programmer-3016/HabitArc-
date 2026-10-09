@@ -442,6 +442,12 @@
     window.addEventListener('habitarc-auth-state-changed', (event) => {
         applyAuthenticatedUser(event.detail?.user || null);
     });
+    window.addEventListener('habitarc:data-changed', (event) => {
+        const source = event.detail?.source;
+        if (source === 'cloud' || source === 'user-cache') {
+            render();
+        }
+    });
     void HabitArc.whenAuthReady().then(applyAuthenticatedUser).catch(() => {
         // Keep the local profile name available when Firebase is offline.
     });
