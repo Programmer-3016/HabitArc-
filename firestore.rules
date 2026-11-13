@@ -2,7 +2,7 @@ rules_version = '2';
 
 // HabitArc keeps every account in its own Firestore path. These rules let a
 // signed-in Firebase user access only their profile/settings document and the
-// habit documents nested beneath it.
+// habit documents and their durable daily completion history nested beneath it.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
@@ -11,6 +11,11 @@ service cloud.firestore {
     }
 
     match /users/{userId}/habits/{habitId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/habitCompletions/{completionId} {
       allow read, write: if request.auth != null
         && request.auth.uid == userId;
     }

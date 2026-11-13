@@ -290,6 +290,12 @@
     });
 
     render();
+    window.addEventListener('habitarc:data-changed', (event) => {
+        const source = event.detail?.source;
+        if (source === 'cloud' || source === 'user-cache') {
+            render();
+        }
+    });
 })();
 </script>
 </body></html>

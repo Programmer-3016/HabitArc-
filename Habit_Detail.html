@@ -256,7 +256,7 @@
         return;
     }
 
-    const habit = HabitArc.getHabitById(habitId);
+    let habit = HabitArc.getHabitById(habitId);
     if (!habit) {
         window.location.href = 'Habits.html';
         return;
@@ -445,6 +445,32 @@
         }
     }
     renderMonthlyBars();
+
+    function refreshCompletionData(source) {
+        const latestHabit = HabitArc.getHabitById(habitId);
+        if (!latestHabit) {
+            // A user-scoped cache may be empty for a moment while Firestore
+            // hydrates. Only navigate away after a cloud snapshot confirms
+            // that the habit is genuinely absent.
+            if (source === 'cloud') {
+                window.location.href = 'Habits.html';
+            }
+            return;
+        }
+
+        habit = latestHabit;
+        updateCompleteButton();
+        renderStats();
+        renderCalendar();
+        renderMonthlyBars();
+    }
+
+    window.addEventListener('habitarc:data-changed', (event) => {
+        const source = event.detail?.source;
+        if (source === 'cloud' || source === 'user-cache') {
+            refreshCompletionData(source);
+        }
+    });
 
     // ─── Motivation ─────────────────────────────
     if (habit.why || habit.motivation) {

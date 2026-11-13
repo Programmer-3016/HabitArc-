@@ -16,6 +16,16 @@
  *     createdAt: string (ISO date),
  *     completions: { "YYYY-MM-DD": boolean }
  *   }],
+ *   completionHistory: {
+ *     "{habitId}_{YYYY-MM-DD}": {
+ *       id: string,
+ *       habitId: string,
+ *       date: string (YYYY-MM-DD),
+ *       status: "completed" | "not_completed",
+ *       completedAt: string | null,
+ *       updatedAt: string (ISO timestamp)
+ *     }
+ *   },
  *   settings: {
  *     theme: "light" | "dark",
  *     goalDuration: 30 | 60 | 90 | number,
@@ -35,10 +45,12 @@ const HabitArc = (() => {
     const LEGACY_MIGRATION_OWNER_KEY = 'habitarc_legacy_owner_uid';
     const USER_STORAGE_PREFIX = `${STORAGE_KEY}:`;
     const PENDING_SYNC_PREFIX = `${STORAGE_KEY}:pending-sync`;
+    const PENDING_COMPLETION_HISTORY_PREFIX = `${STORAGE_KEY}:pending-completion-history`;
 
     // ─── Default Data ───────────────────────────────
     const DEFAULT_DATA = {
         habits: [],
+        completionHistory: {},
         settings: {
             theme: 'light', // "light" | "dark" | "forest" | "midnight"
             goalDuration: 30,
@@ -110,6 +122,57 @@ const HabitArc = (() => {
 
     function _clearPendingLocalSync(userId = activeUserId) {
         _removeStorageValue(_pendingSyncKey(userId));
+    }
+
+    function _pendingCompletionHistoryKey(userId = activeUserId) {
+        return userId
+            ? `${PENDING_COMPLETION_HISTORY_PREFIX}:${userId}`
+            : `${PENDING_COMPLETION_HISTORY_PREFIX}:legacy`;
+    }
+
+    function _getPendingCompletionHistoryOperations(userId = activeUserId) {
+        const raw = _readStorageValue(_pendingCompletionHistoryKey(userId));
+        if (!raw) return {};
+
+        try {
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+
+            return Object.fromEntries(
+                Object.entries(parsed).filter(([, operation]) =>
+                    operation === 'upsert' || operation === 'delete'
+                )
+            );
+        } catch {
+            return {};
+        }
+    }
+
+    function _writePendingCompletionHistoryOperations(operations, userId = activeUserId) {
+        const entries = Object.entries(operations || {}).filter(([, operation]) =>
+            operation === 'upsert' || operation === 'delete'
+        );
+
+        if (entries.length === 0) {
+            _removeStorageValue(_pendingCompletionHistoryKey(userId));
+            return;
+        }
+
+        _writeStorageValue(
+            _pendingCompletionHistoryKey(userId),
+            JSON.stringify(Object.fromEntries(entries))
+        );
+    }
+
+    function _queueCompletionHistoryOperation(recordId, operation = 'upsert', userId = activeUserId) {
+        if (!recordId || (operation !== 'upsert' && operation !== 'delete')) return;
+        const operations = _getPendingCompletionHistoryOperations(userId);
+        operations[recordId] = operation;
+        _writePendingCompletionHistoryOperations(operations, userId);
+    }
+
+    function _hasPendingCompletionHistory(userId = activeUserId) {
+        return Object.keys(_getPendingCompletionHistoryOperations(userId)).length > 0;
     }
 
     // ─── Audio Chime Synthesizer (Option 3) ─────────
@@ -281,17 +344,148 @@ const HabitArc = (() => {
         return JSON.parse(JSON.stringify(data || {}));
     }
 
+    function _isDateKey(value) {
+        return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+    }
+
+    function _completionRecordId(habitId, date) {
+        return `${habitId}_${date}`;
+    }
+
+    function _legacyCompletionTimestamp(date) {
+        // Historical local completion maps do not have a time of day. A stable
+        // midday timestamp lets us migrate them once without making a reload
+        // look like a new user action.
+        return `${date}T12:00:00.000Z`;
+    }
+
+    function _normaliseCompletionHistory(rawHistory) {
+        const entries = Array.isArray(rawHistory)
+            ? rawHistory.map((record) => [record?.id, record])
+            : rawHistory && typeof rawHistory === 'object'
+                ? Object.entries(rawHistory)
+                : [];
+        const history = {};
+
+        entries.forEach(([fallbackId, rawRecord]) => {
+            if (!rawRecord || typeof rawRecord !== 'object') return;
+
+            const habitId = typeof rawRecord.habitId === 'string' ? rawRecord.habitId : '';
+            const date = typeof rawRecord.date === 'string' ? rawRecord.date : '';
+            if (!habitId || !_isDateKey(date)) return;
+
+            const id = _completionRecordId(habitId, date);
+            const status = rawRecord.status === 'completed' ? 'completed' : 'not_completed';
+            const completedAt = status === 'completed'
+                ? (typeof rawRecord.completedAt === 'string' && rawRecord.completedAt
+                    ? rawRecord.completedAt
+                    : _legacyCompletionTimestamp(date))
+                : null;
+            const updatedAt = typeof rawRecord.updatedAt === 'string' && rawRecord.updatedAt
+                ? rawRecord.updatedAt
+                : completedAt || _legacyCompletionTimestamp(date);
+            const record = { id, habitId, date, status, completedAt, updatedAt };
+            const existing = history[id];
+
+            // A malformed export can theoretically contain duplicates. Keep
+            // the newest explicit state so a later undo always wins.
+            if (!existing || String(record.updatedAt) >= String(existing.updatedAt)) {
+                history[id] = record;
+            }
+        });
+
+        return history;
+    }
+
+    function _normaliseHabits(rawHabits) {
+        if (!Array.isArray(rawHabits)) return [];
+
+        return _cloneData(rawHabits)
+            .filter((habit) => habit && typeof habit === 'object')
+            .map((habit) => {
+                const rawCompletions = habit.completions && typeof habit.completions === 'object'
+                    ? habit.completions
+                    : {};
+
+                habit.completions = Object.fromEntries(
+                    Object.entries(rawCompletions).filter(([date, completed]) =>
+                        _isDateKey(date) && Boolean(completed)
+                    )
+                );
+                return habit;
+            });
+    }
+
+    function _applyCompletionHistoryToHabits(habits, completionHistory) {
+        const habitsById = new Map(
+            habits.filter((habit) => habit?.id).map((habit) => [habit.id, habit])
+        );
+
+        Object.values(completionHistory).forEach((record) => {
+            const habit = habitsById.get(record.habitId);
+            if (!habit) return;
+
+            if (!habit.completions || typeof habit.completions !== 'object') {
+                habit.completions = {};
+            }
+
+            if (record.status === 'completed') {
+                habit.completions[record.date] = true;
+            } else {
+                delete habit.completions[record.date];
+            }
+        });
+    }
+
+    function _createCompletionHistoryRecord(habitId, date, completed) {
+        const timestamp = new Date().toISOString();
+        return {
+            id: _completionRecordId(habitId, date),
+            habitId,
+            date,
+            status: completed ? 'completed' : 'not_completed',
+            completedAt: completed ? timestamp : null,
+            updatedAt: timestamp
+        };
+    }
+
     function _normaliseData(rawData) {
         const source = rawData && typeof rawData === 'object' ? rawData : {};
         const sourceSettings = source.settings && typeof source.settings === 'object'
             ? source.settings
             : {};
         const { onboardingComplete: legacyOnboardingComplete, ...settings } = sourceSettings;
+        const habits = _normaliseHabits(source.habits);
+        const completionHistory = _normaliseCompletionHistory(source.completionHistory);
+
+        // v1 stored completion booleans directly on habits. Preserve every
+        // existing completion as a stable history record during migration.
+        habits.forEach((habit) => {
+            if (!habit?.id || !habit.completions) return;
+
+            Object.entries(habit.completions).forEach(([date, completed]) => {
+                if (!completed || !_isDateKey(date)) return;
+                const id = _completionRecordId(habit.id, date);
+                if (!completionHistory[id]) {
+                    completionHistory[id] = {
+                        id,
+                        habitId: habit.id,
+                        date,
+                        status: 'completed',
+                        completedAt: _legacyCompletionTimestamp(date),
+                        updatedAt: _legacyCompletionTimestamp(date)
+                    };
+                }
+            });
+        });
+
+        // The history collection is canonical once it exists. The habit map is
+        // retained as a backwards-compatible, UI-friendly projection.
+        _applyCompletionHistoryToHabits(habits, completionHistory);
 
         return {
-            habits: Array.isArray(source.habits)
-                ? _cloneData(source.habits).filter((habit) => habit && typeof habit === 'object')
-                : [],
+            habits,
+            completionHistory,
             settings: {
                 ...DEFAULT_DATA.settings,
                 ..._cloneData(settings)
@@ -302,6 +496,25 @@ const HabitArc = (() => {
             // canonical value at the root of the data object.
             onboardingComplete: Boolean(source.onboardingComplete || legacyOnboardingComplete)
         };
+    }
+
+    function _queueMissingCompletionHistoryRecords(data, remoteHistory, userId = activeUserId) {
+        if (!userId) return false;
+
+        const localHistory = _normaliseData(data).completionHistory;
+        const knownRemoteHistory = _normaliseCompletionHistory(remoteHistory);
+        let queued = false;
+
+        Object.entries(localHistory).forEach(([recordId, record]) => {
+            const remoteRecord = knownRemoteHistory[recordId];
+            if (!remoteRecord || _stableSerialize(remoteRecord) !== _stableSerialize(record)) {
+                _queueCompletionHistoryOperation(recordId, 'upsert', userId);
+                queued = true;
+            }
+        });
+
+        if (queued) _markPendingLocalSync(userId);
+        return queued;
     }
 
     function _createInitialData() {
@@ -482,6 +695,15 @@ const HabitArc = (() => {
     function deleteHabit(id) {
         const data = _getData();
         data.habits = data.habits.filter(h => h.id !== id);
+
+        // Keep cloud history private and tidy when a habit is deleted. The
+        // deletion operation is persisted separately so it also works after
+        // an offline edit reconnects.
+        Object.entries(data.completionHistory || {}).forEach(([recordId, record]) => {
+            if (record?.habitId !== id) return;
+            delete data.completionHistory[recordId];
+            _queueCompletionHistoryOperation(recordId, 'delete');
+        });
         _save(data);
     }
 
@@ -499,9 +721,12 @@ const HabitArc = (() => {
         date = date || _today();
         const data = _getData();
         const habit = data.habits.find(h => h.id === id);
-        if (!habit) return false;
+        if (!habit || !_isDateKey(date)) return false;
         if (!habit.completions) habit.completions = {};
         habit.completions[date] = true;
+        const record = _createCompletionHistoryRecord(id, date, true);
+        data.completionHistory[record.id] = record;
+        _queueCompletionHistoryOperation(record.id, 'upsert');
         _save(data);
         playCompletionSound();
         return true;
@@ -511,10 +736,13 @@ const HabitArc = (() => {
         date = date || _today();
         const data = _getData();
         const habit = data.habits.find(h => h.id === id);
-        if (!habit) return false;
+        if (!habit || !_isDateKey(date)) return false;
         if (habit.completions) {
             delete habit.completions[date];
         }
+        const record = _createCompletionHistoryRecord(id, date, false);
+        data.completionHistory[record.id] = record;
+        _queueCompletionHistoryOperation(record.id, 'upsert');
         _save(data);
         return true;
     }
@@ -529,6 +757,17 @@ const HabitArc = (() => {
         const habit = getHabitById(id);
         if (!habit) return false;
         return !!(habit.completions && habit.completions[date]);
+    }
+
+    function getCompletionHistory(habitId) {
+        const history = Object.values(_getData().completionHistory || {})
+            .filter((record) => !habitId || record.habitId === habitId)
+            .sort((first, second) => {
+                const byDate = String(first.date).localeCompare(String(second.date));
+                return byDate || String(first.updatedAt).localeCompare(String(second.updatedAt));
+            });
+
+        return _cloneData(history);
     }
 
     // ─── Streak Calculations ────────────────────────
@@ -985,7 +1224,16 @@ const HabitArc = (() => {
 
     // ─── Reset ──────────────────────────────────────
     function resetAllData() {
-        _save(_createInitialData());
+        const currentData = _getData();
+        Object.keys(currentData.completionHistory || {}).forEach((recordId) => {
+            _queueCompletionHistoryOperation(recordId, 'delete');
+        });
+
+        const resetData = _createInitialData();
+        Object.keys(resetData.completionHistory || {}).forEach((recordId) => {
+            _queueCompletionHistoryOperation(recordId, 'upsert');
+        });
+        _save(resetData);
     }
 
     // ─── Greeting ───────────────────────────────────
@@ -1139,13 +1387,65 @@ const HabitArc = (() => {
         cloudSyncReady = false;
     }
 
+    async function _persistPendingCompletionHistory(user) {
+        const operations = _getPendingCompletionHistoryOperations(user.uid);
+        if (Object.keys(operations).length === 0) return;
+
+        // Resolve the latest local snapshot immediately before the cloud write
+        // so a completion made while an earlier save was in flight is never
+        // dropped from the history queue.
+        const latestHistory = _normaliseData(_getData()).completionHistory;
+        const upserts = [];
+        const deletions = [];
+
+        Object.entries(operations).forEach(([recordId, operation]) => {
+            if (operation === 'delete' || !latestHistory[recordId]) {
+                deletions.push(recordId);
+                return;
+            }
+            upserts.push(latestHistory[recordId]);
+        });
+
+        await cloudClient.saveCompletionHistory({ upserts, deletions }, user);
+
+        // Do not clear a newer action for the same habit-day. A completion
+        // immediately followed by an undo has the same queue operation type
+        // but a different `updatedAt` value.
+        const currentOperations = _getPendingCompletionHistoryOperations(user.uid);
+        const currentHistory = _normaliseData(_getData()).completionHistory;
+        const remainingOperations = { ...currentOperations };
+
+        upserts.forEach((record) => {
+            if (
+                remainingOperations[record.id] === 'upsert' &&
+                _stableSerialize(currentHistory[record.id]) === _stableSerialize(record)
+            ) {
+                delete remainingOperations[record.id];
+            }
+        });
+        deletions.forEach((recordId) => {
+            if (remainingOperations[recordId] === 'delete' && !currentHistory[recordId]) {
+                delete remainingOperations[recordId];
+            }
+        });
+        _writePendingCompletionHistoryOperations(remainingOperations, user.uid);
+    }
+
     async function _persistUserData(data, user) {
         const snapshot = _normaliseData(data);
+        // Completion history is the authoritative source for an undo. Write
+        // it first so a second open browser never briefly replays an older
+        // `habit.completions` map while the history update is still in flight.
+        await _persistPendingCompletionHistory(user);
         await cloudClient.saveUserData(snapshot, user);
 
         // Do not clear the durable dirty marker if the user made another edit
         // while this write was in flight. The next debounced save will carry it.
-        if (activeUserId === user.uid && _sameData(_getData(), snapshot)) {
+        if (
+            activeUserId === user.uid &&
+            _sameData(_getData(), snapshot) &&
+            !_hasPendingCompletionHistory(user.uid)
+        ) {
             _clearPendingLocalSync(user.uid);
         }
     }
@@ -1182,6 +1482,9 @@ const HabitArc = (() => {
         const canClaimLegacyData = legacyData && (!legacyOwner || legacyOwner === userId);
         const initialData = canClaimLegacyData ? legacyData : _createInitialData();
         const legacyHadPendingChanges = canClaimLegacyData && _hasPendingLocalSync(null);
+        const legacyCompletionHistoryOperations = canClaimLegacyData
+            ? _getPendingCompletionHistoryOperations(null)
+            : {};
 
         _writeStorageData(activeStorageKey, initialData);
         if (canClaimLegacyData && !legacyOwner) {
@@ -1190,6 +1493,14 @@ const HabitArc = (() => {
         if (legacyHadPendingChanges) {
             _markPendingLocalSync(userId);
             _clearPendingLocalSync(null);
+        }
+        if (Object.keys(legacyCompletionHistoryOperations).length > 0) {
+            const scopedOperations = _getPendingCompletionHistoryOperations(userId);
+            _writePendingCompletionHistoryOperations({
+                ...legacyCompletionHistoryOperations,
+                ...scopedOperations
+            }, userId);
+            _writePendingCompletionHistoryOperations({}, null);
         }
 
         return storageChanged;
@@ -1243,10 +1554,24 @@ const HabitArc = (() => {
                         cloudApplyingRemoteData = false;
                     }
                 }
+
+                // Existing users may have pre-history completion maps from
+                // the first cloud-sync version. Backfill those once into the
+                // new per-day collection without changing their visible data.
+                _queueMissingCompletionHistoryRecords(
+                    _getData(),
+                    remoteSnapshot.data?.completionHistory,
+                    userId
+                );
             } else {
                 // A new account starts by backing up its local onboarding
                 // state. A local mutation made during hydration is also sent
                 // first so it cannot be overwritten by an older cloud copy.
+                _queueMissingCompletionHistoryRecords(
+                    _getData(),
+                    remoteSnapshot.data?.completionHistory,
+                    userId
+                );
                 await _persistUserData(_getData(), user);
             }
 
@@ -1349,7 +1674,14 @@ const HabitArc = (() => {
 
         window.addEventListener('online', () => {
             const user = cloudClient?.getCurrentUser?.();
-            if (!user || cloudSyncReady || user.uid !== cloudActivatedUserId) return;
+            if (!user || user.uid !== cloudActivatedUserId) return;
+
+            if (cloudSyncReady) {
+                if (_hasPendingLocalSync(user.uid) || _hasPendingCompletionHistory(user.uid)) {
+                    _scheduleCloudSave();
+                }
+                return;
+            }
 
             cloudRetryAttempts = 0;
             _scheduleCloudRetry(user);
@@ -1380,7 +1712,8 @@ const HabitArc = (() => {
         return {
             signedIn: Boolean(getAuthUser()),
             connected: cloudSyncReady,
-            userId: activeUserId
+            userId: activeUserId,
+            pendingCompletionHistory: _hasPendingCompletionHistory()
         };
     }
 
@@ -1400,6 +1733,7 @@ const HabitArc = (() => {
         uncompleteHabit,
         isCompletedToday,
         isCompletedOn,
+        getCompletionHistory,
 
         // Streaks
         getCurrentStreak,

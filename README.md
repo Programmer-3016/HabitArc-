@@ -109,10 +109,24 @@ After the next deployment, add this exact redirect URI to the Google OAuth web c
 
 ### Enable Firestore before using cloud sync
 
-HabitArc keeps each signed-in user's settings in `users/{uid}` and habits in
-`users/{uid}/habits/{habitId}`. The app remains usable from its local cache if
-Firestore is temporarily unavailable, but cloud backup and multi-device sync
-need one Firebase Console setup step:
+HabitArc keeps each signed-in user's settings in `users/{uid}`, habits in
+`users/{uid}/habits/{habitId}`, and durable daily completion state in
+`users/{uid}/habitCompletions/{habitId}_{YYYY-MM-DD}`. Completion documents
+are the cross-device activity history used by streaks, calendars, completion
+rates, and future AI analysis. A habit's `completions` map remains as a
+backwards-compatible UI projection while existing accounts migrate safely.
+
+Each completion record stores:
+
+- `habitId` and `date`
+- `status`: `completed` or `not_completed`
+- `completedAt` for completed events
+- `updatedAt` for last-write-wins synchronisation
+
+Missed days are derived from the habit schedule and the absence of a completed
+record; HabitArc does not create wasteful records every midnight. The app
+remains usable from its local cache if Firestore is temporarily unavailable,
+but cloud backup and multi-device sync need one Firebase Console setup step:
 
 1. Open **Firebase Console → Build → Firestore Database** and create the database.
 2. Open the **Rules** tab.

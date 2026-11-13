@@ -106,12 +106,48 @@ window.HabitArcAuthReady = (async () => {
             return collection(userDocument(user), 'habits');
         }
 
+        function completionHistoryCollection(user) {
+            return collection(userDocument(user), 'habitCompletions');
+        }
+
         function stripCloudMetadata(habit, fallbackId) {
             const { _updatedAt, ...plainHabit } = habit || {};
             return {
                 ...cloneData(plainHabit),
                 id: plainHabit?.id || fallbackId
             };
+        }
+
+        function stripCloudCompletionHistory(record) {
+            const { _updatedAt, ...plainRecord } = record || {};
+            const habitId = typeof plainRecord?.habitId === 'string' ? plainRecord.habitId : '';
+            const date = typeof plainRecord?.date === 'string' ? plainRecord.date : '';
+            if (!habitId || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+
+            const status = plainRecord.status === 'completed' ? 'completed' : 'not_completed';
+            const completedAt = status === 'completed' && typeof plainRecord.completedAt === 'string'
+                ? plainRecord.completedAt
+                : null;
+            const updatedAt = typeof plainRecord.updatedAt === 'string' && plainRecord.updatedAt
+                ? plainRecord.updatedAt
+                : completedAt || `${date}T12:00:00.000Z`;
+
+            return {
+                id: `${habitId}_${date}`,
+                habitId,
+                date,
+                status,
+                completedAt,
+                updatedAt
+            };
+        }
+
+        function completionHistoryFromSnapshot(snapshot) {
+            return snapshot.docs.reduce((history, completionSnapshot) => {
+                const record = stripCloudCompletionHistory(completionSnapshot.data());
+                if (record) history[record.id] = record;
+                return history;
+            }, {});
         }
 
         function notifyAuthState(user) {
@@ -153,20 +189,23 @@ window.HabitArcAuthReady = (async () => {
                 throw Object.assign(new Error('No signed-in user.'), { code: 'auth/no-current-user' });
             }
 
-            const [profileSnapshot, habitsSnapshot] = await Promise.all([
+            const [profileSnapshot, habitsSnapshot, completionHistorySnapshot] = await Promise.all([
                 getDoc(userDocument(user)),
-                getDocs(habitsCollection(user))
+                getDocs(habitsCollection(user)),
+                getDocs(completionHistoryCollection(user))
             ]);
             const profileData = profileSnapshot.exists() ? profileSnapshot.data() : {};
             const habits = habitsSnapshot.docs.map((habitSnapshot) =>
                 stripCloudMetadata(habitSnapshot.data(), habitSnapshot.id)
             );
+            const completionHistory = completionHistoryFromSnapshot(completionHistorySnapshot);
 
             return {
-                exists: profileSnapshot.exists() || habits.length > 0,
+                exists: profileSnapshot.exists() || habits.length > 0 || Object.keys(completionHistory).length > 0,
                 profile: cloneData(profileData.profile || {}),
                 data: {
                     habits,
+                    completionHistory,
                     settings: cloneData(profileData.settings || {}),
                     onboardingComplete: Boolean(profileData.onboardingComplete)
                 }
@@ -186,7 +225,7 @@ window.HabitArcAuthReady = (async () => {
             const batch = writeBatch(firestore);
 
             batch.set(userRef, {
-                schemaVersion: 1,
+                schemaVersion: 2,
                 profile: toPublicUser(user),
                 settings: safeData.settings || {},
                 onboardingComplete: Boolean(safeData.onboardingComplete),
@@ -211,14 +250,60 @@ window.HabitArcAuthReady = (async () => {
             await batch.commit();
         }
 
+        async function saveCompletionHistory({ upserts = [], deletions = [] } = {}, user = currentUser) {
+            if (!user) {
+                throw Object.assign(new Error('No signed-in user.'), { code: 'auth/no-current-user' });
+            }
+
+            const upsertsById = new Map();
+            (Array.isArray(upserts) ? upserts : []).forEach((rawRecord) => {
+                const record = stripCloudCompletionHistory(rawRecord);
+                if (record) upsertsById.set(record.id, record);
+            });
+            const deletionIds = [...new Set(Array.isArray(deletions) ? deletions : [])]
+                .filter((recordId) => typeof recordId === 'string' && !upsertsById.has(recordId));
+            const operations = [
+                ...[...upsertsById.values()].map((record) => ({ type: 'upsert', record })),
+                ...deletionIds.map((recordId) => ({ type: 'delete', recordId }))
+            ];
+
+            // Firestore permits at most 500 writes per batch. A user can own
+            // years of daily history, so migrations are committed in chunks.
+            const batchSize = 450;
+            for (let index = 0; index < operations.length; index += batchSize) {
+                const batch = writeBatch(firestore);
+                operations.slice(index, index + batchSize).forEach((operation) => {
+                    if (operation.type === 'delete') {
+                        batch.delete(doc(userDocument(user), 'habitCompletions', operation.recordId));
+                        return;
+                    }
+
+                    batch.set(
+                        doc(userDocument(user), 'habitCompletions', operation.record.id),
+                        {
+                            ...operation.record,
+                            _updatedAt: serverTimestamp()
+                        },
+                        { merge: true }
+                    );
+                });
+                await batch.commit();
+            }
+        }
+
         function subscribeToUserData(onChange, onError, user = currentUser) {
             if (!user) return () => {};
 
             let profileSnapshotData = null;
             let habitsSnapshotData = null;
+            let completionHistorySnapshotData = null;
 
             function emitIfReady() {
-                if (profileSnapshotData === null || habitsSnapshotData === null) return;
+                if (
+                    profileSnapshotData === null ||
+                    habitsSnapshotData === null ||
+                    completionHistorySnapshotData === null
+                ) return;
 
                 const profileData = profileSnapshotData.exists()
                     ? profileSnapshotData.data()
@@ -226,12 +311,14 @@ window.HabitArcAuthReady = (async () => {
                 const habits = habitsSnapshotData.docs.map((habitSnapshot) =>
                     stripCloudMetadata(habitSnapshot.data(), habitSnapshot.id)
                 );
+                const completionHistory = completionHistoryFromSnapshot(completionHistorySnapshotData);
 
                 onChange({
-                    exists: profileSnapshotData.exists() || habits.length > 0,
+                    exists: profileSnapshotData.exists() || habits.length > 0 || Object.keys(completionHistory).length > 0,
                     profile: cloneData(profileData.profile || {}),
                     data: {
                         habits,
+                        completionHistory,
                         settings: cloneData(profileData.settings || {}),
                         onboardingComplete: Boolean(profileData.onboardingComplete)
                     }
@@ -254,10 +341,19 @@ window.HabitArcAuthReady = (async () => {
                 },
                 onError
             );
+            const unsubscribeCompletionHistory = onSnapshot(
+                completionHistoryCollection(user),
+                (snapshot) => {
+                    completionHistorySnapshotData = snapshot;
+                    emitIfReady();
+                },
+                onError
+            );
 
             return () => {
                 unsubscribeProfile();
                 unsubscribeHabits();
+                unsubscribeCompletionHistory();
             };
         }
 
@@ -308,6 +404,7 @@ window.HabitArcAuthReady = (async () => {
             },
             loadUserData,
             saveUserData,
+            saveCompletionHistory,
             subscribeToUserData
         });
 

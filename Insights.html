@@ -382,6 +382,7 @@
 (function initDashboardJourney() {
     if (typeof HabitArc === 'undefined') return;
 
+    function renderInsights() {
     // Load Settings & User Name
     const settings = HabitArc.getSettings ? HabitArc.getSettings() : {};
     const name = settings.userName || 'Sarthak';
@@ -544,6 +545,16 @@
             </div>
         `).join('');
     }
+
+    }
+
+    renderInsights();
+    window.addEventListener('habitarc:data-changed', (event) => {
+        const source = event.detail?.source;
+        if (source === 'cloud' || source === 'user-cache') {
+            renderInsights();
+        }
+    });
 })();
 </script>
 </body>
