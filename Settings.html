@@ -3,6 +3,15 @@
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#012d1d" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<script defer src="pwa-register.js"></script>
 <title>HabitArc - Settings</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -281,11 +290,11 @@
 <span class="material-symbols-outlined text-primary-container">notifications_active</span>
 <div>
 <div class="font-body-lg text-body-lg text-on-surface">Daily Reminder</div>
-<div class="font-body-md text-body-md text-on-surface-variant">Notify me to complete habits</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Notify me while HabitArc is open</div>
 </div>
 </div>
 <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-daily" name="toggle" type="checkbox"/>
+<input aria-label="Daily reminders" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-daily" name="toggle" type="checkbox"/>
 <label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer relative" for="toggle-daily">
 <span class="toggle-checkbox-inner"></span>
 </label>
@@ -297,16 +306,33 @@
 <span class="material-symbols-outlined text-primary-container">summarize</span>
 <div>
 <div class="font-body-lg text-body-lg text-on-surface">Weekly Summary</div>
-<div class="font-body-md text-body-md text-on-surface-variant">Receive a weekly progress report</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Sunday at 6 PM local time, while the app is open</div>
 </div>
 </div>
 <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-weekly" name="toggle" type="checkbox"/>
+<input aria-label="Weekly summaries" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-weekly" name="toggle" type="checkbox"/>
 <label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer relative" for="toggle-weekly">
 <span class="toggle-checkbox-inner"></span>
 </label>
 </div>
 </div>
+</div>
+<p id="notification-status" class="px-card-padding pb-4 text-xs text-on-surface-variant" role="status" aria-live="polite"></p>
+</section>
+<!-- PWA Section -->
+<section class="mb-section-margin">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">App</h3>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
+<button id="pwa-install-btn" type="button" class="w-full flex items-center justify-between gap-4 p-card-padding text-left hover:bg-surface-container-low transition-colors disabled:cursor-not-allowed disabled:opacity-60">
+<span class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container">install_mobile</span>
+<span>
+<span class="block font-body-lg text-body-lg text-on-surface">Install HabitArc</span>
+<span id="pwa-install-description" class="block font-body-md text-body-md text-on-surface-variant mt-0.5">Use HabitArc like an app, with a reconnect screen when offline.</span>
+</span>
+</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant" aria-hidden="true">chevron_right</span>
+</button>
 </div>
 </section>
 <!-- Habits Section -->
@@ -342,13 +368,13 @@
 <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Data</h3>
 <div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
 <!-- Export Data -->
-<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<button id="export-data-btn" type="button" class="w-full flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors text-left">
 <div class="flex items-center gap-element-gap">
 <span class="material-symbols-outlined text-primary-container">download</span>
 <span class="font-body-lg text-body-lg text-on-surface">Export Data</span>
 </div>
 <span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
-</div>
+</button>
 <!-- Backup -->
 <div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
 <div class="flex items-center gap-element-gap">
@@ -358,13 +384,13 @@
 <span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
 </div>
 <!-- Reset App -->
-<div id="reset-data-btn" class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<button id="reset-data-btn" type="button" class="w-full flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors text-left">
 <div class="flex items-center gap-element-gap">
 <span class="material-symbols-outlined text-error">delete_forever</span>
 <span class="font-body-lg text-body-lg text-error">Reset App Data</span>
 </div>
 <span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
-</div>
+</button>
 </div>
 </section>
 <!-- About Section -->
@@ -442,6 +468,134 @@
     });
 
     updateThemeUI();
+
+    const dailyToggle = document.getElementById('toggle-daily');
+    const weeklyToggle = document.getElementById('toggle-weekly');
+    const notificationStatus = document.getElementById('notification-status');
+
+    function setNotificationStatus(message, tone = 'muted') {
+        if (!notificationStatus) return;
+        notificationStatus.textContent = message;
+        notificationStatus.classList.toggle('text-error', tone === 'error');
+        notificationStatus.classList.toggle('text-secondary', tone === 'success');
+        notificationStatus.classList.toggle('text-on-surface-variant', tone === 'muted');
+    }
+
+    function updateReminderUI() {
+        const preferences = HabitArc.getReminderPreferences?.();
+        if (!preferences) return;
+
+        if (dailyToggle) dailyToggle.checked = preferences.dailyReminder;
+        if (weeklyToggle) weeklyToggle.checked = preferences.weeklySummary;
+
+        if (!preferences.supported) {
+            setNotificationStatus('Notifications are not supported in this browser.', 'error');
+        } else if (preferences.permission === 'granted' && (preferences.dailyReminder || preferences.weeklySummary)) {
+            setNotificationStatus('Notifications are enabled while HabitArc is open.', 'success');
+        } else if (preferences.permission === 'granted') {
+            setNotificationStatus('Browser permission is allowed. Turn on a reminder to receive notifications.');
+        } else if (preferences.permission === 'denied') {
+            setNotificationStatus('Notifications are blocked in browser settings. Enable them there to use reminders.', 'error');
+        } else {
+            setNotificationStatus('Turn on a reminder to allow HabitArc notifications in your browser.');
+        }
+    }
+
+    async function enableNotificationPreference(preference) {
+        const result = await HabitArc.requestNotificationPermission();
+        if (!result.granted) {
+            HabitArc.setReminderPreferences({ [preference]: false });
+            updateReminderUI();
+            setNotificationStatus(result.message, 'error');
+            return false;
+        }
+
+        HabitArc.setReminderPreferences({ [preference]: true });
+        updateReminderUI();
+        setNotificationStatus(result.message, 'success');
+        window.HabitArcUI?.announce?.(result.message);
+        return true;
+    }
+
+    if (dailyToggle) {
+        dailyToggle.addEventListener('change', async function() {
+            if (this.checked) {
+                await enableNotificationPreference('dailyReminder');
+            } else {
+                HabitArc.setReminderPreferences({ dailyReminder: false });
+                updateReminderUI();
+                setNotificationStatus('Daily reminders are turned off.');
+            }
+        });
+    }
+
+    if (weeklyToggle) {
+        weeklyToggle.addEventListener('change', async function() {
+            if (this.checked) {
+                await enableNotificationPreference('weeklySummary');
+            } else {
+                HabitArc.setReminderPreferences({ weeklySummary: false });
+                updateReminderUI();
+                setNotificationStatus('Weekly summaries are turned off.');
+            }
+        });
+    }
+
+    updateReminderUI();
+    window.addEventListener('habitarc:data-changed', updateReminderUI);
+
+    const installButton = document.getElementById('pwa-install-btn');
+    const installDescription = document.getElementById('pwa-install-description');
+
+    function updateInstallUI() {
+        if (!installButton || !window.HabitArcUI) return;
+        const state = window.HabitArcUI.getPWAInstallState();
+        installButton.disabled = state.installed || (!state.available && !state.isIOS);
+
+        if (state.installed) {
+            installButton.setAttribute('aria-label', 'HabitArc is already installed');
+            if (installDescription) installDescription.textContent = 'HabitArc is installed on this device.';
+        } else if (state.available) {
+            installButton.setAttribute('aria-label', 'Install HabitArc');
+            if (installDescription) installDescription.textContent = 'Use HabitArc like an app, with a reconnect screen when offline.';
+        } else if (state.isIOS) {
+            installButton.setAttribute('aria-label', 'How to install HabitArc on iPhone or iPad');
+            if (installDescription) installDescription.textContent = state.instructions;
+        } else if (installDescription) {
+            installDescription.textContent = 'Your browser will offer installation when HabitArc is ready.';
+        }
+    }
+
+    if (installButton) {
+        installButton.addEventListener('click', async () => {
+            const state = window.HabitArcUI?.getPWAInstallState?.();
+            if (state?.isIOS && !state.available) {
+                window.HabitArcUI?.announce?.(state.instructions);
+                return;
+            }
+
+            const result = await window.HabitArcUI?.promptPWAInstall?.();
+            if (result?.outcome === 'accepted') {
+                window.HabitArcUI?.announce?.('Install request accepted. HabitArc will finish installing shortly.');
+            }
+            updateInstallUI();
+        });
+    }
+    window.addEventListener('habitarc:pwa-state-changed', updateInstallUI);
+    updateInstallUI();
+
+    const exportButton = document.getElementById('export-data-btn');
+    if (exportButton) {
+        exportButton.addEventListener('click', function() {
+            try {
+                HabitArc.exportCSV();
+                window.HabitArcUI?.announce?.('Your HabitArc data export has started downloading.');
+            } catch (error) {
+                console.error('HabitArc: export failed.', error);
+                alert('We could not export your data. Please try again.');
+            }
+        });
+    }
 
     const resetBtn = document.getElementById('reset-data-btn');
     if (resetBtn) {

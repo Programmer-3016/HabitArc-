@@ -3,6 +3,15 @@
 <html class="h-full" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#012d1d" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<script defer src="pwa-register.js"></script>
 <title>Add Habit - HabitArc</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -190,6 +199,13 @@
             box-shadow: 0 0 0 1px theme('colors.primary');
             outline: none;
         }
+        button:focus-visible, a:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 3px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            button, a, input, select, textarea { transition: none !important; }
+        }
     </style>
 </head>
 <body class="min-h-full flex flex-col">
@@ -238,8 +254,8 @@
 <main class="flex-1 w-full max-w-3xl mx-auto px-container-padding py-section-margin md:py-12 pb-32 md:pb-8 overflow-y-auto scroll-smooth">
 <!-- Header -->
 <div class="mb-section-margin">
-<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Create New Habit</h1>
-<p class="font-body-md text-body-md text-on-surface-variant">Design a new mindful routine to anchor your day.</p>
+<h1 id="habit-form-title" class="font-headline-lg text-headline-lg text-on-surface mb-2">Create New Habit</h1>
+<p id="habit-form-description" class="font-body-md text-body-md text-on-surface-variant">Design a new mindful routine to anchor your day.</p>
 </div>
 <form id="add-habit-form" class="space-y-stack-gap">
 <!-- Bento Box 1: Core Info -->
@@ -253,19 +269,19 @@
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-3">Icon</label>
 <div class="flex gap-3 flex-wrap">
-<button class="icon-btn w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center transition-transform active:scale-95" data-icon="self_improvement" type="button" aria-label="Choose meditation icon">
+<button class="icon-btn w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center transition-transform active:scale-95" data-icon="self_improvement" type="button" aria-label="Choose meditation icon" aria-pressed="true">
 <span class="material-symbols-outlined">self_improvement</span>
 </button>
-<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="directions_run" type="button" aria-label="Choose running icon">
+<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="directions_run" type="button" aria-label="Choose running icon" aria-pressed="false">
 <span class="material-symbols-outlined">directions_run</span>
 </button>
-<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="menu_book" type="button" aria-label="Choose reading icon">
+<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="menu_book" type="button" aria-label="Choose reading icon" aria-pressed="false">
 <span class="material-symbols-outlined">menu_book</span>
 </button>
-<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="local_drink" type="button" aria-label="Choose water icon">
+<button class="icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95" data-icon="local_drink" type="button" aria-label="Choose water icon" aria-pressed="false">
 <span class="material-symbols-outlined">local_drink</span>
 </button>
-<button class="w-12 h-12 rounded-full border border-dashed border-outline-variant text-outline flex items-center justify-center hover:bg-surface-container transition-colors" type="button">
+<button class="w-12 h-12 rounded-full border border-dashed border-outline-variant text-outline flex items-center justify-center hover:bg-surface-container transition-colors" type="button" aria-label="More icons">
 <span class="material-symbols-outlined text-sm">add</span>
 </button>
 </div>
@@ -274,10 +290,25 @@
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-3">Category</label>
 <div class="flex flex-wrap gap-2">
-<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Wellness" type="button">Wellness</button>
-<button class="cat-pill px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md cursor-pointer border border-transparent" data-cat="Focus" type="button">Focus</button>
-<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Health" type="button">Health</button>
+<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Wellness" type="button" aria-pressed="false">Wellness</button>
+<button class="cat-pill px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md cursor-pointer border border-transparent" data-cat="Focus" type="button" aria-pressed="true">Focus</button>
+<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Health" type="button" aria-pressed="false">Health</button>
+<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Mindfulness" type="button" aria-pressed="false">Mindfulness</button>
+<button class="cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors" data-cat="Learning" type="button" aria-pressed="false">Learning</button>
 </div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-3">
+<label class="block font-label-md text-label-md text-on-surface-variant">Accent Color</label>
+<span class="font-label-sm text-xs text-outline">Optional</span>
+</div>
+<div class="flex flex-wrap gap-3" role="group" aria-label="Habit accent color">
+<button class="accent-color-btn w-9 h-9 rounded-full ring-offset-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary" data-accent="#0e8f63" style="background-color: #0e8f63" type="button" aria-label="Choose green accent" aria-pressed="false"></button>
+<button class="accent-color-btn w-9 h-9 rounded-full ring-offset-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary" data-accent="#7c5ce0" style="background-color: #7c5ce0" type="button" aria-label="Choose purple accent" aria-pressed="false"></button>
+<button class="accent-color-btn w-9 h-9 rounded-full ring-offset-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary" data-accent="#3988d4" style="background-color: #3988d4" type="button" aria-label="Choose blue accent" aria-pressed="false"></button>
+<button class="accent-color-btn w-9 h-9 rounded-full ring-offset-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary" data-accent="#d17b2a" style="background-color: #d17b2a" type="button" aria-label="Choose amber accent" aria-pressed="false"></button>
+<button class="accent-color-btn w-9 h-9 rounded-full ring-offset-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary" data-accent="#d34f67" style="background-color: #d34f67" type="button" aria-label="Choose rose accent" aria-pressed="false"></button>
 </div>
 </div>
 </div>
@@ -286,7 +317,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-gap">
 <!-- Repeat Schedule -->
 <div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Repeat</label>
+<label for="repeat-select" class="block font-label-md text-label-md text-on-surface-variant mb-2">Repeat</label>
 <select id="repeat-select" class="input-boxed w-full p-3 font-body-md text-on-surface">
 <option value="daily">Daily</option>
 <option value="weekdays">Weekdays</option>
@@ -295,7 +326,7 @@
 </div>
 <!-- Reminder Time -->
 <div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Reminder</label>
+<label for="reminder-time-input" class="block font-label-md text-label-md text-on-surface-variant mb-2">Reminder</label>
 <div class="relative">
 <input id="reminder-time-input" class="input-boxed w-full p-3 font-body-md text-on-surface pl-10" type="time" value="08:00"/>
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">notifications</span>
@@ -312,10 +343,10 @@
 </div>
 <!-- Action Button -->
 <div class="pt-4 flex justify-end">
-<button class="px-6 py-3 mr-4 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container rounded-full transition-colors active:scale-95" type="button">
+<button id="habit-form-cancel" class="px-6 py-3 mr-4 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container rounded-full transition-colors active:scale-95" type="button">
                     Cancel
                 </button>
-<button class="bg-primary text-on-primary font-headline-md text-headline-md px-8 py-3 rounded-full hover:opacity-90 transition-opacity active:scale-95 shadow-[0_4px_12px_rgba(1,45,29,0.2)] flex items-center gap-2" type="submit">
+<button id="habit-form-submit" class="bg-primary text-on-primary font-headline-md text-headline-md px-8 py-3 rounded-full hover:opacity-90 transition-opacity active:scale-95 shadow-[0_4px_12px_rgba(1,45,29,0.2)] flex items-center gap-2" type="submit">
                     Create Habit
                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </button>
@@ -348,30 +379,157 @@
 </nav>
 <script src="app.js"></script>
 <script>
-(function() {
+(async function() {
     let selectedIcon = 'self_improvement';
     let selectedCategory = 'Focus';
+    let selectedAccentColor = '';
+    const editHabitId = new URLSearchParams(window.location.search).get('edit');
+    const form = document.getElementById('add-habit-form');
+    const description = document.getElementById('habit-form-description');
+    let editingHabit = editHabitId ? HabitArc.getHabitById(editHabitId) : null;
+
+    if (editHabitId && !editingHabit) {
+        form.inert = true;
+        form.setAttribute('aria-busy', 'true');
+        description.setAttribute('role', 'status');
+        description.textContent = 'Loading your saved habit…';
+        editingHabit = await new Promise((resolve) => {
+            let timeout;
+            function finish(habit) {
+                window.clearTimeout(timeout);
+                window.removeEventListener('habitarc:data-changed', check);
+                window.removeEventListener('habitarc:cloud-sync-error', failed);
+                resolve(habit);
+            }
+            function check(event) {
+                const habit = HabitArc.getHabitById(editHabitId);
+                if (habit || event?.detail?.source === 'cloud' || HabitArc.getCloudSyncStatus().connected) {
+                    finish(habit);
+                }
+            }
+            function failed() { finish(null); }
+            window.addEventListener('habitarc:data-changed', check);
+            window.addEventListener('habitarc:cloud-sync-error', failed);
+            timeout = window.setTimeout(failed, 12000);
+            check();
+        });
+        form.removeAttribute('aria-busy');
+        if (!editingHabit) {
+            form.hidden = true;
+            description.textContent = 'This habit could not be loaded. Check your connection and reload, or return to Habits.';
+            description.setAttribute('role', 'alert');
+            return;
+        }
+        form.inert = false;
+    }
+
+    // Older habits can use icons or categories that are not in the default
+    // picker. Keep those values visible and selectable when editing.
+    if (editingHabit?.icon && !Array.from(document.querySelectorAll('.icon-btn')).some((button) => button.dataset.icon === editingHabit.icon)) {
+        const first = document.querySelector('.icon-btn');
+        const button = first.cloneNode(true);
+        button.dataset.icon = editingHabit.icon;
+        button.setAttribute('aria-label', 'Keep existing habit icon');
+        button.querySelector('span').textContent = editingHabit.icon;
+        first.parentElement.appendChild(button);
+    }
+    if (editingHabit?.category && !Array.from(document.querySelectorAll('.cat-pill')).some((button) => button.dataset.cat === editingHabit.category)) {
+        const first = document.querySelector('.cat-pill');
+        const button = first.cloneNode(true);
+        button.dataset.cat = editingHabit.category;
+        button.textContent = editingHabit.category;
+        first.parentElement.appendChild(button);
+    }
+
+    function setSelectedIcon(icon) {
+        selectedIcon = icon;
+        document.querySelectorAll('.icon-btn').forEach((button) => {
+            const isSelected = button.dataset.icon === icon;
+            button.className = isSelected
+                ? 'icon-btn w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center transition-transform active:scale-95'
+                : 'icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95';
+            button.setAttribute('aria-pressed', String(isSelected));
+        });
+    }
+
+    function setSelectedCategory(category) {
+        selectedCategory = category;
+        document.querySelectorAll('.cat-pill').forEach((pill) => {
+            const isSelected = pill.dataset.cat === category;
+            pill.className = isSelected
+                ? 'cat-pill px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md cursor-pointer border border-transparent'
+                : 'cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors';
+            pill.setAttribute('aria-pressed', String(isSelected));
+        });
+    }
+
+    function setSelectedAccentColor(color) {
+        selectedAccentColor = color || '';
+        document.querySelectorAll('.accent-color-btn').forEach((button) => {
+            const isSelected = button.dataset.accent === selectedAccentColor;
+            button.classList.toggle('ring-2', isSelected);
+            button.classList.toggle('ring-primary', isSelected);
+            button.setAttribute('aria-pressed', String(isSelected));
+        });
+    }
 
     // Icon buttons click
     document.querySelectorAll('.icon-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.icon-btn').forEach(b => {
-                b.className = 'icon-btn w-12 h-12 rounded-lg bg-surface hover:bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center transition-colors active:scale-95';
-            });
-            this.className = 'icon-btn w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center transition-transform active:scale-95';
-            selectedIcon = this.dataset.icon;
+            setSelectedIcon(this.dataset.icon);
         });
     });
 
     // Category buttons click
     document.querySelectorAll('.cat-pill').forEach(pill => {
         pill.addEventListener('click', function() {
-            document.querySelectorAll('.cat-pill').forEach(p => {
-                p.className = 'cat-pill px-4 py-2 rounded-full bg-surface border border-outline-variant font-label-md text-label-md text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors';
-            });
-            this.className = 'cat-pill px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md cursor-pointer border border-transparent';
-            selectedCategory = this.dataset.cat;
+            setSelectedCategory(this.dataset.cat);
         });
+    });
+
+    document.querySelectorAll('.accent-color-btn').forEach((button) => {
+        button.addEventListener('click', function() {
+            setSelectedAccentColor(this.dataset.accent);
+        });
+    });
+
+    function repeatValueFromDays(repeat) {
+        if (!Array.isArray(repeat)) return 'daily';
+        const days = [...new Set(repeat)].sort().join(',');
+        if (days === 'fri,mon,thu,tue,wed') return 'weekdays';
+        if (days === 'sat,sun') return 'weekends';
+        if (days === 'fri,mon,sat,sun,thu,tue,wed') return 'daily';
+        return 'custom';
+    }
+
+    if (editingHabit) {
+        document.getElementById('habit-form-title').textContent = 'Edit Habit';
+        document.getElementById('habit-form-description').textContent = 'Fine-tune the routine you are building.';
+        document.getElementById('habit-name-input').value = editingHabit.name || '';
+        document.getElementById('reminder-time-input').value = editingHabit.reminder ?? '';
+        const repeatSelect = document.getElementById('repeat-select');
+        const repeatValue = repeatValueFromDays(editingHabit.repeat);
+        if (repeatValue === 'custom') {
+            const option = document.createElement('option');
+            option.value = 'custom';
+            option.textContent = editingHabit.repeat.length
+                ? `Keep current schedule (${editingHabit.repeat.join(', ')})`
+                : 'Keep current schedule (no days selected)';
+            repeatSelect.appendChild(option);
+        }
+        repeatSelect.value = repeatValue;
+        document.getElementById('why-input').value = editingHabit.why || '';
+        document.getElementById('motivation-input').value = editingHabit.motivation || '';
+        document.getElementById('habit-form-submit').innerHTML = 'Save Changes <span class="material-symbols-outlined text-sm">check</span>';
+        setSelectedIcon(editingHabit.icon || selectedIcon);
+        setSelectedCategory(editingHabit.category || selectedCategory);
+        setSelectedAccentColor(editingHabit.accentColor || '');
+    }
+
+    document.getElementById('habit-form-cancel').addEventListener('click', function() {
+        window.location.href = editingHabit
+            ? `Habit_Detail.html?id=${encodeURIComponent(editingHabit.id)}`
+            : 'Habits.html';
     });
 
     // Form submit
@@ -384,20 +542,34 @@
         let repeatDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
         if (repeatVal === 'weekdays') repeatDays = ['mon', 'tue', 'wed', 'thu', 'fri'];
         if (repeatVal === 'weekends') repeatDays = ['sat', 'sun'];
+        if (repeatVal === 'custom' && editingHabit) repeatDays = [...editingHabit.repeat];
 
         const reminder = document.getElementById('reminder-time-input').value;
         const why = document.getElementById('why-input').value.trim();
         const motivation = document.getElementById('motivation-input').value.trim();
 
-        const result = HabitArc.addHabit({
+        const payload = {
             name,
             icon: selectedIcon,
             category: selectedCategory,
+            accentColor: selectedAccentColor || undefined,
             reminder,
             repeat: repeatDays,
             why,
             motivation
-        });
+        };
+
+        if (editingHabit) {
+            const updated = HabitArc.updateHabit(editingHabit.id, payload);
+            if (updated) {
+                window.location.href = `Habit_Detail.html?id=${encodeURIComponent(editingHabit.id)}`;
+            } else {
+                alert('We could not update this habit. Please try again.');
+            }
+            return;
+        }
+
+        const result = HabitArc.addHabit(payload);
 
         if (result.success) {
             window.location.href = 'Habits.html';

@@ -365,6 +365,12 @@ window.HabitArcAuthReady = (async () => {
             getPublicUser() {
                 return toPublicUser(currentUser);
             },
+            async getIdToken(forceRefresh = false) {
+                if (!currentUser) {
+                    throw Object.assign(new Error('No signed-in user.'), { code: 'auth/no-current-user' });
+                }
+                return currentUser.getIdToken(forceRefresh);
+            },
             async waitForInitialAuthState() {
                 await initialAuthState;
                 return currentUser;

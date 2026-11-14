@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "HabitArc",
+  "short_name": "HabitArc",
+  "description": "A mindful habit tracker for daily consistency and growth.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#012d1d",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "555x615",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

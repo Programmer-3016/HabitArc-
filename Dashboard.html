@@ -3,6 +3,15 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#012d1d" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<script defer src="pwa-register.js"></script>
 <title>HabitArc Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
@@ -373,39 +382,46 @@
             const isCompleted = HabitArc.isCompletedToday(habit.id);
             const streak = HabitArc.getCurrentStreak(habit.id);
             const style = HabitArc.getCategoryStyle(habit.category);
+            const accent = HabitArc.getHabitAccentColor(habit);
             const last7 = HabitArc.getLast7Days(habit.id);
+            const safeName = HabitArc.escapeHTML(habit.name);
+            const safeCategory = HabitArc.escapeHTML(habit.category);
+            const safeIcon = HabitArc.escapeHTML(habit.icon || 'check_circle');
+            const habitUrlId = encodeURIComponent(String(habit.id || ''));
 
             const card = document.createElement('div');
             card.className = `bg-white border rounded-2xl p-4 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${isCompleted ? 'border-primary/15 bg-primary/[0.02]' : 'border-outline-variant/25 hover:border-outline-variant/50'}`;
+            card.style.borderColor = `${accent}${isCompleted ? '35' : '28'}`;
+            card.style.boxShadow = `inset 3px 0 0 ${accent}`;
 
             // 7-day dots
             let dotsHtml = last7.map(d => {
                 const base = 'flex flex-col items-center gap-1';
                 const label = `<span class="text-[9px] geist font-medium ${d.isToday ? 'text-primary font-bold' : 'text-on-surface-variant/60'}">${d.label}</span>`;
                 if (d.isToday && isCompleted) {
-                    return `<div class="${base}"><span class="w-6 h-6 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-[13px] text-on-primary">check</span></span>${label}</div>`;
+                    return `<div class="${base}"><span class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: ${accent}"><span class="material-symbols-outlined text-[13px] text-on-primary">check</span></span>${label}</div>`;
                 }
                 if (d.isToday) {
-                    return `<div class="${base}"><span class="w-6 h-6 rounded-full border-2 border-primary/40 bg-primary/[0.06]"></span>${label}</div>`;
+                    return `<div class="${base}"><span class="w-6 h-6 rounded-full border-2" style="border-color: ${accent}66; background-color: ${accent}12"></span>${label}</div>`;
                 }
                 if (d.completed) {
-                    return `<div class="${base}"><span class="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center"><span class="material-symbols-outlined text-[12px] text-primary/70">check</span></span>${label}</div>`;
+                    return `<div class="${base}"><span class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: ${accent}20; color: ${accent}"><span class="material-symbols-outlined text-[12px]">check</span></span>${label}</div>`;
                 }
                 return `<div class="${base}"><span class="w-6 h-6 rounded-full bg-surface-container/80"></span>${label}</div>`;
             }).join('');
 
             card.innerHTML = `
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-3 flex-1 min-w-0" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">
-                        <div class="w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center ${style.text} shrink-0">
-                            <span class="material-symbols-outlined text-xl ${style.iconFill ? 'fill' : ''}">${habit.icon}</span>
+                    <a class="flex items-center gap-3 flex-1 min-w-0" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
+                        <div class="w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center ${style.text} shrink-0" style="background-color: ${accent}1a; color: ${accent}">
+                            <span class="material-symbols-outlined text-xl ${style.iconFill ? 'fill' : ''}">${safeIcon}</span>
                         </div>
                         <div class="flex flex-col min-w-0">
-                            <span class="text-[15px] font-semibold text-on-surface truncate ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${habit.name}</span>
-                            <span class="text-[11px] text-on-surface-variant geist font-medium">${streak > 0 ? streak + ' day streak · ' : ''}${habit.category}</span>
+                            <span class="text-[15px] font-semibold text-on-surface truncate ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${safeName}</span>
+                            <span class="text-[11px] text-on-surface-variant geist font-medium">${streak > 0 ? streak + ' day streak · ' : ''}${safeCategory}</span>
                         </div>
-                    </div>
-                    <button class="habit-toggle w-9 h-9 rounded-xl shrink-0 flex items-center justify-center active:scale-90 transition-all ${isCompleted ? 'bg-primary text-on-primary shadow-sm' : 'border border-outline-variant/40 text-outline-variant hover:border-primary/40 hover:text-primary'}" data-id="${habit.id}">
+                    </a>
+                    <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle w-11 h-11 rounded-xl shrink-0 flex items-center justify-center active:scale-90 transition-all ${isCompleted ? 'text-on-primary shadow-sm' : 'border text-outline-variant hover:border-primary/40 hover:text-primary'}" data-id="${HabitArc.escapeHTML(habit.id)}" style="${isCompleted ? `background-color: ${accent}` : `border-color: ${accent}66; color: ${accent}`}">
                         <span class="material-symbols-outlined text-[20px]">check</span>
                     </button>
                 </div>

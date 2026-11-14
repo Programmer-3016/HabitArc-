@@ -32,7 +32,9 @@
  *     startWeekOn: "monday" | "sunday",
  *     defaultReminderTime: string,
  *     userName: string,
- *     userBio: string
+ *     userBio: string,
+ *     dailyReminder: boolean,
+ *     weeklySummary: boolean
  *   },
  *   onboardingComplete: boolean
  * }
@@ -46,6 +48,18 @@ const HabitArc = (() => {
     const USER_STORAGE_PREFIX = `${STORAGE_KEY}:`;
     const PENDING_SYNC_PREFIX = `${STORAGE_KEY}:pending-sync`;
     const PENDING_COMPLETION_HISTORY_PREFIX = `${STORAGE_KEY}:pending-completion-history`;
+    const REMINDER_RECEIPT_PREFIX = 'habitarc_reminder_receipt';
+    const REMINDER_CHECK_INTERVAL_MS = 30000;
+    const DEFAULT_HABIT_ACCENTS = {
+        Health: '#0e8f63',
+        Mindfulness: '#7c5ce0',
+        Learning: '#3988d4',
+        Focus: '#d17b2a',
+        Wellness: '#16a082',
+        Fitness: '#0e8f63',
+        Productivity: '#3988d4',
+        General: '#65717d'
+    };
 
     // ─── Default Data ───────────────────────────────
     const DEFAULT_DATA = {
@@ -57,7 +71,11 @@ const HabitArc = (() => {
             startWeekOn: 'monday',
             defaultReminderTime: '09:00',
             userName: 'Alex Thorne',
-            userBio: 'Building stillness, one day at a time.'
+            userBio: 'Building stillness, one day at a time.',
+            // These preferences are deliberately opt-in. Browser permission is
+            // requested only from a direct Settings-page user action.
+            dailyReminder: false,
+            weeklySummary: false
         },
         onboardingComplete: false
     };
@@ -79,6 +97,8 @@ const HabitArc = (() => {
     let cloudRetryAttempts = 0;
     let localMutationRevision = 0;
     let authReadyPromise = null;
+    let reminderSchedulerStarted = false;
+    let reminderCheckRunning = false;
 
     const CLOUD_RETRY_DELAYS = [1000, 3000, 10000];
 
@@ -297,22 +317,37 @@ const HabitArc = (() => {
         return 'h_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
     }
 
+    // Habit dates are deliberately stored as local calendar dates. UTC date
+    // strings make a habit appear to switch days early for users east/west of
+    // Greenwich, especially around a reminder time or midnight.
+    function _localDateKey(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function _dateFromKey(dateKey) {
+        const [year, month, day] = String(dateKey || '').split('-').map(Number);
+        return new Date(year, (month || 1) - 1, day || 1, 12, 0, 0, 0);
+    }
+
     function _today() {
-        return new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+        return _localDateKey(); // "YYYY-MM-DD"
     }
 
     function _daysAgo(n) {
         const d = new Date();
         d.setDate(d.getDate() - n);
-        return d.toISOString().split('T')[0];
+        return _localDateKey(d);
     }
 
     function _dateRange(startDate, endDate) {
         const dates = [];
-        const current = new Date(startDate);
-        const end = new Date(endDate);
+        const current = _dateFromKey(startDate);
+        const end = _dateFromKey(endDate);
         while (current <= end) {
-            dates.push(current.toISOString().split('T')[0]);
+            dates.push(_localDateKey(current));
             current.setDate(current.getDate() + 1);
         }
         return dates;
@@ -331,7 +366,7 @@ const HabitArc = (() => {
 
     function _getDayName(dateStr) {
         const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-        return days[new Date(dateStr).getDay()];
+        return days[_dateFromKey(dateStr).getDay()];
     }
 
     function _formatDate(dateStr) {
@@ -412,8 +447,16 @@ const HabitArc = (() => {
                         _isDateKey(date) && Boolean(completed)
                     )
                 );
+                habit.accentColor = _normaliseHabitAccent(habit.accentColor, habit.category);
                 return habit;
             });
+    }
+
+    function _normaliseHabitAccent(value, category) {
+        if (typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value.trim())) {
+            return value.trim().toLowerCase();
+        }
+        return DEFAULT_HABIT_ACCENTS[category] || DEFAULT_HABIT_ACCENTS.General;
     }
 
     function _applyCompletionHistoryToHabits(habits, completionHistory) {
@@ -670,7 +713,7 @@ const HabitArc = (() => {
         return getHabits().find(h => h.id === id) || null;
     }
 
-    function addHabit({ name, icon, category, reminder, repeat, why, motivation }) {
+    function addHabit({ name, icon, category, reminder, repeat, why, motivation, accentColor }) {
         const data = _getData();
         if (data.habits.length >= 20) {
             return { success: false, message: 'Maximum 20 habits allowed' };
@@ -680,6 +723,7 @@ const HabitArc = (() => {
             name: name || 'Untitled Habit',
             icon: icon || 'check_circle',
             category: category || 'General',
+            accentColor: _normaliseHabitAccent(accentColor, category || 'General'),
             reminder: reminder || data.settings.defaultReminderTime,
             repeat: repeat || ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
             why: why || '',
@@ -711,7 +755,9 @@ const HabitArc = (() => {
         const data = _getData();
         const idx = data.habits.findIndex(h => h.id === id);
         if (idx === -1) return false;
-        data.habits[idx] = { ...data.habits[idx], ...updates };
+        const nextHabit = { ...data.habits[idx], ...updates };
+        nextHabit.accentColor = _normaliseHabitAccent(nextHabit.accentColor, nextHabit.category);
+        data.habits[idx] = nextHabit;
         _save(data);
         return true;
     }
@@ -785,7 +831,7 @@ const HabitArc = (() => {
         }
 
         while (true) {
-            const dateStr = checkDate.toISOString().split('T')[0];
+            const dateStr = _localDateKey(checkDate);
             if (dateStr < habit.createdAt) break;
 
             // Skip days when habit isn't scheduled
@@ -836,7 +882,7 @@ const HabitArc = (() => {
         const checkDate = new Date(today);
 
         for (let i = 0; i < 365; i++) {
-            const dateStr = checkDate.toISOString().split('T')[0];
+            const dateStr = _localDateKey(checkDate);
             const scheduledHabits = habits.filter(h => {
                 if (dateStr < h.createdAt) return false;
                 const dayName = _getDayName(dateStr);
@@ -969,7 +1015,7 @@ const HabitArc = (() => {
 
         for (let i = 6; i >= 0; i--) {
             const date = _daysAgo(i);
-            const d = new Date(date);
+            const d = _dateFromKey(date);
             days.push({
                 date,
                 label: dayLabels[d.getDay()],
@@ -1041,7 +1087,7 @@ const HabitArc = (() => {
             for (let i = 0; i < 30; i++) {
                 const date = _daysAgo(i);
                 if (date < habit.createdAt) break;
-                const dayIdx = new Date(date).getDay();
+                const dayIdx = _dateFromKey(date).getDay();
                 const dayName = dayNames[dayIdx];
                 if (habit.repeat && !habit.repeat.includes(dayName)) continue;
 
@@ -1074,7 +1120,7 @@ const HabitArc = (() => {
         const start = new Date(today);
         start.setMonth(start.getMonth() - months);
 
-        const dates = _dateRange(start.toISOString().split('T')[0], _today());
+        const dates = _dateRange(_localDateKey(start), _today());
 
         return dates.map(date => {
             const dayName = _getDayName(date);
@@ -1093,9 +1139,9 @@ const HabitArc = (() => {
                 date,
                 status,
                 isToday: date === _today(),
-                dayOfWeek: new Date(date).getDay(),
-                month: new Date(date).getMonth(),
-                year: new Date(date).getFullYear()
+                dayOfWeek: _dateFromKey(date).getDay(),
+                month: _dateFromKey(date).getMonth(),
+                year: _dateFromKey(date).getFullYear()
             };
         });
     }
@@ -1109,8 +1155,8 @@ const HabitArc = (() => {
 
         for (let i = 5; i >= 0; i--) {
             const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const monthStart = d.toISOString().split('T')[0];
-            const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
+            const monthStart = _localDateKey(d);
+            const monthEnd = _localDateKey(new Date(d.getFullYear(), d.getMonth() + 1, 0));
             const dates = _dateRange(monthStart, monthEnd > _today() ? _today() : monthEnd);
 
             let scheduled = 0;
@@ -1149,6 +1195,189 @@ const HabitArc = (() => {
         }
 
         _save(data);
+    }
+
+    // ─── Browser reminders ──────────────────────────
+    // HabitArc can surface reminders while the web app is open. Reliable
+    // delivery after a browser is fully closed requires a server-triggered
+    // push service (FCM), which is intentionally kept outside this local
+    // scheduler so no notification is falsely promised to the user.
+    function getReminderPreferences() {
+        const settings = getSettings();
+        const supported = typeof window !== 'undefined' && 'Notification' in window;
+        const permission = supported ? Notification.permission : 'unsupported';
+
+        return {
+            dailyReminder: Boolean(settings.dailyReminder),
+            weeklySummary: Boolean(settings.weeklySummary),
+            supported,
+            permission,
+            delivery: supported && permission === 'granted' ? 'while-open' : 'permission-required'
+        };
+    }
+
+    function setReminderPreferences(updates = {}) {
+        const current = getReminderPreferences();
+        const next = {
+            dailyReminder: typeof updates.dailyReminder === 'boolean'
+                ? updates.dailyReminder
+                : current.dailyReminder,
+            weeklySummary: typeof updates.weeklySummary === 'boolean'
+                ? updates.weeklySummary
+                : current.weeklySummary
+        };
+
+        updateSettings(next);
+        _startReminderScheduler();
+        return { ...getReminderPreferences(), ...next };
+    }
+
+    async function requestNotificationPermission() {
+        if (typeof window === 'undefined' || !('Notification' in window)) {
+            return { granted: false, permission: 'unsupported', message: 'This browser does not support notifications.' };
+        }
+
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') _startReminderScheduler();
+            return {
+                granted: permission === 'granted',
+                permission,
+                message: permission === 'granted'
+                    ? 'Notifications are enabled while HabitArc is open.'
+                    : 'Browser notification permission was not granted.'
+            };
+        } catch (error) {
+            return {
+                granted: false,
+                permission: 'error',
+                message: error?.message || 'HabitArc could not request notification permission.'
+            };
+        }
+    }
+
+    function _reminderReceiptKey(kind, identifier, date = _today()) {
+        const userScope = activeUserId || 'local';
+        return `${REMINDER_RECEIPT_PREFIX}:${userScope}:${kind}:${identifier}:${date}`;
+    }
+
+    function _hasReminderReceipt(kind, identifier, date = _today()) {
+        return _readStorageValue(_reminderReceiptKey(kind, identifier, date)) === '1';
+    }
+
+    async function _deliverReminder(kind, identifier, date, title, options) {
+        const scope = activeUserId;
+        const receiptKey = _reminderReceiptKey(kind, identifier, date);
+        const deliver = async () => {
+            if (activeUserId !== scope || _readStorageValue(receiptKey) === '1') return;
+            if (await _showReminderNotification(title, options, scope)) {
+                _writeStorageValue(receiptKey, '1');
+            }
+        };
+        // Web Locks serializes delivery across tabs. Notification tags also
+        // collapse duplicates on browsers without Web Locks support.
+        if (navigator.locks?.request) {
+            await navigator.locks.request(receiptKey, deliver);
+        } else {
+            await deliver();
+        }
+    }
+
+    function _timeToMinutes(value) {
+        if (typeof value !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) return null;
+        const [hours, minutes] = value.split(':').map(Number);
+        return (hours * 60) + minutes;
+    }
+
+    async function _showReminderNotification(title, options, scope) {
+        if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') {
+            return false;
+        }
+
+        try {
+            const registration = 'serviceWorker' in navigator
+                ? await navigator.serviceWorker.getRegistration()
+                : null;
+
+            if (activeUserId !== scope) return false;
+            if (registration?.showNotification) {
+                await registration.showNotification(title, options);
+            } else {
+                new Notification(title, options);
+            }
+            return true;
+        } catch (error) {
+            console.warn('HabitArc: reminder notification could not be displayed.', error);
+            return false;
+        }
+    }
+
+    async function checkReminderSchedule() {
+        if (reminderCheckRunning) return;
+
+        const preferences = getReminderPreferences();
+        if (!preferences.supported || preferences.permission !== 'granted') return;
+        if (!preferences.dailyReminder && !preferences.weeklySummary) return;
+
+        reminderCheckRunning = true;
+        try {
+            const now = new Date();
+            const nowMinutes = (now.getHours() * 60) + now.getMinutes();
+            const today = _today();
+
+            if (preferences.dailyReminder) {
+                const dayName = _getDayName(today);
+                const todayHabits = getHabits().filter((habit) =>
+                    (!habit.repeat || habit.repeat.includes(dayName))
+                    && !Boolean(habit.completions?.[today])
+                );
+
+                for (const habit of todayHabits) {
+                    const reminderMinutes = _timeToMinutes(habit.reminder);
+                    const isDue = reminderMinutes !== null
+                        && nowMinutes >= reminderMinutes
+                        && nowMinutes <= reminderMinutes + 1;
+                    if (!isDue || _hasReminderReceipt('habit', habit.id, today)) continue;
+
+                    await _deliverReminder('habit', habit.id, today, `Time for ${habit.name}`, {
+                        body: 'A small step now keeps your HabitArc moving.',
+                        icon: '/logo.png',
+                        badge: '/logo.png',
+                        tag: `habit-${habit.id}-${today}`,
+                        renotify: false,
+                        data: { url: '/Dashboard.html' }
+                    });
+                }
+            }
+
+            // A lightweight weekly check-in: Sunday at 6 PM local time, only
+            // while the app is open and only once for the current week.
+            const isWeeklyWindow = now.getDay() === 0 && nowMinutes >= 1080 && nowMinutes <= 1081;
+            if (preferences.weeklySummary && isWeeklyWindow && !_hasReminderReceipt('weekly', 'summary', today)) {
+                const weeklyRate = getOverallCompletionRate(7);
+                await _deliverReminder('weekly', 'summary', today, 'Your HabitArc weekly check-in', {
+                    body: `You completed ${weeklyRate}% of your scheduled habits this week.`,
+                    icon: '/logo.png',
+                    badge: '/logo.png',
+                    tag: `weekly-summary-${today}`,
+                    renotify: false,
+                    data: { url: '/Insights.html' }
+                });
+            }
+        } finally {
+            reminderCheckRunning = false;
+        }
+    }
+
+    function _startReminderScheduler() {
+        if (reminderSchedulerStarted || typeof window === 'undefined') return;
+        reminderSchedulerStarted = true;
+        void checkReminderSchedule();
+        window.setInterval(() => void checkReminderSchedule(), REMINDER_CHECK_INTERVAL_MS);
+    }
+
+    function startReminderScheduler() {
+        _startReminderScheduler();
     }
 
     function isOnboardingComplete() {
@@ -1194,7 +1423,12 @@ const HabitArc = (() => {
         const earliest = habits.reduce((min, h) => h.createdAt < min ? h.createdAt : min, _today());
         const dates = _dateRange(earliest, _today());
 
-        let csv = 'Date,' + habits.map(h => '"' + h.name + '"').join(',') + '\n';
+        const csvCell = (value) => {
+            let text = String(value ?? '');
+            if (/^[\s]*[=+@-]/.test(text) || /^[\t\r\n]/.test(text)) text = "'" + text;
+            return '"' + text.replace(/"/g, '""') + '"';
+        };
+        let csv = ['Date', ...habits.map(h => csvCell(h.name))].join(',') + '\n';
 
         for (const date of dates) {
             const row = [date];
@@ -1252,6 +1486,15 @@ const HabitArc = (() => {
         });
     }
 
+    function escapeHTML(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     // ─── Category Colors ────────────────────────────
     function getCategoryStyle(category) {
         const styles = {
@@ -1261,9 +1504,14 @@ const HabitArc = (() => {
             'Focus':       { bg: 'bg-surface-container',   text: 'text-on-surface-variant', iconFill: false },
             'Fitness':     { bg: 'bg-primary-fixed/20',    text: 'text-primary-container', iconFill: true },
             'Productivity':{ bg: 'bg-secondary-container/30', text: 'text-secondary',     iconFill: false },
+            'Wellness':    { bg: 'bg-primary-fixed/20',    text: 'text-primary-container', iconFill: true },
             'General':     { bg: 'bg-surface-container',   text: 'text-on-surface-variant', iconFill: false }
         };
         return styles[category] || styles['General'];
+    }
+
+    function getHabitAccentColor(habit) {
+        return _normaliseHabitAccent(habit?.accentColor, habit?.category);
     }
 
     // ─── 365-Day Contribution Heatmap (Option 5) ────
@@ -1273,7 +1521,7 @@ const HabitArc = (() => {
         const startDate = new Date();
         startDate.setDate(endDate.getDate() - 364);
 
-        const dates = _dateRange(startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+        const dates = _dateRange(_localDateKey(startDate), _localDateKey(endDate));
         
         let maxDailyCompletions = 1;
         const dailyCounts = {};
@@ -1708,6 +1956,15 @@ const HabitArc = (() => {
         await authClient.signOut();
     }
 
+    async function getAuthToken(forceRefresh = false) {
+        const authClient = await authReadyPromise;
+        if (!authClient?.getIdToken) {
+            throw new Error('Secure sign-in is not available right now.');
+        }
+
+        return authClient.getIdToken(forceRefresh);
+    }
+
     function getCloudSyncStatus() {
         return {
             signedIn: Boolean(getAuthUser()),
@@ -1773,7 +2030,15 @@ const HabitArc = (() => {
         getAuthUser,
         whenAuthReady,
         signOut: signOutUser,
+        getAuthToken,
         getCloudSyncStatus,
+
+        // Notifications
+        getReminderPreferences,
+        setReminderPreferences,
+        requestNotificationPermission,
+        checkReminderSchedule,
+        startReminderScheduler,
 
         // Audio
         playCompletionSound,
@@ -1785,7 +2050,9 @@ const HabitArc = (() => {
         // Utilities
         getGreeting,
         getFormattedToday,
+        escapeHTML,
         getCategoryStyle,
+        getHabitAccentColor,
         today: _today
     };
 })();
@@ -1793,9 +2060,12 @@ const HabitArc = (() => {
 // Apply theme & update header streak on load
 document.addEventListener('DOMContentLoaded', () => {
     HabitArc.applyTheme();
+    // The scheduler itself checks opt-in and permission. Starting it here also
+    // handles preferences arriving later through cloud hydration, without prompts.
+    HabitArc.startReminderScheduler();
     
     try {
-        const streak = HabitArc.getCurrentStreak() || 0;
+        const streak = HabitArc.getOverallCurrentStreak() || 0;
         const mobileEl = document.getElementById('header-streak-count');
         const webEl = document.getElementById('header-streak-count-web');
         if (mobileEl) mobileEl.textContent = `${streak}d`;
@@ -1809,3 +2079,114 @@ document.addEventListener('DOMContentLoaded', () => {
 // changes their cache. Individual pages can re-render the affected UI without
 // reloading the document. Reloading here caused a loop whenever Firestore
 // returned semantically identical data with a different field/document order.
+
+// ─── Cross-page accessibility and PWA helpers ────────────────────────────
+// These helpers deliberately live outside the data layer: every static page
+// loads app.js, so focus visibility, reduced-motion support, and installation
+// state stay consistent without duplicating per-page snippets.
+(function initialiseHabitArcShell() {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+    const reducedMotionStyleId = 'habitarc-accessibility-styles';
+    const liveRegionId = 'habitarc-live-region';
+    let deferredInstallPrompt = null;
+    let pwaInstalled = window.matchMedia?.('(display-mode: standalone)').matches
+        || window.navigator.standalone === true;
+
+    function emitPWAStateChange() {
+        window.dispatchEvent(new CustomEvent('habitarc:pwa-state-changed', {
+            detail: getPWAInstallState()
+        }));
+    }
+
+    function getPWAInstallState() {
+        const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent || '');
+        return {
+            available: Boolean(deferredInstallPrompt),
+            installed: Boolean(pwaInstalled),
+            isIOS,
+            instructions: isIOS && !pwaInstalled
+                ? 'In Safari, use Share, then choose Add to Home Screen.'
+                : ''
+        };
+    }
+
+    async function promptPWAInstall() {
+        if (!deferredInstallPrompt) {
+            return { outcome: 'unavailable', ...getPWAInstallState() };
+        }
+
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        emitPWAStateChange();
+        return { outcome: choice?.outcome || 'dismissed', ...getPWAInstallState() };
+    }
+
+    function announce(message, priority = 'polite') {
+        const region = document.getElementById(liveRegionId);
+        if (!region || !message) return;
+        region.setAttribute('aria-live', priority === 'assertive' ? 'assertive' : 'polite');
+        region.textContent = '';
+        window.setTimeout(() => { region.textContent = String(message); }, 40);
+    }
+
+    function installAccessibilityUtilities() {
+        if (!document.getElementById(reducedMotionStyleId)) {
+            const style = document.createElement('style');
+            style.id = reducedMotionStyleId;
+            style.textContent = `
+                :where(a, button, input, select, textarea, summary, [role="button"]):focus-visible {
+                    outline: 3px solid #10b981 !important;
+                    outline-offset: 3px !important;
+                }
+                .toggle-checkbox:focus-visible + .toggle-label {
+                    outline: 3px solid #10b981;
+                    outline-offset: 3px;
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    *, *::before, *::after {
+                        animation-duration: 0.01ms !important;
+                        animation-iteration-count: 1 !important;
+                        scroll-behavior: auto !important;
+                        transition-duration: 0.01ms !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        if (!document.getElementById(liveRegionId)) {
+            const region = document.createElement('div');
+            region.id = liveRegionId;
+            region.setAttribute('role', 'status');
+            region.setAttribute('aria-live', 'polite');
+            region.setAttribute('aria-atomic', 'true');
+            region.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+            document.body.appendChild(region);
+        }
+    }
+
+    window.HabitArcUI = Object.freeze({
+        announce,
+        getPWAInstallState,
+        promptPWAInstall
+    });
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        emitPWAStateChange();
+    });
+
+    window.addEventListener('appinstalled', () => {
+        pwaInstalled = true;
+        deferredInstallPrompt = null;
+        announce('HabitArc is installed on this device.');
+        emitPWAStateChange();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        installAccessibilityUtilities();
+    });
+})();

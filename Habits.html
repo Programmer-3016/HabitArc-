@@ -3,6 +3,15 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#012d1d" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<script defer src="pwa-register.js"></script>
 <title>HabitArc - Habits</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -226,36 +235,43 @@
             const isCompleted = HabitArc.isCompletedToday(habit.id);
             const streak = HabitArc.getCurrentStreak(habit.id);
             const style = HabitArc.getCategoryStyle(habit.category);
+            const accent = HabitArc.getHabitAccentColor(habit);
             const last7 = HabitArc.getLast7Days(habit.id);
+            const safeName = HabitArc.escapeHTML(habit.name);
+            const safeCategory = HabitArc.escapeHTML(habit.category);
+            const safeIcon = HabitArc.escapeHTML(habit.icon || 'check_circle');
+            const habitUrlId = encodeURIComponent(String(habit.id || ''));
 
             const card = document.createElement('div');
             card.className = `bg-surface-container-lowest rounded-xl border border-surface-variant p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-all cursor-pointer ${isCompleted ? 'opacity-75' : ''}`;
+            card.style.borderColor = `${accent}35`;
+            card.style.boxShadow = `inset 3px 0 0 ${accent}`;
 
             let dotsHtml = last7.map(d => {
                 if (d.completed) {
-                    return `<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary"><span class="font-label-sm text-label-sm">${d.label}</span></div>`;
+                    return `<div class="w-6 h-6 rounded-full flex items-center justify-center text-on-primary" style="background-color: ${accent}"><span class="font-label-sm text-label-sm">${d.label}</span></div>`;
                 }
                 return `<div class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="font-label-sm text-label-sm">${d.label}</span></div>`;
             }).join('');
 
             card.innerHTML = `
-                <div class="flex justify-between items-start" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-lg ${style.bg} flex items-center justify-center ${style.text}">
-                            <span class="material-symbols-outlined text-2xl ${style.iconFill ? 'fill' : ''}">${habit.icon}</span>
+                <div class="flex justify-between items-start">
+                    <a class="flex items-center gap-4" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
+                        <div class="w-12 h-12 rounded-lg ${style.bg} flex items-center justify-center ${style.text}" style="background-color: ${accent}1a; color: ${accent}">
+                            <span class="material-symbols-outlined text-2xl ${style.iconFill ? 'fill' : ''}">${safeIcon}</span>
                         </div>
                         <div class="flex flex-col">
-                            <h3 class="font-headline-md text-headline-md text-on-surface ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${habit.name}</h3>
-                            <span class="font-label-sm text-label-sm text-outline uppercase">${habit.category} • ${streak} Day Streak</span>
+                            <h3 class="font-headline-md text-headline-md text-on-surface ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${safeName}</h3>
+                            <span class="font-label-sm text-label-sm text-outline uppercase">${safeCategory} • ${streak} Day Streak</span>
                         </div>
-                    </div>
-                    <button class="habit-toggle w-10 h-10 rounded-full ${isCompleted ? 'bg-primary text-on-primary' : 'border-2 border-outline-variant text-outline-variant hover:border-primary hover:text-primary'} flex items-center justify-center active:scale-90 transition-all" data-id="${habit.id}">
+                    </a>
+                    <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle w-11 h-11 rounded-full ${isCompleted ? 'text-on-primary' : 'border-2 border-outline-variant text-outline-variant hover:border-primary hover:text-primary'} flex items-center justify-center active:scale-90 transition-all" data-id="${HabitArc.escapeHTML(habit.id)}" style="${isCompleted ? `background-color: ${accent}` : `border-color: ${accent}66; color: ${accent}`}">
                         <span class="material-symbols-outlined">check</span>
                     </button>
                 </div>
                 <div class="flex justify-between items-center mt-2 border-t border-surface-variant pt-4">
                     <div class="flex gap-2">${dotsHtml}</div>
-                    <span class="material-symbols-outlined text-on-surface-variant text-sm" onclick="window.location.href='Habit_Detail.html?id=${habit.id}'">chevron_right</span>
+                    <a href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}" aria-label="View ${safeName}" class="w-11 h-11 flex items-center justify-center"><span aria-hidden="true" class="material-symbols-outlined text-sm" style="color: ${accent}">chevron_right</span></a>
                 </div>
             `;
 

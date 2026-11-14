@@ -2,6 +2,15 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#012d1d" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<script defer src="pwa-register.js"></script>
 <title>HabitArc - Habit Detail</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
@@ -83,6 +92,11 @@
     .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
     .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
     .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
+    :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+        .animate-in { animation: none; opacity: 1; }
+        .stat-bar, .cal-cell { transition: none; }
+    }
 </style>
 </head>
 <body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
@@ -90,16 +104,21 @@
 <!-- Top Bar -->
 <header class="w-full sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-surface-container/70 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
     <div class="flex items-center justify-between px-4 py-3 max-w-3xl mx-auto">
-        <a href="Habits.html" class="w-9 h-9 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface hover:text-primary active:scale-95 transition-all shadow-2xs">
+        <a href="Habits.html" aria-label="Back to habits" class="w-9 h-9 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface hover:text-primary active:scale-95 transition-all shadow-2xs">
             <span class="material-symbols-outlined text-lg">arrow_back</span>
         </a>
         <div class="flex items-center gap-2">
             <img src="logo.png" alt="HabitArc Logo" class="w-7 h-7 rounded-lg object-contain"/>
             <h1 class="font-headline-md text-base text-on-surface font-bold" id="habit-name-title">Habit Detail</h1>
         </div>
-        <button id="delete-btn" class="w-9 h-9 rounded-full bg-error-container/20 border border-error/20 flex items-center justify-center text-error hover:bg-error-container active:scale-95 transition-all shadow-2xs" title="Delete Habit">
-            <span class="material-symbols-outlined text-lg">delete</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <a id="edit-habit-btn" href="Add_Habit.html" class="w-9 h-9 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-all shadow-2xs" aria-label="Edit habit" title="Edit Habit">
+                <span class="material-symbols-outlined text-lg">edit</span>
+            </a>
+            <button id="delete-btn" class="w-9 h-9 rounded-full bg-error-container/20 border border-error/20 flex items-center justify-center text-error hover:bg-error-container active:scale-95 transition-all shadow-2xs" aria-label="Delete habit" title="Delete Habit">
+                <span class="material-symbols-outlined text-lg">delete</span>
+            </button>
+        </div>
     </div>
 </header>
 
@@ -119,7 +138,7 @@
                     <span id="habit-since" class="font-label-sm text-label-sm text-on-surface-variant geist">Since --</span>
                 </div>
             </div>
-            <button id="complete-today-btn" class="w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90">
+            <button id="complete-today-btn" type="button" aria-label="Mark habit complete for today" aria-pressed="false" class="w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90">
                 <span class="material-symbols-outlined text-[24px]">check</span>
             </button>
         </div>
@@ -170,11 +189,11 @@
                 </div>
                 <!-- Inline Month Switcher -->
                 <div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-full border border-surface-container">
-                    <button id="prev-month-btn" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
+                    <button id="prev-month-btn" type="button" aria-label="Show previous month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
                         <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                     </button>
-                    <span id="current-month-title" class="font-label-sm text-[11px] font-semibold text-on-surface px-1 geist">July 2026</span>
-                    <button id="next-month-btn" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
+                    <span id="current-month-title" aria-live="polite" class="font-label-sm text-[11px] font-semibold text-on-surface px-1 geist">July 2026</span>
+                    <button id="next-month-btn" type="button" aria-label="Show next month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
                         <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                     </button>
                 </div>
@@ -246,7 +265,7 @@
 
 <script src="app.js"></script>
 <script>
-(function() {
+(async function() {
     // Get habit ID from URL
     const params = new URLSearchParams(window.location.search);
     const habitId = params.get('id');
@@ -258,38 +277,91 @@
 
     let habit = HabitArc.getHabitById(habitId);
     if (!habit) {
-        window.location.href = 'Habits.html';
-        return;
+        const main = document.querySelector('main');
+        const loading = document.createElement('p');
+        loading.className = 'w-full max-w-3xl mx-auto px-container-padding py-section-margin text-on-surface-variant';
+        loading.setAttribute('role', 'status');
+        loading.textContent = 'Loading your saved habit…';
+        main.hidden = true;
+        main.before(loading);
+        document.getElementById('edit-habit-btn').hidden = true;
+        document.getElementById('delete-btn').disabled = true;
+        habit = await new Promise((resolve) => {
+            let timeout;
+            function finish(loadedHabit) {
+                window.clearTimeout(timeout);
+                window.removeEventListener('habitarc:data-changed', check);
+                window.removeEventListener('habitarc:cloud-sync-error', failed);
+                resolve(loadedHabit);
+            }
+            function check(event) {
+                const loadedHabit = HabitArc.getHabitById(habitId);
+                if (loadedHabit || event?.detail?.source === 'cloud' || HabitArc.getCloudSyncStatus().connected) {
+                    finish(loadedHabit);
+                }
+            }
+            function failed() { finish(null); }
+            window.addEventListener('habitarc:data-changed', check);
+            window.addEventListener('habitarc:cloud-sync-error', failed);
+            timeout = window.setTimeout(failed, 12000);
+            check();
+        });
+        if (!habit) {
+            loading.setAttribute('role', 'alert');
+            loading.textContent = 'This habit could not be loaded. Check your connection and reload, or use Back to habits.';
+            return;
+        }
+        loading.remove();
+        main.hidden = false;
+        document.getElementById('edit-habit-btn').hidden = false;
+        document.getElementById('delete-btn').disabled = false;
     }
 
-    // ─── Populate Header ────────────────────────
-    document.getElementById('habit-name-title').textContent = habit.name;
-    document.getElementById('habit-name').textContent = habit.name;
-    document.getElementById('habit-icon').textContent = habit.icon;
-    document.getElementById('habit-category').textContent = habit.category;
+    document.getElementById('edit-habit-btn').href = `Add_Habit.html?edit=${encodeURIComponent(habitId)}`;
 
-    const createdDate = new Date(habit.createdAt);
-    document.getElementById('habit-since').textContent = 'Since ' + createdDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-
-    // Apply category style
-    const style = HabitArc.getCategoryStyle(habit.category);
+    let habitAccent = HabitArc.getHabitAccentColor(habit);
     const iconWrap = document.getElementById('habit-icon-wrap');
-    iconWrap.className = `w-14 h-14 rounded-2xl ${style.bg} flex items-center justify-center`;
     const iconEl = document.getElementById('habit-icon');
-    iconEl.className = `material-symbols-outlined ${style.iconFill ? 'fill' : ''} ${style.text} text-[28px]`;
+    function renderHabitMetadata() {
+        document.getElementById('habit-name-title').textContent = habit.name;
+        document.getElementById('habit-name').textContent = habit.name;
+        iconEl.textContent = habit.icon;
+        document.getElementById('habit-category').textContent = habit.category;
+        const createdDate = new Date(`${habit.createdAt}T12:00:00`);
+        document.getElementById('habit-since').textContent = 'Since ' + createdDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        const style = HabitArc.getCategoryStyle(habit.category);
+        habitAccent = HabitArc.getHabitAccentColor(habit);
+        iconWrap.className = `w-14 h-14 rounded-2xl ${style.bg} flex items-center justify-center`;
+        iconWrap.style.backgroundColor = `${habitAccent}1a`;
+        iconEl.className = `material-symbols-outlined ${style.iconFill ? 'fill' : ''} ${style.text} text-[28px]`;
+        iconEl.style.color = habitAccent;
+        document.getElementById('motivation-section').classList.toggle('hidden', !habit.why && !habit.motivation);
+        document.getElementById('habit-why').textContent = habit.why || '';
+        document.getElementById('habit-motivation').textContent = habit.motivation ? '"' + habit.motivation + '"' : '';
+    }
+    renderHabitMetadata();
 
     // ─── Complete Today Button ──────────────────
     function updateCompleteButton() {
         const btn = document.getElementById('complete-today-btn');
         const isCompleted = HabitArc.isCompletedToday(habitId);
+        btn.setAttribute('aria-pressed', String(isCompleted));
+        btn.setAttribute('aria-label', isCompleted ? 'Undo today’s completion' : 'Mark habit complete for today');
+        btn.querySelector('span').setAttribute('aria-hidden', 'true');
 
         if (isCompleted) {
             btn.className = 'w-12 h-12 rounded-full bg-primary-container flex items-center justify-center transition-all active:scale-90 shadow-[0_4px_12px_rgba(0,0,0,0.05)]';
+            btn.style.backgroundColor = habitAccent;
+            btn.style.borderColor = habitAccent;
             btn.querySelector('span').className = 'material-symbols-outlined text-[24px] text-on-primary';
+            btn.querySelector('span').style.color = '';
             btn.querySelector('span').textContent = 'check';
         } else {
             btn.className = 'w-12 h-12 rounded-full border-2 border-outline-variant flex items-center justify-center transition-all active:scale-90 hover:border-primary-container';
+            btn.style.backgroundColor = '';
+            btn.style.borderColor = `${habitAccent}66`;
             btn.querySelector('span').className = 'material-symbols-outlined text-[24px] text-outline-variant';
+            btn.querySelector('span').style.color = habitAccent;
             btn.querySelector('span').textContent = 'check';
         }
     }
@@ -300,6 +372,9 @@
         } else {
             HabitArc.completeHabit(habitId);
         }
+        // The store returns snapshots. Refresh ours before rendering totals
+        // and calendar dates, including when the browser is offline.
+        habit = HabitArc.getHabitById(habitId) || habit;
         updateCompleteButton();
         renderStats();
         renderCalendar();
@@ -314,7 +389,7 @@
         document.getElementById('stat-longest-streak').textContent = HabitArc.getLongestStreak(habitId);
         document.getElementById('stat-completion').textContent = HabitArc.getCompletionRate(habitId);
 
-        const totalDone = Object.keys(habit.completions || {}).length;
+        const totalDone = Object.values(habit.completions || {}).filter(Boolean).length;
         document.getElementById('stat-total-done').textContent = totalDone;
     }
     renderStats();
@@ -373,7 +448,7 @@
                     monthCompletedCount++;
                     monthScheduledCount++;
                 } else {
-                    status = 'missed';
+                    status = isToday ? 'pending' : 'missed';
                     monthScheduledCount++;
                 }
             } else if (!isBeforeCreation && !isFuture && !isScheduled) {
@@ -397,13 +472,19 @@
                 cellStyle += ' ring-2 ring-primary ring-offset-1';
             }
 
-            cell.className = `h-9 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-150 active:scale-95 ${cellStyle}`;
+            cell.className = `h-9 rounded-lg flex items-center justify-center transition-colors duration-150 ${cellStyle}`;
+            if (status === 'completed') {
+                cell.style.backgroundColor = habitAccent;
+                cell.style.borderColor = habitAccent;
+            }
             cell.innerHTML = `<span class="text-xs geist">${dayNum}</span>`;
 
             // Simple native title tooltip on long-press/hover
             const formattedText = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            const statusLabel = status === 'completed' ? '✓ Completed' : status === 'missed' ? '✗ Missed' : status === 'rest' ? 'Rest Day' : 'Upcoming';
+            const statusLabel = status === 'completed' ? 'Completed' : status === 'missed' ? 'Missed' : status === 'rest' ? 'Rest Day' : status === 'pending' ? 'Not marked yet' : isBeforeCreation ? 'Before habit started' : 'Upcoming';
             cell.title = `${formattedText}: ${statusLabel}`;
+            cell.setAttribute('role', 'img');
+            cell.setAttribute('aria-label', cell.title);
 
             grid.appendChild(cell);
         }
@@ -437,7 +518,7 @@
             row.innerHTML = `
                 <span class="font-label-sm text-label-sm text-on-surface-variant geist w-8 text-right">${month.label}</span>
                 <div class="flex-1 h-6 bg-surface-container rounded-full overflow-hidden">
-                    <div class="stat-bar h-full bg-primary-container rounded-full" style="width: ${month.rate}%"></div>
+                    <div class="stat-bar h-full bg-primary-container rounded-full" style="width: ${month.rate}%; background-color: ${habitAccent}"></div>
                 </div>
                 <span class="font-label-sm text-label-sm text-on-surface-variant geist w-10 text-right">${month.rate}%</span>
             `;
@@ -459,6 +540,7 @@
         }
 
         habit = latestHabit;
+        renderHabitMetadata();
         updateCompleteButton();
         renderStats();
         renderCalendar();
@@ -471,14 +553,6 @@
             refreshCompletionData(source);
         }
     });
-
-    // ─── Motivation ─────────────────────────────
-    if (habit.why || habit.motivation) {
-        const section = document.getElementById('motivation-section');
-        section.classList.remove('hidden');
-        if (habit.why) document.getElementById('habit-why').textContent = habit.why;
-        if (habit.motivation) document.getElementById('habit-motivation').textContent = '"' + habit.motivation + '"';
-    }
 
     // ─── Delete ─────────────────────────────────
     document.getElementById('delete-btn').addEventListener('click', function() {
