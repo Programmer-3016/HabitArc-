@@ -9,11 +9,11 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE
     ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : 'playwright');
 const root = fileURLToPath(new URL('..', import.meta.url));
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
+const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 const server = createServer(async (req, res) => {
     try {
         const name = decodeURIComponent(new URL(req.url, 'http://localhost').pathname).slice(1) || 'index.html';
-        if (!/^[A-Za-z0-9_-]+\.(html|js|png|webmanifest)$/.test(name)) throw new Error('Not found');
+        if (!/^[A-Za-z0-9_-]+\.(html|css|js|png|webmanifest)$/.test(name)) throw new Error('Not found');
         const data = await readFile(resolve(root, name));
         res.writeHead(200, { 'Content-Type': types[extname(name)] }); res.end(data);
     } catch { res.writeHead(404); res.end('Not found'); }

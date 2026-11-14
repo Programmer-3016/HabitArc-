@@ -121,6 +121,8 @@
             display: none;
         }
     </style>
+<link rel="stylesheet" href="app-ui.css"/>
+<script src="app-ui.js"></script>
 </head>
 <body class="bg-background text-on-background antialiased min-h-screen pb-24 relative overflow-x-hidden">
 <!-- Subtle Background Pattern -->
@@ -172,10 +174,10 @@
         </div>
     </div>
 </header>
-<main class="w-full max-w-7xl mx-auto px-container-padding pt-6 pb-32 md:pb-8 flex flex-col gap-section-margin">
+<main class="ha-habits w-full max-w-7xl mx-auto px-container-padding pt-6 pb-32 md:pb-8 flex flex-col gap-section-margin">
 <!-- Page Header & Filters -->
 <section class="flex flex-col gap-stack-gap">
-<h2 class="font-headline-lg text-headline-lg text-on-background">My Habits</h2>
+<h1 class="font-headline-lg text-headline-lg text-on-background font-bold">My Habits</h1>
 <div id="category-filters" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-container-padding px-container-padding md:mx-0 md:px-0">
 <button class="cat-filter px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform" data-cat="All">All</button>
 <button class="cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95" data-cat="Health">Health</button>
@@ -243,7 +245,7 @@
             const habitUrlId = encodeURIComponent(String(habit.id || ''));
 
             const card = document.createElement('div');
-            card.className = `bg-surface-container-lowest rounded-xl border border-surface-variant p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-all cursor-pointer ${isCompleted ? 'opacity-75' : ''}`;
+            card.className = 'ha-habit-card bg-surface-container-lowest rounded-xl border border-surface-variant p-card-padding flex flex-col gap-element-gap hover:border-primary-fixed transition-all';
             card.style.borderColor = `${accent}35`;
             card.style.boxShadow = `inset 3px 0 0 ${accent}`;
 
@@ -295,8 +297,10 @@
 
     // Category filter clicks
     document.querySelectorAll('.cat-filter').forEach(btn => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.cat === currentFilter));
         btn.addEventListener('click', function() {
             document.querySelectorAll('.cat-filter').forEach(b => {
+                b.setAttribute('aria-pressed', String(b === this));
                 b.className = 'cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95';
             });
             this.className = 'cat-filter px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform';

@@ -204,11 +204,40 @@ Historical Coach rates cover the last 28 finished local calendar days. Today is 
 - Configure server-only AI credentials and budget controls, then test real signed-in questions. Local tests use SDK stubs and do not establish live model quality.
 - Verify the published Firestore rules include `habitCompletions` before the cross-device demo.
 - Add proper square app icons and test installation on Android/iOS. Full offline habit editing and closed-browser push are not included in the current PWA foundation.
-- Some original Settings rows (week-start, default-time selector, privacy page) are still static, and additional theme palettes need full visual validation. Do not present those as completed interactive features.
+- Some original Settings rows (week-start, default-time selector, privacy page) are still static. Do not present those as completed interactive features.
 
 The Admin SDK bypasses client Firestore rules only inside the protected Vercel function, after Firebase token verification. The existing client rules continue to block other users from reading a member’s data.
 
 ---
+
+## Shared UI styling
+
+The existing application pages load `app-ui.css` and `app-ui.js`. The CSS owns
+shared surfaces, page widths, responsive cards, navigation touch targets and
+the four existing Settings palettes: Light, Dark, Forest and Midnight.
+The script bridges existing Tailwind color tokens to CSS variables and adds
+navigation labels, current-page semantics and a keyboard skip link. It does
+not handle authentication, storage, habit calculations or cloud sync.
+
+Onboarding remains separate. No framework, route or navigation order changed.
+Habit lists use two columns from 768px and one column on smaller screens.
+The app still depends on the existing Tailwind/font CDNs; this is not a bundled
+offline redesign.
+
+Run `npm run check` and `npm test` for syntax/unit checks. Optional isolated
+browser checks (with Playwright available):
+
+```text
+node tests/browser-smoke.mjs
+node tests/ui-layout.mjs
+```
+
+Set `PLAYWRIGHT_MODULE` to an installed Playwright entry point if needed and
+`BROWSER_CHANNEL=msedge` to use Edge. `UI_SCREENSHOT_DIR` optionally saves UI
+screenshots outside the repository. Tests use synthetic data in temporary
+browser contexts, disable service workers, and block Firebase; they never
+write to a real account. Layout coverage includes 320/390/768/1366px, all four
+saved themes, empty states, long names, mobile touch targets and reduced motion.
 
 ## 📜 License
 This project is open source under the [MIT License](LICENSE).
