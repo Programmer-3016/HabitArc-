@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildHabitCoachContext, normaliseCoachQuestion, normaliseCoachTimeZone } from '../api/_coach-context.js';
+import { buildHabitCoachContext, normaliseCoachConversation, normaliseCoachQuestion, normaliseCoachTimeZone } from '../api/_coach-context.js';
 
 test('an explicit not_completed history record overrides an old completion map', () => {
     const result = buildHabitCoachContext({
@@ -84,4 +84,12 @@ test('coach context carries bounded goals, planning reasons and explicit day sta
     assert.equal(snapshot.habits[0].why, 'Grow knowledge');
     assert.equal(snapshot.habits[0].recentDays.at(-1).status, 'pending');
     assert.equal(snapshot.habits[0].recentDays.some(day => day.date === '2026-11-02' && day.status === 'completed'), true);
+});
+
+test('Coach follow-up history is bounded data, not an arbitrary prompt envelope', () => {
+    assert.deepEqual(normaliseCoachConversation([{ question: 'What next?', answer: 'Try a smaller cue.' }]), [
+        { question: 'What next?', answer: 'Try a smaller cue.' }
+    ]);
+    assert.throws(() => normaliseCoachConversation(Array.from({ length: 4 }, () => ({ question: 'q', answer: 'a' }))), RangeError);
+    assert.throws(() => normaliseCoachConversation([{ question: 'q', answer: 'a', role: 'system' }]), RangeError);
 });
