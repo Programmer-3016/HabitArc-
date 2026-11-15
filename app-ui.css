@@ -305,3 +305,112 @@ body main.ha-dashboard .ha-dashboard-habit + .ha-dashboard-habit { border-top: 1
 @media (prefers-reduced-motion: reduce) {
     .ha-dashboard .progress-ring-circle, .ha-dashboard .habit-toggle { transition: none; }
 }
+
+/* Focused Insights: presentation only. All existing theme values and routes
+   remain shared with the Dashboard; analytics and Coach use their existing data. */
+body > main.ha-insights { max-width: 1120px; gap: 24px; padding-inline: 24px; }
+.ha-insights-heading, .ha-insights-overview { grid-column: 1 / -1; }
+.ha-insights-heading { margin-bottom: 4px; }
+.ha-insights-eyebrow { color: rgb(var(--ha-on-surface-variant)); font-size: 12px; margin-bottom: 10px; }
+.ha-insights #hero-title { color: rgb(var(--ha-on-surface)); font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; letter-spacing: -.04em; font-weight: 700; }
+.ha-insights-intro { color: rgb(var(--ha-on-surface-variant)); font-size: 14px; line-height: 1.6; margin-top: 10px; }
+.ha-insights-overview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 28px 12px; border-radius: var(--ha-card-radius); background: linear-gradient(115deg, rgb(var(--ha-primary-container)), #0d3525); color: #f0fff5; box-shadow: 0 8px 28px rgb(1 45 29 / .12); }
+.ha-insights-metric { padding: 0 24px; min-width: 0; display: flex; flex-direction: column; }
+.ha-insights-metric + .ha-insights-metric { border-left: 1px solid rgb(255 255 255 / .15); }
+.ha-insights-metric h2 { font-size: 12px; line-height: 1.5; font-weight: 400; color: #d2e8dc; text-wrap: initial; }
+.ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) { color: #f0fff5; font-family: 'Hanken Grotesk', sans-serif; font-size: 36px; line-height: 1.25; font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.ha-insights-metric > p { margin-block: 10px 8px; min-height: 45px; }
+.ha-insights-trend { display: flex; align-items: center; gap: 6px; }
+.ha-insights #metric-trend:not(.ha-insights-metric-empty) { white-space: nowrap; }
+.ha-insights-trend > .material-symbols-outlined { font-size: 20px; color: #d2e8dc; }
+.ha-insights .ha-insights-metric #metric-trend.ha-insights-metric-empty { font-size: 17px; line-height: 1.4; letter-spacing: -.01em; }
+.ha-insights-metric-context { font-size: 11px; line-height: 1.5; color: #d2e8dc; margin-top: auto; }
+.ha-insights-main, .ha-insights-aside { min-width: 0; gap: 24px; }
+.ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note) { padding: 24px; }
+.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 { font-size: 18px; line-height: 1.4; font-weight: 600; letter-spacing: -.025em; color: rgb(var(--ha-on-surface)); }
+.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 > .material-symbols-outlined { font-size: 20px; color: rgb(var(--ha-primary)); }
+.ha-insights .ha-insights-recap { gap: 0; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); box-shadow: var(--ha-card-shadow); }
+body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) { padding: 24px; gap: 18px; border: 0; background: transparent; box-shadow: none; border-radius: 0; min-width: 0; }
+.ha-insights #todays-story-list { gap: 0; }
+.ha-insights #todays-story-list > li { padding: 12px 0; border: 0; border-radius: 0; background: transparent; font-size: 13px; line-height: 1.65; }
+.ha-insights #todays-story-list > li:first-child { padding-top: 0; }
+.ha-insights #todays-story-list > li:last-child { padding-bottom: 0; }
+.ha-insights #todays-story-list > li + li { border-top: 1px solid rgb(var(--ha-outline-variant) / .25); }
+.ha-insights #todays-story-list .material-symbols-outlined { font-size: 18px; color: rgb(var(--ha-primary)); margin-top: 2px; }
+.ha-insights #todays-story-list strong { font-weight: 600; }
+.ha-insights-timeline h3 { font-size: 12px; font-weight: 600; }
+.ha-insights-timeline p { font-size: 13px; line-height: 1.65; }
+.ha-insights .ha-insights-legend { font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights-calendar-scroll { margin-top: 22px; padding-block: 4px 10px; scrollbar-width: thin; scrollbar-color: rgb(var(--ha-outline-variant)) transparent; border-radius: 4px; }
+.ha-insights-calendar-scroll:focus-visible { outline: 2px solid rgb(var(--ha-primary)); outline-offset: 4px; }
+.ha-insights #heatmap-grid-365, .ha-insights-months { display: grid; width: max-content; min-width: 100%; grid-template-columns: repeat(var(--heatmap-columns, 53), 12px); column-gap: 4px; }
+.ha-insights #heatmap-grid-365 { grid-template-rows: repeat(7, 12px); row-gap: 4px; }
+.ha-insights #heatmap-grid-365 > div { width: 12px; height: 12px; border: 0; border-radius: 3px; }
+.ha-insights-months { margin-bottom: 8px; font-size: 11px; line-height: 1.4; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights-months > span { overflow: visible; white-space: nowrap; }
+.ha-insights-calendar-caption { margin-top: 10px; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights #badges-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+.ha-insights .ha-insights-badge { padding: 16px 12px; gap: 10px; border: 0; border-radius: 0; border-top: 1px solid rgb(var(--ha-outline-variant) / .25); background: transparent; }
+.ha-insights .ha-insights-badge > div:first-child { width: 36px; height: 36px; border-radius: 12px; box-shadow: none; }
+.ha-insights-badge-title { display: block; font-size: 13px; line-height: 1.45; font-weight: 600; color: rgb(var(--ha-on-surface)); overflow-wrap: anywhere; }
+.ha-insights-badge-description { display: block; font-size: 11px; line-height: 1.6; margin-top: 3px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights-badge-status { flex-shrink: 0; align-self: flex-start; margin-top: 3px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights-badge-status .material-symbols-outlined { font-size: 15px; }
+.ha-insights .is-unlocked .ha-insights-badge-status { color: rgb(var(--ha-primary)); }
+body main.ha-insights .ha-insights-note { background: rgb(var(--ha-primary) / .04); border-color: rgb(var(--ha-primary) / .15); box-shadow: none; }
+.ha-insights #coach-note-text { font-size: 14px; line-height: 1.75; font-style: normal; margin-top: 14px; }
+.ha-insights-note > a { min-height: 44px; font-size: 12px; text-transform: none; letter-spacing: 0; font-family: 'Hanken Grotesk', sans-serif; font-weight: 600; margin-top: 8px; }
+.ha-insights #ai-coach-title { font-size: 18px; }
+.ha-insights #ai-coach-form { margin-top: 20px; }
+.ha-insights #ai-coach-question { min-height: 112px; font-family: inherit; font-size: 14px; line-height: 1.6; background: rgb(var(--ha-background)); border-color: rgb(var(--ha-outline-variant) / .6); padding: 14px; }
+.ha-insights #ai-coach-submit { min-height: 44px; min-width: 72px; justify-content: center; border-radius: 12px; font-size: 13px; font-family: inherit; }
+.ha-insights #ai-coach-submit:hover:not(:disabled) { background: rgb(var(--ha-primary)); filter: brightness(.94); }
+.ha-insights #ai-coach-status { line-height: 1.6; overflow-wrap: anywhere; }
+.ha-insights #ai-coach-status:empty { margin: 0; }
+.ha-insights #ai-coach-answer-card { border: 0; padding: 16px; }
+.ha-insights .ha-insights-spotlight { gap: 0; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); padding: 24px; box-shadow: var(--ha-card-shadow); }
+.ha-insights-spotlight > h2 { margin-bottom: 6px; }
+body main.ha-insights .ha-insights-spotlight-row { padding: 18px 0; gap: 12px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.ha-insights .ha-insights-spotlight-row:last-child { padding-bottom: 0; border-top: 1px solid rgb(var(--ha-outline-variant) / .25); }
+.ha-insights-spotlight-row > div:first-child { width: 38px; height: 42px; border-radius: 12px; }
+.ha-insights-spotlight-row > div:last-child { flex-shrink: 0; }
+.ha-insights-spotlight-row h3 { font-size: 10px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights :is(#strongest-name, #opportunity-name) { font-size: 15px; line-height: 1.45; font-weight: 600; color: rgb(var(--ha-on-surface)); text-wrap: initial; }
+.ha-insights :is(#strongest-streak, #opportunity-streak) { font-size: 20px; font-weight: 600; }
+@media (min-width: 768px) {
+    .ha-insights .ha-insights-timeline { border-left: 1px solid rgb(var(--ha-outline-variant) / .3); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+    .ha-insights-metric { padding-inline: 16px; }
+    .ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak) { font-size: 32px; }
+    .ha-insights .ha-insights-metric #metric-trend { font-size: 28px; }
+    .ha-insights-aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .ha-insights-spotlight { grid-column: 1 / -1; }
+}
+@media (max-width: 767px) {
+    body > main.ha-insights { padding-inline: 20px; gap: 24px; }
+    .ha-insights-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px 20px; }
+    .ha-insights-metric { padding: 20px 12px; }
+    .ha-insights-metric:nth-child(odd) { border-left: 0; padding-left: 0; }
+    .ha-insights-metric:nth-child(even) { padding-right: 0; padding-left: 20px; }
+    .ha-insights-metric:nth-child(n+3) { border-top: 1px solid rgb(255 255 255 / .15); }
+    .ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) { font-size: 32px; }
+    .ha-insights-metric h2 { font-size: 11px; }
+    .ha-insights-metric > p { min-height: 40px; margin-block: 8px 5px; }
+    .ha-insights .ha-insights-metric #metric-trend.ha-insights-metric-empty { font-size: 16px; }
+    .ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note, .ha-insights-spotlight) { padding: 20px; }
+    body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) { padding: 20px; }
+    .ha-insights .ha-insights-timeline { border-top: 1px solid rgb(var(--ha-outline-variant) / .3); }
+    .ha-insights #ai-coach-question { font-size: 16px; }
+}
+@media (max-width: 599px) {
+    .ha-insights #badges-grid { grid-template-columns: 1fr; }
+    .ha-insights .ha-insights-badge { padding-inline: 0; }
+}
+@media (max-width: 359px) {
+    body > main.ha-insights { padding-inline: 16px; }
+    .ha-insights-overview { padding-inline: 16px; }
+    .ha-insights-metric:nth-child(even) { padding-left: 14px; }
+    .ha-insights .ha-insights-metric #metric-trend { font-size: 24px; }
+    .ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note, .ha-insights-spotlight) { padding: 18px; }
+}
