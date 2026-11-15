@@ -205,67 +205,52 @@
 <main class="ha-dashboard flex-1 w-full max-w-5xl mx-auto px-5 md:px-8 pb-32 md:pb-12 pt-6 md:pt-8">
 
     <!-- Greeting -->
-    <section class="fade-up fade-up-1 mb-8">
-        <h1 id="greeting" class="text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">Good morning</h1>
-        <p id="today-date" class="text-sm text-on-surface-variant mt-1.5 geist font-medium">Loading...</p>
+    <section class="ha-dashboard-greeting fade-up fade-up-1">
+        <p id="today-date" class="text-sm text-on-surface-variant geist font-medium">Loading...</p>
+        <h1 id="greeting" class="text-on-surface"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></h1>
     </section>
 
-    <!-- ─── Stats Row ───────────────────────────────── -->
-    <section class="fade-up fade-up-2 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
-        <!-- Daily Progress -->
-        <div class="ha-progress-card col-span-2 bg-white border border-outline-variant/25 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden group hover:border-outline-variant/50 transition-colors">
-            <div class="flex flex-col gap-1.5 z-10">
-                <span class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider geist">Daily Progress</span>
-                <p id="progress-msg" class="text-sm text-on-surface-variant leading-relaxed max-w-[200px]">Start your day strong.</p>
+    <!-- Focused hero: existing progress and streaks in one surface. -->
+    <section class="ha-progress-card ha-dashboard-hero fade-up fade-up-2" aria-labelledby="progress-title">
+        <div class="ha-dashboard-progress">
+            <div class="ha-dashboard-progress-copy">
+                <h2 id="progress-title" class="ha-dashboard-eyebrow text-on-surface-variant geist">Today's progress</h2>
+                <p class="ha-dashboard-count text-on-surface"><span id="progress-completed">0</span> <span class="ha-dashboard-total">of <span id="progress-total">0</span></span></p>
+                <p class="ha-dashboard-caption text-on-surface-variant">habits completed</p>
             </div>
-            <div class="relative w-[100px] h-[100px] md:w-[120px] md:h-[120px] flex items-center justify-center shrink-0">
-                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" class="stroke-surface-container"/>
-                    <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" stroke-dasharray="0, 100" stroke-linecap="round" class="stroke-primary-container progress-ring-circle" style="--target: 0"/>
+            <div id="progress-ring" class="ha-dashboard-ring" role="progressbar" aria-label="Today's habit completion" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
+                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2" class="stroke-surface-container"/>
+                    <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2" stroke-dasharray="0, 100" stroke-linecap="round" class="stroke-primary-container progress-ring-circle"/>
                 </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span id="progress-pct" class="text-2xl md:text-3xl font-extrabold text-on-surface geist">0%</span>
+                <div class="ha-dashboard-ring-label">
+                    <span id="progress-pct" class="text-on-surface">0%</span>
                 </div>
             </div>
         </div>
-
-        <!-- Current Streak -->
-        <div class="ha-streak-card bg-white border border-outline-variant/25 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-outline-variant/50 transition-colors">
-            <span class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider geist">Current Streak</span>
-            <div class="flex items-baseline gap-1 mt-3">
-                <span id="current-streak" class="text-3xl font-extrabold text-on-surface geist">0</span>
-                <span class="text-sm text-on-surface-variant font-medium">days</span>
+        <p id="progress-msg" class="text-on-surface-variant">Start your day strong.</p>
+        <div class="ha-dashboard-streaks">
+            <div class="ha-dashboard-stat">
+                <h3 class="text-on-surface-variant"><span class="material-symbols-outlined" aria-hidden="true">local_fire_department</span>Current streak</h3>
+                <p class="text-on-surface"><span id="current-streak">0</span><span class="ha-dashboard-unit text-on-surface-variant">days</span></p>
             </div>
-            <div class="absolute -right-2 -bottom-2 opacity-[0.06] group-hover:opacity-[0.1] transition-opacity">
-                <span class="material-symbols-outlined text-[72px] fill text-primary">local_fire_department</span>
-            </div>
-        </div>
-
-        <!-- Longest Streak -->
-        <div class="ha-streak-card bg-white border border-outline-variant/25 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-outline-variant/50 transition-colors">
-            <span class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider geist">Best Streak</span>
-            <div class="flex items-baseline gap-1 mt-3">
-                <span id="longest-streak" class="text-3xl font-extrabold text-on-surface geist">0</span>
-                <span class="text-sm text-on-surface-variant font-medium">days</span>
-            </div>
-            <div class="absolute -right-2 -bottom-2 opacity-[0.06] group-hover:opacity-[0.1] transition-opacity">
-                <span class="material-symbols-outlined text-[72px] fill text-primary">emoji_events</span>
+            <div class="ha-dashboard-stat">
+                <h3 class="text-on-surface-variant"><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Best streak</h3>
+                <p class="text-on-surface"><span id="longest-streak">0</span><span class="ha-dashboard-unit text-on-surface-variant">days</span></p>
             </div>
         </div>
     </section>
 
     <!-- ─── Today's Habits ──────────────────────────── -->
-    <section class="fade-up fade-up-3">
-        <div class="ha-section-heading flex items-center justify-between mb-4">
-            <h2 class="text-lg font-bold text-on-surface">Today's Habits</h2>
-            <a href="Habits.html" class="text-xs text-on-surface-variant hover:text-primary transition-colors font-semibold geist flex items-center gap-0.5">
-                View all
-                <span class="material-symbols-outlined text-sm">chevron_right</span>
-            </a>
+    <section class="ha-dashboard-habits fade-up fade-up-3" aria-labelledby="today-habits-title">
+        <div class="ha-section-heading flex items-center justify-between">
+            <h2 id="today-habits-title" class="font-bold text-on-surface">Today's habits</h2>
+            <span id="habits-remaining" class="text-on-surface-variant"></span>
         </div>
-        <div id="habits-container" class="flex flex-col gap-3">
+        <div id="habits-container">
             <!-- Habits rendered dynamically -->
         </div>
+        <a href="Habits.html" class="ha-dashboard-view-all">View all habits<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
     </section>
 
 </main>
@@ -331,7 +316,8 @@
 
     function renderHeader() {
         const firstName = getDisplayName().split(/\s+/)[0] || 'there';
-        document.getElementById('greeting').textContent = HabitArc.getGreeting() + ', ' + firstName;
+        document.getElementById('greeting-time').textContent = HabitArc.getGreeting() + ',';
+        document.getElementById('greeting-name').textContent = firstName + '.';
         document.getElementById('today-date').textContent = HabitArc.getFormattedToday();
 
         const overallStreak = HabitArc.getOverallCurrentStreak();
@@ -346,9 +332,14 @@
         // Progress
         const progress = HabitArc.getTodayProgress();
         const pct = progress.percentage;
+        document.getElementById('progress-completed').textContent = progress.completed;
+        document.getElementById('progress-total').textContent = progress.total;
+        document.getElementById('progress-ring').setAttribute('aria-valuenow', pct);
+        document.getElementById('progress-ring').setAttribute('aria-valuetext', `${progress.completed} of ${progress.total} habits completed`);
         document.getElementById('progress-pct').textContent = pct + '%';
         document.getElementById('progress-arc').setAttribute('stroke-dasharray', pct + ', 100');
-        document.getElementById('progress-arc').style.setProperty('--target', pct);
+        document.getElementById('habits-remaining').textContent = progress.total === 0 ? 'Nothing scheduled'
+            : progress.completed === progress.total ? 'All done today' : `${progress.total - progress.completed} remaining`;
 
         const msgs = [
             pct === 100 ? 'Perfect day! All habits completed. 🎉' :
@@ -392,42 +383,32 @@
             const habitUrlId = encodeURIComponent(String(habit.id || ''));
 
             const card = document.createElement('div');
-            card.className = `ha-habit-card bg-surface-container-lowest border rounded-2xl p-4 flex flex-col gap-3 transition-all duration-200 ${isCompleted ? 'border-primary/15' : 'border-outline-variant/25 hover:border-outline-variant/50'}`;
-            card.style.borderColor = `${accent}${isCompleted ? '35' : '28'}`;
-            card.style.boxShadow = `inset 3px 0 0 ${accent}`;
+            card.className = 'ha-habit-card ha-dashboard-habit';
+            card.style.setProperty('--habit-accent', accent);
 
-            // 7-day dots
-            let dotsHtml = last7.map(d => {
-                const base = 'flex flex-col items-center gap-1';
-                const label = `<span class="text-[9px] geist font-medium ${d.isToday ? 'text-primary font-bold' : 'text-on-surface-variant/60'}">${d.label}</span>`;
-                if (d.isToday && isCompleted) {
-                    return `<div class="${base}"><span class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: ${accent}"><span class="material-symbols-outlined text-[13px] text-on-primary">check</span></span>${label}</div>`;
-                }
-                if (d.isToday) {
-                    return `<div class="${base}"><span class="w-6 h-6 rounded-full border-2" style="border-color: ${accent}66; background-color: ${accent}12"></span>${label}</div>`;
-                }
-                if (d.completed) {
-                    return `<div class="${base}"><span class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: ${accent}20; color: ${accent}"><span class="material-symbols-outlined text-[12px]">check</span></span>${label}</div>`;
-                }
-                return `<div class="${base}"><span class="w-6 h-6 rounded-full bg-surface-container/80"></span>${label}</div>`;
+            // Compact history retains the dates, schedule and completion data.
+            const dotsHtml = last7.map(d => {
+                const completed = d.isToday ? isCompleted : d.completed;
+                const status = completed ? 'Completed' : !d.isScheduled ? 'Not scheduled' : d.isToday ? 'Not yet completed' : 'Not completed';
+                return `<span class="ha-dashboard-day${completed ? ' is-completed' : ''}${d.isToday ? ' is-today' : ''}" role="img" aria-label="${HabitArc.escapeHTML(d.date)}: ${status}" title="${HabitArc.escapeHTML(d.date)}: ${status}"><span class="ha-dashboard-day-mark" aria-hidden="true"></span><span class="ha-dashboard-day-label" aria-hidden="true">${HabitArc.escapeHTML(d.label)}</span></span>`;
             }).join('');
 
             card.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <a class="flex items-center gap-3 flex-1 min-w-0" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
-                        <div class="w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center ${style.text} shrink-0" style="background-color: ${accent}1a; color: ${accent}">
-                            <span class="material-symbols-outlined text-xl ${style.iconFill ? 'fill' : ''}">${safeIcon}</span>
+                <div class="ha-dashboard-habit-main">
+                    <a class="ha-dashboard-habit-link" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
+                        <div class="ha-dashboard-habit-icon" style="background-color: ${accent}1a; color: ${accent}">
+                            <span class="material-symbols-outlined ${style.iconFill ? 'fill' : ''}" aria-hidden="true">${safeIcon}</span>
                         </div>
-                        <div class="flex flex-col min-w-0">
-                            <h3 class="text-on-surface ${isCompleted ? 'line-through text-on-surface-variant' : ''}">${safeName}</h3>
-                            <span class="text-[11px] text-on-surface-variant geist font-medium">${streak > 0 ? streak + ' day streak · ' : ''}${safeCategory}</span>
+                        <div class="ha-dashboard-habit-copy">
+                            <h3 class="text-on-surface">${safeName}</h3>
+                            <span class="ha-dashboard-habit-meta text-on-surface-variant">${safeCategory}${streak > 0 ? ' · ' + streak + ' day streak' : ''}</span>
                         </div>
                     </a>
-                    <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle w-11 h-11 rounded-xl shrink-0 flex items-center justify-center active:scale-90 transition-all ${isCompleted ? 'text-on-primary shadow-sm' : 'border text-outline-variant hover:border-primary/40 hover:text-primary'}" data-id="${HabitArc.escapeHTML(habit.id)}" style="${isCompleted ? `background-color: ${accent}` : `border-color: ${accent}66; color: ${accent}`}">
-                        <span class="material-symbols-outlined text-[20px]">check</span>
+                    <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle" data-id="${HabitArc.escapeHTML(habit.id)}">
+                        <span class="material-symbols-outlined" aria-hidden="true">check</span>
                     </button>
                 </div>
-                <div class="flex justify-between items-center pt-2 border-t border-outline-variant/15">${dotsHtml}</div>
+                <div class="ha-dashboard-history"><div class="ha-dashboard-week" role="group" aria-label="Last seven days for ${safeName}">${dotsHtml}</div><span class="ha-dashboard-history-caption">Last 7 days</span></div>
             `;
 
             container.appendChild(card);
@@ -446,6 +427,8 @@
                     setTimeout(() => this.classList.remove('pop'), 300);
                 }
                 render();
+                // Rendering replaces the button; retain keyboard focus on it.
+                [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id)?.focus({ preventScroll: true });
             });
         });
     }

@@ -217,3 +217,91 @@ body > header div:has(> #habit-name-title) { min-width: 0; }
     .ha-habit-card, .ha-progress-card { transition: none; }
     .fade-up { opacity: 1; transform: none; }
 }
+
+/* Approved Focused dashboard composition. Existing theme tokens, hero palette,
+   shared navigation and all other pages deliberately remain unchanged. */
+body > main.ha-dashboard { max-width: 760px; }
+.ha-dashboard .ha-dashboard-greeting { margin-bottom: 28px; }
+.ha-dashboard #today-date { margin: 0 0 10px; font-size: 12px; }
+.ha-dashboard #greeting { font-weight: 700; }
+.ha-dashboard #greeting-name { display: block; color: rgb(var(--ha-primary)); }
+body main .ha-dashboard-hero { min-height: 0; padding: 28px; border-radius: var(--ha-card-radius); }
+.ha-dashboard-progress { display: grid; grid-template-columns: minmax(0, 1fr) 128px; gap: 24px; align-items: center; }
+.ha-dashboard-progress-copy { min-width: 0; }
+.ha-dashboard-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-wrap: initial; }
+.ha-dashboard-count { font-size: 36px; line-height: 1.2; font-weight: 600; letter-spacing: -.04em; margin-top: 12px; font-variant-numeric: tabular-nums; }
+.ha-dashboard-total { opacity: .72; }
+.ha-dashboard-caption { margin-top: 4px; font-size: 13px; }
+.ha-dashboard-ring { position: relative; width: 128px; height: 128px; }
+.ha-dashboard-ring-label { position: absolute; inset: 0; display: grid; place-items: center; }
+.ha-dashboard #progress-pct { font-family: 'Hanken Grotesk', sans-serif; font-size: 32px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ha-dashboard .progress-ring-circle { animation: none; transition: stroke-dasharray 200ms ease; }
+.ha-dashboard .ha-progress-card #progress-msg { max-width: none; margin: 14px 0 0; font-size: 13px; line-height: 1.5; }
+.ha-dashboard-streaks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / .15); }
+.ha-dashboard-stat h3 { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 400; text-wrap: initial; }
+.ha-dashboard-stat h3 .material-symbols-outlined { font-size: 17px; }
+.ha-dashboard-stat p { margin-top: 6px; font-size: 24px; line-height: 1.25; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ha-dashboard-unit { font-size: 13px; font-weight: 400; margin-left: 5px; }
+.ha-dashboard-habits { margin-top: 28px; }
+.ha-dashboard .ha-section-heading { margin-bottom: 12px; gap: 12px; }
+.ha-dashboard .ha-section-heading h2 { font-size: 22px; }
+.ha-dashboard #habits-remaining { font-size: 12px; text-align: right; }
+.ha-dashboard #habits-container { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding-inline: 20px; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); box-shadow: var(--ha-card-shadow); }
+body main.ha-dashboard .ha-dashboard-habit { padding: 20px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+body main.ha-dashboard .ha-dashboard-habit + .ha-dashboard-habit { border-top: 1px solid rgb(var(--ha-outline-variant) / .3); }
+.ha-dashboard-habit-main { display: flex; align-items: center; gap: 16px; }
+.ha-dashboard-habit-link { min-width: 0; flex: 1; display: flex; align-items: center; gap: 12px; min-height: 44px; border-radius: 8px; }
+.ha-dashboard-habit-icon { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 13px; }
+.ha-dashboard-habit-icon .material-symbols-outlined { font-size: 22px; }
+.ha-dashboard-habit-copy { min-width: 0; }
+.ha-dashboard .ha-dashboard-habit h3 { font-size: 17px; line-height: 1.4; text-wrap: initial; }
+.ha-dashboard-habit-meta { display: block; font-size: 12px; margin-top: 3px; }
+.ha-dashboard .habit-toggle { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid rgb(var(--ha-outline)); border-radius: 50%; background: transparent; transition: background-color 150ms ease, border-color 150ms ease; }
+.ha-dashboard .habit-toggle .material-symbols-outlined { font-size: 22px; visibility: hidden; }
+.ha-dashboard .habit-toggle[aria-pressed="true"] { background: color-mix(in srgb, var(--habit-accent) 12%, rgb(var(--ha-surface-container-lowest))); border-color: transparent; color: rgb(var(--ha-primary)); }
+.ha-dashboard .habit-toggle[aria-pressed="true"] .material-symbols-outlined { visibility: visible; }
+.ha-dashboard-history { display: flex; align-items: center; gap: 16px; margin: 14px 0 0 56px; }
+.ha-dashboard-week { display: flex; gap: 7px; align-items: start; }
+.ha-dashboard-day { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 18px; }
+.ha-dashboard-day-mark { display: block; width: 100%; height: 5px; border-radius: 2px; background: rgb(var(--ha-surface-container-highest)); }
+.ha-dashboard-day.is-completed .ha-dashboard-day-mark { background: var(--habit-accent); }
+.ha-dashboard-day.is-today .ha-dashboard-day-mark { height: 7px; }
+.ha-dashboard-day.is-today:not(.is-completed) .ha-dashboard-day-mark { background: rgb(var(--ha-outline)); }
+.ha-dashboard-day-label { font-size: 11px; line-height: 1.2; color: rgb(var(--ha-on-surface-variant)); }
+.ha-dashboard-day.is-today .ha-dashboard-day-label { font-weight: 700; color: rgb(var(--ha-primary)); }
+.ha-dashboard-history-caption { margin-left: auto; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-dashboard-view-all { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; width: fit-content; margin: 16px auto 0; padding: 8px 16px; border-radius: 12px; color: rgb(var(--ha-primary)); font-size: 14px; font-weight: 600; }
+.ha-dashboard-view-all .material-symbols-outlined { font-size: 18px; }
+@media (hover: hover) {
+    .ha-dashboard-habit-link:hover h3 { color: rgb(var(--ha-primary)); }
+    .ha-dashboard .habit-toggle:hover, .ha-dashboard-view-all:hover { background: rgb(var(--ha-primary) / .08); }
+}
+@media (max-width: 767px) {
+    .ha-dashboard .ha-dashboard-greeting { margin-bottom: 24px; }
+    body main .ha-dashboard-hero { padding: 22px; }
+    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 112px; gap: 16px; }
+    .ha-dashboard-ring { width: 112px; height: 112px; }
+    .ha-dashboard-count { font-size: 30px; }
+    .ha-dashboard #progress-pct { font-size: 28px; }
+    .ha-dashboard-streaks { gap: 16px; padding-top: 18px; }
+    .ha-dashboard-stat p { font-size: 22px; }
+    .ha-dashboard #habits-container { padding-inline: 16px; }
+    body main.ha-dashboard .ha-dashboard-habit { padding-block: 18px; }
+    .ha-dashboard .ha-dashboard-habit h3 { font-size: 16px; }
+    .ha-dashboard-history { margin-left: 0; }
+}
+@media (max-width: 359px) {
+    body main .ha-dashboard-hero { padding: 18px; }
+    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 100px; gap: 10px; }
+    .ha-dashboard-ring { width: 100px; height: 100px; }
+    .ha-dashboard-count { font-size: 28px; }
+    .ha-dashboard-habit-main { gap: 10px; }
+    .ha-dashboard-habit-link { gap: 10px; }
+    .ha-dashboard-habit-icon { width: 36px; height: 40px; }
+    .ha-dashboard-habit-meta { font-size: 11px; }
+    .ha-dashboard-week { gap: 5px; }
+    .ha-dashboard-history { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ha-dashboard .progress-ring-circle, .ha-dashboard .habit-toggle { transition: none; }
+}
