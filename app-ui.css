@@ -347,7 +347,7 @@ body > main.ha-insights { max-width: 1120px; gap: 24px; padding-inline: 24px; }
 .ha-insights-trend > .material-symbols-outlined { font-size: 20px; color: #d2e8dc; }
 .ha-insights .ha-insights-metric #metric-trend.ha-insights-metric-empty { font-size: 17px; line-height: 1.4; letter-spacing: -.01em; }
 .ha-insights-metric-context { font-size: 11px; line-height: 1.5; color: #d2e8dc; margin-top: auto; }
-.ha-insights-main, .ha-insights-aside { min-width: 0; gap: 24px; }
+.ha-insights-main, .ha-insights-aside, .ha-insights-coach { min-width: 0; gap: 24px; }
 .ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note) { padding: 24px; }
 .ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 { font-size: 18px; line-height: 1.4; font-weight: 600; letter-spacing: -.025em; color: rgb(var(--ha-on-surface)); }
 .ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 > .material-symbols-outlined { font-size: 20px; color: rgb(var(--ha-primary)); }
@@ -402,6 +402,13 @@ body main.ha-insights .ha-insights-spotlight-row { padding: 18px 0; gap: 12px; b
 @media (min-width: 768px) {
     .ha-insights .ha-insights-timeline { border-left: 1px solid rgb(var(--ha-outline-variant) / .3); }
 }
+@media (min-width: 1024px) {
+    /* Keep the existing desktop two-column composition while the source order
+       prioritises Coach access immediately after the mobile overview. */
+    .ha-insights-main { grid-column: 1 / span 8; grid-row: 3 / span 2; }
+    .ha-insights-coach { grid-column: 9 / -1; grid-row: 3; align-self: start; }
+    .ha-insights-aside { grid-column: 9 / -1; grid-row: 4; align-self: start; }
+}
 @media (min-width: 768px) and (max-width: 1023px) {
     .ha-insights-metric { padding-inline: 16px; }
     .ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak) { font-size: 32px; }
@@ -424,6 +431,9 @@ body main.ha-insights .ha-insights-spotlight-row { padding: 18px 0; gap: 12px; b
     body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) { padding: 20px; }
     .ha-insights .ha-insights-timeline { border-top: 1px solid rgb(var(--ha-outline-variant) / .3); }
     .ha-insights #ai-coach-question { font-size: 16px; }
+    .ha-insights-coach { order: 1; }
+    .ha-insights-main { order: 2; }
+    .ha-insights-aside { order: 3; }
 }
 @media (max-width: 599px) {
     .ha-insights #badges-grid { grid-template-columns: 1fr; }

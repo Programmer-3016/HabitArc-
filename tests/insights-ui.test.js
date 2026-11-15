@@ -8,6 +8,11 @@ const html = readFileSync(new URL('../Insights.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
     .replace(/^import\s+\{\s*buildHabitCoachContext\s*\}\s+from\s+['"].+?['"];?\s*/m, '');
 const now = Date.parse('2026-11-15T12:00:00Z');
+test('Coach is prioritised directly after Insights overview for mobile source order', () => {
+    assert.ok(html.indexOf('aria-label="Progress overview"') < html.indexOf('id="ai-coach-title"'));
+    assert.ok(html.indexOf('id="ai-coach-title"') < html.indexOf('class="ha-insights-main'));
+    assert.equal((html.match(/id="ai-coach-title"/g) || []).length, 1);
+});
 class Clock extends Date {
     constructor(...args) { super(...(args.length ? args : [now])); }
     static now() { return now; }

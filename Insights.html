@@ -213,6 +213,44 @@
 </div>
 </section>
 
+<!-- Secure AI Coach: placed immediately after the overview on mobile, while
+     desktop CSS keeps it in the right-hand companion column. -->
+<section class="ha-insights-coach bg-surface-container-lowest rounded-xl p-card-padding border border-primary-fixed/50 shadow-sm" aria-labelledby="ai-coach-title">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0" aria-hidden="true">
+<span class="material-symbols-outlined text-xl">psychology</span>
+</div>
+<div>
+<h2 id="ai-coach-title" class="font-headline-md text-headline-md text-primary font-bold">Ask HabitArc Coach</h2>
+<p class="font-body-md text-xs text-on-surface-variant mt-1">Your habits, reasons, goals and 28 days of logged history.</p>
+</div>
+</div>
+<p class="mt-3 text-xs text-on-surface-variant">When you ask, this context and up to 3 recent exchanges are sent to our AI provider. Chat stays in this page’s memory; it is not saved to your profile.</p>
+<div id="ai-coach-history" class="ha-coach-history"></div>
+<form id="ai-coach-form" class="mt-4 space-y-3" novalidate>
+<label for="ai-coach-question" class="sr-only">Ask HabitArc Coach a question</label>
+<textarea id="ai-coach-question" name="question" rows="3" maxlength="600" class="w-full resize-y rounded-xl border border-outline-variant/50 bg-surface px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:border-primary focus:outline-none" placeholder="Where am I losing consistency this week?" required></textarea>
+<div class="flex items-center justify-between gap-3">
+<p class="text-[11px] text-on-surface-variant leading-relaxed">Secure sign-in required. Advice is based only on your HabitArc data.</p>
+<button id="ai-coach-submit" type="submit" class="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2.5 text-xs font-label-sm font-semibold text-on-primary hover:bg-primary-container transition-colors disabled:cursor-wait disabled:opacity-70">
+<span class="material-symbols-outlined text-base" aria-hidden="true">arrow_upward</span>
+Ask
+</button>
+</div>
+</form>
+<p id="ai-coach-status" class="mt-3 text-xs text-on-surface-variant" role="status" aria-live="polite"></p>
+<button id="ai-coach-clear" type="button" class="hidden mt-3 text-xs text-primary underline underline-offset-4">New conversation</button>
+<article id="ai-coach-answer-card" class="hidden mt-4 rounded-xl border border-primary/15 bg-primary/[0.04] p-3.5" aria-live="polite">
+<div class="flex items-center gap-2 text-primary font-label-sm text-xs uppercase tracking-wider">
+<span class="material-symbols-outlined text-base" aria-hidden="true">auto_awesome</span>
+Coach response
+</div>
+<p id="ai-coach-asked" class="mt-2 text-xs text-on-surface-variant"></p>
+<p id="ai-coach-answer" class="mt-2 whitespace-pre-wrap font-body-md text-sm leading-relaxed text-on-surface"></p>
+<p id="ai-coach-evidence" class="mt-3 text-xs text-on-surface-variant"></p>
+</article>
+</section>
+
 <!-- Left/Main Column -->
 <div class="ha-insights-main lg:col-span-8 flex flex-col gap-section-margin">
 <p id="insights-data-note" class="text-xs text-on-surface-variant" role="status"></p>
@@ -303,7 +341,7 @@
 </section>
 </div>
 
-<!-- Right Sidebar -->
+<!-- Supplemental insight context -->
 <aside class="ha-insights-aside lg:col-span-4 flex flex-col gap-section-margin">
 <!-- AI Coach Spotlight -->
 <section class="ha-insights-note bg-surface-container-lowest rounded-xl p-card-padding border border-primary-fixed/50 shadow-sm relative overflow-hidden">
@@ -317,43 +355,6 @@
 <a href="Dashboard.html" class="mt-4 flex items-center gap-2 text-xs text-primary font-label-sm uppercase tracking-wider relative z-10 hover:underline">
                     View today's schedule <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
 </a>
-</section>
-
-<!-- Secure AI Coach -->
-<section class="ha-insights-coach bg-surface-container-lowest rounded-xl p-card-padding border border-primary-fixed/50 shadow-sm" aria-labelledby="ai-coach-title">
-<div class="flex items-start gap-3">
-<div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0" aria-hidden="true">
-<span class="material-symbols-outlined text-xl">psychology</span>
-</div>
-<div>
-<h2 id="ai-coach-title" class="font-headline-md text-headline-md text-primary font-bold">Ask HabitArc Coach</h2>
-<p class="font-body-md text-xs text-on-surface-variant mt-1">Your habits, reasons, goals and 28 days of logged history.</p>
-</div>
-</div>
-<p class="mt-3 text-xs text-on-surface-variant">When you ask, this context and up to 3 recent exchanges are sent to our AI provider. Chat stays in this page’s memory; it is not saved to your profile.</p>
-<div id="ai-coach-history" class="ha-coach-history"></div>
-<form id="ai-coach-form" class="mt-4 space-y-3" novalidate>
-<label for="ai-coach-question" class="sr-only">Ask HabitArc Coach a question</label>
-<textarea id="ai-coach-question" name="question" rows="3" maxlength="600" class="w-full resize-y rounded-xl border border-outline-variant/50 bg-surface px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:border-primary focus:outline-none" placeholder="Where am I losing consistency this week?" required></textarea>
-<div class="flex items-center justify-between gap-3">
-<p class="text-[11px] text-on-surface-variant leading-relaxed">Secure sign-in required. Advice is based only on your HabitArc data.</p>
-<button id="ai-coach-submit" type="submit" class="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2.5 text-xs font-label-sm font-semibold text-on-primary hover:bg-primary-container transition-colors disabled:cursor-wait disabled:opacity-70">
-<span class="material-symbols-outlined text-base" aria-hidden="true">arrow_upward</span>
-Ask
-</button>
-</div>
-</form>
-<p id="ai-coach-status" class="mt-3 text-xs text-on-surface-variant" role="status" aria-live="polite"></p>
-<button id="ai-coach-clear" type="button" class="hidden mt-3 text-xs text-primary underline underline-offset-4">New conversation</button>
-<article id="ai-coach-answer-card" class="hidden mt-4 rounded-xl border border-primary/15 bg-primary/[0.04] p-3.5" aria-live="polite">
-<div class="flex items-center gap-2 text-primary font-label-sm text-xs uppercase tracking-wider">
-<span class="material-symbols-outlined text-base" aria-hidden="true">auto_awesome</span>
-Coach response
-</div>
-<p id="ai-coach-asked" class="mt-2 text-xs text-on-surface-variant"></p>
-<p id="ai-coach-answer" class="mt-2 whitespace-pre-wrap font-body-md text-sm leading-relaxed text-on-surface"></p>
-<p id="ai-coach-evidence" class="mt-3 text-xs text-on-surface-variant"></p>
-</article>
 </section>
 
 <!-- Habit Spotlight -->
