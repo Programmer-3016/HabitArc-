@@ -6,7 +6,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "check": "node --check app.js && node --check app-ui.js && node --check firebase-auth.js && node --check pwa-register.js && node --check sw.js && node --check api/coach.js && node --check api/_coach-context.js",
+    "check": "node --check app.js && node --check app-ui.js && node --check firebase-auth.js && node --check pwa-register.js && node --check sw.js && node --check habit-analytics.js && node --check api/coach.js && node --check api/_coach-context.js",
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {

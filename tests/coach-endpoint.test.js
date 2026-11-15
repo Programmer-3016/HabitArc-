@@ -47,7 +47,7 @@ test('Coach method/auth/JSON/body validation fails before model use', async () =
     assert.equal((await app.request({ headers: {} })).code, 401);
     assert.equal((await app.request({ body: '{' })).code, 400);
     assert.equal((await app.request({ body: { question: 'x'.repeat(700) } })).code, 400);
-    assert.equal((await app.request({ body: { question: 'x'.repeat(5000) } })).code, 413);
+    assert.equal((await app.request({ body: { question: 'x'.repeat(21000) } })).code, 413);
     assert.equal((await app.request({ body: { question: 'Hello', timeZone: 'No/SuchZone' } })).code, 400);
     assert.equal(app.generated(), 0);
 });
@@ -67,7 +67,7 @@ test('Coach reads only verified UID and enforces per-user request limit', async 
     assert.equal(response.headers['Cache-Control'], 'no-store, max-age=0');
     assert.equal(response.body.usage.remaining, 0);
     assert.equal(response.body.snapshot.insufficientData, true);
-    assert.deepEqual(app.reads, ['users/member-a/habits', 'users/member-a/habitCompletions']);
+    assert.deepEqual(app.reads, ['users/member-a/habits', 'users/member-a/habitCompletions', 'users/member-a']);
     assert.equal((await app.request()).code, 429);
     assert.equal(app.generated(), 1);
 });

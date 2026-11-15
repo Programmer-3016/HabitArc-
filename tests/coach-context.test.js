@@ -70,3 +70,18 @@ test('coach question normalization removes excess whitespace and applies its lim
     assert.equal(normaliseCoachQuestion('  What\n\nshould I focus on?  '), 'What should I focus on?');
     assert.equal(normaliseCoachQuestion('x'.repeat(800)).length, 600);
 });
+
+test('coach context carries bounded goals, planning reasons and explicit day states', () => {
+    const result = buildHabitCoachContext({
+        now: new Date('2026-11-09T12:00:00.000Z'),
+        settings: { goalDuration: 60, userBio: 'North Star: Read more consistently' },
+        habits: [{ id: 'reading', name: 'Read', why: 'Grow knowledge', motivation: 'One chapter at a time', createdAt: '2026-10-01', repeat: ['mon'] }],
+        completionHistory: [{ habitId: 'reading', date: '2026-11-02', status: 'completed', updatedAt: '2026-11-03T10:00:00.000Z' }]
+    });
+    const snapshot = result.snapshot;
+    assert.equal(snapshot.planning.goalDurationDays, 60);
+    assert.equal(snapshot.planning.statedGoal, 'North Star: Read more consistently');
+    assert.equal(snapshot.habits[0].why, 'Grow knowledge');
+    assert.equal(snapshot.habits[0].recentDays.at(-1).status, 'pending');
+    assert.equal(snapshot.habits[0].recentDays.some(day => day.date === '2026-11-02' && day.status === 'completed'), true);
+});

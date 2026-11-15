@@ -1409,7 +1409,7 @@ const HabitArc = (() => {
         if (styleTag) styleTag.remove();
 
         html.classList.remove('dark', 'light');
-        if (['dark', 'purple', 'forest', 'ocean', 'sunset'].includes(theme)) {
+        if (['dark', 'midnight', 'purple', 'forest', 'ocean', 'sunset'].includes(theme)) {
             html.classList.add('dark');
         } else {
             html.classList.add('light');
@@ -1696,6 +1696,7 @@ const HabitArc = (() => {
         ) {
             _clearPendingLocalSync(user.uid);
         }
+        window.dispatchEvent(new CustomEvent('habitarc:sync-status-changed'));
     }
 
     function _scheduleCloudRetry(user) {
@@ -1827,6 +1828,7 @@ const HabitArc = (() => {
 
             cloudSyncReady = true;
             cloudRetryAttempts = 0;
+            window.dispatchEvent(new CustomEvent('habitarc:sync-status-changed'));
             cloudUnsubscribe = cloudClient.subscribeToUserData(
                 (remoteSnapshot) => {
                     if (cloudActivatedUserId !== userId || activeUserId !== userId || !remoteSnapshot.exists) return;
@@ -1970,8 +1972,37 @@ const HabitArc = (() => {
             signedIn: Boolean(getAuthUser()),
             connected: cloudSyncReady,
             userId: activeUserId,
-            pendingCompletionHistory: _hasPendingCompletionHistory()
+            pendingCompletionHistory: _hasPendingCompletionHistory(),
+            pendingChanges: _hasPendingLocalSync() || _hasPendingCompletionHistory()
         };
+    }
+
+    // The Coach reads Firestore, so explicitly flush this device's pending
+    // changes first. Never silently answer using stale cloud history.
+    async function flushCloudSync() {
+        const member = await whenAuthReady();
+        const uid = member?.uid;
+        if (!uid || member.isAnonymous) throw new Error('Sign in before syncing your Coach context.');
+        if (!cloudSyncReady || uid !== activeUserId) {
+            throw new Error('Your habits are still connecting to the cloud. Wait a moment and try again.');
+        }
+        if (cloudSaveTimer) { window.clearTimeout(cloudSaveTimer); cloudSaveTimer = null; }
+        const operation = cloudSaveChain.catch(() => undefined).then(async () => {
+            for (let attempt = 0; attempt < 3; attempt++) {
+                const user = cloudClient?.getCurrentUser?.();
+                if (user?.uid !== uid || activeUserId !== uid || !cloudSyncReady) {
+                    throw new Error('Your account changed. Sign in and try again.');
+                }
+                if (!_hasPendingLocalSync(uid) && !_hasPendingCompletionHistory(uid)) return;
+                await _persistUserData(_getData(), user);
+            }
+            if (_hasPendingLocalSync(uid) || _hasPendingCompletionHistory(uid)) {
+                throw new Error('Your latest changes are still syncing. Please try again shortly.');
+            }
+        });
+        cloudSaveChain = operation.catch(error => { _emitCloudSyncError(error); });
+        await operation;
+        if (activeUserId !== uid) throw new Error('Your account changed. Please try again.');
     }
 
     _initializeAuthAndCloudSync();
@@ -2032,6 +2063,7 @@ const HabitArc = (() => {
         signOut: signOutUser,
         getAuthToken,
         getCloudSyncStatus,
+        flushCloudSync,
 
         // Notifications
         getReminderPreferences,

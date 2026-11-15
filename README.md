@@ -83,15 +83,16 @@ HabitArc/
 ├── Habits.html        # All habits view with category filtering
 ├── Habit_Detail.html  # GitHub contribution calendar & habit stats
 ├── Add_Habit.html     # Creation form with icon & category selectors
-├── Insights.html      # Behavioral analytics & consistency score
+├── Insights.html      # Data-grounded analytics, Coach conversation UI & evidence labels
 ├── Profile.html       # Goals & CSV data export
 ├── Settings.html      # Theme toggle & system preferences
 ├── app.js             # Central data engine, auth-aware local cache & sync orchestration
+├── habit-analytics.js # One deterministic 28-day analytics calculation for Insights + Coach
 ├── firebase-auth.js   # Firebase Auth and Firestore client integration
 ├── firestore.rules    # Private per-user Firestore access rules
 ├── api/
 │   ├── coach.js        # Authenticated server-side AI Coach endpoint
-│   └── _coach-context.js # Bounded, data-grounded Coach context builder
+│   └── _coach-context.js # Server-side Coach request and conversation validation
 ├── manifest.webmanifest # PWA metadata (square release icons still required)
 ├── sw.js               # Safe offline fallback, no cached auth/app scripts
 ├── offline.html        # Offline fallback screen
@@ -193,11 +194,13 @@ The UI and `/api/coach` function are included in this repository, but the Coach 
    | `FIREBASE_SERVICE_ACCOUNT_BASE64` | The base64 value from Step 3 |
    | `AI_COACH_DAILY_LIMIT` | Optional, defaults to `15` |
 
-5. Redeploy, sign in with a non-guest account, and ask a Coach question from **Insights**.
+5. Redeploy, sign in with a non-guest account, wait for the cloud-sync indicator to settle, and ask a Coach question from **Insights**.
 
 `openai/gpt-5.4-mini` was selected from the live AI Gateway catalog as a cost-conscious default. You can change it without code changes through `AI_GATEWAY_MODEL`. The function enforces a 1–50 request daily limit per signed-in account, an in-flight request lock and a short cooldown. Attempts count even if a provider fails, and the daily quota resets at UTC midnight. This per-user cap is not a global spending cap: configure Gateway budget controls before enabling a public launch.
 
-Historical Coach rates cover the last 28 finished local calendar days. Today is shown separately, not treated as a missed day. The current schedule is used because schedule revisions are not yet versioned. Unmarked days do not prove a real-world failure; actual time spent, energy and obstacles are not tracked. Advice is a suggestion, not an accuracy guarantee or proof of superiority over general-purpose AI.
+Insights and Coach use the same deterministic 28-finished-local-day calculation. It excludes the in-progress day from historical rates, requires sufficient scheduled history before identifying a strongest/weakest pattern, and does not break ties arbitrarily. Today is shown separately, not treated as a missed day. The current schedule is used because schedule revisions are not yet versioned. Unmarked days do not prove a real-world failure; actual time spent, energy and obstacles are not tracked.
+
+For each Coach request, HabitArc first flushes the signed-in member's pending local changes to Firestore. The server then verifies their Firebase ID token and reads only their own habit names/categories, current repeat/reminder schedule, saved habit `why`/motivation, goal-duration and North Star setting, plus up to 28 finished days of completion history. The page may include up to three prior question/answer exchanges to resolve follow-ups; that conversation is held only in the open page, not written to a profile or Firestore. Email, avatar and raw profile data are not sent as Coach context. Advice is a suggestion, not an accuracy guarantee or proof of superiority over general-purpose AI.
 
 ### Remaining release checks
 
@@ -215,9 +218,12 @@ The Admin SDK bypasses client Firestore rules only inside the protected Vercel f
 The existing application pages load `app-ui.css` and `app-ui.js`. The CSS owns
 shared surfaces, page widths, responsive cards, navigation touch targets and
 the four existing Settings palettes: Light, Dark, Forest and Midnight.
-The script bridges existing Tailwind color tokens to CSS variables and adds
-navigation labels, current-page semantics and a keyboard skip link. It does
-not handle authentication, storage, habit calculations or cloud sync.
+The script bridges existing Tailwind color tokens to CSS variables, restores
+the active account's saved theme before first paint, adds navigation labels,
+current-page semantics and a keyboard skip link. Same-origin app tabs use
+browser-native cross-document view transitions where available, with a plain
+instant fallback for unsupported browsers and reduced motion. It does not
+handle authentication, storage, habit calculations or cloud sync.
 
 Onboarding remains separate. No framework, route or navigation order changed.
 Habit lists use two columns from 768px and one column on smaller screens.

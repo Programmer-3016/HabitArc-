@@ -2,9 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import { buildHabitCoachContext } from '../habit-analytics.js';
 
 const html = readFileSync(new URL('../Insights.html', import.meta.url), 'utf8');
-const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1];
+const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
+    .replace(/^import\s+\{\s*buildHabitCoachContext\s*\}\s+from\s+['"].+?['"];?\s*/m, '');
 const now = Date.parse('2026-11-15T12:00:00Z');
 class Clock extends Date {
     constructor(...args) { super(...(args.length ? args : [now])); }
@@ -45,7 +47,8 @@ function insights({ empty = false, signedIn = false } = {}) {
         getOverallCompletionRate: () => empty ? 0 : 85,
         getConsistencyScore: () => empty ? 'F' : 'A-',
         getOverallLongestStreak: () => empty ? 0 : 12,
-        getHabits: () => habits, escapeHTML,
+        getHabits: () => habits, getCompletionHistory: () => [], escapeHTML,
+        getCloudSyncStatus: () => ({ signedIn, connected: true, pendingChanges: false }),
         getBestHabit: () => habits[0] ? { habit: habits[0], rate: 90 } : null,
         getWeakestHabit: () => habits[1] ? { habit: habits[1], rate: 70 } : null,
         getCurrentStreak: () => 5,
@@ -54,12 +57,14 @@ function insights({ empty = false, signedIn = false } = {}) {
         get365DayHeatmap: () => heatmap,
         getBadges: () => [{ title: 'First <Arc>', description: 'Completed your first habit', icon: 'auto_awesome', unlocked: !empty }, { title: '7-Day Streak', description: 'Seven days', icon: 'local_fire_department', unlocked: false }],
         whenAuthReady: async () => signedIn ? { uid: 'qa-user' } : null,
+        getAuthUser: () => signedIn ? { uid: 'qa-user' } : null,
         getAuthToken: async () => 'qa-token',
+        flushCloudSync: async () => {},
     };
     vm.runInNewContext(source, {
-        HabitArc: app, Date: Clock, Intl, AbortSignal,
+        HabitArc: app, buildHabitCoachContext, Date: Clock, Intl, AbortSignal, AbortController, navigator: { onLine: true },
         console: { warn() {} },
-        document: { getElementById: id => elements.get(id) || null },
+        document: { getElementById: id => elements.get(id) || null, addEventListener: () => {}, hidden: false },
         window: { addEventListener: (name, handler) => events.set(name, handler) },
         fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => ({ answer: 'Focus on your routine.', usage: { remaining: 4 } }) }; },
     });
@@ -68,13 +73,14 @@ function insights({ empty = false, signedIn = false } = {}) {
 
 test('Insights overview retains its real metric and percentage-point rendering contract', () => {
     const page = insights();
-    assert.equal(page.elements.get('metric-progress').textContent, '85%');
-    assert.equal(page.elements.get('metric-consistency').textContent, 'A-');
+    assert.equal(page.elements.get('metric-progress').textContent, '29%');
+    assert.equal(page.elements.get('metric-consistency').textContent, 'F');
     assert.equal(page.elements.get('metric-streak').textContent, '12d');
     assert.equal(page.elements.get('metric-trend').textContent, '+28 pp');
-    assert.match(page.elements.get('todays-story-list').innerHTML, /Read &lt;20&gt; pages/);
+    // Equal completion rates do not fabricate an arbitrary "strongest" habit.
+    assert.match(page.elements.get('todays-story-list').innerHTML, /scheduled habits completed today/);
     page.events.get('habitarc:data-changed')({ detail: { source: 'cloud' } });
-    assert.equal(page.elements.get('metric-progress').textContent, '85%');
+    assert.equal(page.elements.get('metric-progress').textContent, '29%');
 });
 
 test('Insights calendar preserves all 365 dates and exposes month and date labels', () => {
@@ -115,9 +121,12 @@ test('restyled Coach preserves authenticated question submission and text-only a
     page.elements.get('ai-coach-question').value = 'Where can I improve?';
     page.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
     await new Promise(resolve => setImmediate(resolve));
+    await new Promise(resolve => setImmediate(resolve));
+    await new Promise(resolve => setImmediate(resolve));
     assert.equal(page.requests[0].url, '/api/coach');
     assert.equal(page.requests[0].options.headers.Authorization, 'Bearer qa-token');
     assert.equal(JSON.parse(page.requests[0].options.body).question, 'Where can I improve?');
+    assert.deepEqual(JSON.parse(page.requests[0].options.body).conversation, []);
     assert.equal(page.elements.get('ai-coach-answer').textContent, 'Focus on your routine.');
     assert.match(page.elements.get('ai-coach-status').textContent, /4 secure Coach messages/);
 });

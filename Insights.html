@@ -194,12 +194,12 @@
 <div class="ha-insights-metric ha-insights-metric-primary">
 <h2>Overall progress</h2>
 <p id="metric-progress">0%</p>
-<span class="ha-insights-metric-context">Last 30 days</span>
+<span class="ha-insights-metric-context">28 finished days · excludes today</span>
 </div>
 <div class="ha-insights-metric">
 <h2>Consistency score</h2>
 <p id="metric-consistency">--</p>
-<span class="ha-insights-metric-context">Completion grade</span>
+<span class="ha-insights-metric-context">Recorded completion grade</span>
 </div>
 <div class="ha-insights-metric">
 <h2>Best streak</h2>
@@ -215,6 +215,7 @@
 
 <!-- Left/Main Column -->
 <div class="ha-insights-main lg:col-span-8 flex flex-col gap-section-margin">
+<p id="insights-data-note" class="text-xs text-on-surface-variant" role="status"></p>
 <!-- Growth Timeline & Today's Story (Horizontal split) -->
 <section class="ha-insights-recap grid grid-cols-1 md:grid-cols-2 gap-stack-gap" aria-label="Your progress story">
 <!-- Today's Story -->
@@ -238,13 +239,13 @@
 <!-- Node 1 -->
 <div class="relative">
 <div class="absolute -left-[23px] top-1 w-3 h-3 bg-primary rounded-full ring-4 ring-surface"></div>
-<h3 class="font-label-md text-label-md text-primary font-semibold">This Week</h3>
+<h3 class="font-label-md text-label-md text-primary font-semibold">Last 7 finished days</h3>
 <p id="timeline-node-1" class="font-body-md text-body-md text-on-surface-variant mt-1">Focusing on daily habits & consistency.</p>
 </div>
 <!-- Node 2 -->
 <div class="relative">
 <div class="absolute -left-[23px] top-1 w-3 h-3 bg-secondary-fixed rounded-full ring-4 ring-surface border border-primary"></div>
-<h3 class="font-label-md text-label-md text-primary font-semibold">Last Week</h3>
+<h3 class="font-label-md text-label-md text-primary font-semibold">Previous 7 days</h3>
 <p id="timeline-node-2" class="font-body-md text-body-md text-on-surface-variant mt-1">Maintained solid completion rate.</p>
 </div>
 <!-- Node 3 -->
@@ -326,9 +327,11 @@
 </div>
 <div>
 <h2 id="ai-coach-title" class="font-headline-md text-headline-md text-primary font-bold">Ask HabitArc Coach</h2>
-<p class="font-body-md text-xs text-on-surface-variant mt-1">Personalized guidance from your own habit history.</p>
+<p class="font-body-md text-xs text-on-surface-variant mt-1">Your habits, reasons, goals and 28 days of logged history.</p>
 </div>
 </div>
+<p class="mt-3 text-xs text-on-surface-variant">When you ask, this context and up to 3 recent exchanges are sent to our AI provider. Chat stays in this page’s memory; it is not saved to your profile.</p>
+<div id="ai-coach-history" class="ha-coach-history"></div>
 <form id="ai-coach-form" class="mt-4 space-y-3" novalidate>
 <label for="ai-coach-question" class="sr-only">Ask HabitArc Coach a question</label>
 <textarea id="ai-coach-question" name="question" rows="3" maxlength="600" class="w-full resize-y rounded-xl border border-outline-variant/50 bg-surface px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:border-primary focus:outline-none" placeholder="Where am I losing consistency this week?" required></textarea>
@@ -341,12 +344,15 @@ Ask
 </div>
 </form>
 <p id="ai-coach-status" class="mt-3 text-xs text-on-surface-variant" role="status" aria-live="polite"></p>
+<button id="ai-coach-clear" type="button" class="hidden mt-3 text-xs text-primary underline underline-offset-4">New conversation</button>
 <article id="ai-coach-answer-card" class="hidden mt-4 rounded-xl border border-primary/15 bg-primary/[0.04] p-3.5" aria-live="polite">
 <div class="flex items-center gap-2 text-primary font-label-sm text-xs uppercase tracking-wider">
 <span class="material-symbols-outlined text-base" aria-hidden="true">auto_awesome</span>
 Coach response
 </div>
+<p id="ai-coach-asked" class="mt-2 text-xs text-on-surface-variant"></p>
 <p id="ai-coach-answer" class="mt-2 whitespace-pre-wrap font-body-md text-sm leading-relaxed text-on-surface"></p>
+<p id="ai-coach-evidence" class="mt-3 text-xs text-on-surface-variant"></p>
 </article>
 </section>
 
@@ -412,43 +418,41 @@ Coach response
 </nav>
 
 <script src="app.js"></script>
-<script>
+<script type="module">
+import { buildHabitCoachContext } from './habit-analytics.js';
 (function initDashboardJourney() {
     if (typeof HabitArc === 'undefined') return;
 
     function renderInsights() {
     // Load Settings & User Name
     const settings = HabitArc.getSettings ? HabitArc.getSettings() : {};
-    const name = settings.userName || 'Sarthak';
-    const firstName = name.split(' ')[0];
-    document.getElementById('hero-title').textContent = `${firstName}'s Journey`;
+    const firstName = settings.userName?.trim().split(' ')[0];
+    document.getElementById('hero-title').textContent = firstName ? `${firstName}'s Journey` : 'Your Journey';
+    const habits = HabitArc.getHabits();
+    const { snapshot } = buildHabitCoachContext({
+        habits, completionHistory: HabitArc.getCompletionHistory(), settings,
+        now: new Date(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    });
+    const asSpotlight = stat => stat ? { habit: habits.find(habit => habit.id === stat.id), rate: stat.rate } : null;
+    const strongest = asSpotlight(snapshot.bestHabit);
+    const opportunity = asSpotlight(snapshot.weakestHabit);
+    const sync = HabitArc.getCloudSyncStatus();
+    document.getElementById('insights-data-note').textContent =
+        `${snapshot.dateWindow.start} – ${snapshot.dateWindow.end} · ${snapshot.total.completed}/${snapshot.total.scheduled} scheduled check-ins logged. ` +
+        (snapshot.insufficientData ? 'Patterns need at least 7 scheduled days. ' : '') +
+        (sync.signedIn && (!sync.connected || sync.pendingChanges) ? 'Showing this device’s data; cloud sync pending. ' : '') +
+        'Uses your current repeat schedules. Unmarked days are not proof of a missed habit.';
 
     // Metrics Data
-    const overallRate = HabitArc.getOverallCompletionRate();
-    const consistencyScore = HabitArc.getConsistencyScore();
+    const overallRate = snapshot.fourWeekRate;
+    const grades = [[95, 'A+'], [90, 'A'], [85, 'A-'], [80, 'B+'], [75, 'B'], [70, 'B-'], [65, 'C+'], [60, 'C'], [55, 'C-'], [50, 'D'], [0, 'F']];
+    const consistencyScore = snapshot.insufficientData ? '—' : grades.find(([threshold]) => overallRate >= threshold)[1];
     const bestStreak = HabitArc.getOverallLongestStreak();
 
-    document.getElementById('metric-progress').textContent = overallRate + '%';
+    document.getElementById('metric-progress').textContent = overallRate === null ? '—' : overallRate + '%';
     document.getElementById('metric-consistency').textContent = consistencyScore;
     document.getElementById('metric-streak').textContent = bestStreak + 'd';
-    function periodSummary(offset, days = 7) {
-        let scheduled = 0;
-        let completed = 0;
-        for (let index = offset; index < offset + days; index++) {
-            const date = new Date();
-            date.setDate(date.getDate() - index);
-            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-            const weekday = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][date.getDay()];
-            for (const habit of HabitArc.getHabits()) {
-                if (key < habit.createdAt || (habit.repeat && !habit.repeat.includes(weekday))) continue;
-                scheduled++;
-                if (habit.completions?.[key]) completed++;
-            }
-        }
-        return { scheduled, completed, rate: scheduled ? Math.round(100 * completed / scheduled) : 0 };
-    }
-    const latestWeek = periodSummary(1);
-    const priorWeek = periodSummary(8);
+    const { latestWeek, priorWeek, earlierWeek } = snapshot;
     const trend = latestWeek.rate - priorWeek.rate;
     document.getElementById('metric-trend').textContent = latestWeek.scheduled && priorWeek.scheduled
         ? `${trend > 0 ? '+' : ''}${trend} pp`
@@ -461,30 +465,28 @@ Coach response
     const storyContainer = document.getElementById('todays-story-list');
     storyContainer.innerHTML = '';
 
-    const habits = HabitArc.getHabits();
     const escape = HabitArc.escapeHTML;
     if (habits.length > 0) {
-        const bestHabit = HabitArc.getBestHabit();
-        const weakestHabit = HabitArc.getWeakestHabit();
+        const bestHabit = strongest;
+        const weakestHabit = opportunity;
 
         if (bestHabit && bestHabit.habit) {
             const streak = HabitArc.getCurrentStreak(bestHabit.habit.id);
             storyContainer.innerHTML += `
                 <li class="flex gap-3 items-start p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
                     <span class="material-symbols-outlined text-primary-fixed-dim mt-0.5">check_circle</span>
-                    <span><strong>${escape(bestHabit.habit.name)}</strong> has been consistent with a ${streak}-day streak.</span>
+                    <span><strong>${escape(bestHabit.habit.name)}</strong>: ${bestHabit.rate}% recorded completion over 28 finished days. Current streak: ${streak}.</span>
                 </li>`;
         }
 
-        const scheduledToday = HabitArc.getTodayHabits();
-        const completedToday = scheduledToday.filter(h => HabitArc.isCompletedToday(h.id));
-        if (completedToday.length > 0) {
+        if (snapshot.today.scheduled > 0) {
             storyContainer.innerHTML += `
                 <li class="flex gap-3 items-start p-3 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
                     <span class="material-symbols-outlined text-primary-fixed-dim mt-0.5">check_circle</span>
-                    <span>${completedToday.length} of ${scheduledToday.length} scheduled habits already completed today.</span>
+                    <span>${snapshot.today.completed} of ${snapshot.today.scheduled} scheduled habits completed today. Today is still in progress.</span>
                 </li>`;
         }
+        if (!storyContainer.innerHTML) storyContainer.innerHTML = '<li>No habits scheduled today. Your next check-ins will build your progress story.</li>';
 
         if (weakestHabit && weakestHabit.habit && weakestHabit.rate < 80) {
             storyContainer.innerHTML += `
@@ -502,12 +504,11 @@ Coach response
     }
 
     // Dynamic Timeline Text
-    const bestDay = HabitArc.getBestDay();
+    const bestDay = snapshot.strongestDay;
     document.getElementById('timeline-node-1').textContent = latestWeek.scheduled
         ? `${latestWeek.completed} of ${latestWeek.scheduled} scheduled check-ins completed in the last 7 days.` : 'Track your habits to begin your weekly story.';
     document.getElementById('timeline-node-2').textContent = priorWeek.scheduled
         ? `${priorWeek.completed} of ${priorWeek.scheduled} scheduled check-ins completed in the previous 7 days.` : 'No scheduled history for the previous week.';
-    const earlierWeek = periodSummary(15);
     document.getElementById('timeline-node-3').textContent = earlierWeek.scheduled
         ? `${earlierWeek.completed} of ${earlierWeek.scheduled} scheduled check-ins completed.` : 'No scheduled history for this period.';
 
@@ -518,24 +519,8 @@ Coach response
     const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
     dayKeys.forEach((key, idx) => {
-        let totalScheduled = 0;
-        let totalCompleted = 0;
-
-        for (let i = 1; i <= 28; i++) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase().slice(0, 3);
-
-            if (dayName === key) {
-                habits.forEach(h => {
-                    if (dateStr >= h.createdAt && (!h.repeat || h.repeat.includes(key))) {
-                        totalScheduled++;
-                        if (h.completions && h.completions[dateStr]) totalCompleted++;
-                    }
-                });
-            }
-        }
+        const stat = snapshot.weekdays.find(day => day.day === key);
+        const { scheduled: totalScheduled, completed: totalCompleted } = stat;
 
         const pct = totalScheduled > 0 ? Math.round((totalCompleted / totalScheduled) * 100) : 0;
         
@@ -553,15 +538,12 @@ Coach response
     }
 
     // Populate Habit Spotlights
-    const strongest = HabitArc.getBestHabit();
-    const opportunity = HabitArc.getWeakestHabit();
-
     if (strongest && strongest.habit) {
         document.getElementById('strongest-name').textContent = strongest.habit.name;
         document.getElementById('strongest-icon').textContent = strongest.habit.icon || 'menu_book';
         document.getElementById('strongest-streak').textContent = HabitArc.getCurrentStreak(strongest.habit.id) + 'd';
     } else {
-        document.getElementById('strongest-name').textContent = 'No habits yet';
+        document.getElementById('strongest-name').textContent = !habits.length ? 'No habits yet' : snapshot.insufficientData ? 'Building history' : 'No clear leader yet';
         document.getElementById('strongest-streak').textContent = '—';
     }
 
@@ -570,15 +552,16 @@ Coach response
         document.getElementById('opportunity-icon').textContent = opportunity.habit.icon || 'edit_note';
         document.getElementById('opportunity-streak').textContent = HabitArc.getCurrentStreak(opportunity.habit.id) + 'd';
     } else {
-        document.getElementById('opportunity-name').textContent = 'No habits yet';
+        document.getElementById('opportunity-name').textContent = !habits.length ? 'No habits yet' : snapshot.insufficientData ? 'Building history' : 'No single focus area';
         document.getElementById('opportunity-streak').textContent = '—';
     }
 
     // Dynamic Coach Note
     const coachNoteEl = document.getElementById('coach-note-text');
     coachNoteEl.textContent = bestDay?.rate > 0
-        ? `Your highest recorded completion rate is on ${bestDay.day}s (${bestDay.rate}%). This is a summary of your tracked history, not an AI prediction.`
-        : 'Complete habits for a few days to reveal your consistency patterns. Your progress summary will appear here.';
+        ? `Your strongest recorded weekday is ${({ sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' })[bestDay.day]} (${bestDay.rate}%) over the last 28 finished days. This describes logged history, not a prediction.`
+        : snapshot.insufficientData ? 'Complete habits for a few days to reveal your consistency patterns. At least 7 scheduled days help make comparisons meaningful.'
+        : 'There is no clear strongest weekday in this period. Tied or sparse weekday records do not establish a pattern.';
 
     // Render 365-Day Contribution Heatmap (Option 5)
     const heatmapGrid = document.getElementById('heatmap-grid-365');
@@ -640,6 +623,41 @@ Coach response
         const answerCard = document.getElementById('ai-coach-answer-card');
         const answer = document.getElementById('ai-coach-answer');
         if (!form || !questionInput || !submitButton || !status || !answerCard || !answer) return;
+        const history = document.getElementById('ai-coach-history');
+        const clearButton = document.getElementById('ai-coach-clear');
+        const asked = document.getElementById('ai-coach-asked');
+        const evidence = document.getElementById('ai-coach-evidence');
+        let conversation = [];
+        let owner = null;
+        let requestController = null;
+
+        function resetConversation() {
+            requestController?.abort();
+            requestController = null;
+            conversation = [];
+            owner = null;
+            history.innerHTML = '';
+            answer.textContent = '';
+            asked.textContent = '';
+            evidence.textContent = '';
+            answerCard.classList.add('hidden');
+            clearButton.classList.add('hidden');
+            questionInput.value = '';
+            setStatus('');
+            setLoading(false);
+        }
+
+        // Bound all waits, including Firebase hydration/writes when offline.
+        async function cancellable(promise, signal) {
+            signal.throwIfAborted();
+            let abort;
+            const cancelled = new Promise((_, reject) => {
+                abort = () => reject(signal.reason);
+                signal.addEventListener('abort', abort, { once: true });
+            });
+            try { return await Promise.race([promise, cancelled]); }
+            finally { signal.removeEventListener('abort', abort); }
+        }
 
         function setStatus(message, tone = 'muted') {
             status.textContent = message;
@@ -651,6 +669,7 @@ Coach response
         function setLoading(isLoading) {
             submitButton.disabled = isLoading;
             submitButton.setAttribute('aria-busy', String(isLoading));
+            questionInput.disabled = isLoading;
             submitButton.innerHTML = isLoading
                 ? '<span class="material-symbols-outlined text-base animate-spin" aria-hidden="true">progress_activity</span>Thinking'
                 : '<span class="material-symbols-outlined text-base" aria-hidden="true">arrow_upward</span>Ask';
@@ -666,24 +685,30 @@ Coach response
             }
 
             setLoading(true);
-            setStatus('Reviewing your private HabitArc progress…');
-            answerCard.classList.add('hidden');
+            setStatus('Syncing your latest habits before asking the Coach…');
+            const controller = new AbortController();
+            requestController = controller;
+            const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45000)]);
 
             try {
-                const user = await HabitArc.whenAuthReady();
+                if (navigator.onLine === false) throw new Error('You are offline. Reconnect to ask the Coach; your habits remain saved on this device.');
+                const user = await cancellable(HabitArc.whenAuthReady(), signal);
                 if (!user || user.isAnonymous) {
                     throw new Error('Create or sign in to an account before using the secure HabitArc Coach.');
                 }
 
-                const idToken = await HabitArc.getAuthToken();
+                owner = user.uid;
+                await cancellable(HabitArc.flushCloudSync(), signal);
+                const idToken = await cancellable(HabitArc.getAuthToken(), signal);
+                setStatus('Reviewing your synced history, goals and this conversation…');
                 const response = await fetch('/api/coach', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${idToken}`
                     },
-                    body: JSON.stringify({ question, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
-                    signal: AbortSignal.timeout(35000)
+                    body: JSON.stringify({ question, conversation: conversation.slice(-3), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+                    signal
                 });
 
                 let payload = null;
@@ -697,9 +722,26 @@ Coach response
                 if (!response.ok || !payload?.answer) {
                     throw new Error(payload?.error?.message || 'HabitArc Coach is temporarily unavailable. Please try again shortly.');
                 }
+                if (controller !== requestController || HabitArc.getAuthUser()?.uid !== owner) return;
 
-                answer.textContent = payload.answer;
+                const safeAnswer = String(payload.answer).slice(0, 12000);
+                history.innerHTML = conversation.slice(-2).map(turn =>
+                    `<details><summary>${HabitArc.escapeHTML(turn.question)}</summary><p>${HabitArc.escapeHTML(turn.answer)}</p></details>`
+                ).join('');
+                conversation = [...conversation.slice(-2), { question, answer: safeAnswer.slice(0, 4000) }];
+                asked.textContent = question;
+                answer.textContent = safeAnswer;
+                const source = payload.snapshot;
+                evidence.textContent = source?.dateWindow
+                    ? `Based on ${source.habitCount} synced habits · ${source.dateWindow.start} – ${source.dateWindow.end} · ${source.timeZone}. ` +
+                      (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
+                      (source.truncated ? 'Some history was outside the context limit. ' : '') +
+                      'Today is in progress. Advice is not a guarantee.'
+                    : 'Based on your synced HabitArc records. Advice is not a guarantee.';
                 answerCard.classList.remove('hidden');
+                clearButton.classList.remove('hidden');
+                questionInput.value = '';
+                questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
                 const remaining = payload.usage?.remaining;
                 setStatus(
                     Number.isFinite(remaining)
@@ -709,10 +751,15 @@ Coach response
                 );
                 window.HabitArcUI?.announce?.('HabitArc Coach response is ready.');
             } catch (error) {
-                console.warn('HabitArc Coach request failed.', error);
-                setStatus(error?.message || 'HabitArc Coach is temporarily unavailable. Please try again shortly.', 'error');
+                if (controller !== requestController || controller.signal.aborted) return;
+                setStatus(error?.name === 'TimeoutError'
+                    ? 'This is taking too long. Your question is kept—check your connection and try again.'
+                    : error?.message || 'HabitArc Coach is temporarily unavailable. Please try again shortly.', 'error');
             } finally {
-                setLoading(false);
+                if (controller === requestController) {
+                    requestController = null;
+                    setLoading(false);
+                }
             }
         }
 
@@ -726,16 +773,22 @@ Coach response
                 void askCoach();
             }
         });
+        clearButton.addEventListener('click', () => { resetConversation(); questionInput.focus(); });
+        window.addEventListener('pagehide', resetConversation);
+        window.addEventListener('habitarc:data-changed', () => {
+            if (owner && HabitArc.getAuthUser()?.uid !== owner) resetConversation();
+        });
     }
 
     initialiseSecureCoach();
     renderInsights();
     window.addEventListener('habitarc:data-changed', (event) => {
-        const source = event.detail?.source;
-        if (source === 'cloud' || source === 'user-cache') {
-            renderInsights();
-        }
+        renderInsights();
     });
+    window.addEventListener('habitarc:sync-status-changed', renderInsights);
+    window.addEventListener('habitarc:cloud-sync-error', renderInsights);
+    window.addEventListener('pageshow', renderInsights);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderInsights(); });
 })();
 </script>
 </body>

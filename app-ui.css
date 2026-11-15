@@ -1,4 +1,26 @@
-/* Shared presentation layer. No routes, auth, persistence, or habit behavior. */
+/* Shared presentation layer; existing native multi-page navigation is preserved. */
+/* Browser-native transitions have a normal-navigation fallback, without a router. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation-duration: 150ms; }
+::view-transition-new(root) { animation-duration: 200ms; }
+html { background: rgb(var(--ha-background, 247 249 248)); }
+@media (min-width: 768px) {
+    .ha-app-navigation body > header.hidden.md\:block { view-transition-name: app-header; }
+}
+@media (max-width: 767px) {
+    .ha-app-navigation body > header.md\:hidden { view-transition-name: app-header; }
+    .ha-app-navigation body > nav.fixed { view-transition-name: app-navigation; }
+}
+::view-transition-group(app-header), ::view-transition-group(app-navigation) { animation-duration: 200ms; }
+.ha-nav-pending { background: rgb(var(--ha-primary) / .10); }
+.ha-coach-history details { margin-top: 12px; border-bottom: 1px solid rgb(var(--ha-outline-variant) / .35); padding-bottom: 12px; }
+.ha-coach-history summary { cursor: pointer; color: rgb(var(--ha-on-surface)); font-size: 13px; overflow-wrap: anywhere; }
+.ha-coach-history p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.65; margin-top: 8px; color: rgb(var(--ha-on-surface-variant)); }
+#ai-coach-answer, #ai-coach-asked { overflow-wrap: anywhere; }
+@media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+    ::view-transition-group(*) { animation: none !important; }
+}
 :root {
     color-scheme: light;
     --ha-background: 247 249 248;
