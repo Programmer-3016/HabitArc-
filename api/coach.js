@@ -1,8 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { generateText } from 'ai';
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { buildHabitCoachContext, normaliseCoachQuestion, normaliseCoachTimeZone, normaliseCoachConversation } from './_coach-context.js';
 
 const DEFAULT_MODEL = 'openai/gpt-5.4-mini';
@@ -43,12 +39,21 @@ function getFirebaseServiceAccount() {
     }
 }
 
-function getFirebaseAdmin() {
+async function getFirebaseAdmin() {
     try {
+        // Loading server SDKs only after the cheap request guards means a
+        // configuration issue returns a useful JSON response, not a function
+        // startup failure. It also keeps GET/OPTIONS-like probes dependency-free.
+        const [appModule, authModule, firestoreModule] = await Promise.all([
+            import('firebase-admin/app'), import('firebase-admin/auth'), import('firebase-admin/firestore')
+        ]);
+        const { cert, getApps, initializeApp } = appModule;
+        const { getAuth } = authModule;
+        const { FieldValue, getFirestore } = firestoreModule;
         const app = getApps().find((candidate) => candidate.name === 'habitarc-coach') || initializeApp({
             credential: cert(getFirebaseServiceAccount())
         }, 'habitarc-coach');
-        return { auth: getAuth(app), db: getFirestore(app) };
+        return { auth: getAuth(app), db: getFirestore(app), timestamp: () => FieldValue.serverTimestamp() };
     } catch {
         throw new CoachRequestError(503, 'coach-not-configured', 'The secure HabitArc Coach connection is incomplete. Please contact the project owner.');
     }
@@ -109,6 +114,29 @@ function getModelId() {
 
 function gatewayIsConfigured() {
     return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN);
+}
+
+/**
+ * Uses Vercel AI Gateway's documented OpenAI-compatible Chat Completions API.
+ * Keeping this on native fetch avoids an AI SDK import during function startup.
+ */
+async function generateWithGateway({ model, system, prompt, maxOutputTokens, abortSignal }) {
+    const apiKey = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+    if (!apiKey) throw new CoachRequestError(503, 'coach-not-configured', 'HabitArc Coach is being connected securely. Please try again after setup is complete.');
+    const response = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            model,
+            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+            max_tokens: maxOutputTokens
+        }),
+        signal: abortSignal
+    });
+    if (!response.ok) throw new Error('AI Gateway request failed.');
+    const payload = await response.json();
+    const text = payload?.choices?.[0]?.message?.content;
+    return { text: typeof text === 'string' ? text : '' };
 }
 
 function dateOffset(now, days) {
@@ -222,10 +250,10 @@ function safeLogError(error) {
 /** Dependency injection keeps guard/quota tests offline; production uses server-only SDKs. */
 export function createCoachHandler({
     getAdmin = getFirebaseAdmin,
-    generate = generateText,
+    generate = generateWithGateway,
     configured = gatewayIsConfigured,
     now = () => new Date(),
-    timestamp = () => FieldValue.serverTimestamp(),
+    timestamp,
     dailyLimit = getDailyLimit,
     modelId = getModelId,
     logError = safeLogError
@@ -257,7 +285,8 @@ export function createCoachHandler({
                 throw new CoachRequestError(503, 'coach-not-configured', 'HabitArc Coach is being connected securely. Please try again after setup is complete.');
             }
             const model = modelId();
-            const { auth, db } = getAdmin();
+            const { auth, db, timestamp: adminTimestamp } = await getAdmin();
+            const requestTimestamp = timestamp || adminTimestamp || (() => new Date().toISOString());
             let decodedToken;
             try {
                 decodedToken = await auth.verifyIdToken(token, true);
@@ -274,7 +303,7 @@ export function createCoachHandler({
                 throw new CoachRequestError(403, 'account-required', 'Create or sign in to an account before using the secure HabitArc Coach.');
             }
             const requestTime = now();
-            const quota = await reserveQuota(db, decodedToken.uid, requestTime, dailyLimit(), timestamp);
+            const quota = await reserveQuota(db, decodedToken.uid, requestTime, dailyLimit(), requestTimestamp);
             let answer;
             let metrics;
             try {
@@ -296,7 +325,7 @@ export function createCoachHandler({
                 answer = typeof result.text === 'string' ? result.text.trim() : '';
                 if (!answer) throw new Error('Empty model response.');
             } finally {
-                try { await releaseQuotaLease(db, decodedToken.uid, quota.leaseId, timestamp); } catch (error) {
+                try { await releaseQuotaLease(db, decodedToken.uid, quota.leaseId, requestTimestamp); } catch (error) {
                     // The lease expires automatically even if cleanup fails.
                     logError(error);
                 }
