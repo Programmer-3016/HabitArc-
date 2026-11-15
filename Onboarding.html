@@ -374,512 +374,208 @@
             transition-duration: 0.01ms;
         }
     }
+    /* ── Minimal onboarding (v2) ── */
+    .animate-in { animation: fadeInUp 0.35s ease-out both; }
+    .grid-cols-14 { grid-template-columns: repeat(14, minmax(0, 1fr)); }
+    main { scrollbar-width: none; }
+    main::-webkit-scrollbar { display: none; }
+
+    .opt, .opt-row, .opt-big, .chip {
+        background: #ffffff;
+        border: 1.5px solid #eceeef;
+        color: #191c1d;
+        transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+        cursor: pointer;
+        text-align: left;
+    }
+    .opt { position: relative; border-radius: 20px; padding: 22px 12px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .opt-ico { font-size: 24px; color: #012d1d; }
+    .opt-label { font-size: 16px; font-weight: 600; }
+    .opt .check-badge { position: absolute; top: 10px; right: 10px; }
+    .opt-row { width: 100%; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
+    .opt-row .opt-label { flex: 1; }
+    .opt-ico-box { width: 40px; height: 40px; border-radius: 12px; background: #f3f4f5; color: #012d1d; display: flex; align-items: center; justify-content: center; font-size: 22px; transition: all .18s ease; flex-shrink: 0; }
+    .opt-big { border-radius: 24px; padding: 34px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+    .opt-big .material-symbols-outlined { font-size: 38px; color: #012d1d; }
+    .opt.selected, .opt-row.selected, .opt-big.selected { background: #a0f4c8; border-color: #012d1d; }
+    .opt-row.selected .opt-ico-box { background: #012d1d; color: #ffffff; }
+    .check-badge { width: 22px; height: 22px; border-radius: 9999px; background: #012d1d; color: #fff; display: flex; align-items: center; justify-content: center; }
+    .check-badge .material-symbols-outlined { font-size: 14px; }
+
+    .chip { padding: 8px 14px; border-radius: 9999px; font-size: 14px; font-weight: 500; }
+    .chip:hover { border-color: #012d1d; }
+
+    .theme-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; cursor: pointer; }
+    .swatch { width: 52px; height: 52px; border-radius: 9999px; border: 1.5px solid #dfe2e3; transition: box-shadow .18s ease; }
+    .swatch-label { font-size: 12px; color: #717973; font-weight: 500; }
+    .theme-btn.selected-theme .swatch { box-shadow: 0 0 0 3px #f8f9fa, 0 0 0 5px #012d1d; }
+    .theme-btn.selected-theme .swatch-label { color: #012d1d; font-weight: 700; }
+
+    .auth-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: 18px; background: #ffffff; border: 1.5px solid #e4e7e8; color: #191c1d; font-size: 15px; font-weight: 600; cursor: pointer; transition: border-color .18s ease; }
+    .auth-btn:hover { border-color: #012d1d; }
+    .auth-input { width: 100%; padding: 13px 16px; border-radius: 16px; border: 1.5px solid #e4e7e8; background: #ffffff; font-size: 15px; color: #191c1d; }
+    .auth-input:focus { outline: none; border-color: #012d1d; box-shadow: 0 0 0 3px rgba(116,198,157,.25); }
+
+    .logo-hero { animation: fadeInUp 0.5s ease-out both; }
 </style>
 </head>
-<body class="bg-background text-on-background antialiased h-[100dvh] max-h-[100dvh] flex flex-col justify-between p-4 sm:p-6 overflow-hidden relative">
+<body class="bg-background text-on-background antialiased h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden relative">
 
-<!-- Header Top Bar -->
-<header class="w-full max-w-xl mx-auto flex items-center justify-between py-2 shrink-0">
-    <div class="flex items-center gap-2">
-        <img src="logo.png" alt="HabitArc Logo" class="w-7 h-7 rounded-lg object-contain logo-hero"/>
-        <span class="font-headline-md text-base text-primary font-bold">HabitArc</span>
-    </div>
-    <div class="flex items-center">
-        <span id="step-indicator" class="font-label-sm text-sm text-on-surface-variant geist font-semibold">Step 1 of 8</span>
-    </div>
-</header>
-
-<!-- Progress Bar -->
-<div class="w-full max-w-xl mx-auto h-1 bg-surface-container rounded-full overflow-hidden my-1 shrink-0">
-    <div id="progress-bar" class="h-full bg-primary-container transition-all duration-300 ease-out rounded-full" style="width: 12.5%;"></div>
+<!-- Thin progress line -->
+<div class="fixed top-0 left-0 right-0 h-[2px] bg-surface-container z-40">
+    <div id="progress-bar" class="h-full bg-primary transition-all duration-300 ease-out" style="width: 14.28%;"></div>
 </div>
 
-<!-- Main Stepper Wizard Canvas -->
-<main class="flex-1 w-full max-w-xl mx-auto flex flex-col justify-center py-2 overflow-y-auto pb-24">
+<!-- Header -->
+<header class="w-full max-w-md mx-auto flex items-center justify-between px-6 pt-5 pb-2 shrink-0">
+    <div class="flex items-center gap-2">
+        <img src="logo.png" alt="HabitArc" class="w-6 h-6 object-contain"/>
+        <span class="text-base text-primary font-bold tracking-tight">HabitArc</span>
+    </div>
+    <span id="step-indicator" class="text-sm text-outline geist font-medium">1 / 7</span>
+</header>
+
+<!-- Steps -->
+<main class="flex-1 w-full max-w-md mx-auto flex flex-col px-6 overflow-y-auto pb-32">
 
     <!-- STEP 1: Welcome -->
-    <div id="step-1" class="step-card active animate-in space-y-5 text-center flex flex-col items-center justify-center mx-auto w-full">
-        <img src="logo.png" alt="HabitArc Logo" class="w-32 h-32 sm:w-40 sm:h-40 object-contain logo-hero mx-auto block filter drop-shadow-xl"/>
-        <h1 class="font-headline-lg text-3xl sm:text-4xl text-on-surface font-bold tracking-tight mt-2 text-center">Welcome to HabitArc</h1>
-        <p class="font-body-lg text-lg sm:text-xl text-on-surface-variant leading-relaxed text-center">
+    <div id="step-1" class="step-card active animate-in my-auto text-center flex flex-col items-center">
+        <img src="logo.png" alt="HabitArc Logo" class="w-24 h-24 object-contain logo-hero"/>
+        <h1 class="mt-10 text-[34px] leading-[1.18] font-bold tracking-tight text-primary">
             Build habits.<br/>
             Understand yourself.<br/>
-            <span class="text-primary font-semibold">Grow every day.</span>
-        </p>
+            <span class="text-secondary">Grow every day.</span>
+        </h1>
     </div>
 
-    <!-- STEP 2: What brought you here today? (Multi Select) -->
-    <div id="step-2" class="step-card animate-in space-y-3 sm:space-y-4">
-        <div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold">What brought you here today?</h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Select all areas you want to transform.</p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5" id="intent-options">
-            <div class="intent-opt btn-press p-3 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Health">
-                <div class="flex items-center gap-3">
-                    <div class="intent-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0 overflow-hidden">
-                        <span class="material-symbols-outlined text-lg sm:text-xl">favorite</span>
-                    </div>
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Health</span>
-                </div>
-                <div class="check-badge w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
-                    <span class="material-symbols-outlined text-xs font-bold">check</span>
-                </div>
-            </div>
-
-            <div class="intent-opt btn-press p-3 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Fitness">
-                <div class="flex items-center gap-3">
-                    <div class="intent-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0 overflow-hidden">
-                        <span class="material-symbols-outlined text-lg sm:text-xl">fitness_center</span>
-                    </div>
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Fitness</span>
-                </div>
-                <div class="check-badge w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
-                    <span class="material-symbols-outlined text-xs font-bold">check</span>
-                </div>
-            </div>
-
-            <div class="intent-opt btn-press p-3 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Study">
-                <div class="flex items-center gap-3">
-                    <div class="intent-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0 overflow-hidden">
-                        <span class="material-symbols-outlined text-lg sm:text-xl">auto_stories</span>
-                    </div>
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Study</span>
-                </div>
-                <div class="check-badge w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
-                    <span class="material-symbols-outlined text-xs font-bold">check</span>
-                </div>
-            </div>
-
-            <div class="intent-opt btn-press p-3 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Productivity">
-                <div class="flex items-center gap-3">
-                    <div class="intent-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0 overflow-hidden">
-                        <span class="material-symbols-outlined text-lg sm:text-xl">bolt</span>
-                    </div>
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Productivity</span>
-                </div>
-                <div class="check-badge w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
-                    <span class="material-symbols-outlined text-xs font-bold">check</span>
-                </div>
-            </div>
-
-            <div class="intent-opt btn-press p-3 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Mindfulness">
-                <div class="flex items-center gap-3">
-                    <div class="intent-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0 overflow-hidden">
-                        <span class="material-symbols-outlined text-lg sm:text-xl">self_improvement</span>
-                    </div>
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Mindfulness</span>
-                </div>
-                <div class="check-badge w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
-                    <span class="material-symbols-outlined text-xs font-bold">check</span>
-                </div>
-            </div>
-
-            <div class="intent-opt btn-press p-3 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Finance">
-                <div class="flex items-center gap-3">
-                    <div class="intent-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0 overflow-hidden">
-                        <span class="material-symbols-outlined text-lg sm:text-xl">account_balance_wallet</span>
-                    </div>
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Finance</span>
-                </div>
-                <div class="check-badge w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
-                    <span class="material-symbols-outlined text-xs font-bold">check</span>
-                </div>
-            </div>
-
-            <div class="intent-opt btn-press sm:col-span-2 p-3 sm:p-4 rounded-2xl border border-surface-container bg-surface-container-lowest hover:border-primary/40 hover:bg-surface-container-low/60 cursor-pointer transition-all duration-200 flex items-center justify-between group shadow-2xs" data-val="Other">
-                <div class="flex items-center gap-3">
-                    <div class="intent-icon-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0 overflow-hidden">
-                        <span class="material-symbols-outlined text-lg sm:text-xl">auto_awesome</span>
-                    </div>
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-semibold">Other</span>
-                </div>
-                <div class="check-badge w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-2xs">
-                    <span class="material-symbols-outlined text-xs font-bold">check</span>
-                </div>
-            </div>
+    <!-- STEP 2: What brought you here? -->
+    <div id="step-2" class="step-card animate-in my-auto w-full">
+        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">What brought you<br/>here today?</h2>
+        <p class="mt-2 text-[15px] text-outline">Select all that apply.</p>
+        <div class="mt-8 grid grid-cols-2 gap-3" id="intent-options">
+            <button type="button" class="opt intent-opt btn-press" data-val="Health"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">favorite</span><span class="opt-label">Health</span></button>
+            <button type="button" class="opt intent-opt btn-press" data-val="Fitness"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">fitness_center</span><span class="opt-label">Fitness</span></button>
+            <button type="button" class="opt intent-opt btn-press" data-val="Study"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">auto_stories</span><span class="opt-label">Study</span></button>
+            <button type="button" class="opt intent-opt btn-press" data-val="Productivity"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">bolt</span><span class="opt-label">Productivity</span></button>
+            <button type="button" class="opt intent-opt btn-press" data-val="Mindfulness"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">self_improvement</span><span class="opt-label">Mindfulness</span></button>
+            <button type="button" class="opt intent-opt btn-press" data-val="Finance"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">account_balance_wallet</span><span class="opt-label">Finance</span></button>
         </div>
     </div>
 
-    <!-- STEP 3: What's your biggest challenge? (Single Select Auto-Advance) -->
-    <div id="step-3" class="step-card animate-in space-y-4">
-        <div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold">What's your biggest challenge?</h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">This helps our AI personalize your behavioral insights.</p>
-        </div>
-        <div class="space-y-3" id="challenge-options">
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="consistency">
-                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">event_repeat</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I lose consistency</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Difficulty staying consistent daily</span>
-                </div>
-            </div>
-
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="distracted">
-                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">center_focus_weak</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I get distracted</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Screen time & focus drift</span>
-                </div>
-            </div>
-
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="time">
-                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">schedule</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I don't have enough time</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Busy schedule & overload</span>
-                </div>
-            </div>
-
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="motivation">
-                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">local_fire_department</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I lose motivation</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Initial spark fades quickly</span>
-                </div>
-            </div>
-
-            <div class="challenge-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="forget">
-                <div class="challenge-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">psychology</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I forget my habits</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Need timely contextual prompts</span>
-                </div>
-            </div>
+    <!-- STEP 3: Biggest challenge -->
+    <div id="step-3" class="step-card animate-in my-auto w-full">
+        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">What's your<br/>biggest challenge?</h2>
+        <p class="mt-2 text-[15px] text-outline">We'll personalize your insights.</p>
+        <div class="mt-8 space-y-2.5" id="challenge-options">
+            <button type="button" class="opt-row challenge-opt btn-press selected" data-val="consistency"><span class="material-symbols-outlined opt-ico-box">event_repeat</span><span class="opt-label">I lose consistency</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
+            <button type="button" class="opt-row challenge-opt btn-press" data-val="distracted"><span class="material-symbols-outlined opt-ico-box">center_focus_weak</span><span class="opt-label">I get distracted</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
+            <button type="button" class="opt-row challenge-opt btn-press" data-val="time"><span class="material-symbols-outlined opt-ico-box">schedule</span><span class="opt-label">I don't have enough time</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
+            <button type="button" class="opt-row challenge-opt btn-press" data-val="motivation"><span class="material-symbols-outlined opt-ico-box">local_fire_department</span><span class="opt-label">I lose motivation</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
+            <button type="button" class="opt-row challenge-opt btn-press" data-val="forget"><span class="material-symbols-outlined opt-ico-box">psychology</span><span class="opt-label">I forget my habits</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
         </div>
     </div>
 
-    <!-- STEP 4: Habit Capacity (Single Select Auto-Advance) -->
-    <div id="step-4" class="step-card animate-in space-y-4">
-        <div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold">How many habits do you realistically want to focus on?</h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Starting small guarantees long-term success. You can change this anytime.</p>
+    <!-- STEP 4: Make it yours -->
+    <div id="step-4" class="step-card animate-in my-auto w-full">
+        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Make it yours.</h2>
+        <p class="mt-2 text-[15px] text-outline">Pick a theme. Change it anytime.</p>
+
+        <div id="mini-dashboard-preview" class="mt-7 rounded-2xl p-4 border transition-all duration-300" style="background:#ffffff; color:#012d1d; border-color:#e2e8f0;">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold">Good morning, Alex</span>
+                <span id="mini-ring" class="w-9 h-9 rounded-full border-[3px] flex items-center justify-center text-[10px] font-bold geist" style="border-color:#10b981;">85%</span>
+            </div>
+            <div id="mini-grid-cells" class="mt-3 grid grid-cols-14 gap-1"></div>
         </div>
-        <div class="space-y-3" id="capacity-options">
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="3">
-                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">filter_3</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">Beginner (3 Habits)</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Perfect for getting started.</span>
-                </div>
-            </div>
 
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="5">
-                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">filter_5</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-0.5">
-                        <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold">Intermediate (5 Habits)</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary text-on-primary geist">Recommended</span>
-                    </div>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Great balance for most people.</span>
-                </div>
-            </div>
-
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="8">
-                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">filter_8</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">Advanced (8 Habits)</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">Built for experienced habit builders.</span>
-                </div>
-            </div>
-
-            <div class="cap-opt btn-press p-4 rounded-2xl border-2 border-surface-container bg-surface-container-lowest hover:border-primary/40 cursor-pointer transition-all duration-200 flex items-center gap-3.5 group shadow-2xs" data-val="later">
-                <div class="cap-icon-box w-11 h-11 rounded-xl bg-surface-container-low border border-surface-container flex items-center justify-center text-primary transition-all shrink-0">
-                    <span class="material-symbols-outlined text-2xl">schedule</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <span class="font-headline-md text-on-surface text-sm sm:text-base font-bold block leading-snug">I'll decide later</span>
-                    <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block mt-0.5 opacity-80">You can always change this later.</span>
-                </div>
-            </div>
+        <div class="mt-7 grid grid-cols-3 gap-y-5 justify-items-center" id="theme-grid">
+            <button type="button" class="theme-btn btn-press" data-theme="light"><span class="swatch" style="background:#ffffff;"></span><span class="swatch-label">Light</span></button>
+            <button type="button" class="theme-btn btn-press" data-theme="forest"><span class="swatch" style="background:#1b4332;"></span><span class="swatch-label">Forest</span></button>
+            <button type="button" class="theme-btn btn-press" data-theme="dark"><span class="swatch" style="background:#15181e;"></span><span class="swatch-label">Dark</span></button>
+            <button type="button" class="theme-btn btn-press" data-theme="purple"><span class="swatch" style="background:#5b3d7a;"></span><span class="swatch-label">Purple</span></button>
+            <button type="button" class="theme-btn btn-press" data-theme="ocean"><span class="swatch" style="background:#1d3a6b;"></span><span class="swatch-label">Ocean</span></button>
+            <button type="button" class="theme-btn btn-press" data-theme="sunset"><span class="swatch" style="background:#c4587a;"></span><span class="swatch-label">Sunset</span></button>
         </div>
     </div>
 
-    <!-- STEP 5: Personalize HabitArc -->
-    <div id="step-5" class="step-card animate-in space-y-3.5">
-        <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold geist uppercase tracking-wider mb-1">
-                <span class="material-symbols-outlined text-xs">palette</span>
-                <span>Visual Preferences</span>
-            </div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold">Personalize HabitArc</h2>
-            <p class="font-body-md text-xs sm:text-sm text-on-surface-variant mt-0.5">Customize your theme, grid style, and horizon duration.</p>
-        </div>
-
-        <!-- Sleek Miniature Dashboard Live Preview (Visual Focus) -->
-        <div id="mini-dashboard-preview" class="rounded-2xl p-3 transition-all duration-300 shadow-sm border space-y-2" style="background:#ffffff; color:#012d1d; border-color:#e2e8f0;">
-            <div class="flex items-center justify-between border-b pb-1.5" id="mini-dash-header" style="border-color: rgba(1, 45, 29, 0.1);">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[9px] font-bold geist">AT</span>
-                    <span class="text-xs font-bold font-headline-md">Good morning , Alex</span>
-                </div>
-                <span id="mini-horizon-badge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary text-on-primary geist">30-Day Horizon</span>
-            </div>
-
-            <div class="flex items-center justify-between text-[10px] font-semibold opacity-80 geist">
-                <span>Today's Progress</span>
-                <span id="mini-grid-shape-tag" class="capitalize text-primary">Square Grid</span>
-            </div>
-
-            <!-- Mini Contribution Grid Arc -->
-            <div id="mini-grid-cells" class="grid grid-cols-12 gap-1 py-0.5" style="height: 48px;">
-                <!-- Cells generated dynamically -->
-            </div>
-        </div>
-
-        <div class="space-y-3 pt-0.5">
-            <!-- Theme Swatches -->
-            <div>
-                <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1.5 geist font-bold uppercase tracking-wider">Theme Palette</label>
-                <div class="grid grid-cols-3 gap-2" id="theme-grid">
-                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#181028; color:#a78bfa; border-color:#2d1b4e;" data-theme="purple">
-                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);"></span>
-                        <span>Purple</span>
-                    </button>
-                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#15181e; color:#94a3b8; border-color:#232833;" data-theme="dark">
-                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #34d399, #059669);"></span>
-                        <span>Dark</span>
-                    </button>
-                    <button class="theme-btn btn-press p-2.5 rounded-xl border-2 border-primary font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center selected-theme" style="background:#ffffff; color:#012d1d;" data-theme="light">
-                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #012d1d, #10b981);"></span>
-                        <span>Light</span>
-                    </button>
-                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#0b2419; color:#6ee7b7; border-color:#16402d;" data-theme="forest">
-                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #10b981, #047857);"></span>
-                        <span>Forest</span>
-                    </button>
-                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#0f1d32; color:#7dd3fc; border-color:#1d3356;" data-theme="ocean">
-                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"></span>
-                        <span>Ocean</span>
-                    </button>
-                    <button class="theme-btn btn-press p-2.5 rounded-xl border font-label-sm text-[11px] font-bold flex items-center gap-2 justify-center" style="background:#251017; color:#fda4af; border-color:#421d28;" data-theme="sunset">
-                        <span class="w-4 h-4 rounded-full shrink-0" style="background: linear-gradient(135deg, #f43f5e, #e11d48);"></span>
-                        <span>Sunset</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Grid Shape -->
-            <div>
-                <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1.5 geist font-bold uppercase tracking-wider">Contribution Grid Shape</label>
-                <div class="grid grid-cols-2 gap-2" id="grid-shape-opts">
-                    <button class="grid-shape-btn btn-press p-2.5 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs font-bold text-center" data-shape="square">Square</button>
-                    <button class="grid-shape-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs font-bold text-center" data-shape="circle">Circle</button>
-                </div>
-            </div>
-
-            <!-- Horizon Duration -->
-            <div>
-                <label class="block font-label-md text-[10px] sm:text-xs text-on-surface-variant mb-1.5 geist font-bold uppercase tracking-wider">Horizon Duration</label>
-                <div class="grid grid-cols-2 gap-2" id="horizon-dur-opts">
-                    <button class="horizon-btn btn-press p-2.5 rounded-xl border-2 border-primary bg-primary-container text-on-primary font-label-sm text-xs font-bold text-center" data-dur="30">30 Days</button>
-                    <button class="horizon-btn btn-press p-2.5 rounded-xl border-2 border-surface-container bg-surface-container-lowest text-on-surface font-label-sm text-xs font-bold text-center" data-dur="90">90 Days</button>
-                </div>
-            </div>
+    <!-- STEP 5: Notifications -->
+    <div id="step-5" class="step-card animate-in my-auto w-full text-center">
+        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Gentle reminders?</h2>
+        <p class="mt-2 text-[15px] text-outline">Only when you need them.</p>
+        <div class="mt-8 grid grid-cols-2 gap-3" id="notification-options">
+            <button type="button" class="notif-opt opt-big btn-press selected" data-val="true"><span class="material-symbols-outlined">notifications_active</span><span class="opt-label">Yes, notify me</span></button>
+            <button type="button" class="notif-opt opt-big btn-press" data-val="false"><span class="material-symbols-outlined">notifications_off</span><span class="opt-label">No thanks</span></button>
         </div>
     </div>
 
-    <!-- STEP 6: Enable Notifications -->
-    <div id="step-6" class="step-card animate-in space-y-4">
-        <div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold">Enable Notifications?</h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1">Gentle reminders, only when you need them.</p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="notification-options">
-            <div class="notif-opt btn-press p-5 rounded-2xl border-2 border-primary bg-primary-fixed/15 cursor-pointer transition-all text-center space-y-2 shadow-2xs" data-val="true">
-                <span class="material-symbols-outlined text-primary text-4xl block">notifications_active</span>
-                <span class="font-headline-md text-on-surface text-base sm:text-lg block font-bold">Yes, notify me</span>
-                <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block leading-normal">Small reminders.<br/>Big consistency.</span>
-            </div>
-            <div class="notif-opt btn-press p-5 rounded-2xl border-2 border-surface-container bg-surface-container-lowest cursor-pointer transition-all text-center space-y-2 shadow-2xs" data-val="false">
-                <span class="material-symbols-outlined text-outline text-4xl block">notifications_off</span>
-                <span class="font-headline-md text-on-surface text-base sm:text-lg block font-bold">No thanks</span>
-                <span class="font-label-sm text-on-surface-variant geist text-xs sm:text-sm block leading-normal">I'll track manually</span>
-            </div>
+    <!-- STEP 6: North Star -->
+    <div id="step-6" class="step-card animate-in my-auto w-full">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/60 text-primary text-[11px] font-bold geist uppercase tracking-wider">
+            <span class="material-symbols-outlined fill" style="font-size:14px;">star</span> North Star
+        </span>
+        <h2 class="mt-4 text-[30px] leading-tight font-bold tracking-tight text-primary">If you could build<br/>only one habit<br/>this year?</h2>
+        <p class="mt-2 text-[15px] text-outline">Your single most important habit.</p>
+        <input id="north-star-input" type="text" value="Daily Meditation" maxlength="60" autocomplete="off" class="mt-8 w-full bg-transparent border-0 border-b-2 border-primary px-0 py-2 text-[22px] font-semibold text-primary focus:ring-0 focus:border-primary placeholder:text-outline-variant" placeholder="e.g. Read 20 pages"/>
+        <div class="mt-4 flex flex-wrap gap-2" id="north-star-chips">
+            <button type="button" class="chip btn-press">Read 20 pages</button>
+            <button type="button" class="chip btn-press">Workout</button>
+            <button type="button" class="chip btn-press">Wake up at 6</button>
         </div>
     </div>
 
-    <!-- STEP 7: North Star Habit -->
-    <div id="step-7" class="step-card animate-in space-y-4">
-        <div>
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold leading-tight">
-                Set Your <span class="text-primary font-extrabold">North Star Habit</span>
-            </h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant mt-1.5 leading-relaxed">
-                If you could build only ONE habit this year to transform your life, what would it be?
-            </p>
+    <!-- STEP 7: Save progress -->
+    <div id="step-7" class="step-card animate-in my-auto w-full">
+        <h2 id="auth-mode-title" class="text-[30px] leading-tight font-bold tracking-tight text-primary">Save Your Progress</h2>
+        <p id="auth-mode-sub" class="mt-2 text-[15px] text-outline">Sync across your devices.</p>
+
+        <div class="mt-6 inline-flex p-1 rounded-full bg-surface-container" id="auth-tabs">
+            <button id="tab-register" type="button" class="auth-tab-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-primary text-on-primary" data-mode="register">Create account</button>
+            <button id="tab-login" type="button" class="auth-tab-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all text-on-surface-variant" data-mode="login">Log in</button>
         </div>
 
-        <div class="space-y-3 pt-1">
-            <input id="north-star-input" type="text" value="Daily Meditation & Mindful Reflection" class="w-full p-3.5 sm:p-4 rounded-xl border-2 border-primary bg-surface-container-lowest font-headline-md text-base sm:text-lg text-on-surface focus:ring-4 focus:ring-primary/15 focus:outline-none shadow-xs transition-all font-semibold" placeholder="e.g. Daily 20-minute Reading"/>
-            
-            <!-- Rotating Ideas Ticker -->
-            <div class="flex items-center gap-2 px-1 text-xs text-on-surface-variant geist">
-                <span class="font-bold text-outline uppercase tracking-wider text-[10px]">IDEAS:</span>
-                <div class="relative overflow-hidden h-5 flex-1">
-                    <span id="rotating-example" class="font-semibold text-primary absolute left-0 top-0 transition-all duration-300 cursor-pointer hover:underline">Read 20 Pages</span>
-                </div>
-            </div>
-
-            <!-- North Star Definition Card -->
-            <div class="bg-primary-fixed/20 border border-primary-fixed/60 rounded-xl p-3.5 flex items-start gap-3">
-                <span class="material-symbols-outlined text-primary text-2xl fill shrink-0 mt-0.5">stars</span>
-                <div class="space-y-0.5 text-left">
-                    <span class="font-headline-md text-xs sm:text-sm text-primary font-bold block">What is a North Star Habit?</span>
-                    <p class="font-body-md text-xs text-on-surface-variant leading-relaxed">
-                        A <strong class="text-on-surface font-semibold">North Star Habit</strong> is your single highest-priority daily goal. Master this one habit, and it naturally creates a ripple effect—building momentum and consistency for everything else you do.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- STEP 8: Save Progress (Account / Guest) -->
-    <div id="step-8" class="step-card animate-in space-y-3 text-center">
-        <!-- Eyebrow Badge -->
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold geist uppercase tracking-wider mx-auto">
-            <span class="material-symbols-outlined text-xs">cloud_sync</span>
-            <span>Cloud & Sync</span>
-        </div>
-
-        <div>
-            <h2 id="auth-mode-title" class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-bold">Save Your Progress</h2>
-            <p id="auth-mode-sub" class="font-body-md text-xs sm:text-sm text-on-surface-variant mt-0.5">Create an account or log in to sync across devices.</p>
-        </div>
-
-        <!-- Auth Mode Tab Switcher (Register vs Login) -->
-        <div class="inline-flex p-1 rounded-xl bg-surface-container border border-surface-container-high max-w-xs w-full mx-auto" id="auth-tabs">
-            <button id="tab-register" class="auth-tab-btn flex-1 py-1.5 rounded-lg text-xs font-bold font-headline-md transition-all bg-surface-container-lowest text-primary shadow-xs" data-mode="register">
-                Create Account
-            </button>
-            <button id="tab-login" class="auth-tab-btn flex-1 py-1.5 rounded-lg text-xs font-bold font-headline-md transition-all text-on-surface-variant hover:text-on-surface" data-mode="login">
-                Log In
-            </button>
-        </div>
-
-        <!-- Auth Form Container -->
-        <div class="space-y-2.5 max-w-sm mx-auto text-left pt-1">
-            <!-- Google Sign-in Button -->
-            <button id="google-signin-btn" class="w-full btn-press p-3 rounded-xl border border-surface-container bg-surface-container-lowest hover:border-primary/50 transition-all flex items-center justify-center gap-2.5 font-headline-md text-on-surface shadow-xs">
+        <div class="mt-5 space-y-3">
+            <button id="google-signin-btn" type="button" class="auth-btn btn-press">
                 <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                <span id="google-btn-text" class="font-semibold text-xs sm:text-sm">Sign up with Google</span>
+                <span id="google-btn-text">Continue with Google</span>
             </button>
 
-            <div class="flex items-center gap-3 my-1">
-                <div class="h-px bg-outline-variant/40 flex-1"></div>
-                <span class="text-[10px] uppercase font-bold text-outline geist tracking-wider">or email</span>
-                <div class="h-px bg-outline-variant/40 flex-1"></div>
-            </div>
+            <button id="email-toggle-btn" type="button" class="auth-btn btn-press">
+                <span class="material-symbols-outlined" style="font-size:20px;">mail</span>
+                <span>Continue with email</span>
+            </button>
 
-            <!-- Email Form Inputs -->
-            <div class="space-y-2">
+            <div id="email-form" class="hidden space-y-3 pt-1">
                 <div id="name-input-group">
-                    <label class="block text-[11px] font-bold text-on-surface-variant mb-1 geist uppercase tracking-wider">Your Name</label>
-                    <input id="acc-name-input" type="text" autocomplete="name" class="w-full p-2.5 sm:p-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-headline-md text-xs sm:text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/15 focus:outline-none transition-all" placeholder="Enter your full name"/>
+                    <input id="acc-name-input" type="text" autocomplete="name" class="auth-input" placeholder="Your name"/>
                 </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-on-surface-variant mb-1 geist uppercase tracking-wider">Email Address</label>
-                    <input id="acc-email-input" type="email" autocomplete="email" class="w-full p-2.5 sm:p-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-headline-md text-xs sm:text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/15 focus:outline-none transition-all" placeholder="you@example.com"/>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-on-surface-variant mb-1 geist uppercase tracking-wider">Password</label>
-                    <input id="acc-password-input" type="password" autocomplete="current-password" minlength="6" class="w-full p-2.5 sm:p-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-headline-md text-xs sm:text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/15 focus:outline-none transition-all" placeholder="At least 6 characters"/>
-                </div>
-
-                <button id="email-submit-btn" class="w-full btn-press bg-primary text-on-primary font-headline-md text-xs sm:text-sm font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 mt-1">
-                    <span id="email-submit-text">Create Account & Continue</span>
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                <input id="acc-email-input" type="email" autocomplete="email" class="auth-input" placeholder="Email address"/>
+                <input id="acc-password-input" type="password" autocomplete="new-password" minlength="6" class="auth-input" placeholder="Password (min 6 characters)"/>
+                <button id="email-submit-btn" type="button" class="w-full btn-press bg-primary text-on-primary text-[15px] font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2">
+                    <span id="email-submit-text">Create Account &amp; Continue</span>
+                    <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
                 </button>
-                <p id="auth-error" class="hidden text-xs font-medium text-error text-center" role="alert" aria-live="polite"></p>
             </div>
 
-            <!-- Guest Option & Security Badge -->
-            <div class="pt-2 text-center space-y-1.5">
-                <button id="guest-signin-btn" class="w-full py-2 px-3 rounded-xl border border-surface-container bg-surface-container-low hover:bg-surface-container text-on-surface text-xs font-semibold geist transition-all flex items-center justify-center gap-1.5">
-                    <span class="material-symbols-outlined text-xs">phonelink_setup</span>
-                    <span>Continue as Guest</span>
-                </button>
+            <p id="auth-error" class="hidden text-xs font-medium text-error text-center" role="alert" aria-live="polite"></p>
 
-                <p class="text-[10px] text-on-surface-variant/70 geist flex items-center justify-center gap-1 pt-0.5">
-                    <span class="material-symbols-outlined text-xs text-emerald-600">lock</span>
-                    <span>Secure sign-in • Your habit data stays on this device for now</span>
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- STEP 9: Success Screen (Calm & Premium) -->
-    <div id="step-9" class="step-card animate-in space-y-5 text-center py-2">
-        <!-- Subtle Animated Success Icon -->
-        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/15 text-primary mx-auto flex items-center justify-center border border-primary/30 shadow-xs animate-pulse-subtle">
-            <span class="material-symbols-outlined text-3xl sm:text-4xl fill">check_circle</span>
-        </div>
-
-        <div class="space-y-1">
-            <h2 class="font-headline-lg text-2xl sm:text-3xl text-on-surface font-extrabold tracking-tight">You're Ready.</h2>
-            <p class="font-body-md text-sm sm:text-base text-on-surface-variant font-medium leading-relaxed">
-                Welcome to HabitArc.<br/>
-                <span class="text-on-surface font-semibold">Your journey starts today.</span>
-            </p>
-        </div>
-
-        <!-- Clean Success Checklist with Staggered Fade-in -->
-        <div class="max-w-xs mx-auto space-y-2.5 pt-1 text-left text-sm font-semibold geist">
-            <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs animate-check-1">
-                <div class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
-                <span class="text-on-surface">Profile Created</span>
-            </div>
-            <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs animate-check-2">
-                <div class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
-                <span class="text-on-surface">Preferences Saved</span>
-            </div>
-            <div class="p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center gap-3 shadow-2xs animate-check-3">
-                <div class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</div>
-                <span class="text-on-surface">First Habit Created</span>
-            </div>
-        </div>
-
-        <!-- Primary CTA: Enter HabitArc → -->
-        <div class="pt-3">
-            <button id="enter-app-btn" class="w-full max-w-xs mx-auto btn-press bg-primary text-on-primary font-headline-md text-sm sm:text-base font-bold py-3.5 rounded-2xl hover:opacity-90 transition-all shadow-md flex items-center justify-center gap-2">
-                <span>Enter HabitArc</span>
-                <span class="material-symbols-outlined text-base">arrow_forward</span>
+            <button id="guest-signin-btn" type="button" class="auth-btn btn-press" style="background:#a0f4c8; border-color:#a0f4c8;">
+                <span class="material-symbols-outlined" style="font-size:20px;">phone_iphone</span>
+                <span>Continue as guest</span>
             </button>
         </div>
+        <p class="mt-6 text-center text-xs text-outline geist">Guest data stays on this device.</p>
     </div>
 
 </main>
 
-<!-- Floating Glassmorphism Bottom Navigation Bar (True Native Mobile App Style) -->
-<footer id="bottom-nav" class="fixed bottom-3 left-3 right-3 z-50 max-w-xl mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between">
-    <button id="prev-step-btn" class="btn-press px-4 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs sm:text-sm font-bold hover:bg-surface-container transition-all disabled:opacity-30" disabled>
-        Back
-    </button>
-    <button id="next-step-btn" class="btn-press bg-primary text-on-primary font-headline-md text-sm sm:text-base font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2">
+<!-- Floating bottom bar -->
+<footer id="bottom-nav" class="fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto bg-white/95 backdrop-blur-xl border border-outline-variant/40 rounded-2xl shadow-[0_8px_28px_rgba(1,45,29,0.10)] p-2.5 flex items-center justify-between">
+    <button id="prev-step-btn" type="button" class="btn-press px-4 py-2.5 rounded-xl text-on-surface-variant text-sm font-semibold hover:bg-surface-container-low transition-all disabled:opacity-30" disabled>Back</button>
+    <button id="next-step-btn" type="button" class="btn-press bg-primary text-on-primary text-[15px] font-semibold px-6 py-2.5 rounded-xl hover:opacity-90 transition-all flex items-center gap-2">
         <span>Continue</span>
-        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
     </button>
 </footer>
-
 <!-- Google Redirect Handoff — shown while Firebase verifies a returning Google sign-in. -->
 <section id="google-auth-handoff" aria-hidden="true" aria-label="Completing Google sign-in">
     <div class="flex flex-col items-center gap-5 max-w-xs text-center" role="status" aria-live="polite">
@@ -999,7 +695,7 @@
 <script>
 (function() {
     let currentStep = 1;
-    const totalSteps = 9;
+    const totalSteps = 7;
 
     let selectedIntents = [];
     let selectedChallenge = 'consistency';
@@ -1070,7 +766,7 @@
 
     let pendingGoogleRedirectDraft = readGoogleRedirectDraft();
     if (pendingGoogleRedirectDraft) {
-        currentStep = 8;
+        currentStep = 7;
         if (Array.isArray(pendingGoogleRedirectDraft.selectedIntents)) {
             selectedIntents = pendingGoogleRedirectDraft.selectedIntents;
         }
@@ -1093,7 +789,6 @@
             notificationsEnabled = pendingGoogleRedirectDraft.notificationsEnabled;
         }
     }
-
     function updateStep() {
         document.querySelectorAll('.step-card').forEach((card, idx) => {
             const isActive = (idx + 1 === currentStep);
@@ -1107,45 +802,35 @@
 
         const pct = Math.round((currentStep / totalSteps) * 100);
         document.getElementById('progress-bar').style.width = pct + '%';
-        document.getElementById('step-indicator').textContent = `Step ${currentStep} of ${totalSteps}`;
-
+        document.getElementById('step-indicator').textContent = `${currentStep} / ${totalSteps}`;
         document.getElementById('prev-step-btn').disabled = (currentStep === 1);
 
         const bottomNav = document.getElementById('bottom-nav');
-        if (currentStep === 9) {
-            if (bottomNav) bottomNav.style.display = 'none';
-        } else {
-            if (bottomNav) bottomNav.style.display = 'flex';
-        }
+        if (bottomNav) bottomNav.style.display = 'flex';
 
+        // The last step offers its own Google / email / guest buttons instead of "Continue".
         const nextBtn = document.getElementById('next-step-btn');
-        if (currentStep === 8) {
-            nextBtn.querySelector('span').textContent = 'Complete Profile';
-        } else {
-            nextBtn.querySelector('span').textContent = 'Continue';
-        }
+        if (nextBtn) nextBtn.style.display = (currentStep === totalSteps) ? 'none' : 'flex';
 
-        if (currentStep === 5) {
-            updatePreview();
-        }
+        const main = document.querySelector('main');
+        if (main) main.scrollTop = 0;
+
+        if (currentStep === 4) updatePreview();
     }
 
     function autoAdvance() {
         setTimeout(() => {
-            if (currentStep < totalSteps - 1) {
+            if (currentStep < totalSteps) {
                 currentStep++;
                 updateStep();
             }
         }, 300);
     }
 
-    // Step 2: Multi-Select Intents
+    // Step 2: multi-select intents
     document.querySelectorAll('.intent-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             this.classList.toggle('selected');
-            this.classList.toggle('border-primary');
-            this.classList.toggle('bg-primary-fixed/15');
-
             const val = this.dataset.val;
             if (selectedIntents.includes(val)) {
                 selectedIntents = selectedIntents.filter(i => i !== val);
@@ -1155,171 +840,87 @@
         });
     });
 
-    // Step 3: Single-Select Challenge (Auto Advance)
+    // Step 3: single-select challenge (auto advance)
     document.querySelectorAll('.challenge-opt').forEach(opt => {
         opt.addEventListener('click', function() {
-            document.querySelectorAll('.challenge-opt').forEach(o => {
-                o.classList.remove('border-primary', 'bg-primary-fixed/15');
-                o.classList.add('border-surface-container', 'bg-surface-container-lowest');
-            });
-            this.classList.remove('border-surface-container', 'bg-surface-container-lowest');
-            this.classList.add('border-primary', 'bg-primary-fixed/15');
+            document.querySelectorAll('.challenge-opt').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
             selectedChallenge = this.dataset.val;
             autoAdvance();
         });
     });
 
-    // Step 4: Single-Select Capacity (Auto Advance)
-    document.querySelectorAll('.cap-opt').forEach(opt => {
-        opt.addEventListener('click', function() {
-            document.querySelectorAll('.cap-opt').forEach(o => {
-                o.classList.remove('border-primary', 'bg-primary-fixed/15');
-                o.classList.add('border-surface-container', 'bg-surface-container-lowest');
-            });
-            this.classList.remove('border-surface-container', 'bg-surface-container-lowest');
-            this.classList.add('border-primary', 'bg-primary-fixed/15');
-            selectedCap = this.dataset.val;
-            autoAdvance();
-        });
-    });
+    // Step 4: theme + compact live preview
+    const previewThemes = {
+        purple: { bg: '#181028', text: '#f3e8ff', border: 'rgba(167,139,250,0.25)', accent: '#8b5cf6', off: 'rgba(255,255,255,0.10)' },
+        dark:   { bg: '#15181e', text: '#f1f5f9', border: 'rgba(148,163,184,0.25)', accent: '#34d399', off: 'rgba(255,255,255,0.10)' },
+        light:  { bg: '#ffffff', text: '#012d1d', border: '#e2e8f0',                accent: '#10b981', off: 'rgba(0,0,0,0.07)' },
+        forest: { bg: '#0b2419', text: '#ecfdf5', border: 'rgba(110,231,183,0.25)', accent: '#10b981', off: 'rgba(255,255,255,0.10)' },
+        ocean:  { bg: '#0f1d32', text: '#f0f9ff', border: 'rgba(125,211,252,0.25)', accent: '#3b82f6', off: 'rgba(255,255,255,0.10)' },
+        sunset: { bg: '#251017', text: '#fff1f2', border: 'rgba(253,164,175,0.25)', accent: '#f43f5e', off: 'rgba(255,255,255,0.10)' }
+    };
 
-    // Step 5: Personalization Controls & Live Miniature Dashboard Preview
     document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.theme-btn').forEach(b => {
-                b.classList.remove('border-primary', 'border-2', 'selected-theme');
-                b.classList.add('border');
-                b.style.borderColor = b.dataset.theme === 'purple' ? '#2d1b4e' : b.dataset.theme === 'dark' ? '#232833' : b.dataset.theme === 'light' ? '#e2e8f0' : b.dataset.theme === 'forest' ? '#16402d' : b.dataset.theme === 'ocean' ? '#1d3356' : '#421d28';
-            });
-            this.classList.remove('border');
-            this.classList.add('border-2', 'border-primary', 'selected-theme');
-            this.style.borderColor = '';
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('selected-theme'));
+            this.classList.add('selected-theme');
             selectedTheme = this.dataset.theme;
             updatePreview();
         });
     });
 
-    document.querySelectorAll('.grid-shape-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.grid-shape-btn').forEach(b => {
-                b.classList.remove('border-primary', 'bg-primary-container', 'text-on-primary');
-                b.classList.add('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
-            });
-            this.classList.remove('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
-            this.classList.add('border-primary', 'bg-primary-container', 'text-on-primary');
-            selectedGridShape = this.dataset.shape;
-            updatePreview();
-        });
-    });
-
-    document.querySelectorAll('.horizon-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.horizon-btn').forEach(b => {
-                b.classList.remove('border-primary', 'bg-primary-container', 'text-on-primary');
-                b.classList.add('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
-            });
-            this.classList.remove('border-surface-container', 'bg-surface-container-lowest', 'text-on-surface');
-            this.classList.add('border-primary', 'bg-primary-container', 'text-on-primary');
-            selectedDuration = this.dataset.dur;
-            updatePreview();
-        });
-    });
-
     function updatePreview() {
-        const themes = {
-            'purple': { bg: '#181028', text: '#f3e8ff', cardBg: 'rgba(167, 139, 250, 0.1)', cardBorder: 'rgba(167, 139, 250, 0.2)', accent: '#8b5cf6' },
-            'dark':   { bg: '#15181e', text: '#f1f5f9', cardBg: 'rgba(148, 163, 184, 0.1)', cardBorder: 'rgba(148, 163, 184, 0.2)', accent: '#34d399' },
-            'light':  { bg: '#ffffff', text: '#012d1d', cardBg: 'rgba(1, 45, 29, 0.04)', cardBorder: 'rgba(1, 45, 29, 0.12)', accent: '#10b981' },
-            'forest': { bg: '#0b2419', text: '#ecfdf5', cardBg: 'rgba(110, 231, 183, 0.1)', cardBorder: 'rgba(110, 231, 183, 0.2)', accent: '#10b981' },
-            'ocean':  { bg: '#0f1d32', text: '#f0f9ff', cardBg: 'rgba(125, 211, 252, 0.1)', cardBorder: 'rgba(125, 211, 252, 0.2)', accent: '#3b82f6' },
-            'sunset': { bg: '#251017', text: '#fff1f2', cardBg: 'rgba(253, 164, 175, 0.1)', cardBorder: 'rgba(253, 164, 175, 0.2)', accent: '#f43f5e' }
-        };
-
-        const t = themes[selectedTheme] || themes['light'];
-        const miniDash = document.getElementById('mini-dashboard-preview');
-        if (miniDash) {
-            miniDash.style.backgroundColor = t.bg;
-            miniDash.style.color = t.text;
-            miniDash.style.borderColor = t.cardBorder;
+        const t = previewThemes[selectedTheme] || previewThemes.light;
+        const card = document.getElementById('mini-dashboard-preview');
+        if (card) {
+            card.style.backgroundColor = t.bg;
+            card.style.color = t.text;
+            card.style.borderColor = t.border;
         }
-        const miniHeader = document.getElementById('mini-dash-header');
-        if (miniHeader) miniHeader.style.borderColor = t.cardBorder;
+        const ring = document.getElementById('mini-ring');
+        if (ring) ring.style.borderColor = t.accent;
 
-        const miniCard1 = document.getElementById('mini-card-1');
-        const miniCard2 = document.getElementById('mini-card-2');
-        if (miniCard1) { miniCard1.style.backgroundColor = t.cardBg; miniCard1.style.borderColor = t.cardBorder; }
-        if (miniCard2) { miniCard2.style.backgroundColor = t.cardBg; miniCard2.style.borderColor = t.cardBorder; }
-
-        const badge = document.getElementById('mini-horizon-badge');
-        if (badge) {
-            badge.textContent = `${selectedDuration}-Day Horizon`;
-            badge.style.backgroundColor = t.accent;
-        }
-
-        const shapeTag = document.getElementById('mini-grid-shape-tag');
-        if (shapeTag) shapeTag.textContent = `${selectedGridShape} Grid`;
-
-        const gridCells = document.getElementById('mini-grid-cells');
-        if (gridCells) {
-            gridCells.innerHTML = '';
-            const isCircle = (selectedGridShape === 'circle');
-            // 30 Days = 2 rows of 12 (24 cells), 90 Days = 4 rows of 12 (48 cells)
-            const pattern30 = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1];
-            const pattern90 = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1];
-            const activePattern = (selectedDuration === '90') ? pattern90 : pattern30;
-            // Adjust gap: smaller for 90 days so 4 rows fit in fixed height
-            gridCells.style.gap = (selectedDuration === '90') ? '2px' : '4px';
-            activePattern.forEach(active => {
+        const cells = document.getElementById('mini-grid-cells');
+        if (cells) {
+            const pattern = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
+            cells.innerHTML = '';
+            pattern.forEach(active => {
                 const cell = document.createElement('div');
-                cell.className = `w-full ${isCircle ? 'rounded-full' : 'rounded-[2px]'} transition-all duration-300`;
-                cell.style.backgroundColor = active ? t.accent : (t.bg === '#ffffff' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)');
-                if (active) cell.style.opacity = '0.9';
-                gridCells.appendChild(cell);
+                cell.className = 'h-3 rounded-[3px] transition-all duration-300';
+                cell.style.backgroundColor = active ? t.accent : t.off;
+                cells.appendChild(cell);
             });
         }
     }
+    document.querySelector('.theme-btn[data-theme="light"]')?.classList.add('selected-theme');
 
-    // Step 6: Notifications
+    // Step 5: notifications
     document.querySelectorAll('.notif-opt').forEach(opt => {
         opt.addEventListener('click', function() {
-            document.querySelectorAll('.notif-opt').forEach(o => {
-                o.classList.remove('border-primary', 'bg-primary-fixed/15');
-                o.classList.add('border-surface-container', 'bg-surface-container-lowest');
-            });
-            this.classList.remove('border-surface-container', 'bg-surface-container-lowest');
-            this.classList.add('border-primary', 'bg-primary-fixed/15');
+            document.querySelectorAll('.notif-opt').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
             notificationsEnabled = (this.dataset.val === 'true');
         });
     });
 
-    // Step 7: North Star Rotating Ideas Ticker
-    const northStarExamples = [
-        "Read 20 Pages",
-        "Workout Every Morning",
-        "Meditate Daily",
-        "Drink 3L Water",
-        "Wake Up at 6 AM"
-    ];
-    let exampleIdx = 0;
-    const exampleEl = document.getElementById('rotating-example');
-    if (exampleEl) {
-        setInterval(() => {
-            exampleEl.style.opacity = '0';
-            exampleEl.style.transform = 'translateY(-4px)';
-            setTimeout(() => {
-                exampleIdx = (exampleIdx + 1) % northStarExamples.length;
-                exampleEl.textContent = northStarExamples[exampleIdx];
-                exampleEl.style.opacity = '1';
-                exampleEl.style.transform = 'translateY(0)';
-            }, 300);
-        }, 3000);
-
-        exampleEl.addEventListener('click', () => {
+    // Step 6: North Star suggestion chips
+    document.querySelectorAll('#north-star-chips .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
             const input = document.getElementById('north-star-input');
-            if (input) input.value = exampleEl.textContent;
+            if (input) { input.value = chip.textContent.trim(); input.focus(); }
+        });
+    });
+
+    // Step 7: reveal the email form on demand
+    const emailToggleBtn = document.getElementById('email-toggle-btn');
+    const emailForm = document.getElementById('email-form');
+    if (emailToggleBtn && emailForm) {
+        emailToggleBtn.addEventListener('click', () => {
+            emailForm.classList.remove('hidden');
+            emailToggleBtn.classList.add('hidden');
+            document.getElementById('acc-email-input')?.focus();
         });
     }
-
     // Step 8: Tab Switching (Register vs Login)
     const tabRegister = document.getElementById('tab-register');
     const tabLogin = document.getElementById('tab-login');
@@ -1345,33 +946,33 @@
         if (passwordInput) passwordInput.autocomplete = mode === 'register' ? 'new-password' : 'current-password';
         if (mode === 'register') {
             if (tabRegister) {
-                tabRegister.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+                tabRegister.classList.add('bg-primary', 'text-on-primary');
                 tabRegister.classList.remove('text-on-surface-variant');
             }
             if (tabLogin) {
-                tabLogin.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+                tabLogin.classList.remove('bg-primary', 'text-on-primary');
                 tabLogin.classList.add('text-on-surface-variant');
             }
 
             if (nameGroup) nameGroup.style.display = 'block';
             if (authTitle) authTitle.textContent = 'Save Your Progress';
-            if (authSub) authSub.textContent = 'Create an account to sync habits across devices.';
-            if (googleBtnText) googleBtnText.textContent = 'Sign up with Google';
+            if (authSub) authSub.textContent = 'Sync across your devices.';
+            if (googleBtnText) googleBtnText.textContent = 'Continue with Google';
             if (emailSubmitText) emailSubmitText.textContent = 'Create Account & Continue';
         } else {
             if (tabLogin) {
-                tabLogin.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+                tabLogin.classList.add('bg-primary', 'text-on-primary');
                 tabLogin.classList.remove('text-on-surface-variant');
             }
             if (tabRegister) {
-                tabRegister.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+                tabRegister.classList.remove('bg-primary', 'text-on-primary');
                 tabRegister.classList.add('text-on-surface-variant');
             }
 
             if (nameGroup) nameGroup.style.display = 'none';
             if (authTitle) authTitle.textContent = 'Welcome Back';
             if (authSub) authSub.textContent = 'Log in to sync your existing habits & profile.';
-            if (googleBtnText) googleBtnText.textContent = 'Log in with Google';
+            if (googleBtnText) googleBtnText.textContent = 'Continue with Google';
             if (emailSubmitText) emailSubmitText.textContent = 'Sign In & Continue';
         }
     }
@@ -1412,7 +1013,7 @@
         if (button === googleSignInBtn && googleBtnText) {
             googleBtnText.textContent = loading
                 ? 'Opening Google...'
-                : (authMode === 'login' ? 'Log in with Google' : 'Sign up with Google');
+                : (authMode === 'login' ? 'Continue with Google' : 'Continue with Google');
         }
     }
 
@@ -1485,7 +1086,7 @@
         restoreGoogleRedirectDraft();
         clearGoogleRedirectDraft();
         pendingGoogleRedirectDraft = null;
-        currentStep = 8;
+        currentStep = 7;
         updateStep();
         setAuthButtonLoading(googleSignInBtn, false);
         showAuthError(message);
@@ -1498,7 +1099,7 @@
 
         showGoogleAuthHandoff();
         restoreGoogleRedirectDraft();
-        currentStep = 8;
+        currentStep = 7;
         updateStep();
         setAuthButtonLoading(googleSignInBtn, true);
         if (googleBtnText) googleBtnText.textContent = 'Finishing Google sign-in...';
@@ -1613,6 +1214,9 @@
                 && 'Notification' in window
                 && Notification.permission === 'granted'
             ),
+            intents: selectedIntents,
+            challenge: selectedChallenge,
+            notificationsEnabled,
             onboardingComplete: true
         });
 
@@ -1815,21 +1419,20 @@
             runSetupTransition();
         });
     }
-
-    // Bottom Navigation Controls
+    // Bottom navigation controls
     document.getElementById('prev-step-btn').addEventListener('click', function() {
         if (currentStep > 1) { currentStep--; updateStep(); }
     });
 
     document.getElementById('next-step-btn').addEventListener('click', function() {
-        if (currentStep === 8) {
-            showAuthError('Choose Google, email, or guest mode to continue.');
-            return;
-        }
         if (currentStep < totalSteps) {
             currentStep++;
             updateStep();
         }
+    });
+
+    document.getElementById('north-star-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); document.getElementById('next-step-btn').click(); }
     });
 
     window.addEventListener('pageshow', (event) => {
