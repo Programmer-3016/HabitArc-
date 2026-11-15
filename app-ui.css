@@ -414,3 +414,127 @@ body main.ha-insights .ha-insights-spotlight-row { padding: 18px 0; gap: 12px; b
     .ha-insights .ha-insights-metric #metric-trend { font-size: 24px; }
     .ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note, .ha-insights-spotlight) { padding: 18px; }
 }
+
+/* Focused habit library and detail. Scoped presentation rules preserve shared
+   themes, navigation, completion calculations and cloud storage behavior. */
+body > main.ha-habits { max-width: 960px; padding-inline: 24px; gap: 28px; }
+.ha-library-heading { gap: 24px; }
+.ha-library-eyebrow { font-size: 12px; color: rgb(var(--ha-on-surface-variant)); margin-bottom: 10px; }
+.ha-habits h1 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; letter-spacing: -.04em; }
+.ha-library-intro { margin-top: 10px; font-size: 14px; line-height: 1.6; color: rgb(var(--ha-on-surface-variant)); }
+.ha-habits #category-filters { margin-inline: 0; padding-inline: 4px; padding-block: 4px; gap: 8px; }
+.ha-habits .cat-filter { font-family: inherit; font-size: 13px; font-weight: 500; min-height: 44px; padding-inline: 20px; border: 1px solid rgb(var(--ha-outline-variant) / .45); background: rgb(var(--ha-surface-container-lowest)); color: rgb(var(--ha-on-surface-variant)); }
+.ha-habits .cat-filter[aria-pressed="true"] { border-color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary)); color: rgb(var(--ha-on-primary)); }
+.ha-habits #habits-list { gap: 20px; align-items: stretch; }
+body main.ha-habits .ha-library-card { display: flex; flex-direction: column; padding: 24px; gap: 0; border: 1px solid rgb(var(--ha-outline-variant) / .38); box-shadow: var(--ha-card-shadow); }
+.ha-library-card-top { gap: 14px; align-items: center; }
+.ha-library-habit-link { min-width: 0; flex: 1; gap: 14px; border-radius: 12px; }
+.ha-library-icon { width: 44px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ha-library-icon .material-symbols-outlined { font-size: 24px; }
+.ha-library-card-copy { min-width: 0; }
+.ha-library-card h2 { color: rgb(var(--ha-on-surface)); font-size: 18px; line-height: 1.4; letter-spacing: -.025em; font-weight: 600; text-wrap: initial; }
+.ha-library-category { font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-library-card .habit-toggle { width: 44px; height: 44px; min-width: 44px; border-width: 1px; }
+.ha-library-card .habit-toggle .material-symbols-outlined { font-size: 22px; }
+.ha-library-card-meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; padding-top: 24px; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-library-streak { display: inline-flex; gap: 4px; align-items: center; font-variant-numeric: tabular-nums; }
+.ha-library-streak .material-symbols-outlined { font-size: 15px; color: var(--habit-accent); }
+.ha-library-card-bottom { display: flex; align-items: center; gap: 20px; margin-top: 10px; padding-top: 14px; border-top: 1px solid rgb(var(--ha-outline-variant) / .25); }
+.ha-library-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex: 1; gap: 8px; min-width: 0; }
+.ha-library-day { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 10px; line-height: 1.4; color: rgb(var(--ha-on-surface-variant)); }
+.ha-library-day-bar { width: 100%; height: 8px; border-radius: 4px; background: rgb(var(--ha-surface-container-high)); }
+.ha-library-day.is-complete .ha-library-day-bar { background: var(--habit-accent); }
+.ha-library-day.is-today { color: rgb(var(--ha-on-surface)); font-weight: 700; }
+.ha-library-day.is-today .ha-library-day-bar { outline: 1px solid var(--habit-accent); outline-offset: 2px; }
+.ha-library-detail-link { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 12px; color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary) / .05); }
+.ha-library-detail-link .material-symbols-outlined { font-size: 20px; }
+.ha-habits .ha-library-empty { grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: rgb(var(--ha-surface-container-lowest)); border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); }
+.ha-library-empty > .material-symbols-outlined { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 20px; font-size: 28px; color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary) / .06); margin-bottom: 20px; }
+.ha-library-empty h2 { font-size: 22px; font-weight: 600; letter-spacing: -.025em; }
+.ha-library-empty p { margin: 8px 0 24px; font-size: 14px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-library-empty a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 12px 20px; border-radius: 12px; background: rgb(var(--ha-primary)); color: rgb(var(--ha-on-primary)); font-size: 14px; font-weight: 600; }
+.ha-library-empty a .material-symbols-outlined { font-size: 18px; }
+
+body > main.ha-detail { max-width: 760px; padding-inline: 24px; }
+.ha-detail > section + section { margin-top: 24px; }
+.ha-detail .ha-detail-summary { padding: 28px; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); box-shadow: var(--ha-card-shadow); }
+.ha-detail-identity { gap: 18px; padding-bottom: 28px; }
+.ha-detail #habit-icon-wrap { width: 64px; height: 68px; border-radius: 20px; }
+.ha-detail #habit-icon { font-size: 32px; }
+.ha-detail #habit-name { font-size: clamp(24px, 3vw, 32px); line-height: 1.2; letter-spacing: -.035em; font-weight: 600; text-wrap: initial; }
+.ha-detail #habit-name + div { margin-top: 10px; }
+.ha-detail :is(#habit-category, #habit-since) { font-family: inherit; font-size: 12px; line-height: 1.5; text-transform: none; letter-spacing: 0; }
+.ha-detail #complete-today-btn { width: 48px; height: 48px; border-width: 1px; }
+.ha-detail .ha-detail-stats { gap: 0; padding-top: 24px; border-top: 1px solid rgb(var(--ha-outline-variant) / .3); }
+.ha-detail .ha-detail-stats > div { min-width: 0; padding: 0 16px; background: transparent; border: 0; border-radius: 0; }
+.ha-detail .ha-detail-stats > div:first-child { padding-left: 0; }
+.ha-detail .ha-detail-stats > div:last-child { padding-right: 0; }
+.ha-detail .ha-detail-stats > div + div { border-left: 1px solid rgb(var(--ha-outline-variant) / .3); }
+.ha-detail .ha-detail-stats > div > span { font-family: inherit; font-size: 11px; line-height: 1.5; text-transform: none; letter-spacing: 0; margin-bottom: 10px; }
+.ha-detail .ha-detail-stats > div > div { gap: 4px; flex-wrap: wrap; }
+.ha-detail .ha-detail-stats [id^="stat-"] { font-size: 28px; line-height: 1.25; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.ha-detail .ha-detail-stats .text-body-md { font-size: 12px; }
+.ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) > div { padding: 24px; }
+.ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) h3 { font-size: 18px; font-weight: 600; letter-spacing: -.025em; }
+.ha-detail-calendar-heading { flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+.ha-detail #month-stat-subtitle { font-family: inherit; font-size: 12px; line-height: 1.6; letter-spacing: 0; margin-top: 4px; }
+.ha-detail .ha-detail-month-nav { padding: 0 4px; gap: 2px; border-radius: 12px; background: rgb(var(--ha-primary) / .04); border-color: rgb(var(--ha-outline-variant) / .3); }
+.ha-detail :is(#prev-month-btn, #next-month-btn) { width: 44px; height: 44px; border-radius: 10px; }
+.ha-detail #current-month-title { font-family: inherit; font-size: 12px; letter-spacing: 0; min-width: 70px; text-align: center; }
+.ha-detail .ha-detail-legend { gap: 18px; flex-wrap: wrap; border-color: rgb(var(--ha-outline-variant) / .25); font-family: inherit; letter-spacing: 0; padding-bottom: 16px; margin-bottom: 18px; }
+.ha-detail .ha-detail-weekdays { font-family: inherit; font-size: 11px; letter-spacing: 0; text-transform: none; margin-bottom: 12px; }
+.ha-detail #monthly-calendar-grid { gap: 8px; }
+.ha-detail #monthly-calendar-grid > div { min-width: 0; height: 44px; border-radius: 10px; }
+.ha-detail #monthly-calendar-grid > div > span { font-family: inherit; font-size: 13px; }
+.ha-detail #monthly-calendar-grid [data-status="none"] { color: rgb(var(--ha-on-surface-variant) / .7); }
+.ha-detail #monthly-calendar-grid [aria-current="date"] { --tw-ring-color: rgb(var(--ha-primary)); --tw-ring-offset-color: rgb(var(--ha-surface-container-lowest)); }
+.ha-detail #monthly-bars { display: flex; flex-direction: column; gap: 18px; }
+.ha-detail #monthly-bars > div { margin: 0; gap: 14px; }
+.ha-detail #monthly-bars > div > span { font-family: inherit; font-size: 12px; line-height: 1.5; letter-spacing: 0; }
+.ha-detail #monthly-bars [role="progressbar"] { height: 8px; }
+.ha-detail .stat-bar { transition-duration: 200ms; }
+.ha-detail .ha-detail-why > div { background: rgb(var(--ha-primary) / .04); box-shadow: none; border-color: rgb(var(--ha-primary) / .15); }
+.ha-detail .ha-detail-why #habit-why { font-size: 15px; line-height: 1.7; }
+.ha-detail .ha-detail-why #habit-motivation { font-size: 13px; line-height: 1.7; }
+.ha-habits :is(a, button):focus-visible, .ha-detail :is(a, button):focus-visible { outline: 2px solid rgb(var(--ha-primary)); outline-offset: 4px; }
+@media (hover: hover) {
+    .ha-habits .cat-filter:not([aria-pressed="true"]):hover, .ha-library-detail-link:hover { background: rgb(var(--ha-primary) / .08); }
+    body main.ha-habits .ha-library-card:hover { border-color: rgb(var(--ha-outline-variant) / .8); }
+}
+@media (max-width: 767px) {
+    body > main:is(.ha-habits, .ha-detail) { padding-inline: 20px; }
+    body main.ha-habits .ha-library-card { padding: 20px; }
+    .ha-habits #habits-list { gap: 16px; }
+    .ha-habits #category-filters { margin-inline: -4px; }
+    .ha-library-card-meta { padding-top: 22px; }
+    .ha-detail .ha-detail-summary { padding: 20px; }
+    .ha-detail .ha-detail-identity { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding-bottom: 24px; }
+    .ha-detail-identity > .flex-1 { min-width: 0; grid-column: 1 / -1; grid-row: 2; }
+    .ha-detail #habit-icon-wrap { width: 48px; height: 52px; border-radius: 16px; }
+    .ha-detail #habit-icon { font-size: 26px; }
+    .ha-detail #complete-today-btn { width: 44px; height: 44px; grid-column: 2; grid-row: 1; }
+    .ha-detail .ha-detail-stats { padding-top: 0; }
+    .ha-detail .ha-detail-stats > div { padding: 20px 16px; }
+    .ha-detail .ha-detail-stats > div:nth-child(odd) { padding-left: 0; border-left: 0; }
+    .ha-detail .ha-detail-stats > div:nth-child(even) { padding-right: 0; }
+    .ha-detail .ha-detail-stats > div:nth-child(n+3) { border-top: 1px solid rgb(var(--ha-outline-variant) / .3); padding-bottom: 0; }
+    .ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) > div { padding: 20px; }
+    .ha-detail #monthly-calendar-grid { gap: 5px; }
+    .ha-detail #monthly-calendar-grid > div { height: 36px; border-radius: 8px; }
+}
+@media (max-width: 479px) {
+    .ha-detail-calendar-heading { align-items: flex-start; }
+    .ha-detail .ha-detail-month-nav { width: 100%; justify-content: space-between; }
+}
+@media (max-width: 359px) {
+    body > main:is(.ha-habits, .ha-detail) { padding-inline: 16px; }
+    body main.ha-habits .ha-library-card, .ha-detail .ha-detail-summary, .ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) > div { padding: 18px; }
+    .ha-library-habit-link { gap: 10px; }
+    .ha-library-card h2 { font-size: 17px; }
+    .ha-library-card-bottom { gap: 12px; }
+    .ha-library-week { gap: 6px; }
+    .ha-detail #monthly-calendar-grid { gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ha-habits :is(.habit-toggle, .cat-filter), .ha-detail .stat-bar { transition: none; }
+}

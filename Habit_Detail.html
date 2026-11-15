@@ -127,8 +127,8 @@
 <main class="ha-detail flex-1 w-full max-w-3xl mx-auto px-container-padding pb-32 md:pb-12 pt-2 space-y-section-margin">
 
     <!-- Habit Header Card -->
-    <section class="animate-in">
-        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding flex items-center gap-4">
+    <section class="ha-detail-summary animate-in" aria-labelledby="habit-name">
+        <div class="ha-detail-identity flex items-center gap-4">
             <div id="habit-icon-wrap" class="w-14 h-14 rounded-2xl bg-primary-fixed/20 flex items-center justify-center">
                 <span id="habit-icon" class="material-symbols-outlined fill text-primary-container text-[28px]">check_circle</span>
             </div>
@@ -144,11 +144,8 @@
                 <span class="material-symbols-outlined text-[24px]">check</span>
             </button>
         </div>
-    </section>
-
-    <!-- Stats Grid -->
-    <section class="animate-in animate-delay-1">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <!-- Existing statistics, grouped with the habit identity. -->
+        <div class="ha-detail-stats grid grid-cols-2 md:grid-cols-4 gap-3" aria-label="Habit statistics">
             <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-4 flex flex-col">
                 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase geist mb-2">Current Streak</span>
                 <div class="flex items-baseline gap-1 mt-auto">
@@ -181,20 +178,20 @@
     </section>
 
     <!-- Clean Minimalist Activity Calendar -->
-    <section class="animate-in animate-delay-2">
+    <section class="ha-detail-calendar animate-in animate-delay-1" aria-labelledby="activity-title">
         <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
             <!-- Header: Title + Minimal Month Switcher -->
-            <div class="flex items-center justify-between mb-3">
+            <div class="ha-detail-calendar-heading flex items-center justify-between mb-3">
                 <div>
-                    <h3 class="font-headline-md text-headline-md text-on-surface">Activity</h3>
+                    <h3 id="activity-title" class="font-headline-md text-headline-md text-on-surface">Activity</h3>
                     <p id="month-stat-subtitle" class="font-label-sm text-label-sm text-on-surface-variant geist mt-0.5">Loading...</p>
                 </div>
                 <!-- Inline Month Switcher -->
-                <div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-full border border-surface-container">
+                <div class="ha-detail-month-nav flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-full border border-surface-container">
                     <button id="prev-month-btn" type="button" aria-label="Show previous month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
                         <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                     </button>
-                    <span id="current-month-title" aria-live="polite" class="font-label-sm text-[11px] font-semibold text-on-surface px-1 geist">July 2026</span>
+                    <span id="current-month-title" aria-live="polite" class="font-label-sm text-[11px] font-semibold text-on-surface px-1 geist">Loading…</span>
                     <button id="next-month-btn" type="button" aria-label="Show next month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
                         <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                     </button>
@@ -202,14 +199,14 @@
             </div>
 
             <!-- Legend Bar -->
-            <div class="flex items-center gap-4 text-[11px] font-label-sm text-on-surface-variant mb-4 geist border-b border-surface-container pb-3">
-                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-primary-container inline-block"></span><span>Done</span></div>
+            <div class="ha-detail-legend flex items-center gap-4 text-[11px] font-label-sm text-on-surface-variant mb-4 geist border-b border-surface-container pb-3">
+                <div class="flex items-center gap-1.5"><span id="calendar-done-key" class="w-2.5 h-2.5 rounded-sm bg-primary-container inline-block"></span><span>Done</span></div>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-error-container border border-error/20 inline-block"></span><span>Missed</span></div>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-surface-container inline-block"></span><span>Rest</span></div>
             </div>
 
             <!-- Weekdays Header Grid -->
-            <div class="grid grid-cols-7 gap-1 text-center font-label-sm text-[10px] text-on-surface-variant geist mb-2 uppercase tracking-wider">
+            <div class="ha-detail-weekdays grid grid-cols-7 gap-1 text-center font-label-sm text-[10px] text-on-surface-variant geist mb-2 uppercase tracking-wider">
                 <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
             </div>
 
@@ -219,7 +216,7 @@
     </section>
 
     <!-- Monthly Activity Bars -->
-    <section class="animate-in animate-delay-3">
+    <section class="ha-detail-history animate-in animate-delay-2">
         <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
             <h3 class="font-headline-md text-headline-md text-on-surface mb-4">Monthly Activity</h3>
             <div id="monthly-bars" class="space-y-3"></div>
@@ -227,7 +224,7 @@
     </section>
 
     <!-- Motivation Section -->
-    <section id="motivation-section" class="hidden animate-in">
+    <section id="motivation-section" class="ha-detail-why hidden animate-in">
         <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
             <div class="flex items-center gap-3 mb-3">
                 <span class="material-symbols-outlined text-secondary fill">auto_awesome</span>
@@ -337,6 +334,7 @@
         iconWrap.style.backgroundColor = `${habitAccent}1a`;
         iconEl.className = `material-symbols-outlined ${style.iconFill ? 'fill' : ''} ${style.text} text-[28px]`;
         iconEl.style.color = habitAccent;
+        document.getElementById('calendar-done-key').style.backgroundColor = habitAccent;
         document.getElementById('motivation-section').classList.toggle('hidden', !habit.why && !habit.motivation);
         document.getElementById('habit-why').textContent = habit.why || '';
         document.getElementById('habit-motivation').textContent = habit.motivation ? '"' + habit.motivation + '"' : '';
@@ -475,6 +473,8 @@
             }
 
             cell.className = `h-9 rounded-lg flex items-center justify-center transition-colors duration-150 ${cellStyle}`;
+            cell.dataset.status = status;
+            if (isToday) cell.setAttribute('aria-current', 'date');
             if (status === 'completed') {
                 cell.style.backgroundColor = habitAccent;
                 cell.style.borderColor = habitAccent;
@@ -519,7 +519,7 @@
             row.className = 'flex items-center gap-3';
             row.innerHTML = `
                 <span class="font-label-sm text-label-sm text-on-surface-variant geist w-8 text-right">${month.label}</span>
-                <div class="flex-1 h-6 bg-surface-container rounded-full overflow-hidden">
+                <div class="flex-1 h-6 bg-surface-container rounded-full overflow-hidden" role="progressbar" aria-label="${HabitArc.escapeHTML(month.label)} completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${month.rate}">
                     <div class="stat-bar h-full bg-primary-container rounded-full" style="width: ${month.rate}%; background-color: ${habitAccent}"></div>
                 </div>
                 <span class="font-label-sm text-label-sm text-on-surface-variant geist w-10 text-right">${month.rate}%</span>
