@@ -1,7 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { buildHabitCoachContext, normaliseCoachQuestion, normaliseCoachTimeZone, normaliseCoachConversation } from './_coach-context.js';
 
-const DEFAULT_MODEL = 'openai/gpt-5.4-mini';
+// Gemini 2.5 Flash is available on the Gemini Developer API free tier at the
+// time this integration was added. Keep the model server-configurable so it
+// can be changed without exposing a provider key to the browser.
+const DEFAULT_MODEL = 'gemini-2.5-flash';
 const DEFAULT_DAILY_LIMIT = 15;
 const MAX_BODY_BYTES = 20000;
 const MAX_HISTORY_DAYS = 35;
@@ -104,39 +107,47 @@ function parseBody(request) {
 }
 
 function getModelId() {
-    // Verified Gateway model; overridable with another supported server-side ID.
-    const model = String(process.env.AI_GATEWAY_MODEL || DEFAULT_MODEL).trim();
-    if (!/^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._:-]*$/i.test(model)) {
+    const model = String(process.env.GEMINI_MODEL || DEFAULT_MODEL).trim();
+    // Model names are interpolated into a provider URL, so deliberately allow
+    // only the simple public Gemini model-id character set.
+    if (!/^[a-z0-9][a-z0-9._-]{0,127}$/i.test(model)) {
         throw new CoachRequestError(503, 'coach-not-configured', 'The configured AI model is invalid.');
     }
     return model;
 }
 
-function gatewayIsConfigured() {
-    return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN);
+function geminiIsConfigured() {
+    return Boolean(process.env.GEMINI_API_KEY);
 }
 
 /**
- * Uses Vercel AI Gateway's documented OpenAI-compatible Chat Completions API.
- * Keeping this on native fetch avoids an AI SDK import during function startup.
+ * Uses Gemini's REST API directly from the protected server function. The
+ * browser never receives GEMINI_API_KEY, and native fetch avoids adding a
+ * provider SDK to the production function startup path.
  */
-async function generateWithGateway({ model, system, prompt, maxOutputTokens, abortSignal }) {
-    const apiKey = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+async function generateWithGemini({ model, system, prompt, maxOutputTokens, abortSignal }) {
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new CoachRequestError(503, 'coach-not-configured', 'HabitArc Coach is being connected securely. Please try again after setup is complete.');
-    const response = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            model,
-            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-            max_tokens: maxOutputTokens
+            systemInstruction: { parts: [{ text: system }] },
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+                maxOutputTokens,
+                temperature: 0.35
+            }
         }),
         signal: abortSignal
     });
-    if (!response.ok) throw new Error('AI Gateway request failed.');
+    if (!response.ok) throw new Error('Gemini request failed.');
     const payload = await response.json();
-    const text = payload?.choices?.[0]?.message?.content;
-    return { text: typeof text === 'string' ? text : '' };
+    const parts = payload?.candidates?.[0]?.content?.parts;
+    const text = Array.isArray(parts)
+        ? parts.map((part) => typeof part?.text === 'string' ? part.text : '').join('')
+        : '';
+    return { text };
 }
 
 function dateOffset(now, days) {
@@ -250,8 +261,8 @@ function safeLogError(error) {
 /** Dependency injection keeps guard/quota tests offline; production uses server-only SDKs. */
 export function createCoachHandler({
     getAdmin = getFirebaseAdmin,
-    generate = generateWithGateway,
-    configured = gatewayIsConfigured,
+    generate = generateWithGemini,
+    configured = geminiIsConfigured,
     now = () => new Date(),
     timestamp,
     dailyLimit = getDailyLimit,

@@ -179,7 +179,7 @@ Authentication, and Firestore SDKs.
 
 The UI and `/api/coach` function are included in this repository, but the Coach stays intentionally unavailable until its server-only credentials are configured. This prevents an API key from ever being exposed in source code or browser DevTools.
 
-1. In Vercel AI Gateway, create a project API key and set a budget/usage alert.
+1. In [Google AI Studio](https://aistudio.google.com/apikey), create a Gemini API key. Do **not** paste it into Git, this README, a chat, or client-side JavaScript.
 2. In Firebase Console → **Project settings → Service accounts**, create a new private key for the server. Do **not** paste that JSON into Git, this README, or a chat.
 3. Base64-encode the downloaded JSON locally, for example in PowerShell:
    ```powershell
@@ -189,14 +189,14 @@ The UI and `/api/coach` function are included in this repository, but the Coach 
 
    | Variable | Value |
    | --- | --- |
-   | `AI_GATEWAY_API_KEY` | The Vercel AI Gateway key (server-only) |
-   | `AI_GATEWAY_MODEL` | `openai/gpt-5.4-mini` or another currently supported gateway model |
+   | `GEMINI_API_KEY` | The Gemini Developer API key (server-only) |
+   | `GEMINI_MODEL` | Optional. Defaults to `gemini-2.5-flash` |
    | `FIREBASE_SERVICE_ACCOUNT_BASE64` | The base64 value from Step 3 |
    | `AI_COACH_DAILY_LIMIT` | Optional, defaults to `15` |
 
 5. Redeploy, sign in with a non-guest account, wait for the cloud-sync indicator to settle, and ask a Coach question from **Insights**.
 
-`openai/gpt-5.4-mini` was selected from the live AI Gateway catalog as a cost-conscious default. You can change it without code changes through `AI_GATEWAY_MODEL`. The function enforces a 1–50 request daily limit per signed-in account, an in-flight request lock and a short cooldown. Attempts count even if a provider fails, and the daily quota resets at UTC midnight. This per-user cap is not a global spending cap: configure Gateway budget controls before enabling a public launch.
+`gemini-2.5-flash` is the default cost-conscious Coach model and can be changed without a code edit through `GEMINI_MODEL`. The function enforces a 1–50 request daily limit per signed-in account, an in-flight request lock and a short cooldown. Attempts count even if a provider fails, and the daily quota resets at UTC midnight. This per-user cap is not a global spending cap: configure Gemini quota/billing safeguards before a public launch. Google currently states that free-tier Gemini prompts may be used to improve its products, so the production UI must disclose this before enabling the Coach for public users.
 
 Insights and Coach use the same deterministic 28-finished-local-day calculation. It excludes the in-progress day from historical rates, requires sufficient scheduled history before identifying a strongest/weakest pattern, and does not break ties arbitrarily. Today is shown separately, not treated as a missed day. The current schedule is used because schedule revisions are not yet versioned. Unmarked days do not prove a real-world failure; actual time spent, energy and obstacles are not tracked.
 
