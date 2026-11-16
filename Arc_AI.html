@@ -2,7 +2,7 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" name="viewport"/>
 <meta content="HabitArc" name="application-name"/>
 <meta content="#141212" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
@@ -70,7 +70,7 @@
 <link rel="stylesheet" href="app-ui.css"/>
 <script src="app-ui.js"></script>
 </head>
-<body class="bg-background text-on-background antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+<body class="bg-background text-on-background antialiased ha-arc-body flex flex-col relative overflow-x-hidden">
 
 <!-- Subtle Background Pattern -->
 <div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
@@ -148,6 +148,7 @@
 <!-- Main Content Canvas: Option 4A Zen Console + 4D 28-Day Momentum Card -->
 <main class="ha-arc-ai flex-1 w-full mx-auto px-4 md:px-8 flex flex-col">
 
+    <div id="arc-scroll-area" class="ha-arc-scroll">
     <!-- Zen Entry State -->
     <section id="arc-zen-home" aria-labelledby="arc-zen-title">
         <div class="ha-arc-zen-top">
@@ -272,6 +273,7 @@
             </div>
         </article>
     </section>
+    </div>
 
     <!-- Docked Composer Bar -->
     <div id="arc-composer-wrap" class="ha-arc-composer">
@@ -327,6 +329,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
 (function initArcAI() {
     if (typeof HabitArc === 'undefined') return;
 
+    const scrollArea = document.getElementById('arc-scroll-area');
     const zenHome = document.getElementById('arc-zen-home');
     const threadView = document.getElementById('arc-thread-view');
     const threadContext = document.getElementById('arc-thread-context');
@@ -627,6 +630,15 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             questionInput.value = '';
             questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
             resizeTextarea();
+            if (scrollArea && typeof scrollArea.scrollTo === 'function') {
+                scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
+            } else if (scrollArea) {
+                scrollArea.scrollTop = scrollArea.scrollHeight || 0;
+            }
+            if (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767px)').matches) {
+                questionInput.blur?.();
+                setTypingMode(false);
+            }
 
             const remaining = payload.usage?.remaining;
             setStatus(
@@ -652,6 +664,11 @@ import { buildHabitCoachContext } from './habit-analytics.js';
         }
     }
 
+    let blurTimer;
+    function setTypingMode(active) {
+        document.body?.classList?.toggle?.('is-arc-typing', Boolean(active));
+    }
+
     function launchStarterPrompt(key) {
         if (submitButton.disabled) return;
         questionInput.value = prompts[key];
@@ -664,9 +681,21 @@ import { buildHabitCoachContext } from './habit-analytics.js';
     cardTrend?.addEventListener('click', () => launchStarterPrompt('trend'));
     cardMomentum?.addEventListener('click', () => launchStarterPrompt('momentum'));
 
+    submitButton?.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+    });
     form?.addEventListener('submit', (event) => {
         event.preventDefault();
         void askCoach();
+    });
+    questionInput?.addEventListener('focus', () => {
+        clearTimeout(blurTimer);
+        setTypingMode(true);
+    });
+    questionInput?.addEventListener('blur', () => {
+        blurTimer = setTimeout(() => {
+            if (document.activeElement !== questionInput) setTypingMode(false);
+        }, 160);
     });
     questionInput?.addEventListener('input', resizeTextarea);
     questionInput?.addEventListener('keydown', (event) => {
@@ -677,6 +706,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
     });
     clearButton?.addEventListener('click', () => {
         resetConversation();
+        if (scrollArea) scrollArea.scrollTop = 0;
         questionInput.focus();
     });
 

@@ -61,11 +61,13 @@ function arcAi({ empty = false, signedIn = false } = {}) {
         getAuthToken: async () => 'qa-token',
         flushCloudSync: async () => {},
     };
+    const body = element();
     vm.runInNewContext(source, {
         HabitArc: app, buildHabitCoachContext, Date: Clock, Intl, AbortSignal, AbortController,
+        setTimeout, clearTimeout,
         navigator: { onLine: true },
         console: { warn() {} },
-        document: { getElementById: id => elements.get(id) || null, addEventListener: () => {}, hidden: false },
+        document: { getElementById: id => elements.get(id) || null, addEventListener: () => {}, hidden: false, body, activeElement: null },
         window: { addEventListener: (name, handler) => events.set(name, handler), HabitArcUI: { announce: msg => announced.push(msg) } },
         fetch: async (url, options) => {
             requests.push({ url, options });
@@ -79,10 +81,14 @@ function arcAi({ empty = false, signedIn = false } = {}) {
             };
         },
     });
-    return { elements, events, requests, announced };
+    return { elements, events, requests, announced, body };
 }
 
-test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and valid navigation slots', () => {
+test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and locked 100dvh shell', () => {
+    assert.match(html, /class="[^"]*ha-arc-body[^"]*"/);
+    assert.doesNotMatch(html, /<body[^>]*min-h-screen/);
+    assert.match(html, /interactive-widget=resizes-content/);
+    assert.ok(html.includes('id="arc-scroll-area"'));
     const mobileNav = html.match(/<nav class="md:hidden[\s\S]*?<\/nav>/)[0];
     assert.deepEqual([...mobileNav.matchAll(/href="([^"]+)"/g)].map(m => m[1]), ['Dashboard.html', 'Habits.html', 'Add_Habit.html', 'Insights.html', 'Arc_AI.html']);
     const mobileHeader = html.match(/<header class="[^"]*md:hidden[\s\S]*?<\/header>/)[0];
@@ -98,6 +104,10 @@ test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and valid navigati
     }
     assert.doesNotMatch(html, /Suggested stack/i);
     assert.match(html, /28-day momentum check/);
+
+    const view = arcAi();
+    view.elements.get('ai-coach-question').handlers.focus();
+    assert.equal(view.body.classList.contains('is-arc-typing'), true);
 });
 
 test('Arc_AI populates dynamic 4A cards + 4D momentum metrics and handles empty state cleanly', () => {
