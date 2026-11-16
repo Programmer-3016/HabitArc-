@@ -2087,3 +2087,9 @@ body.ha-arc-body > main.ha-arc-ai {
     color: var(--ha-hero-fg, #121215) !important;
     border: 1.5px solid rgb(var(--ha-outline-variant)) !important;
 }
+
+.ha-spa-navigated .fade-up,
+.ha-spa-navigated .animate-in {
+    animation-duration: 100ms !important;
+    animation-delay: 0ms !important;
+}
