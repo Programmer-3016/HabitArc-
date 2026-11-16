@@ -226,22 +226,8 @@
      desktop CSS keeps it in the right-hand companion column. -->
 <section class="ha-insights-coach bg-surface-container-lowest rounded-xl p-card-padding border border-primary-fixed/50 shadow-sm" aria-labelledby="ai-coach-title">
 <div class="flex items-start gap-3">
-<div class="w-10 h-10 bg-[#121010] border-2 border-[#443d3d] flex items-center justify-center shrink-0" aria-hidden="true">
-<svg width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges">
-    <rect x="7" y="1" width="3" height="2" fill="#ff6b4a"/>
-    <rect x="7" y="3" width="2" height="1" fill="#121215"/>
-    <rect x="4" y="4" width="8" height="1" fill="#121215"/>
-    <rect x="3" y="5" width="1" height="8" fill="#121215"/>
-    <rect x="12" y="5" width="1" height="8" fill="#121215"/>
-    <rect x="4" y="5" width="8" height="8" fill="#ffffff"/>
-    <rect x="4" y="13" width="2" height="1" fill="#121215"/>
-    <rect x="7" y="12" width="2" height="1" fill="#121215"/>
-    <rect x="10" y="13" width="2" height="1" fill="#121215"/>
-    <rect x="5" y="7" width="2" height="2" fill="#121215"/>
-    <rect x="9" y="7" width="2" height="2" fill="#121215"/>
-    <rect x="4" y="9" width="1" height="1" fill="#ff6b4a"/>
-    <rect x="11" y="9" width="1" height="1" fill="#ff6b4a"/>
-</svg>
+<div class="ha-insights-coach-badge w-10 h-10 rounded-xl bg-[#121215] border-2 border-[#121215] text-[#facc15] flex items-center justify-center shrink-0" aria-hidden="true">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
 </div>
 <div>
 <h2 id="ai-coach-title" class="font-headline-md text-headline-md text-primary font-bold">Ask HabitArc Coach</h2>
@@ -614,8 +600,11 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
         // Month markers describe the existing chronological columns, not new data.
         monthLabels.innerHTML = heatmapData.map((item, index) => {
             if (index !== 0 && item.date.slice(0, 7) === heatmapData[index - 1].date.slice(0, 7)) return '';
+            const col = Math.floor(index / 7) + 1;
+            const daysRemainingInMonth = heatmapData.slice(index, index + 21).every(d => d.date.slice(0, 7) === item.date.slice(0, 7));
+            if (index === 0 && !daysRemainingInMonth) return '';
             const date = new Date(`${item.date}T12:00:00`);
-            return `<span style="grid-column: ${Math.floor(index / 7) + 1}">${escape(date.toLocaleDateString('en-US', { month: 'short' }))}</span>`;
+            return `<span style="grid-column: ${col}">${escape(date.toLocaleDateString('en-US', { month: 'short' }))}</span>`;
         }).join('');
         const readableDate = key => new Date(`${key}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         document.getElementById('heatmap-date-range').textContent = heatmapData.length

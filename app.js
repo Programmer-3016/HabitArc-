@@ -1387,14 +1387,17 @@ const HabitArc = (() => {
     // ─── Theme ──────────────────────────────────────
     function getTheme() {
         const s = getSettings();
-        if (s.theme && (s.theme !== 'light' || s.rpgThemeChosen)) {
+        if (s.theme && (s.cleanThemeChosen || !['light', 'dark'].includes(s.theme))) {
             return s.theme;
         }
-        return 'dark';
+        if (s.theme === 'dark' && s.cleanThemeChosen) {
+            return 'dark';
+        }
+        return 'light';
     }
 
     function setTheme(theme) {
-        updateSettings({ theme, rpgThemeChosen: true });
+        updateSettings({ theme, rpgThemeChosen: true, cleanThemeChosen: true });
         applyTheme();
     }
 

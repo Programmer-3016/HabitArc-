@@ -54,7 +54,7 @@ try {
             await page.evaluate(() => document.fonts.ready);
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `${name}: page overflow at ${width}`);
             // Fail if the CDN utility styles or shared CSS did not load.
-            assert.equal(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(247, 249, 248)');
+            assert.equal(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(246, 244, 239)');
             if (width < 768) {
                 const nav = page.locator('body > nav');
                 assert.equal(await nav.isVisible(), true);

@@ -6,18 +6,21 @@
     try {
         const uid = localStorage.getItem('habitarc_active_uid');
         const data = JSON.parse(localStorage.getItem(uid ? `habitarc_data:${uid}` : 'habitarc_data') || '{}');
-        const rawTheme = data?.settings?.theme;
-        const theme = (!rawTheme || (rawTheme === 'light' && !data?.settings?.rpgThemeChosen)) ? 'dark' : rawTheme;
+        const s = data?.settings || {};
+        const rawTheme = s.theme;
+        const theme = (rawTheme && (s.cleanThemeChosen || !['light', 'dark'].includes(rawTheme)))
+            ? rawTheme
+            : (rawTheme === 'dark' && s.cleanThemeChosen ? 'dark' : 'light');
         if (['light', 'sage', 'dark', 'forest', 'midnight', 'purple', 'ocean', 'sunset'].includes(theme)) {
             const isLight = theme === 'light' || theme === 'sage';
             document.documentElement.setAttribute('data-theme', theme);
             document.documentElement.classList.toggle('dark', !isLight);
             document.documentElement.classList.toggle('light', isLight);
         }
-    } catch { /* Storage can be unavailable or corrupt; Night RPG fallback applies below. */
-        document.documentElement?.setAttribute?.('data-theme', 'dark');
-        document.documentElement?.classList?.add('dark');
-        document.documentElement?.classList?.remove('light');
+    } catch { /* Storage can be unavailable or corrupt; Paper Light fallback applies below. */
+        document.documentElement?.setAttribute?.('data-theme', 'light');
+        document.documentElement?.classList?.add('light');
+        document.documentElement?.classList?.remove('dark');
     }
     const config = window.tailwind?.config;
     const colors = config?.theme?.extend?.colors;
@@ -103,13 +106,13 @@
         });
 
         const metaColors = {
-            dark: '#141212', light: '#f4f2ea', sage: '#e5f0da',
+            dark: '#121215', light: '#47e393', sage: '#47e393',
             forest: '#0b1a14', midnight: '#0c131e', ocean: '#091c24',
             purple: '#171026', sunset: '#231116'
         };
         const syncMetaTheme = () => {
-            const active = document.documentElement?.getAttribute('data-theme') || 'dark';
-            document.querySelector?.('meta[name="theme-color"]')?.setAttribute('content', metaColors[active] || '#141212');
+            const active = document.documentElement?.getAttribute('data-theme') || 'light';
+            document.querySelector?.('meta[name="theme-color"]')?.setAttribute('content', metaColors[active] || '#47e393');
         };
         syncMetaTheme();
         if (typeof MutationObserver !== 'undefined') {
