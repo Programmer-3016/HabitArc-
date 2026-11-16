@@ -336,12 +336,71 @@
 
     .logo-hero { animation: fadeInUp 0.5s ease-out both; }
     #bottom-nav-wrap #bottom-nav.bare { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; }
+
+    /* Step 1 Vibrant Mint Welcome Card Theme + Isometric Sanctuary Card Animation */
+    body.step-1-active {
+        background-color: #47e393 !important;
+        color: #012d1d;
+    }
+    body.step-1-active #progress-bar-track {
+        background-color: rgba(1, 45, 29, 0.14);
+    }
+    body.step-1-active header img[alt="HabitArc"] {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 7px;
+        padding: 2px;
+    }
+    body.step-1-active #step-indicator {
+        color: #012d1d;
+        opacity: 0.78;
+    }
+    body.step-1-active .step-1-headline,
+    body.step-1-active .step-1-headline-accent {
+        color: #012d1d;
+    }
+    body.step-1-active #next-step-btn {
+        background-color: #0d1612;
+        color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 10px 24px -6px rgba(1, 45, 29, 0.28);
+    }
+    body.step-1-active #welcome-login-bar p {
+        color: rgba(1, 45, 29, 0.78);
+    }
+    body.step-1-active #welcome-login-btn {
+        color: #012d1d;
+    }
+    @keyframes heroIsoFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-7px); }
+    }
+    @keyframes heroCoinBob {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-9px); }
+    }
+    @keyframes heroBarFill {
+        0%, 12% { transform: scaleX(0.28); opacity: 0.65; }
+        55%, 82% { transform: scaleX(1); opacity: 1; }
+        100% { transform: scaleX(0.28); opacity: 0.65; }
+    }
+    @keyframes heroTilePulse {
+        0%, 20% { fill: #e6f2ec; }
+        45%, 80% { fill: #47e393; }
+        100% { fill: #e6f2ec; }
+    }
+    .hero-iso-float { animation: heroIsoFloat 4.2s ease-in-out infinite; }
+    .hero-coin-bob { animation: heroCoinBob 3.2s ease-in-out infinite; }
+    .hero-bar-fill { transform-box: fill-box; transform-origin: left center; animation: heroBarFill 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+    .hero-tile-pulse { animation: heroTilePulse 3.8s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+        .hero-iso-float, .hero-coin-bob, .hero-bar-fill, .hero-tile-pulse { animation: none !important; }
+    }
 </style>
 </head>
 <body class="bg-background text-on-background antialiased h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden relative">
 
 <!-- Thin progress line -->
-<div class="fixed top-0 left-0 right-0 h-[2px] bg-surface-container z-40">
+<div id="progress-bar-track" class="fixed top-0 left-0 right-0 h-[2px] bg-surface-container z-40">
     <div id="progress-bar" class="h-full bg-primary transition-all duration-300 ease-out" style="width: 14.28%;"></div>
 </div>
 
@@ -358,12 +417,87 @@
 <main class="flex-1 w-full max-w-md mx-auto flex flex-col px-6 overflow-y-auto pb-32">
 
     <!-- STEP 1: Welcome -->
-    <div id="step-1" class="step-card active animate-in my-auto pb-8 text-center flex flex-col items-center">
-        <h1 class="text-[36px] leading-[1.16] font-bold tracking-tight text-primary">
+    <div id="step-1" class="step-card active animate-in my-auto pb-8 text-center flex flex-col items-center gap-6 sm:gap-7">
+        <h1 class="step-1-headline text-[34px] sm:text-[38px] leading-[1.12] font-bold tracking-tight text-primary">
             Build habits.<br/>
             Understand yourself.<br/>
-            <span class="text-secondary">Grow every day.</span>
+            <span class="step-1-headline-accent text-secondary">Grow every day.</span>
         </h1>
+
+        <!-- HabitArc Isometric Sanctuary Card Illustration (Hard-Edge Vector Craft) -->
+        <div class="w-[248px] sm:w-[276px] mx-auto select-none pointer-events-none" aria-hidden="true">
+            <svg viewBox="0 0 280 232" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto overflow-visible">
+                <!-- Ambient Ink Accents -->
+                <path d="M36 68 L42 68 M39 65 L39 71" stroke="#012d1d" stroke-width="2" stroke-linecap="round"/>
+                <path d="M242 152 L248 152 M245 149 L245 155" stroke="#012d1d" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="236" cy="96" r="2.5" fill="#012d1d"/>
+                <circle cx="44" cy="148" r="2.2" fill="#012d1d"/>
+
+                <g class="hero-iso-float">
+                    <!-- Hard Offset Cast Shadow -->
+                    <polygon points="44,104 198,60 228,162 74,206" fill="#031e13"/>
+
+                    <!-- Card 3D Extruded Sides -->
+                    <polygon points="74,192 220,150 227,160 81,202" fill="#b7d2c4" stroke="#031e13" stroke-width="2.5" stroke-linejoin="round"/>
+                    <polygon points="194,56 220,150 227,160 201,66" fill="#8fb3a1" stroke="#031e13" stroke-width="2.5" stroke-linejoin="round"/>
+
+                    <!-- Crisp Optical White Isometric HabitArc Card Face -->
+                    <polygon points="48,98 194,56 220,150 74,192" fill="#ffffff" stroke="#031e13" stroke-width="2.75" stroke-linejoin="round"/>
+
+                    <!-- Card Content Projected Cleanly Onto Tilted Face (-16deg) -->
+                    <g transform="translate(48,98) rotate(-16.05)">
+                        <!-- Card Header: Mini Arc Mark + Label + Completion Pill -->
+                        <circle cx="22" cy="19" r="7" fill="#012d1d"/>
+                        <path d="M18.5 20.5 C20 17 22.5 15.5 25.5 16" stroke="#47e393" stroke-width="1.8" stroke-linecap="round"/>
+                        <text x="34" y="22.5" fill="#012d1d" font-size="9.5" font-weight="800" letter-spacing="0.06em" font-family="Geist, Hanken Grotesk, sans-serif">DAILY ARC</text>
+
+                        <rect x="108" y="11" width="32" height="16" rx="4" fill="#47e393" stroke="#031e13" stroke-width="1.8"/>
+                        <text x="124" y="22" text-anchor="middle" fill="#012d1d" font-size="8.5" font-weight="800" font-family="Geist, sans-serif">4 / 5</text>
+
+                        <!-- 5-Day Consistency Streak Squares -->
+                        <g transform="translate(15,36)">
+                            <rect x="0"  y="0" width="21" height="21" rx="4" fill="#012d1d" stroke="#031e13" stroke-width="1.8"/>
+                            <path d="M6.5 10.5 L9.5 13.5 L15 7.5" stroke="#47e393" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+                            <rect x="26" y="0" width="21" height="21" rx="4" fill="#012d1d" stroke="#031e13" stroke-width="1.8"/>
+                            <path d="M32.5 10.5 L35.5 13.5 L41 7.5" stroke="#47e393" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+                            <rect x="52" y="0" width="21" height="21" rx="4" fill="#47e393" stroke="#031e13" stroke-width="1.8"/>
+                            <path d="M58.5 10.5 L61.5 13.5 L67 7.5" stroke="#012d1d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+                            <rect x="78" y="0" width="21" height="21" rx="4" fill="#012d1d" stroke="#031e13" stroke-width="1.8"/>
+                            <path d="M84.5 10.5 L87.5 13.5 L93 7.5" stroke="#47e393" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+                            <rect class="hero-tile-pulse" x="104" y="0" width="21" height="21" rx="4" fill="#47e393" stroke="#031e13" stroke-width="1.8"/>
+                            <circle cx="114.5" cy="10.5" r="2.6" fill="#012d1d"/>
+                        </g>
+
+                        <!-- 2 Minimal Habit Rows with Animated Completion Progress -->
+                        <g transform="translate(15,67)">
+                            <rect x="0" y="0" width="125" height="12" rx="3" fill="#eff4f1"/>
+                            <circle cx="7" cy="6" r="3.2" fill="#0e6c4a"/>
+                            <rect x="15" y="4" width="64" height="4" rx="2" fill="#012d1d"/>
+                            <rect x="92" y="4" width="24" height="4" rx="2" fill="#47e393"/>
+                        </g>
+                        <g transform="translate(15,83)">
+                            <rect x="0" y="0" width="125" height="12" rx="3" fill="#eff4f1"/>
+                            <circle cx="7" cy="6" r="3.2" stroke="#031e13" stroke-width="1.4" fill="#ffffff"/>
+                            <rect x="15" y="4" width="76" height="4" rx="2" fill="#cad6cf"/>
+                            <rect class="hero-bar-fill" x="15" y="4" width="76" height="4" rx="2" fill="#0e6c4a"/>
+                        </g>
+                    </g>
+                </g>
+
+                <!-- Floating Isometric Streak Flame Coin Above Top-Right -->
+                <g class="hero-coin-bob">
+                    <ellipse cx="204" cy="48" rx="22" ry="13" fill="#031e13"/>
+                    <path d="M182 37 v11 a22 13 0 0 0 44 0 v-11 z" fill="#b45309" stroke="#031e13" stroke-width="2.4"/>
+                    <ellipse cx="204" cy="37" rx="22" ry="13" fill="#f59e0b" stroke="#031e13" stroke-width="2.4"/>
+                    <!-- Crisp Streak Flame Mark -->
+                    <path d="M204 30 C208 33.5 210 37 207.5 40.5 C206 42.5 202 42.5 200.5 40.5 C198.5 38 201 34 204 30 Z" fill="#ffffff" stroke="#031e13" stroke-width="1.4" stroke-linejoin="round"/>
+                </g>
+            </svg>
+        </div>
     </div>
 
     <!-- STEP 2: What brought you here? -->
@@ -673,6 +807,7 @@
         const pct = Math.round((currentStep / totalSteps) * 100);
         document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('step-indicator').textContent = `${currentStep} / ${totalSteps}`;
+        document.body.classList.toggle('step-1-active', currentStep === 1 && !pendingGoogleRedirectDraft);
 
         const prevBtn = document.getElementById('prev-step-btn');
         if (prevBtn) {
