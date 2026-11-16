@@ -1358,7 +1358,7 @@ body.ha-arc-body > main.ha-arc-ai {
 
 .ha-arc-zen-top { text-align: center; padding: 2px 8px 2px; }
 .ha-arc-mascot-sq {
-    width: 40px; height: 40px; margin: 0 auto 6px;
+    width: 40px; height: 40px; margin: 0 auto 9px;
     background: #ffffff; border: 2px solid #000000; box-shadow: 4px 4px 0 var(--rpg-cta, #ff6b4a);
     display: grid; place-items: center;
 }
