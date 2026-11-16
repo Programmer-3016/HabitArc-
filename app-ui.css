@@ -23,7 +23,7 @@ body .grid-bg { display: none !important; }
     ::view-transition-group(*) { animation: none !important; }
 }
 
-/* ─── Option A: Paper Light + Lavender Hero + Mint Top Bar (Default) ───────── */
+/* ─── 1. Paper Light (Default · Cream Paper + Lavender Hero + Mint Bar) ──── */
 :root,
 :root[data-theme="light"] {
     color-scheme: light;
@@ -52,6 +52,8 @@ body .grid-bg { display: none !important; }
     --ha-error: 185 28 28;
     --ha-error-container: 254 226 226;
     --ha-on-error-container: 127 29 29;
+    --ha-inverse-surface: 24 24 27;
+    --ha-inverse-on-surface: 250 250 250;
     --ha-card-radius: 16px;
     --ha-ctrl-radius: 10px;
     --ha-card-shadow: 3px 3px 0 #121215;
@@ -81,6 +83,7 @@ body .grid-bg { display: none !important; }
     --rpg-streak-ink: #121215;
     --rpg-hero-eyebrow: #3b0764;
     --ha-hero-bg: #c4b5fd;
+    --ha-hero-border: #121215;
     --ha-hero-fg: #121215;
     --ha-hero-sub: #3b3556;
     --ha-hero-ring-track: rgba(18, 18, 21, 0.14);
@@ -109,22 +112,22 @@ body .grid-bg { display: none !important; }
     --rpg-shadow-ink: #121215;
 }
 
-/* ─── Obsidian Dark (Option A Rounded Neo-Brutalism + Obsidian Bar) ───────── */
+/* ─── 2. Obsidian Dark (Obsidian Surfaces + Electric Indigo Hero + Gold) ─── */
 :root[data-theme="dark"] {
     color-scheme: dark;
     --ha-background: 18 18 21;
-    --ha-surface: 28 28 33;
-    --ha-surface-container-lowest: 28 28 33;
-    --ha-surface-container-low: 36 36 43;
-    --ha-surface-container: 46 46 54;
-    --ha-surface-container-high: 56 56 66;
-    --ha-surface-container-highest: 70 70 82;
-    --ha-surface-variant: 52 52 62;
-    --ha-on-background: 250 250 250;
-    --ha-on-surface: 250 250 250;
-    --ha-on-surface-variant: 161 161 170;
-    --ha-outline: 113 113 122;
-    --ha-outline-variant: 68 68 78;
+    --ha-surface: 28 28 34;
+    --ha-surface-container-lowest: 28 28 34;
+    --ha-surface-container-low: 36 36 44;
+    --ha-surface-container: 46 46 56;
+    --ha-surface-container-high: 58 58 70;
+    --ha-surface-container-highest: 72 72 86;
+    --ha-surface-variant: 52 52 64;
+    --ha-on-background: 250 250 252;
+    --ha-on-surface: 250 250 252;
+    --ha-on-surface-variant: 174 174 188;
+    --ha-outline: 128 128 144;
+    --ha-outline-variant: 78 78 96;
     --ha-primary: 167 139 250;
     --ha-primary-container: 196 181 253;
     --ha-on-primary: 18 18 21;
@@ -137,23 +140,25 @@ body .grid-bg { display: none !important; }
     --ha-error: 248 113 113;
     --ha-error-container: 76 28 28;
     --ha-on-error-container: 254 202 202;
+    --ha-inverse-surface: 244 244 246;
+    --ha-inverse-on-surface: 18 18 21;
     --ha-card-radius: 16px;
     --ha-ctrl-radius: 10px;
     --ha-card-shadow: 3px 3px 0 #000000;
     --ha-page-width: 1120px;
 
-    --rpg-hdr-bg: #121215;
-    --rpg-hdr-border: #2e2e38;
+    --rpg-hdr-bg: #18181f;
+    --rpg-hdr-border: #383846;
     --rpg-hdr-fg: #ffffff;
-    --rpg-hdr-nav-active-bg: #ffffff;
+    --rpg-hdr-nav-active-bg: #c4b5fd;
     --rpg-hdr-nav-active-fg: #121215;
     --rpg-hdr-chip-bg: #facc15;
     --rpg-hdr-chip-border: #000000;
     --rpg-hdr-chip-fg: #121215;
     --rpg-hdr-streak-flame: #ea580c;
-    --rpg-hdr-profile-bg: #272730;
+    --rpg-hdr-profile-bg: #282834;
     --rpg-hdr-profile-fg: #ffffff;
-    --rpg-hdr-profile-border: #3f3f4d;
+    --rpg-hdr-profile-border: #4e4e60;
     --rpg-hdr-cta-bg: #47e393;
     --rpg-hdr-cta-fg: #121215;
     --rpg-cta: #c4b5fd;
@@ -165,302 +170,66 @@ body .grid-bg { display: none !important; }
     --rpg-text-accent: #c4b5fd;
     --rpg-streak-ink: #facc15;
     --rpg-hero-eyebrow: #c4b5fd;
-    --ha-hero-bg: #231f35;
+    --ha-hero-bg: #2a2145;
+    --ha-hero-border: #a78bfa;
     --ha-hero-fg: #ffffff;
-    --ha-hero-sub: #c4c2d4;
-    --ha-hero-ring-track: rgba(255, 255, 255, 0.14);
+    --ha-hero-sub: #ddd6fe;
+    --ha-hero-ring-track: rgba(196, 181, 253, 0.22);
     --ha-hero-ring-fill: #c4b5fd;
-    --ha-hero-divider: rgba(255, 255, 255, 0.14);
+    --ha-hero-divider: rgba(196, 181, 253, 0.22);
     --ha-toggle-done-bg: #47e393;
     --ha-toggle-done-fg: #121215;
     --ha-toggle-done-border: #000000;
-    --ha-toggle-idle-bg: #1c1c21;
-    --ha-toggle-idle-border: #525260;
-    --rpg-dialogue-bg: #231f35;
+    --ha-toggle-idle-bg: #24242c;
+    --ha-toggle-idle-border: #5e5e74;
+    --rpg-dialogue-bg: #2a2145;
     --rpg-dialogue-fg: #ffffff;
-    --rpg-dialogue-sub: #c4c2d4;
-    --rpg-dialogue-border: #4c4373;
+    --rpg-dialogue-sub: #ddd6fe;
+    --rpg-dialogue-border: #a78bfa;
     --rpg-dialogue-shadow: 4px 4px 0 #000000;
-    --rpg-dock-bg: #1c1c21;
-    --rpg-dock-border: #3f3f4a;
+    --rpg-dock-bg: #1c1c22;
+    --rpg-dock-border: #4e4e60;
     --rpg-dock-active-bg: #c4b5fd;
     --rpg-dock-active-fg: #121215;
     --rpg-dock-active-border: #000000;
     --rpg-fab-bg: #facc15;
     --rpg-fab-fg: #121215;
     --rpg-bar-on: #a78bfa;
-    --rpg-bar-off: #2e2e3a;
+    --rpg-bar-off: #32323e;
     --rpg-xp-fill: #c4b5fd;
     --rpg-shadow-ink: #000000;
 }
 
-/* Shared Dark Palette Fallbacks for Forest, Midnight, Purple, Ocean & Sunset */
-:root:is([data-theme="forest"], [data-theme="midnight"], [data-theme="purple"], [data-theme="ocean"], [data-theme="sunset"]) {
-    --ha-card-radius: 16px;
-    --ha-ctrl-radius: 10px;
-    --rpg-hdr-fg: #ffffff;
-    --rpg-hdr-nav-active-bg: #ffffff;
-    --rpg-hdr-nav-active-fg: #121215;
-    --rpg-hdr-chip-fg: var(--rpg-gold, #facc15);
-    --rpg-hdr-streak-flame: var(--rpg-cta, #ff6b4a);
-    --rpg-hdr-profile-bg: rgba(255, 255, 255, 0.14);
-    --rpg-hdr-profile-fg: #ffffff;
-    --rpg-hdr-profile-border: rgba(255, 255, 255, 0.35);
-    --rpg-hdr-cta-bg: var(--rpg-cta, #47e393);
-    --rpg-hdr-cta-fg: var(--rpg-cta-fg, #121215);
-    --ha-hero-bg: var(--rpg-dialogue-bg, #1c1c21);
-    --ha-hero-fg: var(--rpg-dialogue-fg, #ffffff);
-    --ha-hero-sub: var(--rpg-dialogue-sub, #d4d4d8);
-    --ha-hero-ring-track: rgba(255, 255, 255, 0.15);
-    --ha-hero-ring-fill: var(--rpg-mint, #47e393);
-    --ha-hero-divider: rgba(255, 255, 255, 0.14);
-    --ha-toggle-done-bg: var(--rpg-mint, #47e393);
-    --ha-toggle-done-fg: #121215;
-    --ha-toggle-done-border: #000000;
-    --ha-toggle-idle-bg: rgb(var(--ha-background));
-    --ha-toggle-idle-border: rgb(var(--ha-outline-variant));
-}
-
-/* Preserved & expanded user color themes inside the Pixel RPG system */
-:root[data-theme="forest"] {
-    --ha-background: 11 26 20;
-    --ha-surface: 18 40 30;
-    --ha-surface-container-lowest: 18 40 30;
-    --ha-surface-container-low: 23 48 37;
-    --ha-surface-container: 31 61 47;
-    --ha-surface-container-high: 39 74 58;
-    --ha-surface-container-highest: 49 88 70;
-    --ha-surface-variant: 39 74 58;
-    --ha-outline-variant: 52 94 74;
-    --ha-primary: 71 227 147;
-    --ha-primary-container: 71 227 147;
-    --rpg-hdr-bg: #07130e;
-    --rpg-hdr-border: #254b3a;
-    --rpg-hdr-chip-bg: #12281e;
-    --rpg-hdr-chip-border: #345e4a;
-    --rpg-sky-bg: #081610;
-    --rpg-sky-border: #254b3a;
-    --rpg-sky-b1: #11291f;
-    --rpg-sky-b2: #18382a;
-    --rpg-sky-b3: #0d2118;
-    --rpg-moon: #a7f3d0;
-    --rpg-live-bg: #12281e;
-    --rpg-live-border: #345e4a;
-    --rpg-dock-bg: #10241b;
-    --rpg-dock-border: #345e4a;
-    --rpg-cta: #47e393;
-    --rpg-cta-fg: #052216;
-    --rpg-hero-eyebrow: #047857;
-    --rpg-xp-fill: #47e393;
-    --rpg-fab-bg: #47e393;
-    --rpg-fab-fg: #052216;
-    --rpg-bar-on: #47e393;
-    --rpg-bar-off: #1e3b2e;
-}
-
-:root[data-theme="midnight"] {
-    --ha-background: 12 19 30;
-    --ha-surface: 20 30 44;
-    --ha-surface-container-lowest: 20 30 44;
-    --ha-surface-container-low: 26 38 54;
-    --ha-surface-container: 34 48 65;
-    --ha-surface-container-high: 42 58 77;
-    --ha-surface-container-highest: 52 70 92;
-    --ha-surface-variant: 42 58 77;
-    --ha-outline-variant: 65 89 114;
-    --ha-primary: 56 189 248;
-    --ha-primary-container: 56 189 248;
-    --rpg-hdr-bg: #080e18;
-    --rpg-hdr-border: #293c54;
-    --rpg-hdr-chip-bg: #141e2c;
-    --rpg-hdr-chip-border: #3b5370;
-    --rpg-sky-bg: #08101c;
-    --rpg-sky-border: #293c54;
-    --rpg-sky-b1: #132033;
-    --rpg-sky-b2: #1b2c45;
-    --rpg-sky-b3: #101929;
-    --rpg-moon: #bae6fd;
-    --rpg-live-bg: #141e2c;
-    --rpg-live-border: #3b5370;
-    --rpg-dock-bg: #121c2b;
-    --rpg-dock-border: #3b5370;
-    --rpg-cta: #38bdf8;
-    --rpg-cta-fg: #08101c;
-    --rpg-coral: #38bdf8;
-    --rpg-mint: #38bdf8;
-    --rpg-text-accent: #38bdf8;
-    --rpg-hero-eyebrow: #0369a1;
-    --rpg-xp-fill: #38bdf8;
-    --rpg-fab-bg: #38bdf8;
-    --rpg-fab-fg: #08101c;
-    --rpg-bar-on: #38bdf8;
-    --rpg-bar-off: #223045;
-}
-
-:root[data-theme="purple"] {
-    --ha-background: 23 16 38;
-    --ha-surface: 34 24 56;
-    --ha-surface-container-lowest: 34 24 56;
-    --ha-surface-container-low: 43 31 69;
-    --ha-surface-container: 54 40 84;
-    --ha-surface-container-high: 66 50 98;
-    --ha-surface-container-highest: 78 60 114;
-    --ha-surface-variant: 54 40 84;
-    --ha-outline-variant: 88 67 128;
-    --ha-primary: 192 132 252;
-    --ha-primary-container: 192 132 252;
-    --rpg-hdr-bg: #100a1c;
-    --rpg-hdr-border: #48336e;
-    --rpg-hdr-chip-bg: #221838;
-    --rpg-hdr-chip-border: #584380;
-    --rpg-sky-bg: #120b21;
-    --rpg-sky-border: #48336e;
-    --rpg-sky-b1: #23163d;
-    --rpg-sky-b2: #2d1e4d;
-    --rpg-sky-b3: #1b1130;
-    --rpg-moon: #e9d5ff;
-    --rpg-live-bg: #221838;
-    --rpg-live-border: #584380;
-    --rpg-dock-bg: #1f1633;
-    --rpg-dock-border: #584380;
-    --rpg-cta: #c084fc;
-    --rpg-cta-fg: #171026;
-    --rpg-coral: #f472b6;
-    --rpg-mint: #c084fc;
-    --rpg-text-accent: #c084fc;
-    --rpg-hero-eyebrow: #e9d5ff;
-    --ha-hero-bg: #24193d;
-    --ha-hero-fg: #ffffff;
-    --ha-hero-sub: #d8b4fe;
-    --ha-hero-ring-track: rgba(255, 255, 255, 0.16);
-    --ha-hero-ring-fill: #c084fc;
-    --ha-hero-divider: rgba(255, 255, 255, 0.16);
-    --rpg-xp-fill: #c084fc;
-    --rpg-fab-bg: #facc15;
-    --rpg-fab-fg: #121215;
-    --rpg-bar-on: #c084fc;
-    --rpg-bar-off: #362854;
-}
-
-:root[data-theme="ocean"] {
-    --ha-background: 9 28 36;
-    --ha-surface: 15 41 51;
-    --ha-surface-container-lowest: 15 41 51;
-    --ha-surface-container-low: 21 53 65;
-    --ha-surface-container: 27 65 79;
-    --ha-surface-container-high: 35 79 95;
-    --ha-surface-container-highest: 44 95 113;
-    --ha-surface-variant: 35 79 95;
-    --ha-outline-variant: 45 99 116;
-    --ha-primary: 45 212 191;
-    --ha-primary-container: 45 212 191;
-    --rpg-hdr-bg: #06141a;
-    --rpg-hdr-border: #224f5e;
-    --rpg-hdr-fg: #ffffff;
-    --rpg-hdr-nav-active-bg: #2dd4bf;
-    --rpg-hdr-nav-active-fg: #061b19;
-    --rpg-hdr-chip-bg: #0f2933;
-    --rpg-hdr-chip-border: #2d6374;
-    --rpg-hdr-chip-fg: #facc15;
-    --rpg-hdr-profile-bg: #0f2933;
-    --rpg-hdr-profile-fg: #ffffff;
-    --rpg-hdr-profile-border: #2d6374;
-    --rpg-hdr-cta-bg: #2dd4bf;
-    --rpg-hdr-cta-fg: #061b19;
-    --rpg-dock-bg: #0d242d;
-    --rpg-dock-border: #2d6374;
-    --rpg-dock-active-bg: #2dd4bf;
-    --rpg-dock-active-fg: #061b19;
-    --rpg-cta: #2dd4bf;
-    --rpg-cta-fg: #061b19;
-    --rpg-coral: #2dd4bf;
-    --rpg-mint: #2dd4bf;
-    --rpg-text-accent: #2dd4bf;
-    --rpg-hero-eyebrow: #99f6e4;
-    --ha-hero-bg: #123340;
-    --ha-hero-fg: #ffffff;
-    --ha-hero-sub: #b5e8e2;
-    --ha-hero-ring-track: rgba(255, 255, 255, 0.16);
-    --ha-hero-ring-fill: #2dd4bf;
-    --ha-hero-divider: rgba(255, 255, 255, 0.16);
-    --rpg-xp-fill: #2dd4bf;
-    --rpg-fab-bg: #facc15;
-    --rpg-fab-fg: #121215;
-    --rpg-bar-on: #2dd4bf;
-    --rpg-bar-off: #1b3e4b;
-}
-
-:root[data-theme="sunset"] {
-    --ha-background: 35 17 22;
-    --ha-surface: 51 25 32;
-    --ha-surface-container-lowest: 51 25 32;
-    --ha-surface-container-low: 62 32 40;
-    --ha-surface-container: 77 41 51;
-    --ha-surface-container-high: 94 52 64;
-    --ha-surface-container-highest: 112 63 77;
-    --ha-surface-variant: 77 41 51;
-    --ha-outline-variant: 118 65 79;
-    --ha-primary: 251 113 133;
-    --ha-primary-container: 251 113 133;
-    --rpg-hdr-bg: #180b0e;
-    --rpg-hdr-border: #683240;
-    --rpg-hdr-fg: #ffffff;
-    --rpg-hdr-nav-active-bg: #fb7185;
-    --rpg-hdr-nav-active-fg: #231116;
-    --rpg-hdr-chip-bg: #331920;
-    --rpg-hdr-chip-border: #76414f;
-    --rpg-hdr-chip-fg: #facc15;
-    --rpg-hdr-profile-bg: #331920;
-    --rpg-hdr-profile-fg: #ffffff;
-    --rpg-hdr-profile-border: #76414f;
-    --rpg-hdr-cta-bg: #fb7185;
-    --rpg-hdr-cta-fg: #231116;
-    --rpg-dock-bg: #2e161d;
-    --rpg-dock-border: #76414f;
-    --rpg-dock-active-bg: #fb7185;
-    --rpg-dock-active-fg: #231116;
-    --rpg-cta: #fb7185;
-    --rpg-cta-fg: #231116;
-    --rpg-coral: #fb7185;
-    --rpg-mint: #fbbf24;
-    --rpg-text-accent: #fbbf24;
-    --rpg-hero-eyebrow: #fecdd3;
-    --ha-hero-bg: #3c1c25;
-    --ha-hero-fg: #ffffff;
-    --ha-hero-sub: #f6ced6;
-    --ha-hero-ring-track: rgba(255, 255, 255, 0.16);
-    --ha-hero-ring-fill: #fb7185;
-    --ha-hero-divider: rgba(255, 255, 255, 0.16);
-    --rpg-xp-fill: #fb7185;
-    --rpg-fab-bg: #facc15;
-    --rpg-fab-fg: #121215;
-    --rpg-bar-on: #fb7185;
-    --rpg-bar-off: #4d2933;
-}
-
-/* ─── Sage Mint Theme (Clean Mint + Cream) ────────────────────────────────── */
+/* ─── 3. Sage Mint (Light Sage Cream + Lush Mint Hero + Deep Pine Ink) ───── */
 :root[data-theme="sage"] {
     color-scheme: light;
     --ha-background: 234 244 226;
     --ha-surface: 252 255 249;
     --ha-surface-container-lowest: 252 255 249;
-    --ha-surface-container-low: 218 234 205;
-    --ha-surface-container: 202 222 187;
-    --ha-surface-container-high: 185 208 168;
-    --ha-surface-container-highest: 165 190 148;
-    --ha-surface-variant: 202 222 187;
+    --ha-surface-container-low: 220 236 208;
+    --ha-surface-container: 204 224 190;
+    --ha-surface-container-high: 186 210 170;
+    --ha-surface-container-highest: 168 194 150;
+    --ha-surface-variant: 204 224 190;
     --ha-on-background: 14 42 29;
     --ha-on-surface: 14 42 29;
-    --ha-on-surface-variant: 52 84 66;
-    --ha-outline: 52 84 66;
+    --ha-on-surface-variant: 48 82 64;
+    --ha-outline: 68 106 86;
     --ha-outline-variant: 14 42 29;
     --ha-primary: 16 122 87;
     --ha-primary-container: 71 227 147;
     --ha-on-primary: 255 255 255;
-    --ha-on-primary-container: 11 34 23;
-    --ha-secondary: 16 122 87;
+    --ha-on-primary-container: 14 42 29;
+    --ha-secondary: 5 150 105;
     --ha-secondary-container: 209 250 229;
-    --ha-on-secondary-container: 16 122 87;
+    --ha-on-secondary-container: 6 78 59;
+    --ha-primary-fixed: 134 239 172;
+    --ha-primary-fixed-dim: 16 185 129;
+    --ha-error: 185 28 28;
+    --ha-error-container: 254 226 226;
+    --ha-on-error-container: 127 29 29;
+    --ha-inverse-surface: 14 42 29;
+    --ha-inverse-on-surface: 236 253 245;
     --ha-card-radius: 16px;
     --ha-ctrl-radius: 10px;
     --ha-card-shadow: 3px 3px 0 #0e2a1d;
@@ -481,13 +250,18 @@ body .grid-bg { display: none !important; }
     --rpg-hdr-cta-fg: #ffffff;
     --rpg-cta: #0e2a1d;
     --rpg-cta-fg: #ffffff;
+    --rpg-coral: #f97316;
+    --rpg-gold: #facc15;
+    --rpg-mint: #47e393;
+    --rpg-purple: #107a57;
     --rpg-text-accent: #047857;
     --rpg-streak-ink: #0e2a1d;
-    --rpg-hero-eyebrow: #0b2217;
+    --rpg-hero-eyebrow: #064e3b;
     --ha-hero-bg: #86efac;
+    --ha-hero-border: #0e2a1d;
     --ha-hero-fg: #0e2a1d;
     --ha-hero-sub: #14402b;
-    --ha-hero-ring-track: rgba(14, 42, 29, 0.14);
+    --ha-hero-ring-track: rgba(14, 42, 29, 0.15);
     --ha-hero-ring-fill: #0e2a1d;
     --ha-hero-divider: rgba(14, 42, 29, 0.16);
     --ha-toggle-done-bg: #0e2a1d;
@@ -495,33 +269,457 @@ body .grid-bg { display: none !important; }
     --ha-toggle-done-border: #0e2a1d;
     --ha-toggle-idle-bg: #ffffff;
     --ha-toggle-idle-border: #0e2a1d;
-    --rpg-dock-bg: #ffffff;
-    --rpg-dock-border: #0e2a1d;
-    --rpg-dock-active-bg: #86efac;
-    --rpg-dock-active-fg: #0e2a1d;
-    --rpg-dock-active-border: #0e2a1d;
-    --rpg-fab-bg: #facc15;
-    --rpg-fab-fg: #0e2a1d;
-    --rpg-bar-on: #10b981;
-    --rpg-bar-off: #d7e6cb;
-    --rpg-xp-fill: #107a57;
-    --rpg-shadow-ink: #0e2a1d;
     --rpg-dialogue-bg: #86efac;
     --rpg-dialogue-fg: #0e2a1d;
     --rpg-dialogue-sub: #14402b;
     --rpg-dialogue-border: #0e2a1d;
     --rpg-dialogue-shadow: 4px 4px 0 #0e2a1d;
-}
-    --rpg-dock-bg: #fcfff8;
+    --rpg-dock-bg: #fcfff9;
     --rpg-dock-border: #0e2a1d;
     --rpg-dock-active-bg: #47e393;
-    --rpg-dock-active-fg: #0b2217;
-    --rpg-fab-bg: #0e2a1d;
-    --rpg-fab-fg: #47e393;
+    --rpg-dock-active-fg: #0e2a1d;
+    --rpg-dock-active-border: #0e2a1d;
+    --rpg-fab-bg: #facc15;
+    --rpg-fab-fg: #0e2a1d;
     --rpg-bar-on: #107a57;
     --rpg-bar-off: #cfe0c2;
-    --rpg-xp-fill: #0e2a1d;
+    --rpg-xp-fill: #107a57;
     --rpg-shadow-ink: #0e2a1d;
+}
+
+/* ─── 4. Forest (Deep Emerald Night + Canopy Hero + Mint & Gold) ─────────── */
+:root[data-theme="forest"] {
+    color-scheme: dark;
+    --ha-background: 11 26 20;
+    --ha-surface: 18 40 30;
+    --ha-surface-container-lowest: 18 40 30;
+    --ha-surface-container-low: 24 51 39;
+    --ha-surface-container: 32 64 49;
+    --ha-surface-container-high: 42 80 62;
+    --ha-surface-container-highest: 54 98 77;
+    --ha-surface-variant: 42 80 62;
+    --ha-on-background: 236 253 245;
+    --ha-on-surface: 236 253 245;
+    --ha-on-surface-variant: 162 204 184;
+    --ha-outline: 112 160 138;
+    --ha-outline-variant: 54 106 82;
+    --ha-primary: 71 227 147;
+    --ha-primary-container: 52 211 153;
+    --ha-on-primary: 6 34 22;
+    --ha-on-primary-container: 6 34 22;
+    --ha-secondary: 250 204 21;
+    --ha-secondary-container: 24 62 45;
+    --ha-on-secondary-container: 167 243 208;
+    --ha-primary-fixed: 167 243 208;
+    --ha-primary-fixed-dim: 16 185 129;
+    --ha-error: 248 113 113;
+    --ha-error-container: 76 28 28;
+    --ha-on-error-container: 254 202 202;
+    --ha-inverse-surface: 236 253 245;
+    --ha-inverse-on-surface: 11 26 20;
+    --ha-card-radius: 16px;
+    --ha-ctrl-radius: 10px;
+    --ha-card-shadow: 3px 3px 0 #040d09;
+
+    --rpg-hdr-bg: #10261c;
+    --rpg-hdr-border: #366a52;
+    --rpg-hdr-fg: #ecfdf5;
+    --rpg-hdr-nav-active-bg: #47e393;
+    --rpg-hdr-nav-active-fg: #062216;
+    --rpg-hdr-chip-bg: #18382a;
+    --rpg-hdr-chip-border: #366a52;
+    --rpg-hdr-chip-fg: #facc15;
+    --rpg-hdr-streak-flame: #f97316;
+    --rpg-hdr-profile-bg: #18382a;
+    --rpg-hdr-profile-fg: #ecfdf5;
+    --rpg-hdr-profile-border: #366a52;
+    --rpg-hdr-cta-bg: #47e393;
+    --rpg-hdr-cta-fg: #062216;
+    --rpg-cta: #47e393;
+    --rpg-cta-fg: #062216;
+    --rpg-coral: #47e393;
+    --rpg-gold: #facc15;
+    --rpg-mint: #47e393;
+    --rpg-purple: #34d399;
+    --rpg-text-accent: #47e393;
+    --rpg-streak-ink: #facc15;
+    --rpg-hero-eyebrow: #6ee7b7;
+    --ha-hero-bg: #163d2b;
+    --ha-hero-border: #47e393;
+    --ha-hero-fg: #ecfdf5;
+    --ha-hero-sub: #a7f3d0;
+    --ha-hero-ring-track: rgba(71, 227, 147, 0.22);
+    --ha-hero-ring-fill: #47e393;
+    --ha-hero-divider: rgba(71, 227, 147, 0.22);
+    --ha-toggle-done-bg: #47e393;
+    --ha-toggle-done-fg: #062216;
+    --ha-toggle-done-border: #040d09;
+    --ha-toggle-idle-bg: #183327;
+    --ha-toggle-idle-border: #458266;
+    --rpg-dialogue-bg: #163d2b;
+    --rpg-dialogue-fg: #ecfdf5;
+    --rpg-dialogue-sub: #a7f3d0;
+    --rpg-dialogue-border: #47e393;
+    --rpg-dialogue-shadow: 4px 4px 0 #040d09;
+    --rpg-dock-bg: #12281e;
+    --rpg-dock-border: #366a52;
+    --rpg-dock-active-bg: #47e393;
+    --rpg-dock-active-fg: #062216;
+    --rpg-dock-active-border: #040d09;
+    --rpg-fab-bg: #facc15;
+    --rpg-fab-fg: #062216;
+    --rpg-bar-on: #47e393;
+    --rpg-bar-off: #204031;
+    --rpg-xp-fill: #47e393;
+    --rpg-shadow-ink: #040d09;
+}
+
+/* ─── 5. Midnight (Deep Starlight Navy + Sapphire Hero + Sky Blue) ───────── */
+:root[data-theme="midnight"] {
+    color-scheme: dark;
+    --ha-background: 12 19 30;
+    --ha-surface: 20 31 46;
+    --ha-surface-container-lowest: 20 31 46;
+    --ha-surface-container-low: 27 41 60;
+    --ha-surface-container: 36 53 76;
+    --ha-surface-container-high: 46 66 94;
+    --ha-surface-container-highest: 58 82 114;
+    --ha-surface-variant: 46 66 94;
+    --ha-on-background: 240 249 255;
+    --ha-on-surface: 240 249 255;
+    --ha-on-surface-variant: 158 186 216;
+    --ha-outline: 110 142 178;
+    --ha-outline-variant: 62 92 128;
+    --ha-primary: 56 189 248;
+    --ha-primary-container: 125 211 252;
+    --ha-on-primary: 8 19 32;
+    --ha-on-primary-container: 8 19 32;
+    --ha-secondary: 186 230 253;
+    --ha-secondary-container: 24 48 76;
+    --ha-on-secondary-container: 186 230 253;
+    --ha-primary-fixed: 186 230 253;
+    --ha-primary-fixed-dim: 14 165 233;
+    --ha-error: 248 113 113;
+    --ha-error-container: 76 28 28;
+    --ha-on-error-container: 254 202 202;
+    --ha-inverse-surface: 240 249 255;
+    --ha-inverse-on-surface: 12 19 30;
+    --ha-card-radius: 16px;
+    --ha-ctrl-radius: 10px;
+    --ha-card-shadow: 3px 3px 0 #050911;
+
+    --rpg-hdr-bg: #0f1b2d;
+    --rpg-hdr-border: #3e5c80;
+    --rpg-hdr-fg: #f0f9ff;
+    --rpg-hdr-nav-active-bg: #38bdf8;
+    --rpg-hdr-nav-active-fg: #081320;
+    --rpg-hdr-chip-bg: #1b2c45;
+    --rpg-hdr-chip-border: #3e5c80;
+    --rpg-hdr-chip-fg: #facc15;
+    --rpg-hdr-streak-flame: #38bdf8;
+    --rpg-hdr-profile-bg: #1b2c45;
+    --rpg-hdr-profile-fg: #f0f9ff;
+    --rpg-hdr-profile-border: #3e5c80;
+    --rpg-hdr-cta-bg: #38bdf8;
+    --rpg-hdr-cta-fg: #081320;
+    --rpg-cta: #38bdf8;
+    --rpg-cta-fg: #081320;
+    --rpg-coral: #38bdf8;
+    --rpg-gold: #facc15;
+    --rpg-mint: #38bdf8;
+    --rpg-purple: #7dd3fc;
+    --rpg-text-accent: #38bdf8;
+    --rpg-streak-ink: #facc15;
+    --rpg-hero-eyebrow: #7dd3fc;
+    --ha-hero-bg: #17304f;
+    --ha-hero-border: #38bdf8;
+    --ha-hero-fg: #f0f9ff;
+    --ha-hero-sub: #bae6fd;
+    --ha-hero-ring-track: rgba(56, 189, 248, 0.22);
+    --ha-hero-ring-fill: #38bdf8;
+    --ha-hero-divider: rgba(56, 189, 248, 0.22);
+    --ha-toggle-done-bg: #38bdf8;
+    --ha-toggle-done-fg: #081320;
+    --ha-toggle-done-border: #050911;
+    --ha-toggle-idle-bg: #1b293c;
+    --ha-toggle-idle-border: #4d7099;
+    --rpg-dialogue-bg: #17304f;
+    --rpg-dialogue-fg: #f0f9ff;
+    --rpg-dialogue-sub: #bae6fd;
+    --rpg-dialogue-border: #38bdf8;
+    --rpg-dialogue-shadow: 4px 4px 0 #050911;
+    --rpg-dock-bg: #141f2e;
+    --rpg-dock-border: #3e5c80;
+    --rpg-dock-active-bg: #38bdf8;
+    --rpg-dock-active-fg: #081320;
+    --rpg-dock-active-border: #050911;
+    --rpg-fab-bg: #facc15;
+    --rpg-fab-fg: #081320;
+    --rpg-bar-on: #38bdf8;
+    --rpg-bar-off: #24354c;
+    --rpg-xp-fill: #38bdf8;
+    --rpg-shadow-ink: #050911;
+}
+
+/* ─── 6. Ocean (Abyssal Lagoon Teal + Aqua Hero + Mint Foam) ─────────────── */
+:root[data-theme="ocean"] {
+    color-scheme: dark;
+    --ha-background: 9 28 36;
+    --ha-surface: 15 42 53;
+    --ha-surface-container-lowest: 15 42 53;
+    --ha-surface-container-low: 22 55 68;
+    --ha-surface-container: 30 69 84;
+    --ha-surface-container-high: 40 85 102;
+    --ha-surface-container-highest: 52 103 122;
+    --ha-surface-variant: 40 85 102;
+    --ha-on-background: 240 253 250;
+    --ha-on-surface: 240 253 250;
+    --ha-on-surface-variant: 156 206 214;
+    --ha-outline: 104 162 172;
+    --ha-outline-variant: 52 112 130;
+    --ha-primary: 45 212 191;
+    --ha-primary-container: 94 234 212;
+    --ha-on-primary: 6 27 25;
+    --ha-on-primary-container: 6 27 25;
+    --ha-secondary: 153 246 228;
+    --ha-secondary-container: 20 62 72;
+    --ha-on-secondary-container: 153 246 228;
+    --ha-primary-fixed: 153 246 228;
+    --ha-primary-fixed-dim: 20 184 166;
+    --ha-error: 248 113 113;
+    --ha-error-container: 76 28 28;
+    --ha-on-error-container: 254 202 202;
+    --ha-inverse-surface: 240 253 250;
+    --ha-inverse-on-surface: 9 28 36;
+    --ha-card-radius: 16px;
+    --ha-ctrl-radius: 10px;
+    --ha-card-shadow: 3px 3px 0 #040d11;
+
+    --rpg-hdr-bg: #0c242e;
+    --rpg-hdr-border: #347082;
+    --rpg-hdr-fg: #f0fdfa;
+    --rpg-hdr-nav-active-bg: #2dd4bf;
+    --rpg-hdr-nav-active-fg: #061b19;
+    --rpg-hdr-chip-bg: #163744;
+    --rpg-hdr-chip-border: #347082;
+    --rpg-hdr-chip-fg: #facc15;
+    --rpg-hdr-streak-flame: #2dd4bf;
+    --rpg-hdr-profile-bg: #163744;
+    --rpg-hdr-profile-fg: #f0fdfa;
+    --rpg-hdr-profile-border: #347082;
+    --rpg-hdr-cta-bg: #2dd4bf;
+    --rpg-hdr-cta-fg: #061b19;
+    --rpg-cta: #2dd4bf;
+    --rpg-cta-fg: #061b19;
+    --rpg-coral: #2dd4bf;
+    --rpg-gold: #facc15;
+    --rpg-mint: #2dd4bf;
+    --rpg-purple: #5eead4;
+    --rpg-text-accent: #2dd4bf;
+    --rpg-streak-ink: #facc15;
+    --rpg-hero-eyebrow: #5eead4;
+    --ha-hero-bg: #133e4e;
+    --ha-hero-border: #2dd4bf;
+    --ha-hero-fg: #f0fdfa;
+    --ha-hero-sub: #99f6e4;
+    --ha-hero-ring-track: rgba(45, 212, 191, 0.22);
+    --ha-hero-ring-fill: #2dd4bf;
+    --ha-hero-divider: rgba(45, 212, 191, 0.22);
+    --ha-toggle-done-bg: #2dd4bf;
+    --ha-toggle-done-fg: #061b19;
+    --ha-toggle-done-border: #040d11;
+    --ha-toggle-idle-bg: #163744;
+    --ha-toggle-idle-border: #3e869c;
+    --rpg-dialogue-bg: #133e4e;
+    --rpg-dialogue-fg: #f0fdfa;
+    --rpg-dialogue-sub: #99f6e4;
+    --rpg-dialogue-border: #2dd4bf;
+    --rpg-dialogue-shadow: 4px 4px 0 #040d11;
+    --rpg-dock-bg: #0f2a35;
+    --rpg-dock-border: #347082;
+    --rpg-dock-active-bg: #2dd4bf;
+    --rpg-dock-active-fg: #061b19;
+    --rpg-dock-active-border: #040d11;
+    --rpg-fab-bg: #facc15;
+    --rpg-fab-fg: #061b19;
+    --rpg-bar-on: #2dd4bf;
+    --rpg-bar-off: #1e4554;
+    --rpg-xp-fill: #2dd4bf;
+    --rpg-shadow-ink: #040d11;
+}
+
+/* ─── 7. Purple (Cosmic Plum + Royal Amethyst Hero + Orchid & Pink) ──────── */
+:root[data-theme="purple"] {
+    color-scheme: dark;
+    --ha-background: 23 16 38;
+    --ha-surface: 35 25 58;
+    --ha-surface-container-lowest: 35 25 58;
+    --ha-surface-container-low: 45 33 73;
+    --ha-surface-container: 58 43 90;
+    --ha-surface-container-high: 72 54 110;
+    --ha-surface-container-highest: 88 67 132;
+    --ha-surface-variant: 58 43 90;
+    --ha-on-background: 250 245 255;
+    --ha-on-surface: 250 245 255;
+    --ha-on-surface-variant: 202 184 236;
+    --ha-outline: 148 128 194;
+    --ha-outline-variant: 96 74 146;
+    --ha-primary: 192 132 252;
+    --ha-primary-container: 216 180 254;
+    --ha-on-primary: 23 16 38;
+    --ha-on-primary-container: 23 16 38;
+    --ha-secondary: 244 114 182;
+    --ha-secondary-container: 66 32 88;
+    --ha-on-secondary-container: 249 168 212;
+    --ha-primary-fixed: 233 213 255;
+    --ha-primary-fixed-dim: 168 85 247;
+    --ha-error: 248 113 113;
+    --ha-error-container: 76 28 28;
+    --ha-on-error-container: 254 202 202;
+    --ha-inverse-surface: 250 245 255;
+    --ha-inverse-on-surface: 23 16 38;
+    --ha-card-radius: 16px;
+    --ha-ctrl-radius: 10px;
+    --ha-card-shadow: 3px 3px 0 #0b0714;
+
+    --rpg-hdr-bg: #1d1430;
+    --rpg-hdr-border: #604a92;
+    --rpg-hdr-fg: #faf5ff;
+    --rpg-hdr-nav-active-bg: #c084fc;
+    --rpg-hdr-nav-active-fg: #171026;
+    --rpg-hdr-chip-bg: #2d2149;
+    --rpg-hdr-chip-border: #604a92;
+    --rpg-hdr-chip-fg: #facc15;
+    --rpg-hdr-streak-flame: #f472b6;
+    --rpg-hdr-profile-bg: #2d2149;
+    --rpg-hdr-profile-fg: #faf5ff;
+    --rpg-hdr-profile-border: #604a92;
+    --rpg-hdr-cta-bg: #c084fc;
+    --rpg-hdr-cta-fg: #171026;
+    --rpg-cta: #c084fc;
+    --rpg-cta-fg: #171026;
+    --rpg-coral: #f472b6;
+    --rpg-gold: #facc15;
+    --rpg-mint: #c084fc;
+    --rpg-purple: #c084fc;
+    --rpg-text-accent: #c084fc;
+    --rpg-streak-ink: #facc15;
+    --rpg-hero-eyebrow: #f472b6;
+    --ha-hero-bg: #34205c;
+    --ha-hero-border: #c084fc;
+    --ha-hero-fg: #faf5ff;
+    --ha-hero-sub: #e9d5ff;
+    --ha-hero-ring-track: rgba(192, 132, 252, 0.22);
+    --ha-hero-ring-fill: #c084fc;
+    --ha-hero-divider: rgba(192, 132, 252, 0.22);
+    --ha-toggle-done-bg: #c084fc;
+    --ha-toggle-done-fg: #171026;
+    --ha-toggle-done-border: #0b0714;
+    --ha-toggle-idle-bg: #2d2149;
+    --ha-toggle-idle-border: #765cb0;
+    --rpg-dialogue-bg: #34205c;
+    --rpg-dialogue-fg: #faf5ff;
+    --rpg-dialogue-sub: #e9d5ff;
+    --rpg-dialogue-border: #c084fc;
+    --rpg-dialogue-shadow: 4px 4px 0 #0b0714;
+    --rpg-dock-bg: #23193a;
+    --rpg-dock-border: #604a92;
+    --rpg-dock-active-bg: #c084fc;
+    --rpg-dock-active-fg: #171026;
+    --rpg-dock-active-border: #0b0714;
+    --rpg-fab-bg: #facc15;
+    --rpg-fab-fg: #171026;
+    --rpg-bar-on: #c084fc;
+    --rpg-bar-off: #3a2b5a;
+    --rpg-xp-fill: #c084fc;
+    --rpg-shadow-ink: #0b0714;
+}
+
+/* ─── 8. Sunset (Warm Dusk Berry + Crimson Sunset Hero + Coral & Gold) ──── */
+:root[data-theme="sunset"] {
+    color-scheme: dark;
+    --ha-background: 35 17 22;
+    --ha-surface: 52 26 34;
+    --ha-surface-container-lowest: 52 26 34;
+    --ha-surface-container-low: 65 34 43;
+    --ha-surface-container: 80 43 54;
+    --ha-surface-container-high: 98 54 67;
+    --ha-surface-container-highest: 118 66 82;
+    --ha-surface-variant: 80 43 54;
+    --ha-on-background: 255 241 242;
+    --ha-on-surface: 255 241 242;
+    --ha-on-surface-variant: 238 182 192;
+    --ha-outline: 188 124 136;
+    --ha-outline-variant: 128 70 86;
+    --ha-primary: 251 113 133;
+    --ha-primary-container: 253 164 175;
+    --ha-on-primary: 35 17 22;
+    --ha-on-primary-container: 35 17 22;
+    --ha-secondary: 251 191 36;
+    --ha-secondary-container: 84 36 48;
+    --ha-on-secondary-container: 253 224 71;
+    --ha-primary-fixed: 254 205 211;
+    --ha-primary-fixed-dim: 244 63 94;
+    --ha-error: 248 113 113;
+    --ha-error-container: 92 28 36;
+    --ha-on-error-container: 254 202 202;
+    --ha-inverse-surface: 255 241 242;
+    --ha-inverse-on-surface: 35 17 22;
+    --ha-card-radius: 16px;
+    --ha-ctrl-radius: 10px;
+    --ha-card-shadow: 3px 3px 0 #12070a;
+
+    --rpg-hdr-bg: #2b141b;
+    --rpg-hdr-border: #804656;
+    --rpg-hdr-fg: #fff1f2;
+    --rpg-hdr-nav-active-bg: #fb7185;
+    --rpg-hdr-nav-active-fg: #231116;
+    --rpg-hdr-chip-bg: #41222b;
+    --rpg-hdr-chip-border: #804656;
+    --rpg-hdr-chip-fg: #facc15;
+    --rpg-hdr-streak-flame: #fbbf24;
+    --rpg-hdr-profile-bg: #41222b;
+    --rpg-hdr-profile-fg: #fff1f2;
+    --rpg-hdr-profile-border: #804656;
+    --rpg-hdr-cta-bg: #fb7185;
+    --rpg-hdr-cta-fg: #231116;
+    --rpg-cta: #fb7185;
+    --rpg-cta-fg: #231116;
+    --rpg-coral: #fb7185;
+    --rpg-gold: #facc15;
+    --rpg-mint: #fbbf24;
+    --rpg-purple: #fda4af;
+    --rpg-text-accent: #fb7185;
+    --rpg-streak-ink: #fbbf24;
+    --rpg-hero-eyebrow: #fbbf24;
+    --ha-hero-bg: #4a202c;
+    --ha-hero-border: #fb7185;
+    --ha-hero-fg: #fff1f2;
+    --ha-hero-sub: #fecdd3;
+    --ha-hero-ring-track: rgba(251, 113, 133, 0.22);
+    --ha-hero-ring-fill: #fb7185;
+    --ha-hero-divider: rgba(251, 113, 133, 0.22);
+    --ha-toggle-done-bg: #fb7185;
+    --ha-toggle-done-fg: #231116;
+    --ha-toggle-done-border: #12070a;
+    --ha-toggle-idle-bg: #41222b;
+    --ha-toggle-idle-border: #9e566a;
+    --rpg-dialogue-bg: #4a202c;
+    --rpg-dialogue-fg: #fff1f2;
+    --rpg-dialogue-sub: #fecdd3;
+    --rpg-dialogue-border: #fb7185;
+    --rpg-dialogue-shadow: 4px 4px 0 #12070a;
+    --rpg-dock-bg: #341a22;
+    --rpg-dock-border: #804656;
+    --rpg-dock-active-bg: #fb7185;
+    --rpg-dock-active-fg: #231116;
+    --rpg-dock-active-border: #12070a;
+    --rpg-fab-bg: #facc15;
+    --rpg-fab-fg: #231116;
+    --rpg-bar-on: #fb7185;
+    --rpg-bar-off: #502b36;
+    --rpg-xp-fill: #fb7185;
+    --rpg-shadow-ink: #12070a;
 }
 
 /* ─── Base & Typography ──────────────────────────────────────────────────────── */
@@ -861,7 +1059,7 @@ body main .ha-progress-card.ha-dashboard-hero {
     min-height: 0;
     padding: 20px 22px 18px;
     border-radius: 18px !important;
-    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    border: 2px solid var(--ha-hero-border, rgb(var(--ha-outline-variant))) !important;
     box-shadow: 4px 4px 0 var(--rpg-shadow-ink) !important;
     background-color: var(--ha-hero-bg, #c4b5fd) !important;
     background-image: none !important;
@@ -1082,19 +1280,10 @@ body > main.ha-habits { max-width: 960px; padding-inline: 20px; gap: 22px; }
     box-shadow: none;
 }
 .ha-habits .cat-filter[aria-pressed="true"] {
-    border-color: rgb(var(--ha-outline-variant)) !important;
-    background: #121215 !important;
-    color: #ffffff !important;
+    border-color: var(--rpg-shadow-ink) !important;
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
     box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
-}
-:root[data-theme="dark"] .ha-habits .cat-filter[aria-pressed="true"] {
-    background: #c4b5fd !important;
-    color: #121215 !important;
-    border-color: #000000 !important;
-}
-:root[data-theme="sage"] .ha-habits .cat-filter[aria-pressed="true"] {
-    background: #0e2a1d !important;
-    color: #47e393 !important;
 }
 .ha-habits #habits-list { gap: 16px; align-items: stretch; }
 body main.ha-habits .ha-library-card { display: flex; flex-direction: column; padding: 18px; gap: 0; }
@@ -1195,7 +1384,7 @@ body > main.ha-insights { max-width: 1120px; gap: 22px; padding-inline: 20px; }
     gap: 16px 8px;
     padding: 20px 14px;
     border-radius: 18px !important;
-    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    border: 2px solid var(--ha-hero-border, rgb(var(--ha-outline-variant))) !important;
     background-color: var(--ha-hero-bg, #c4b5fd) !important;
     background-image: none !important;
     color: var(--ha-hero-fg, #121215) !important;
@@ -1325,22 +1514,17 @@ body .input-boxed:focus { border-color: rgb(var(--ha-primary)) !important; box-s
     font-size: 13px !important; font-weight: 600 !important;
 }
 .cat-pill[aria-pressed="true"] {
-    background: #121215 !important;
-    color: #ffffff !important;
-    border-color: #121215 !important;
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
+    border-color: var(--rpg-shadow-ink) !important;
     box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
-}
-:root[data-theme="dark"] .cat-pill[aria-pressed="true"] {
-    background: #c4b5fd !important;
-    color: #121215 !important;
-    border-color: #000000 !important;
 }
 .accent-color-btn { border-radius: 9999px !important; border: 2px solid #121215 !important; }
 #habit-form-cancel, #habit-form-submit { min-height: 48px; border-radius: 12px !important; font-family: 'Space Grotesk', sans-serif !important; font-weight: 700 !important; }
 #habit-form-submit {
     background: var(--rpg-cta) !important;
     color: var(--rpg-cta-fg) !important;
-    border: 2px solid #121215 !important;
+    border: 2px solid var(--rpg-shadow-ink) !important;
     box-shadow: 3px 3px 0 var(--rpg-shadow-ink) !important;
 }
 
@@ -1352,60 +1536,84 @@ body > main.ha-detail { max-width: 760px; padding-inline: 20px; }
 .ha-detail #habit-name { font-family: 'Space Grotesk', sans-serif; font-size: clamp(22px, 3vw, 28px); line-height: 1.2; font-weight: 700; text-wrap: initial; }
 .ha-detail #complete-today-btn { width: 48px; height: 48px; border-radius: 12px !important; border: 2px solid var(--ha-toggle-idle-border) !important; }
 .ha-detail #complete-today-btn[aria-pressed="true"] { background: var(--ha-toggle-done-bg) !important; color: var(--ha-toggle-done-fg) !important; border-color: var(--ha-toggle-done-border) !important; box-shadow: 2px 2px 0 var(--rpg-shadow-ink); }
-body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 14px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.18) !important; border-radius: 12px !important; background: rgb(var(--ha-surface-container-low)) !important; box-shadow: none !important; }
+body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 14px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.28) !important; border-radius: 12px !important; background: rgb(var(--ha-surface-container-low)) !important; box-shadow: none !important; }
 .ha-detail .ha-detail-stats [id^="stat-"] { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2; }
 .ha-detail #monthly-calendar-grid > div { min-width: 0; height: 42px; border-radius: 10px !important; }
 .ha-detail :is(#prev-month-btn, #next-month-btn) { border-radius: 10px !important; }
 .ha-detail .ha-detail-month-nav { border-radius: 12px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.25); }
-.ha-detail .cal-cell, .ha-detail #calendar-done-key { border-radius: 4px !important; }
+.ha-detail .cal-cell, .ha-detail #calendar-done-key { width: 13px; height: 13px; border-radius: 4px !important; }
+.ha-detail .cal-completed { background-color: rgb(var(--ha-primary)); }
+.ha-detail .cal-missed { background-color: rgb(var(--ha-error-container)); border: 1px solid rgb(var(--ha-error) / 0.45); }
+.ha-detail .cal-rest { background-color: rgb(var(--ha-surface-container-low)); }
+.ha-detail .cal-none { background-color: rgb(var(--ha-surface-container-high)); }
+.ha-detail .cal-today { outline: 2px solid rgb(var(--ha-on-surface)) !important; outline-offset: 1px; }
 
 /* Profile & Settings */
+body > main .text-primary-container { color: rgb(var(--ha-primary)) !important; }
 .ha-profile section:first-child h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; line-height: 1.3; margin-top: 4px; }
 .ha-profile .w-24.h-24 { border-radius: 9999px !important; border: 3px solid rgb(var(--ha-outline-variant)) !important; box-shadow: 3px 3px 0 var(--rpg-shadow-ink); padding: 2px; }
 .ha-profile #profile-avatar { border-radius: 9999px !important; }
-.ha-profile #export-csv-btn { border-radius: 12px !important; background: var(--rpg-mint) !important; color: #121215 !important; border: 2px solid #121215; box-shadow: 2px 2px 0 var(--rpg-shadow-ink); font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+.ha-profile #export-csv-btn { border-radius: 12px !important; background: var(--rpg-cta) !important; color: var(--rpg-cta-fg) !important; border: 2px solid var(--rpg-shadow-ink); box-shadow: 2px 2px 0 var(--rpg-shadow-ink); font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
 .ha-profile #profile-sign-out-btn { border-radius: 12px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.35) !important; font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
 .theme-select-btn {
     border-radius: 14px !important;
-    border: 2px solid rgba(var(--ha-outline-variant) / 0.25) !important;
-    background: rgb(var(--ha-background)) !important;
+    border: 2px solid rgba(var(--ha-outline-variant) / 0.35) !important;
+    background: rgb(var(--ha-surface-container-low)) !important;
+    color: rgb(var(--ha-on-surface)) !important;
     box-shadow: none;
 }
+.theme-select-btn span {
+    color: rgb(var(--ha-on-surface)) !important;
+}
 .theme-select-btn[aria-pressed="true"] {
-    border-color: rgb(var(--ha-outline-variant)) !important;
-    background: rgb(var(--ha-surface-container-low)) !important;
-    box-shadow: 3px 3px 0 var(--rpg-shadow-ink);
+    border: 2px solid var(--ha-hero-border, rgb(var(--ha-primary))) !important;
+    background: var(--ha-hero-bg) !important;
+    color: var(--ha-hero-fg) !important;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink) !important;
 }
-:root[data-theme="light"] .theme-select-btn[aria-pressed="true"] {
-    border-color: #121215 !important;
-    background: #c4b5fd !important;
-}
-:root[data-theme="dark"] .theme-select-btn[aria-pressed="true"] {
-    border-color: #c4b5fd !important;
-    background: #231f35 !important;
-}
-:root[data-theme="sage"] .theme-select-btn[aria-pressed="true"] {
-    border-color: #0e2a1d !important;
-    background: #47e393 !important;
+.theme-select-btn[aria-pressed="true"] span {
+    color: var(--ha-hero-fg) !important;
 }
 .theme-select-btn > div { border-radius: 10px !important; }
+.toggle-checkbox {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    z-index: 2 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+}
 .toggle-label {
+    position: relative !important;
+    display: block !important;
+    width: 3rem !important;
+    height: 1.5rem !important;
     border-radius: 9999px !important;
     border: 2px solid rgb(var(--ha-outline-variant)) !important;
     background-color: rgb(var(--ha-surface-container-high)) !important;
+    transition: all 0.25s ease;
+    cursor: pointer;
 }
 .toggle-checkbox:checked + .toggle-label {
-    background-color: var(--rpg-mint) !important;
-    border-color: #000000 !important;
+    background-color: var(--rpg-cta) !important;
+    border-color: var(--rpg-shadow-ink) !important;
 }
 .toggle-checkbox-inner {
-    border-radius: 0px !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 1.25rem !important;
-    height: 1.25rem !important;
+    position: absolute !important;
+    border-radius: 9999px !important;
+    top: 2px !important;
+    left: 2px !important;
+    width: 1.05rem !important;
+    height: 1.05rem !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #121215 !important;
     box-shadow: none !important;
-    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    transition: transform 0.25s ease;
+}
+.toggle-checkbox:checked ~ .toggle-label .toggle-checkbox-inner {
+    transform: translateX(1.4rem) !important;
 }
 #settings-sign-out-btn { border-radius: 12px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.35) !important; font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
 
@@ -1878,9 +2086,10 @@ body.ha-arc-body > main.ha-arc-ai {
     gap: 12px;
     padding: 11px 14px;
     margin-bottom: 16px;
+    border-radius: 16px !important;
     background: rgb(var(--ha-surface-container-lowest));
-    border: 2px solid rgb(var(--ha-on-surface));
-    box-shadow: 4px 4px 0 var(--arc-accent, #7c3aed);
+    border: 2px solid rgb(var(--ha-outline-variant));
+    box-shadow: var(--ha-card-shadow);
 }
 .ha-pwa-banner-info {
     display: flex;
@@ -1892,6 +2101,7 @@ body.ha-arc-body > main.ha-arc-ai {
     width: 34px;
     height: 34px;
     flex-shrink: 0;
+    border-radius: 10px !important;
     border: 1.5px solid #000000;
     box-shadow: 2px 2px 0 #000000;
     background: #141212;
@@ -1918,11 +2128,12 @@ body.ha-arc-body > main.ha-arc-ai {
 .ha-pwa-install-cta {
     padding: 7px 12px;
     min-height: 34px;
-    background: var(--rpg-cta, #7c3aed);
-    color: #ffffff;
-    border: 2px solid #000000;
-    box-shadow: 2px 2px 0 #000000;
-    font-family: 'JetBrains Mono', monospace;
+    border-radius: 10px !important;
+    background: var(--rpg-cta);
+    color: var(--rpg-cta-fg);
+    border: 2px solid var(--rpg-shadow-ink);
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -1931,6 +2142,7 @@ body.ha-arc-body > main.ha-arc-ai {
 .ha-pwa-dismiss-btn {
     width: 32px;
     height: 32px;
+    border-radius: 10px !important;
     display: grid;
     place-items: center;
     background: transparent;
@@ -2065,34 +2277,60 @@ body.ha-arc-body > main.ha-arc-ai {
     border-top-left-radius: 14px;
     border-top-right-radius: 14px;
 }
-:root[data-theme="light"] .ha-arc-spot {
+.ha-arc-spot {
     background: var(--ha-hero-bg, #c4b5fd) !important;
-    border-color: #121215 !important;
-    box-shadow: 4px 4px 0 #121215 !important;
+    color: var(--ha-hero-fg, #121215) !important;
+    border: 2px solid var(--ha-hero-border, rgb(var(--ha-outline-variant))) !important;
+    box-shadow: 4px 4px 0 var(--rpg-shadow-ink) !important;
 }
-:root[data-theme="light"] .ha-arc-spot .ha-arc-ht-strip {
-    background: rgba(255, 255, 255, 0.55) !important;
-    border-bottom-color: rgba(18, 18, 21, 0.16) !important;
+.ha-arc-spot .ha-arc-ht-strip {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+    border-bottom: 1.5px solid var(--ha-hero-divider, rgba(255, 255, 255, 0.18)) !important;
 }
-:root[data-theme="light"] .ha-arc-spot-stat {
+:root:is([data-theme="light"], [data-theme="sage"]) .ha-arc-spot .ha-arc-ht-strip {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+}
+.ha-arc-spot-title {
+    color: var(--ha-hero-fg) !important;
+}
+.ha-arc-spot-sub {
+    color: var(--ha-hero-sub) !important;
+}
+.ha-arc-spot-kicker {
+    color: var(--rpg-hero-eyebrow) !important;
+}
+.ha-arc-spot-stat {
     background: #121215 !important;
     color: #facc15 !important;
 }
-:root[data-theme="light"] .ha-arc-ask-pill {
-    background: #121215 !important;
-    color: #ffffff !important;
-    border-color: #121215 !important;
+.ha-arc-ask-pill {
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
+    border: 2px solid var(--rpg-shadow-ink) !important;
 }
-:root[data-theme="light"] .ha-arc-send-btn {
-    background: #121215 !important;
-    color: #ffffff !important;
+.ha-arc-send-btn {
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
+    border: 2px solid var(--rpg-shadow-ink) !important;
 }
-:root[data-theme="light"] .ha-arc-sq-ico.is-coral {
-    background: #c4b5fd !important;
-    color: #121215 !important;
+.ha-arc-sq {
+    background: rgb(var(--ha-surface-container-lowest)) !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    box-shadow: var(--ha-card-shadow) !important;
 }
-:root[data-theme="light"] .ha-arc-dot {
-    background: #107a57 !important;
+.ha-arc-ht-dark {
+    background-color: rgb(var(--ha-surface-container-low)) !important;
+    border-bottom: 1.5px solid rgb(var(--ha-outline-variant) / 0.45) !important;
+}
+.ha-arc-sq-ico.is-coral {
+    background: var(--ha-hero-bg) !important;
+    color: var(--ha-hero-fg) !important;
+    border-color: var(--rpg-shadow-ink) !important;
+}
+.ha-arc-prompt-box {
+    background: rgb(var(--ha-surface-container-lowest)) !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink) !important;
 }
 
 .ha-arc-zen-meta {

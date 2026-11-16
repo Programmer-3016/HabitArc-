@@ -209,9 +209,6 @@
             if (typeof _syncHeaderChrome === 'function') _syncHeaderChrome();
         }
 
-        document.head?.querySelectorAll?.('style:not(#habitarc-accessibility-styles)')?.forEach(s => {
-            s.setAttribute('data-ha-page-style', 'true');
-        });
         syncPageChrome();
         window.addEventListener?.('online', syncOnlineBadge);
         window.addEventListener?.('offline', syncOnlineBadge);
@@ -305,13 +302,6 @@
                         history.pushState({ haSpa: true }, '', targetUrl.href);
                     }
                     if (nextDoc.title) document.title = nextDoc.title;
-
-                    document.head.querySelectorAll('style[data-ha-page-style="true"]').forEach(s => s.remove());
-                    nextDoc.head.querySelectorAll('style').forEach(styleEl => {
-                        const clone = styleEl.cloneNode(true);
-                        clone.setAttribute('data-ha-page-style', 'true');
-                        document.head.insertBefore(clone, document.head.querySelector('link[href*="app-ui.css"]'));
-                    });
 
                     document.documentElement.classList.add('ha-spa-navigated');
                     document.body.className = nextDoc.body.className;
