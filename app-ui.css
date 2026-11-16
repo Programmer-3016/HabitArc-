@@ -734,14 +734,35 @@ body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) .material
 .ha-arc-buddy-eyes { fill: var(--rpg-dock-bg, #ffffff); }
 body > nav.fixed > a[aria-current="page"] .ha-arc-buddy-body { fill: var(--rpg-dock-active-fg, #121215); }
 body > nav.fixed > a[aria-current="page"] .ha-arc-buddy-eyes { fill: var(--rpg-dock-active-bg, #c4b5fd); }
+body > nav.fixed > a[href="Add_Habit.html"] {
+    top: 0 !important;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 body > nav.fixed > a[href="Add_Habit.html"] > div {
+    width: 48px !important;
+    height: 42px !important;
     background: var(--rpg-fab-bg) !important;
     color: var(--rpg-fab-fg) !important;
     border: 2px solid #121215 !important;
-    border-radius: 16px !important;
-    box-shadow: 2px 2px 0 #121215 !important;
+    border-radius: 13px !important;
+    box-shadow: 0 2px 0 #121215 !important;
+    display: grid !important;
+    place-items: center !important;
     --tw-ring-color: transparent !important;
     --tw-ring-shadow: 0 0 #0000 !important;
+    transition: transform 120ms ease, box-shadow 120ms ease !important;
+}
+body > nav.fixed > a[href="Add_Habit.html"]:active > div {
+    transform: translateY(1px) scale(0.96) !important;
+    box-shadow: 0 1px 0 #121215 !important;
+}
+body > nav.fixed > a[href="Add_Habit.html"] .material-symbols-outlined {
+    font-size: 24px !important;
+    line-height: 1 !important;
+    font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24 !important;
 }
 
 /* ─── Unified Rounded Neo-Brutalist Cards Across All Pages ─────────────────── */
