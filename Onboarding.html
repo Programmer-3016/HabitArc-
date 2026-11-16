@@ -178,200 +178,72 @@
         100% { opacity: 0.14; }
     }
 
-    /* Setup Transition Screen — Fast Ticker Reel (Light Theme) */
+    /* Setup Transition Screen — Minimal Radial Ticks + Fluid Segments */
     #setup-transition {
-        --setup-duration: 3.2s;
-        --ticker-final-offset: -465px;
         position: fixed;
         inset: 0;
         z-index: 9999;
         background: #f8f9fa;
         color: #191c1d;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        display: grid;
+        place-items: center;
+        padding: 24px;
         opacity: 0;
+        visibility: hidden;
         pointer-events: none;
-        transition: opacity 0.4s ease;
-        overflow: hidden;
+        transition: opacity 0.25s ease, visibility 0s linear 0.25s;
     }
     #setup-transition.visible {
         opacity: 1;
+        visibility: visible;
         pointer-events: auto;
-        animation: bgShift 3s ease-in-out infinite alternate;
+        transition: opacity 0.25s ease;
     }
     #setup-transition.fade-out {
         opacity: 0;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.4s ease;
     }
     /* Keep the completed onboarding step hidden while the setup overlay fades away. */
     body.setup-transition-running > :not(#setup-transition) {
         visibility: hidden;
     }
-    @keyframes bgShift {
-        0% { background-color: #f8f9fa; }
-        50% { background-color: #f0fdf4; }
-        100% { background-color: #ecfdf5; }
-    }
-    .setup-logo {
-        animation: logoBreathe 2.3s ease-in-out infinite, logoSpin 26s linear infinite;
-    }
-
-    /* Ticker Reel */
-    .ticker-viewport {
-        height: 180px;
-        overflow: hidden;
-        position: relative;
-        mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
-        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
-    }
-    .ticker-track {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 56px 0;
-        transform-origin: center;
-    }
-    .ticker-track.spinning {
-        animation: tickerScroll var(--setup-duration) linear forwards;
-        will-change: transform;
-    }
-    /* The final position is calculated from the rendered card layout in JavaScript. */
-    @keyframes tickerScroll {
-        0% { transform: translateY(0); }
-        100% { transform: translateY(var(--ticker-final-offset)); }
-    }
-
-    .ticker-card {
-        opacity: 0.3;
-        filter: blur(0.7px) saturate(0.75);
-        transform: scale(0.94);
-        transition: opacity 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, transform 0.28s cubic-bezier(0.2, 0.9, 0.25, 1);
-        flex-shrink: 0;
-        position: relative;
-        overflow: hidden;
-    }
-    .ticker-card::before {
-        content: '';
+    .setup-done-circle {
         position: absolute;
         inset: 0;
-        background: linear-gradient(110deg, transparent 22%, rgba(193, 236, 212, 0.82) 50%, transparent 78%);
+        border-radius: 9999px;
+        background: #012d1d;
+        color: #ffffff;
+        display: grid;
+        place-items: center;
         opacity: 0;
-        pointer-events: none;
-        transform: translateX(-115%);
+        transform: scale(0.75);
+        transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1), transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .ticker-card.checked {
-        opacity: 0.55;
-        border-color: #1b4332 !important;
-        background-color: rgba(193, 236, 212, 0.3) !important;
-        box-shadow: 0 2px 8px rgba(1, 45, 29, 0.06);
-        filter: blur(0.2px) saturate(0.9);
-    }
-    .ticker-card.is-current,
-    .ticker-card-final.is-current {
-        opacity: 1;
-        filter: blur(0) saturate(1);
-        transform: scale(1);
-        border-color: rgba(193, 236, 212, 0.75);
-        box-shadow: 0 10px 24px rgba(1, 45, 29, 0.16);
-    }
-    .ticker-card.is-current::before {
-        animation: tickerCardSweep 0.58s ease-out both;
-    }
-    @keyframes tickerCardSweep {
-        0% { opacity: 0; transform: translateX(-115%); }
-        30% { opacity: 0.5; }
-        100% { opacity: 0; transform: translateX(115%); }
-    }
-    .ticker-card .card-check,
-    .ticker-card-final .final-card-symbol {
-        opacity: 0;
-        transform: scale(0.6) translateX(-6px) rotate(-16deg);
-        transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        position: relative;
-    }
-    .ticker-card.checked .card-check,
-    .ticker-card-final.checked .final-card-symbol {
+    .setup-done-circle.ready {
         opacity: 1;
         transform: scale(1);
     }
-    /* Pulse ring on check */
-    .ticker-card.checked .card-check::after {
-        content: '';
-        position: absolute;
-        inset: -3px;
-        border-radius: 50%;
-        border: 2px solid #012d1d;
-        animation: checkPulse 0.4s ease-out forwards;
+    .setup-check-stroke {
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        transition: stroke-dashoffset 0.35s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
     }
-    @keyframes checkPulse {
-        0% { transform: scale(0.8); opacity: 0.6; }
-        100% { transform: scale(1.5); opacity: 0; }
-    }
-    .ticker-card-final.checked .final-card-symbol {
-        animation: finalLaunch 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
-    }
-    @keyframes finalLaunch {
-        0% { transform: scale(0.55) translateX(-8px) rotate(-22deg); opacity: 0; }
-        65% { transform: scale(1.13) translateX(2px) rotate(6deg); opacity: 1; }
-        100% { transform: scale(1) translateX(0) rotate(0); opacity: 1; }
-    }
-    .ticker-card-final {
-        opacity: 0.3;
-        filter: blur(0.7px) saturate(0.75);
-        transform: scale(0.94);
-        transition: opacity 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.25, 1);
-        flex-shrink: 0;
-    }
-    .ticker-card-final.checked {
-        opacity: 1;
-        box-shadow: 0 0 20px rgba(1, 45, 29, 0.15), 0 4px 12px rgba(1, 45, 29, 0.12);
-    }
-    #setup-progress-fill {
-        transition: width var(--setup-duration) linear;
-    }
-    /* Live counter badge */
-    #setup-counter {
-        transition: all 0.2s ease;
-    }
-    #setup-counter.complete {
-        animation: completionGlow 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
-    }
-    @keyframes completionGlow {
-        0% { transform: scale(0.9); box-shadow: 0 0 0 rgba(1, 45, 29, 0); }
-        60% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(1, 45, 29, 0.12); }
-        100% { transform: scale(1); box-shadow: 0 0 0 rgba(1, 45, 29, 0); }
-    }
-    /* Dynamic subtitle */
-    #setup-live-task {
-        transition: opacity 0.15s ease;
+    .setup-done-circle.ready .setup-check-stroke {
+        stroke-dashoffset: 0;
     }
     @media (prefers-reduced-motion: reduce) {
         #google-auth-handoff,
         #setup-transition.visible,
-        .handoff-ticks span,
-        .setup-logo,
-        .ticker-track.spinning,
-        .ticker-card.checked .card-check::after,
-        .ticker-card-final.checked .final-card-symbol,
-        #setup-counter.complete,
-        .ticker-card.is-current::before {
+        .handoff-ticks span {
             animation: none;
         }
         .handoff-ticks span {
             opacity: 0.65;
         }
-        #google-auth-handoff {
-            transition-duration: 0.01ms;
-        }
-        #setup-progress-fill,
-        #setup-counter,
-        #setup-live-task,
-        .ticker-card,
-        .ticker-card-final,
-        .ticker-card .card-check,
-        .ticker-card-final .final-card-symbol {
+        #google-auth-handoff,
+        #setup-transition,
+        .setup-done-circle,
+        .setup-check-stroke {
             transition-duration: 0.01ms;
         }
     }
@@ -640,104 +512,39 @@
     </div>
 </section>
 
-<!-- Fast Vertical Ticker Setup Transition Screen (White Theme) -->
-<div id="setup-transition">
+<!-- Minimal Setup Transition Screen (Radial Ticks + Smooth Fill Segments) -->
+<section id="setup-transition" aria-hidden="true" aria-label="Setting up your workspace">
     <!-- Ultra-Thin Top Progress Line -->
-    <div class="absolute top-0 left-0 right-0 h-[2px] bg-surface-container overflow-hidden">
-        <div id="setup-progress-fill" class="h-full bg-primary w-0"></div>
+    <div class="absolute top-0 left-0 right-0 h-[2px] bg-[#eceeef] overflow-hidden">
+        <div id="setup-progress-fill" class="h-full bg-[#012d1d] w-0"></div>
     </div>
 
-    <div class="relative z-10 flex flex-col items-center justify-center gap-4 px-6 max-w-sm mx-auto text-center w-full">
-        <!-- Hero Logo -->
-        <img src="logo.png" alt="HabitArc" class="w-28 h-28 sm:w-36 sm:h-36 object-contain setup-logo filter drop-shadow-xl"/>
-
-        <!-- Title + Live Counter -->
-        <div class="space-y-1.5">
-            <h2 class="font-headline-lg text-xl sm:text-2xl text-on-surface font-bold tracking-tight">Setting Up Your Workspace</h2>
-            <p id="setup-live-task" class="font-body-md text-xs sm:text-sm text-on-surface-variant font-medium" aria-live="polite">Preparing your personalized experience...</p>
-            <div class="flex items-center justify-center gap-2 pt-0.5">
-                <span id="setup-counter" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold geist uppercase tracking-wider bg-primary/10 text-primary" aria-live="polite">0% Complete</span>
+    <div class="relative z-10 flex flex-col items-center gap-5 max-w-xs w-full text-center" role="status" aria-live="polite">
+        <div class="relative w-8 h-8 flex items-center justify-center shrink-0" aria-hidden="true">
+            <div id="setup-ticks" class="handoff-ticks transition-opacity duration-200">
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <div id="setup-done-circle" class="setup-done-circle">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path class="setup-check-stroke" pathLength="100" d="M5 12.5l4.5 4.5L19 7.5"></path>
+                </svg>
             </div>
         </div>
 
-        <!-- Ticker Viewport -->
-        <div class="w-full ticker-viewport mt-1">
-            <div id="ticker-track" class="ticker-track">
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-primary text-lg">bolt</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Initializing Habit Engine</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-emerald-600 text-lg">palette</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Applying Theme & Palette</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-teal-600 text-lg">psychology</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Tuning AI Coach & Insights</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-amber-600 text-lg">stars</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Anchoring North Star Goal</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-sky-600 text-lg">grid_view</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Building Contribution Arc</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-indigo-600 text-lg">notifications_active</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Setting Contextual Prompts</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-purple-600 text-lg">shield</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Securing Growth Profile</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-rose-600 text-lg">genetics</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Calibrating Behavioral Insights</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <div class="ticker-card p-3 rounded-2xl bg-surface-container-lowest border border-surface-container flex items-center justify-between text-left">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-emerald-600 text-lg">verified</span>
-                        <span class="text-xs sm:text-sm font-semibold text-on-surface">Finalizing Account Setup</span>
-                    </div>
-                    <div class="card-check w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold shrink-0">✓</div>
-                </div>
-                <!-- Final Workspace Ready card -->
-                <div class="ticker-card-final p-3.5 rounded-2xl bg-primary text-on-primary border border-primary flex items-center justify-between text-left font-bold shadow-md">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-on-primary text-xl">auto_awesome</span>
-                        <span class="text-xs sm:text-sm">Workspace Ready!</span>
-                    </div>
-                    <span class="final-card-symbol material-symbols-outlined w-7 h-7 rounded-full bg-on-primary/15 text-on-primary flex items-center justify-center text-base shrink-0" aria-hidden="true">rocket_launch</span>
-                </div>
-            </div>
+        <div class="space-y-1 w-full">
+            <h2 id="setup-title" class="text-[20px] sm:text-[22px] font-semibold tracking-tight text-primary">Setting up your workspace</h2>
+            <p id="setup-live-task" class="text-sm text-outline min-h-[20px] truncate px-2">Saving preferences…</p>
+        </div>
+
+        <div class="grid grid-cols-4 gap-1.5 w-44" aria-hidden="true">
+            <div class="h-1 rounded-full bg-[#e6e8e9] overflow-hidden"><div id="setup-seg-0" class="h-full rounded-full bg-[#012d1d]" style="width:0%; transition: background-color 0.25s ease;"></div></div>
+            <div class="h-1 rounded-full bg-[#e6e8e9] overflow-hidden"><div id="setup-seg-1" class="h-full rounded-full bg-[#012d1d]" style="width:0%; transition: background-color 0.25s ease;"></div></div>
+            <div class="h-1 rounded-full bg-[#e6e8e9] overflow-hidden"><div id="setup-seg-2" class="h-full rounded-full bg-[#012d1d]" style="width:0%; transition: background-color 0.25s ease;"></div></div>
+            <div class="h-1 rounded-full bg-[#e6e8e9] overflow-hidden"><div id="setup-seg-3" class="h-full rounded-full bg-[#012d1d]" style="width:0%; transition: background-color 0.25s ease;"></div></div>
         </div>
     </div>
-</div>
+</section>
 
 <script src="app.js"></script>
 <script type="module" src="firebase-auth.js"></script>
@@ -1110,27 +917,47 @@
         document.body.classList.remove('google-auth-handoff-running');
     }
 
+    function resetSetupProgressUI() {
+        const fillBar = document.getElementById('setup-progress-fill');
+        const ticksEl = document.getElementById('setup-ticks');
+        const doneCircleEl = document.getElementById('setup-done-circle');
+        if (fillBar) fillBar.style.width = '0%';
+        if (ticksEl) ticksEl.style.opacity = '1';
+        if (doneCircleEl) doneCircleEl.classList.remove('ready');
+        for (let index = 0; index < 4; index += 1) {
+            const seg = document.getElementById(`setup-seg-${index}`);
+            if (seg) {
+                seg.style.width = '0%';
+                seg.style.backgroundColor = '#012d1d';
+            }
+        }
+    }
+
     function beginAuthHandoff() {
         const bottomNav = document.getElementById('bottom-nav');
         const setupScreen = document.getElementById('setup-transition');
-        const counterEl = document.getElementById('setup-counter');
+        const titleEl = document.getElementById('setup-title');
         const liveTaskEl = document.getElementById('setup-live-task');
 
         if (!setupScreen) return () => {};
 
         if (bottomNav) bottomNav.style.display = 'none';
+        resetSetupProgressUI();
         setupScreen.classList.remove('fade-out');
         setupScreen.classList.add('visible');
+        setupScreen.setAttribute('aria-hidden', 'false');
         document.body.classList.add('setup-transition-running');
 
-        if (counterEl) counterEl.textContent = 'Signing you in...';
-        if (liveTaskEl) liveTaskEl.textContent = 'Securing your HabitArc account...';
+        if (titleEl) titleEl.textContent = 'Signing you in';
+        if (liveTaskEl) liveTaskEl.textContent = 'Securing your HabitArc account…';
 
         return () => {
             setupScreen.classList.remove('visible', 'fade-out');
+            setupScreen.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('setup-transition-running');
-            if (counterEl) counterEl.textContent = '0% Complete';
-            if (liveTaskEl) liveTaskEl.textContent = 'Preparing your workspace...';
+            resetSetupProgressUI();
+            if (titleEl) titleEl.textContent = 'Setting up your workspace';
+            if (liveTaskEl) liveTaskEl.textContent = 'Saving preferences…';
             updateStep();
         };
     }
@@ -1320,156 +1147,100 @@
             return;
         }
 
+        resetSetupProgressUI();
+        setupScreen.classList.remove('fade-out');
         setupScreen.classList.add('visible');
+        setupScreen.setAttribute('aria-hidden', 'false');
         document.body.classList.add('setup-transition-running');
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const tickerDuration = 3200;
-        const completionPause = prefersReducedMotion ? 300 : 1800;
+        const totalDuration = 2300;
+        const completionPause = prefersReducedMotion ? 300 : 1050;
         const fillBar = document.getElementById('setup-progress-fill');
-        const tickerTrack = document.getElementById('ticker-track');
-        const counterEl = document.getElementById('setup-counter');
+        const ticksEl = document.getElementById('setup-ticks');
+        const doneCircleEl = document.getElementById('setup-done-circle');
+        const titleEl = document.getElementById('setup-title');
         const liveTaskEl = document.getElementById('setup-live-task');
+        const segments = [0, 1, 2, 3].map((index) => document.getElementById(`setup-seg-${index}`));
 
-        if (counterEl) {
-            counterEl.textContent = '0% Complete';
-            counterEl.classList.remove('bg-primary', 'text-on-primary', 'complete');
-            counterEl.classList.add('bg-primary/10', 'text-primary');
-        }
-        if (liveTaskEl) liveTaskEl.textContent = 'Preparing your workspace...';
-
-        const taskNames = [
-            'Initializing Habit Engine...',
-            'Applying your theme preferences...',
-            'Tuning AI Coach for your goals...',
-            'Anchoring your North Star...',
-            'Building your contribution grid...',
-            'Setting up smart reminders...',
-            'Securing your growth profile...',
-            'Calibrating behavioral insights...',
-            'Finalizing account setup...'
+        const northStarInput = document.getElementById('north-star-input');
+        const rawNorthStar = northStarInput?.value.trim() || '';
+        const shortNorthStar = rawNorthStar.length > 26 ? `${rawNorthStar.slice(0, 25)}…` : rawNorthStar;
+        const northStarLabel = shortNorthStar ? `Anchoring “${shortNorthStar}”…` : 'Anchoring North Star goal…';
+        const stageTasks = [
+            'Saving preferences…',
+            'Calibrating AI coach…',
+            northStarLabel,
+            'Building contribution grid…'
         ];
+
+        if (titleEl) titleEl.textContent = 'Setting up your workspace';
+        if (liveTaskEl) liveTaskEl.textContent = stageTasks[0];
+
+        let lastStageIndex = 0;
+        let transitionCompleted = false;
+
+        function renderProgress(progress) {
+            const clamped = Math.max(0, Math.min(1, progress));
+            if (fillBar) fillBar.style.width = `${(clamped * 100).toFixed(2)}%`;
+
+            segments.forEach((seg, index) => {
+                if (!seg) return;
+                const segProgress = Math.max(0, Math.min(1, (clamped * segments.length) - index));
+                seg.style.width = `${(segProgress * 100).toFixed(2)}%`;
+            });
+
+            const stageIndex = Math.min(stageTasks.length - 1, Math.floor(clamped * stageTasks.length));
+            if (stageIndex !== lastStageIndex) {
+                lastStageIndex = stageIndex;
+                if (liveTaskEl) liveTaskEl.textContent = stageTasks[stageIndex];
+            }
+        }
 
         function finishSetupTransition() {
             setupScreen.classList.add('fade-out');
             setTimeout(() => {
                 window.location.href = 'Dashboard.html';
-            }, 500);
+            }, 400);
         }
 
-        function updateLiveTask(message) {
-            if (!liveTaskEl) return;
-            liveTaskEl.style.opacity = '0';
-            setTimeout(() => {
-                liveTaskEl.textContent = message;
-                liveTaskEl.style.opacity = '1';
-            }, 150);
-        }
-
-        if (!tickerTrack) {
-            if (fillBar) fillBar.style.width = '100%';
-            setTimeout(finishSetupTransition, completionPause);
-            return;
-        }
-
-        const tickerViewport = tickerTrack.closest('.ticker-viewport');
-        const cards = Array.from(tickerTrack.querySelectorAll('.ticker-card'));
-        const finalCard = tickerTrack.querySelector('.ticker-card-final');
-
-        // The reel behaves like a music queue: cards continuously roll through the centre focus line.
-        let completedCardCount = 0;
-        let activeCard = null;
-        function markNextCardComplete() {
-            const card = cards[completedCardCount];
-            if (!card) return;
-
-            card.classList.add('checked');
-            completedCardCount += 1;
-            if (counterEl) {
-                const completionPercentage = Math.round((completedCardCount / cards.length) * 100);
-                counterEl.textContent = `${completionPercentage}% Complete`;
-            }
-            updateLiveTask(taskNames[completedCardCount - 1] || 'Preparing your workspace...');
-        }
-
-        function updateActiveCard() {
-            if (!tickerViewport) return;
-
-            const viewportRect = tickerViewport.getBoundingClientRect();
-            const viewportCentre = viewportRect.top + (viewportRect.height / 2);
-            const reelCards = finalCard ? [...cards, finalCard] : cards;
-            const closestCard = reelCards.reduce((closest, card) => {
-                const cardRect = card.getBoundingClientRect();
-                const distance = Math.abs((cardRect.top + (cardRect.height / 2)) - viewportCentre);
-                if (!closest || distance < closest.distance) return { card, distance };
-                return closest;
-            }, null)?.card;
-
-            if (closestCard === activeCard) return;
-            if (activeCard) activeCard.classList.remove('is-current');
-            activeCard = closestCard;
-            if (activeCard) activeCard.classList.add('is-current');
-        }
-
-        function syncTickerReel() {
-            if (!tickerViewport || transitionCompleted) return;
-
-            updateActiveCard();
-
-            if (completedCardCount < cards.length) {
-                const viewportRect = tickerViewport.getBoundingClientRect();
-                const viewportCentre = viewportRect.top + (viewportRect.height / 2);
-                const nextCard = cards[completedCardCount];
-                const nextCardRect = nextCard.getBoundingClientRect();
-                const nextCardCentre = nextCardRect.top + (nextCardRect.height / 2);
-
-                if (nextCardCentre <= viewportCentre) markNextCardComplete();
-            }
-
-            requestAnimationFrame(syncTickerReel);
-        }
-
-        let transitionCompleted = false;
         function completeTransition() {
             if (transitionCompleted) return;
             transitionCompleted = true;
-            cards.forEach((card) => card.classList.add('checked'));
-            if (finalCard) finalCard.classList.add('checked');
-            if (activeCard) activeCard.classList.remove('is-current');
-            activeCard = finalCard;
-            if (activeCard) activeCard.classList.add('is-current');
-            if (counterEl) {
-                counterEl.textContent = '100% Complete';
-                counterEl.classList.remove('bg-primary/10', 'text-primary');
-                counterEl.classList.add('bg-primary', 'text-on-primary');
-                counterEl.classList.add('complete');
-            }
-            updateLiveTask('Workspace ready — Welcome to HabitArc!');
+            renderProgress(1);
+            segments.forEach((seg) => {
+                if (seg) seg.style.backgroundColor = '#0e6c4a';
+            });
+            if (ticksEl) ticksEl.style.opacity = '0';
+            if (doneCircleEl) doneCircleEl.classList.add('ready');
+            if (titleEl) titleEl.textContent = 'Workspace ready';
+            if (liveTaskEl) liveTaskEl.textContent = 'Welcome to HabitArc';
             setTimeout(finishSetupTransition, completionPause);
         }
 
-        if (tickerViewport && finalCard) {
-            const finalCardCentre = finalCard.offsetTop + (finalCard.offsetHeight / 2);
-            const finalOffset = (tickerViewport.clientHeight / 2) - finalCardCentre;
-            setupScreen.style.setProperty('--ticker-final-offset', `${finalOffset}px`);
-        }
-        setupScreen.style.setProperty('--setup-duration', `${tickerDuration}ms`);
-        if (fillBar) requestAnimationFrame(() => { fillBar.style.width = '100%'; });
-
         if (prefersReducedMotion) {
-            if (finalCard) tickerTrack.style.transform = `translateY(${setupScreen.style.getPropertyValue('--ticker-final-offset')})`;
             completeTransition();
             return;
         }
 
-        tickerTrack.addEventListener('animationend', (event) => {
-            if (event.animationName === 'tickerScroll') completeTransition();
-        }, { once: true });
-        requestAnimationFrame(syncTickerReel);
-        requestAnimationFrame(() => tickerTrack.classList.add('spinning'));
-        // Some embedded browsers do not reliably emit animationend for a filled CSS animation.
-        // This guarded fallback guarantees the transition completes exactly once.
-        setTimeout(completeTransition, tickerDuration + 100);
+        let startTime = null;
+        function stepProgress(now) {
+            if (transitionCompleted) return;
+            if (startTime === null) startTime = now;
+            const rawT = Math.min(1, (now - startTime) / totalDuration);
+            const eased = 1 - Math.pow(1 - rawT, 2.1);
+            renderProgress(eased);
+
+            if (rawT < 1) {
+                requestAnimationFrame(stepProgress);
+            } else {
+                completeTransition();
+            }
+        }
+
+        requestAnimationFrame(stepProgress);
+        // Guarded fallback guarantees completion if a background tab throttles requestAnimationFrame.
+        setTimeout(completeTransition, totalDuration + 250);
     }
 
     // Step 8 authentication actions
