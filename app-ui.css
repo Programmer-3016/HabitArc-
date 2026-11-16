@@ -1,9 +1,9 @@
-/* Shared presentation layer; existing native multi-page navigation is preserved. */
+/* Shared Night Quest RPG presentation layer; native multi-page navigation is preserved. */
 /* Browser-native transitions have a normal-navigation fallback, without a router. */
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation-duration: 150ms; }
 ::view-transition-new(root) { animation-duration: 200ms; }
-html { background: rgb(var(--ha-background, 247 249 248)); }
+html { background: rgb(var(--ha-background, 20 18 18)); }
 @media (min-width: 768px) {
     .ha-app-navigation body > header.hidden.md\:block { view-transition-name: app-header; }
 }
@@ -12,8 +12,8 @@ html { background: rgb(var(--ha-background, 247 249 248)); }
     .ha-app-navigation body > nav.fixed { view-transition-name: app-navigation; }
 }
 ::view-transition-group(app-header), ::view-transition-group(app-navigation) { animation-duration: 200ms; }
-.ha-nav-pending { background: rgb(var(--ha-primary) / .10); }
-.ha-coach-history details { margin-top: 12px; border-bottom: 1px solid rgb(var(--ha-outline-variant) / .35); padding-bottom: 12px; }
+.ha-nav-pending { background: rgb(var(--ha-primary) / .14); }
+.ha-coach-history details { margin-top: 12px; border-bottom: 1px solid rgb(var(--ha-outline-variant) / .55); padding-bottom: 12px; }
 .ha-coach-history summary { cursor: pointer; color: rgb(var(--ha-on-surface)); font-size: 13px; overflow-wrap: anywhere; }
 .ha-coach-history p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.65; margin-top: 8px; color: rgb(var(--ha-on-surface-variant)); }
 #ai-coach-answer, #ai-coach-asked { overflow-wrap: anywhere; }
@@ -21,68 +21,116 @@ html { background: rgb(var(--ha-background, 247 249 248)); }
     @view-transition { navigation: none; }
     ::view-transition-group(*) { animation: none !important; }
 }
-:root {
-    color-scheme: light;
-    --ha-background: 247 249 248;
-    --ha-surface: 255 255 255;
-    --ha-surface-container-lowest: 255 255 255;
-    --ha-surface-container-low: 242 246 244;
-    --ha-surface-container: 234 239 236;
-    --ha-surface-container-high: 225 232 228;
-    --ha-surface-container-highest: 220 228 223;
-    --ha-surface-variant: 225 232 228;
-    --ha-on-background: 25 35 30;
-    --ha-on-surface: 25 35 30;
-    --ha-on-surface-variant: 85 100 91;
-    --ha-outline: 100 114 105;
-    --ha-outline-variant: 189 204 195;
-    --ha-primary: 1 45 29;
-    --ha-primary-container: 27 67 50;
-    --ha-on-primary: 255 255 255;
-    --ha-secondary: 14 108 74;
-    --ha-card-radius: 20px;
-    --ha-card-shadow: 0 2px 4px rgb(18 43 30 / .02), 0 8px 28px rgb(18 43 30 / .025);
+
+/* ─── Option 1: Night Quest RPG Flagship Tokens ──────────────────────────────── */
+:root,
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --ha-background: 20 18 18;
+    --ha-surface: 30 27 27;
+    --ha-surface-container-lowest: 30 27 27;
+    --ha-surface-container-low: 38 34 34;
+    --ha-surface-container: 48 43 43;
+    --ha-surface-container-high: 56 50 50;
+    --ha-surface-container-highest: 70 63 63;
+    --ha-surface-variant: 48 43 43;
+    --ha-on-background: 255 255 255;
+    --ha-on-surface: 255 255 255;
+    --ha-on-surface-variant: 168 162 158;
+    --ha-outline: 120 113 108;
+    --ha-outline-variant: 59 53 53;
+    --ha-primary: 71 227 147;
+    --ha-primary-container: 255 107 74;
+    --ha-on-primary: 18 16 16;
+    --ha-on-primary-container: 255 255 255;
+    --ha-secondary: 250 204 21;
+    --ha-secondary-container: 39 58 46;
+    --ha-on-secondary-container: 71 227 147;
+    --ha-primary-fixed: 71 227 147;
+    --ha-primary-fixed-dim: 45 190 116;
+    --ha-error: 255 122 104;
+    --ha-error-container: 76 28 24;
+    --ha-on-error-container: 255 204 197;
+    --ha-card-radius: 0px;
+    --ha-card-shadow: 4px 4px 0 #000000;
     --ha-page-width: 1120px;
+
+    --rpg-hdr-bg: #0c0a0a;
+    --rpg-hdr-border: #332e2e;
+    --rpg-hdr-chip-bg: #1e1b1b;
+    --rpg-hdr-chip-border: #443d3d;
+    --rpg-hdr-chip-fg: #ffffff;
+    --rpg-cta: #ff6b4a;
+    --rpg-cta-fg: #ffffff;
+    --rpg-coral: #ff6b4a;
+    --rpg-gold: #facc15;
+    --rpg-mint: #47e393;
+    --rpg-text-accent: #47e393;
+    --rpg-streak-ink: #facc15;
+    --rpg-hero-eyebrow: #e04826;
+    --rpg-sky-bg: #141111;
+    --rpg-sky-border: #332e2e;
+    --rpg-sky-b1: #231f1f;
+    --rpg-sky-b2: #2b2626;
+    --rpg-sky-b3: #1e1b1b;
+    --rpg-moon: #e7e5e4;
+    --rpg-live-bg: #1e1b1b;
+    --rpg-live-border: #443d3d;
+    --rpg-live-fg: #ffffff;
+    --rpg-dialogue-bg: #ffffff;
+    --rpg-dialogue-fg: #121010;
+    --rpg-dialogue-sub: #57534e;
+    --rpg-dialogue-border: #000000;
+    --rpg-dialogue-shadow: 5px 5px 0 #000000;
+    --rpg-dock-bg: #1c1919;
+    --rpg-dock-border: #443d3d;
+    --rpg-dock-active-bg: #ffffff;
+    --rpg-dock-active-fg: #121010;
+    --rpg-fab-bg: #ff6b4a;
+    --rpg-fab-fg: #ffffff;
+    --rpg-bar-on: #47e393;
+    --rpg-bar-off: #332e2e;
+    --rpg-xp-fill: #ff6b4a;
+    --rpg-shadow-ink: #000000;
 }
 
-/* Existing Settings choices; only semantic tokens change, not component CSS. */
-:root:is([data-theme="dark"], [data-theme="forest"], [data-theme="midnight"]) {
-    color-scheme: dark;
-    --ha-background: 15 20 18;
-    --ha-surface: 23 30 26;
-    --ha-surface-container-lowest: 23 30 26;
-    --ha-surface-container-low: 29 37 32;
-    --ha-surface-container: 37 47 41;
-    --ha-surface-container-high: 46 57 50;
-    --ha-surface-container-highest: 54 66 58;
-    --ha-surface-variant: 46 57 50;
-    --ha-on-background: 236 243 239;
-    --ha-on-surface: 236 243 239;
-    --ha-on-surface-variant: 175 192 182;
-    --ha-outline: 157 177 165;
-    --ha-outline-variant: 88 109 97;
-    --ha-primary: 160 231 192;
-    --ha-primary-container: 37 82 60;
-    --ha-on-primary: 8 43 26;
-    --ha-on-primary-container: 187 232 206;
-    --ha-secondary: 135 219 176;
-    --ha-on-secondary-container: 184 241 207;
-    --ha-secondary-container: 32 76 52;
-    --ha-primary-fixed: 53 101 74;
-    --ha-primary-fixed-dim: 113 178 142;
-    --ha-error: 255 180 171;
-    --ha-error-container: 78 32 29;
-    --ha-on-error-container: 255 180 171;
-    --ha-card-shadow: 0 8px 28px rgb(0 0 0 / .10);
-}
+/* Preserved & expanded user color themes inside the Pixel RPG system */
 :root[data-theme="forest"] {
-    --ha-background: 9 25 19;
-    --ha-surface: 17 39 29;
-    --ha-surface-container-lowest: 17 39 29;
-    --ha-surface-container-low: 22 46 35;
-    --ha-surface-container: 30 57 43;
-    --ha-surface-variant: 39 66 51;
+    --ha-background: 11 26 20;
+    --ha-surface: 18 40 30;
+    --ha-surface-container-lowest: 18 40 30;
+    --ha-surface-container-low: 23 48 37;
+    --ha-surface-container: 31 61 47;
+    --ha-surface-container-high: 39 74 58;
+    --ha-surface-container-highest: 49 88 70;
+    --ha-surface-variant: 39 74 58;
+    --ha-outline-variant: 52 94 74;
+    --ha-primary: 71 227 147;
+    --ha-primary-container: 71 227 147;
+    --rpg-hdr-bg: #07130e;
+    --rpg-hdr-border: #254b3a;
+    --rpg-hdr-chip-bg: #12281e;
+    --rpg-hdr-chip-border: #345e4a;
+    --rpg-sky-bg: #081610;
+    --rpg-sky-border: #254b3a;
+    --rpg-sky-b1: #11291f;
+    --rpg-sky-b2: #18382a;
+    --rpg-sky-b3: #0d2118;
+    --rpg-moon: #a7f3d0;
+    --rpg-live-bg: #12281e;
+    --rpg-live-border: #345e4a;
+    --rpg-dock-bg: #10241b;
+    --rpg-dock-border: #345e4a;
+    --rpg-cta: #47e393;
+    --rpg-cta-fg: #052216;
+    --rpg-hero-eyebrow: #047857;
+    --rpg-xp-fill: #47e393;
+    --rpg-fab-bg: #47e393;
+    --rpg-fab-fg: #052216;
+    --rpg-bar-on: #47e393;
+    --rpg-bar-off: #1e3b2e;
 }
+
 :root[data-theme="midnight"] {
     --ha-background: 12 19 30;
     --ha-surface: 20 30 44;
@@ -90,483 +138,1181 @@ html { background: rgb(var(--ha-background, 247 249 248)); }
     --ha-surface-container-low: 26 38 54;
     --ha-surface-container: 34 48 65;
     --ha-surface-container-high: 42 58 77;
+    --ha-surface-container-highest: 52 70 92;
     --ha-surface-variant: 42 58 77;
-    --ha-primary: 159 204 232;
-    --ha-primary-container: 34 64 85;
-    --ha-on-primary: 13 36 52;
-    --ha-on-primary-container: 192 222 242;
-    --ha-on-surface-variant: 175 191 209;
-    --ha-outline: 151 170 191;
-    --ha-outline-variant: 83 106 129;
+    --ha-outline-variant: 65 89 114;
+    --ha-primary: 56 189 248;
+    --ha-primary-container: 56 189 248;
+    --rpg-hdr-bg: #080e18;
+    --rpg-hdr-border: #293c54;
+    --rpg-hdr-chip-bg: #141e2c;
+    --rpg-hdr-chip-border: #3b5370;
+    --rpg-sky-bg: #08101c;
+    --rpg-sky-border: #293c54;
+    --rpg-sky-b1: #132033;
+    --rpg-sky-b2: #1b2c45;
+    --rpg-sky-b3: #101929;
+    --rpg-moon: #bae6fd;
+    --rpg-live-bg: #141e2c;
+    --rpg-live-border: #3b5370;
+    --rpg-dock-bg: #121c2b;
+    --rpg-dock-border: #3b5370;
+    --rpg-cta: #38bdf8;
+    --rpg-cta-fg: #08101c;
+    --rpg-coral: #38bdf8;
+    --rpg-mint: #38bdf8;
+    --rpg-text-accent: #38bdf8;
+    --rpg-hero-eyebrow: #0369a1;
+    --rpg-xp-fill: #38bdf8;
+    --rpg-fab-bg: #38bdf8;
+    --rpg-fab-fg: #08101c;
+    --rpg-bar-on: #38bdf8;
+    --rpg-bar-off: #223045;
 }
 
-html { scroll-padding-top: 88px; }
+:root[data-theme="purple"] {
+    --ha-background: 23 16 38;
+    --ha-surface: 34 24 56;
+    --ha-surface-container-lowest: 34 24 56;
+    --ha-surface-container-low: 43 31 69;
+    --ha-surface-container: 54 40 84;
+    --ha-surface-container-high: 66 50 98;
+    --ha-surface-container-highest: 78 60 114;
+    --ha-surface-variant: 54 40 84;
+    --ha-outline-variant: 88 67 128;
+    --ha-primary: 192 132 252;
+    --ha-primary-container: 192 132 252;
+    --rpg-hdr-bg: #100a1c;
+    --rpg-hdr-border: #48336e;
+    --rpg-hdr-chip-bg: #221838;
+    --rpg-hdr-chip-border: #584380;
+    --rpg-sky-bg: #120b21;
+    --rpg-sky-border: #48336e;
+    --rpg-sky-b1: #23163d;
+    --rpg-sky-b2: #2d1e4d;
+    --rpg-sky-b3: #1b1130;
+    --rpg-moon: #e9d5ff;
+    --rpg-live-bg: #221838;
+    --rpg-live-border: #584380;
+    --rpg-dock-bg: #1f1633;
+    --rpg-dock-border: #584380;
+    --rpg-cta: #c084fc;
+    --rpg-cta-fg: #171026;
+    --rpg-coral: #f472b6;
+    --rpg-mint: #c084fc;
+    --rpg-text-accent: #c084fc;
+    --rpg-hero-eyebrow: #6d28d9;
+    --rpg-xp-fill: #c084fc;
+    --rpg-fab-bg: #c084fc;
+    --rpg-fab-fg: #171026;
+    --rpg-bar-on: #c084fc;
+    --rpg-bar-off: #362854;
+}
+
+:root[data-theme="ocean"] {
+    --ha-background: 9 28 36;
+    --ha-surface: 15 41 51;
+    --ha-surface-container-lowest: 15 41 51;
+    --ha-surface-container-low: 21 53 65;
+    --ha-surface-container: 27 65 79;
+    --ha-surface-container-high: 35 79 95;
+    --ha-surface-container-highest: 44 95 113;
+    --ha-surface-variant: 35 79 95;
+    --ha-outline-variant: 45 99 116;
+    --ha-primary: 45 212 191;
+    --ha-primary-container: 45 212 191;
+    --rpg-hdr-bg: #06141a;
+    --rpg-hdr-border: #224f5e;
+    --rpg-hdr-chip-bg: #0f2933;
+    --rpg-hdr-chip-border: #2d6374;
+    --rpg-sky-bg: #071820;
+    --rpg-sky-border: #224f5e;
+    --rpg-sky-b1: #11303c;
+    --rpg-sky-b2: #163d4c;
+    --rpg-sky-b3: #0d2630;
+    --rpg-moon: #99f6e4;
+    --rpg-live-bg: #0f2933;
+    --rpg-live-border: #2d6374;
+    --rpg-dock-bg: #0d242d;
+    --rpg-dock-border: #2d6374;
+    --rpg-cta: #2dd4bf;
+    --rpg-cta-fg: #061b19;
+    --rpg-coral: #2dd4bf;
+    --rpg-mint: #2dd4bf;
+    --rpg-text-accent: #2dd4bf;
+    --rpg-hero-eyebrow: #0f766e;
+    --rpg-xp-fill: #2dd4bf;
+    --rpg-fab-bg: #2dd4bf;
+    --rpg-fab-fg: #061b19;
+    --rpg-bar-on: #2dd4bf;
+    --rpg-bar-off: #1b3e4b;
+}
+
+:root[data-theme="sunset"] {
+    --ha-background: 35 17 22;
+    --ha-surface: 51 25 32;
+    --ha-surface-container-lowest: 51 25 32;
+    --ha-surface-container-low: 62 32 40;
+    --ha-surface-container: 77 41 51;
+    --ha-surface-container-high: 94 52 64;
+    --ha-surface-container-highest: 112 63 77;
+    --ha-surface-variant: 77 41 51;
+    --ha-outline-variant: 118 65 79;
+    --ha-primary: 251 113 133;
+    --ha-primary-container: 251 113 133;
+    --rpg-hdr-bg: #180b0e;
+    --rpg-hdr-border: #683240;
+    --rpg-hdr-chip-bg: #331920;
+    --rpg-hdr-chip-border: #76414f;
+    --rpg-sky-bg: #1c0c10;
+    --rpg-sky-border: #683240;
+    --rpg-sky-b1: #341820;
+    --rpg-sky-b2: #44202b;
+    --rpg-sky-b3: #291319;
+    --rpg-moon: #fecdd3;
+    --rpg-live-bg: #331920;
+    --rpg-live-border: #76414f;
+    --rpg-dock-bg: #2e161d;
+    --rpg-dock-border: #76414f;
+    --rpg-cta: #fb7185;
+    --rpg-cta-fg: #231116;
+    --rpg-coral: #fb7185;
+    --rpg-mint: #fbbf24;
+    --rpg-text-accent: #fbbf24;
+    --rpg-hero-eyebrow: #be123c;
+    --rpg-xp-fill: #fb7185;
+    --rpg-fab-bg: #fb7185;
+    --rpg-fab-fg: #231116;
+    --rpg-bar-on: #fb7185;
+    --rpg-bar-off: #4d2933;
+}
+
+/* Optional Paper & Sage Light Quest RPG themes (selectable via Settings) */
+:root[data-theme="light"] {
+    color-scheme: light;
+    --ha-background: 244 242 234;
+    --ha-surface: 255 255 255;
+    --ha-surface-container-lowest: 255 255 255;
+    --ha-surface-container-low: 238 235 224;
+    --ha-surface-container: 229 225 212;
+    --ha-surface-container-high: 218 213 198;
+    --ha-surface-container-highest: 204 198 182;
+    --ha-surface-variant: 229 225 212;
+    --ha-on-background: 18 18 21;
+    --ha-on-surface: 18 18 21;
+    --ha-on-surface-variant: 82 82 91;
+    --ha-outline: 82 82 91;
+    --ha-outline-variant: 18 18 21;
+    --ha-primary: 124 58 237;
+    --ha-primary-container: 196 181 253;
+    --ha-on-primary: 255 255 255;
+    --ha-on-primary-container: 18 18 21;
+    --ha-secondary: 21 128 61;
+    --ha-secondary-container: 220 252 231;
+    --ha-on-secondary-container: 21 128 61;
+    --ha-card-shadow: 4px 4px 0 #121215;
+
+    --rpg-hdr-bg: #121215;
+    --rpg-hdr-border: #121215;
+    --rpg-hdr-chip-bg: #27272a;
+    --rpg-hdr-chip-border: #52525b;
+    --rpg-cta: #7c3aed;
+    --rpg-cta-fg: #ffffff;
+    --rpg-text-accent: #6d28d9;
+    --rpg-streak-ink: #b45309;
+    --rpg-hero-eyebrow: #2e1f5e;
+    --rpg-sky-bg: #231b42;
+    --rpg-sky-border: #121215;
+    --rpg-sky-b1: #352963;
+    --rpg-sky-b2: #43357a;
+    --rpg-sky-b3: #2b2152;
+    --rpg-moon: #e9d5ff;
+    --rpg-live-bg: #352963;
+    --rpg-live-border: #c4b5fd;
+    --rpg-dialogue-bg: #c4b5fd;
+    --rpg-dialogue-fg: #121215;
+    --rpg-dialogue-sub: #2e1f5e;
+    --rpg-dialogue-border: #121215;
+    --rpg-dialogue-shadow: 4px 4px 0 #121215;
+    --rpg-dock-bg: #ffffff;
+    --rpg-dock-border: #121215;
+    --rpg-dock-active-bg: #c4b5fd;
+    --rpg-dock-active-fg: #121215;
+    --rpg-fab-bg: #facc15;
+    --rpg-fab-fg: #121215;
+    --rpg-bar-on: #7c3aed;
+    --rpg-bar-off: #e7e4dc;
+    --rpg-xp-fill: #121215;
+    --rpg-shadow-ink: #121215;
+}
+
+:root[data-theme="sage"] {
+    color-scheme: light;
+    --ha-background: 229 240 218;
+    --ha-surface: 252 255 248;
+    --ha-surface-container-lowest: 252 255 248;
+    --ha-surface-container-low: 215 230 202;
+    --ha-surface-container: 199 218 183;
+    --ha-surface-container-high: 183 205 166;
+    --ha-surface-container-highest: 165 190 148;
+    --ha-surface-variant: 199 218 183;
+    --ha-on-background: 14 42 29;
+    --ha-on-surface: 14 42 29;
+    --ha-on-surface-variant: 52 84 66;
+    --ha-outline: 52 84 66;
+    --ha-outline-variant: 14 42 29;
+    --ha-primary: 16 122 87;
+    --ha-primary-container: 71 227 147;
+    --ha-on-primary: 255 255 255;
+    --ha-on-primary-container: 11 34 23;
+    --ha-secondary: 16 122 87;
+    --ha-secondary-container: 209 250 229;
+    --ha-on-secondary-container: 16 122 87;
+    --ha-card-shadow: 4px 4px 0 #0e2a1d;
+
+    --rpg-hdr-bg: #0e2a1d;
+    --rpg-hdr-border: #0e2a1d;
+    --rpg-hdr-chip-bg: #17412d;
+    --rpg-hdr-chip-border: #2c6e4e;
+    --rpg-cta: #107a57;
+    --rpg-cta-fg: #ffffff;
+    --rpg-text-accent: #047857;
+    --rpg-streak-ink: #b45309;
+    --rpg-hero-eyebrow: #0b2217;
+    --rpg-sky-bg: #103524;
+    --rpg-sky-border: #0e2a1d;
+    --rpg-sky-b1: #184e35;
+    --rpg-sky-b2: #216646;
+    --rpg-sky-b3: #143f2b;
+    --rpg-moon: #d1fae5;
+    --rpg-live-bg: #17412d;
+    --rpg-live-border: #47e393;
+    --rpg-dialogue-bg: #47e393;
+    --rpg-dialogue-fg: #0b2217;
+    --rpg-dialogue-sub: #0f3b26;
+    --rpg-dialogue-border: #0e2a1d;
+    --rpg-dialogue-shadow: 4px 4px 0 #0e2a1d;
+    --rpg-dock-bg: #fcfff8;
+    --rpg-dock-border: #0e2a1d;
+    --rpg-dock-active-bg: #47e393;
+    --rpg-dock-active-fg: #0b2217;
+    --rpg-fab-bg: #0e2a1d;
+    --rpg-fab-fg: #47e393;
+    --rpg-bar-on: #107a57;
+    --rpg-bar-off: #cfe0c2;
+    --rpg-xp-fill: #0e2a1d;
+    --rpg-shadow-ink: #0e2a1d;
+}
+
+/* ─── Base & Typography ──────────────────────────────────────────────────────── */
+html { scroll-padding-top: 84px; }
 body {
-    background-color: rgb(var(--ha-background));
-    color: rgb(var(--ha-on-surface));
-    font-family: 'Hanken Grotesk', sans-serif;
+    background-color: rgb(var(--ha-background)) !important;
+    color: rgb(var(--ha-on-surface)) !important;
+    font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
 }
+.px-title { font-family: 'Press Start 2P', 'Silkscreen', monospace; }
+.px-ui { font-family: 'Silkscreen', 'JetBrains Mono', monospace; }
+.px-mono { font-family: 'JetBrains Mono', 'Geist', monospace; }
+
 body .grid-bg {
-    background-image: linear-gradient(to right, rgb(var(--ha-outline-variant) / .6) 1px, transparent 1px), linear-gradient(to bottom, rgb(var(--ha-outline-variant) / .6) 1px, transparent 1px);
-    opacity: .16;
-    background-size: 32px 32px;
+    background-image: radial-gradient(rgb(var(--ha-on-surface) / .14) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: .42;
 }
-body > main { padding-top: 32px; padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
+:root[data-theme="light"] body .grid-bg {
+    background-image: linear-gradient(to right, rgba(18, 18, 21, .055) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(18, 18, 21, .055) 1px, transparent 1px);
+    background-size: 16px 16px;
+    opacity: 1;
+}
+
+body > main { padding-top: 22px; padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 body > main > *, body > main :is(.flex-1, .flex-grow) { min-width: 0; }
 h1, h2, h3 { text-wrap: balance; }
 p, h1, h2, h3 { overflow-wrap: anywhere; }
 .material-symbols-outlined { flex-shrink: 0; user-select: none; }
-.ha-skip-link { position: fixed; left: 16px; top: -100px; z-index: 100; padding: 12px 20px; border-radius: 12px; background: rgb(var(--ha-primary)); color: rgb(var(--ha-on-primary)); }
+.ha-skip-link {
+    position: fixed; left: 16px; top: -100px; z-index: 100;
+    padding: 12px 18px; border-radius: 0px;
+    border: 2px solid #000000;
+    background: var(--rpg-mint); color: #121010; font-weight: 700;
+}
 .ha-skip-link:focus { top: 12px; }
-body > header { border-color: rgb(var(--ha-outline-variant) / .3); }
+
+/* ─── Top App Header (Mobile & Desktop Arcade Bar) ──────────────────────────── */
+body > header {
+    background: var(--rpg-hdr-bg) !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--rpg-hdr-border) !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+}
 body > header > div:has(> nav) { max-width: 1280px; margin-inline: auto; padding-inline: 32px; }
 body > header a { min-height: 44px; }
 body > header a:has(> .material-symbols-outlined:only-child) { min-width: 44px; }
-body > header nav a { display: inline-flex; align-items: center; }
-body > header nav a[aria-current="page"] { background: rgb(var(--ha-primary) / .07); color: rgb(var(--ha-primary)); }
-
-/* Same floating navigation, same destinations; consistent active state. */
-body > nav.fixed {
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    background: rgb(var(--ha-surface-container-lowest) / .95);
-    border-color: rgb(var(--ha-outline-variant) / .4);
-    box-shadow: 0 8px 32px rgb(0 20 12 / .10);
+body > header .ha-brand-link {
+    display: inline-flex; align-items: center; gap: 9px;
+    color: #ffffff !important;
+    text-decoration: none;
 }
-body > nav.fixed > a { min-width: 0; min-height: 48px; border-radius: 16px; }
-body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) { color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary) / .08); box-shadow: none; }
-body > nav.fixed > a[href="Add_Habit.html"] > div { background: rgb(var(--ha-primary)); color: rgb(var(--ha-on-primary)); }
+body > header .ha-brand-wordmark {
+    font-family: 'Silkscreen', 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #ffffff !important;
+    line-height: 1;
+}
+body > header nav a {
+    display: inline-flex; align-items: center;
+    font-family: 'Silkscreen', 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    border-radius: 0px !important;
+    border: 2px solid transparent;
+    color: #a8a29e !important;
+}
+body > header nav a:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+body > header nav a[aria-current="page"] {
+    background: #ffffff !important;
+    color: #121010 !important;
+    border-color: #000000 !important;
+    box-shadow: 2px 2px 0 var(--rpg-cta);
+}
 
-/* Card treatment intentionally excludes small badges, chips and calendar cells. */
-body main :is(.rounded-xl, .rounded-2xl):is(.p-card-padding, .p-5),
-.ha-habit-card {
-    border-radius: var(--ha-card-radius);
-    border-color: rgb(var(--ha-outline-variant) / .38);
-    background-color: rgb(var(--ha-surface-container-lowest));
-    box-shadow: var(--ha-card-shadow);
+/* Header Streak Chip & Action Square Controls */
+body > header :is(div:has(> #header-streak-count), div:has(> #header-streak-count-web)) {
+    background: var(--rpg-hdr-chip-bg) !important;
+    color: var(--rpg-gold) !important;
+    border: 2px solid var(--rpg-hdr-chip-border) !important;
+    box-shadow: 2px 2px 0 #000000;
+    border-radius: 0px !important;
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px !important;
+    padding: 4px 9px !important;
+}
+body > header a[href="Add_Habit.html"] {
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
+    border: 2px solid #000000 !important;
+    box-shadow: 3px 3px 0 #000000;
+    border-radius: 0px !important;
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px !important;
+}
+body > header :is(a[href="Settings.html"], a[href="Profile.html"], a[href="Habits.html"]:not(nav a)),
+body > header :is(#edit-habit-btn, #delete-btn) {
+    background: var(--rpg-hdr-chip-bg) !important;
+    color: var(--rpg-hdr-chip-fg) !important;
+    border: 2px solid var(--rpg-hdr-chip-border) !important;
+    border-radius: 0px !important;
+    box-shadow: 2px 2px 0 #000000;
+}
+body > header #delete-btn { color: #ff7a68 !important; border-color: #7c2d12 !important; }
+body > header #habit-name-title { color: #ffffff !important; }
+
+/* ─── Bottom Floating RPG HUD Navigation (Mobile) ───────────────────────────── */
+body > nav.fixed {
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    background: var(--rpg-dock-bg) !important;
+    border: 2px solid var(--rpg-dock-border) !important;
+    border-radius: 0px !important;
+    box-shadow: var(--ha-card-shadow) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 5px 6px !important;
+}
+body > nav.fixed > a {
+    min-width: 0; min-height: 46px;
+    border-radius: 0px !important;
+    color: rgb(var(--ha-on-surface-variant)) !important;
+}
+body > nav.fixed > a > span:last-child {
+    font-family: 'Silkscreen', monospace;
+    font-size: 8px !important;
+    letter-spacing: -0.01em;
+}
+body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) {
+    color: var(--rpg-dock-active-fg) !important;
+    background: var(--rpg-dock-active-bg) !important;
+    border: 2px solid #000000;
+    box-shadow: 2px 2px 0 #000000;
+}
+body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) .material-symbols-outlined {
+    color: var(--rpg-dock-active-fg) !important;
+}
+body > nav.fixed > a[href="Add_Habit.html"] > div {
+    background: var(--rpg-fab-bg) !important;
+    color: var(--rpg-fab-fg) !important;
+    border: 2px solid #000000 !important;
+    border-radius: 0px !important;
+    box-shadow: 3px 3px 0 #000000 !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+/* ─── Unified RPG Cards Across All Pages ─────────────────────────────────────── */
+body main :is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.p-card-padding, .p-5, .p-4, .p-3.5),
+body main .ha-habit-card,
+body main .ha-insights-calendar,
+body main .ha-insights-achievements,
+body main .ha-insights-coach,
+body main .ha-insights-note,
+body main .ha-insights-spotlight,
+body main .ha-insights-recap,
+body main .ha-detail-summary,
+body main #habits-container {
+    border-radius: var(--ha-card-radius) !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    background-color: rgb(var(--ha-surface-container-lowest)) !important;
+    box-shadow: var(--ha-card-shadow) !important;
 }
 body > main:is(.ha-dashboard, .ha-habits, .ha-profile) { max-width: var(--ha-page-width); }
 body > main.ha-insights { max-width: 1280px; }
-.ha-dashboard #greeting { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; letter-spacing: -.04em; }
-.ha-progress-card { min-height: 192px; gap: 16px; }
-body main .ha-progress-card {
-    background: linear-gradient(115deg, rgb(var(--ha-primary-container)), #0d3525);
-    border-color: transparent;
-    box-shadow: 0 8px 28px rgb(1 45 29 / .12);
-}
-.ha-progress-card :is(#progress-pct, .text-on-surface) { color: #f0fff5; }
-.ha-progress-card .text-on-surface-variant { color: #d2e8dc; }
-.ha-progress-card #progress-msg { max-width: 220px; font-size: 16px; line-height: 1.6; }
-.ha-progress-card .stroke-surface-container { stroke: rgb(255 255 255 / .13); }
-.ha-progress-card #progress-arc { stroke: #9ce9bd; }
-.ha-progress-card #progress-pct { font-size: 32px; letter-spacing: -.04em; }
-.ha-streak-card { min-height: 132px; }
-.ha-streak-card > .absolute { bottom: 12px; right: 12px; }
-.ha-section-heading { min-height: 44px; }
-.ha-section-heading h2 { font-size: 22px; letter-spacing: -.02em; }
-.ha-section-heading a { min-height: 44px; padding-inline: 12px; border-radius: 12px; color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary) / .05); }
-body main .ha-habit-card { padding: 20px; opacity: 1; border-radius: var(--ha-card-radius); transition: border-color 200ms, background-color 200ms; }
-.ha-habit-card > .flex:first-child { gap: 12px; align-items: center; }
-.ha-habit-card > .flex:first-child > a { flex: 1; min-width: 0; }
-.ha-habit-card > .flex:first-child > a > div:first-child { flex-shrink: 0; border-radius: 14px; }
-.ha-habit-card > .flex:first-child > a > div:last-child { min-width: 0; }
-.ha-habit-card h3 { font-size: 17px; line-height: 1.45; font-weight: 600; letter-spacing: -.02em; }
-.ha-habit-card .habit-toggle { flex-shrink: 0; }
-.ha-habit-card :is(.habit-toggle[aria-pressed="true"], .text-on-primary),
-#monthly-calendar-grid .text-on-primary,
-#complete-today-btn[aria-pressed="true"] .text-on-primary,
-#metric-trend { color: white; }
-:root:is([data-theme="dark"], [data-theme="forest"], [data-theme="midnight"]) .text-primary-container { color: rgb(var(--ha-primary)); }
-.ha-habit-card .text-outline { color: rgb(var(--ha-on-surface-variant)); }
-#habits-container, #habits-list { gap: 16px; }
-#category-filters { gap: 8px; padding-block: 4px; }
-.cat-filter { min-height: 44px; padding-inline: 20px; font-size: 13px; border-color: rgb(var(--ha-outline-variant) / .65); }
-.ha-habits h1 { font-size: clamp(28px, 3vw, 36px); letter-spacing: -.035em; }
-.ha-insights :is(#strongest-name, #opportunity-name) { font-size: 17px; }
-.ha-insights aside > section:last-child > div { gap: 12px; }
-.ha-insights :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) { font-size: 28px; line-height: 1.4; font-variant-numeric: tabular-nums; }
-.ha-insights :is(#strongest-streak, #opportunity-streak) { white-space: nowrap; }
 
-/* Native form controls must not rely on theme() in unprocessed inline CSS. */
-body .input-boxed { border: 1px solid rgb(var(--ha-outline-variant) / .8); border-radius: 12px; background: rgb(var(--ha-background)); color: rgb(var(--ha-on-surface)); min-height: 48px; }
-body .input-elegant { color: rgb(var(--ha-on-surface)); border-bottom: 1px solid rgb(var(--ha-outline-variant)); }
-body .input-boxed:focus { border-color: rgb(var(--ha-primary)); box-shadow: 0 0 0 3px rgb(var(--ha-primary) / .1); }
-.cat-pill, .accent-color-btn { min-height: 44px; min-width: 44px; }
-#habit-form-cancel, #habit-form-submit { min-height: 48px; }
-#habit-icon-wrap, #complete-today-btn { flex-shrink: 0; }
-body > header > div:has(#habit-name-title) { gap: 12px; }
-body > header > div:has(#habit-name-title) > :is(a, div:last-child) { flex-shrink: 0; }
-body > header div:has(> #habit-name-title) { min-width: 0; }
-#habit-name-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#delete-btn { min-width: 44px; min-height: 44px; }
-#prev-month-btn, #next-month-btn { width: 36px; height: 44px; }
-#current-month-title { white-space: nowrap; }
-#habit-name { overflow-wrap: anywhere; }
-.ha-detail #habit-name + div { flex-wrap: wrap; gap: 8px; }
-.ha-profile :is(#export-csv-btn, #profile-sign-out-btn) { min-height: 44px; }
+/* ─── Dashboard Live Skyline & Bit-Buddy Strip ──────────────────────────────── */
+.ha-rpg-skyline-banner {
+    position: relative;
+    border: 2px solid var(--rpg-sky-border);
+    box-shadow: var(--ha-card-shadow);
+    background: var(--rpg-sky-bg);
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+.ha-rpg-skyline-svg {
+    display: block;
+    width: 100%;
+    height: 76px;
+}
+.ha-rpg-buddy {
+    position: absolute;
+    left: 14px;
+    bottom: 4px;
+    animation: haRpgBob 1.9s steps(2, end) infinite;
+    pointer-events: none;
+}
+.ha-rpg-star-a { animation: haRpgTwinkle 1.6s steps(2, end) infinite; }
+.ha-rpg-star-b { animation: haRpgTwinkle 1.6s steps(2, end) 0.8s infinite; }
+.ha-rpg-live-pill {
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    background: var(--rpg-live-bg);
+    border: 2px solid var(--rpg-live-border);
+    box-shadow: 2px 2px 0 #000000;
+    padding: 4px 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--rpg-live-fg);
+    max-width: calc(100% - 76px);
+}
+.ha-rpg-live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--rpg-mint);
+    display: inline-block;
+    flex-shrink: 0;
+}
+.ha-rpg-live-pill.is-clear {
+    background: var(--rpg-mint);
+    color: #121010;
+    border-color: #000000;
+}
+.ha-rpg-live-pill.is-clear .ha-rpg-live-dot { background: #121010; }
 
-@media (hover: hover) {
-    .ha-habit-card:hover { background-color: rgb(var(--ha-surface-container-low)); }
+@keyframes haRpgBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
 }
-@media (min-width: 768px) {
-    body > main { padding-top: 40px; padding-bottom: 64px; }
-    #habits-container, #habits-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
-    #habits-container > :not(.ha-habit-card), #habits-list > :not(.ha-habit-card) { grid-column: 1 / -1; }
-    .ha-streak-card { min-height: 160px; }
-}
-@media (min-width: 768px) and (max-width: 1023px) {
-    body > header > div:has(> nav) { padding-inline: 20px; gap: 8px; }
-    body > header nav a { padding-inline: 10px; }
-    body > header div:has(> #header-streak-count-web) { display: none; }
-}
-@media (max-width: 767px) {
-    body > main { padding-top: 24px; }
-    .ha-progress-card { min-height: 172px; }
-    body main .ha-habit-card { padding: 16px; }
-    .ha-detail #monthly-calendar-grid { gap: 4px; }
-}
-@media (max-width: 359px) {
-    body > main { padding-inline: 16px; }
-    .ha-habit-card > .flex:last-child > .flex { gap: 4px; }
-    .ha-habit-card > .flex:first-child > a { gap: 10px; }
-    .ha-progress-card { padding: 16px; gap: 8px; }
-    .ha-progress-card #progress-msg { font-size: 14px; }
-    #habit-form-submit { padding-inline: 16px; font-size: 16px; }
-    #habit-form-cancel { padding-inline: 12px; margin-right: 8px; }
-    .ha-detail section:nth-child(3) .mb-3 { flex-wrap: wrap; gap: 12px; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .ha-habit-card, .ha-progress-card { transition: none; }
-    .fade-up { opacity: 1; transform: none; }
+@keyframes haRpgTwinkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.28; }
 }
 
-/* Approved Focused dashboard composition. Existing theme tokens, hero palette,
-   shared navigation and all other pages deliberately remain unchanged. */
+/* ─── Dashboard Scanline RPG Dialogue Hero Card ─────────────────────────────── */
 body > main.ha-dashboard { max-width: 760px; }
-.ha-dashboard .ha-dashboard-greeting { margin-bottom: 28px; }
-.ha-dashboard #today-date { margin: 0 0 10px; font-size: 12px; }
-.ha-dashboard #greeting { font-weight: 700; }
-.ha-dashboard #greeting-name { display: block; color: rgb(var(--ha-primary)); }
-body main .ha-dashboard-hero { min-height: 0; padding: 28px; border-radius: var(--ha-card-radius); }
-.ha-dashboard-progress { display: grid; grid-template-columns: minmax(0, 1fr) 128px; gap: 24px; align-items: center; }
-.ha-dashboard-progress-copy { min-width: 0; }
-.ha-dashboard-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-wrap: initial; }
-.ha-dashboard-count { font-size: 36px; line-height: 1.2; font-weight: 600; letter-spacing: -.04em; margin-top: 12px; font-variant-numeric: tabular-nums; }
-.ha-dashboard-total { opacity: .72; }
-.ha-dashboard-caption { margin-top: 4px; font-size: 13px; }
-.ha-dashboard-ring { position: relative; width: 128px; height: 128px; }
-.ha-dashboard-ring-label { position: absolute; inset: 0; display: grid; place-items: center; }
-.ha-dashboard #progress-pct { font-family: 'Hanken Grotesk', sans-serif; font-size: 32px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.ha-dashboard .progress-ring-circle { animation: none; transition: stroke-dasharray 200ms ease; }
-.ha-dashboard .ha-progress-card #progress-msg { max-width: none; margin: 14px 0 0; font-size: 13px; line-height: 1.5; }
-.ha-dashboard-streaks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / .15); }
-.ha-dashboard-stat h3 { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 400; text-wrap: initial; }
-.ha-dashboard-stat h3 .material-symbols-outlined { font-size: 17px; }
-.ha-dashboard-stat p { margin-top: 6px; font-size: 24px; line-height: 1.25; font-weight: 600; font-variant-numeric: tabular-nums; }
-.ha-dashboard-unit { font-size: 13px; font-weight: 400; margin-left: 5px; }
-.ha-dashboard-habits { margin-top: 28px; }
-.ha-dashboard .ha-section-heading { margin-bottom: 12px; gap: 12px; }
-.ha-dashboard .ha-section-heading h2 { font-size: 22px; }
-.ha-dashboard #habits-remaining { font-size: 12px; text-align: right; }
-.ha-dashboard #habits-container { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding-inline: 20px; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); box-shadow: var(--ha-card-shadow); }
-body main.ha-dashboard .ha-dashboard-habit { padding: 20px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-body main.ha-dashboard .ha-dashboard-habit + .ha-dashboard-habit { border-top: 1px solid rgb(var(--ha-outline-variant) / .3); }
-.ha-dashboard-habit-main { display: flex; align-items: center; gap: 16px; }
-.ha-dashboard-habit-link { min-width: 0; flex: 1; display: flex; align-items: center; gap: 12px; min-height: 44px; border-radius: 8px; }
-.ha-dashboard-habit-icon { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 13px; }
-.ha-dashboard-habit-icon .material-symbols-outlined { font-size: 22px; }
-.ha-dashboard-habit-copy { min-width: 0; }
-.ha-dashboard .ha-dashboard-habit h3 { font-size: 17px; line-height: 1.4; text-wrap: initial; }
-.ha-dashboard-habit-meta { display: block; font-size: 12px; margin-top: 3px; }
-.ha-dashboard .habit-toggle { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid rgb(var(--ha-outline)); border-radius: 50%; background: transparent; transition: background-color 150ms ease, border-color 150ms ease; }
-.ha-dashboard .habit-toggle .material-symbols-outlined { font-size: 22px; visibility: hidden; }
-.ha-dashboard .habit-toggle[aria-pressed="true"] { background: color-mix(in srgb, var(--habit-accent) 12%, rgb(var(--ha-surface-container-lowest))); border-color: transparent; color: rgb(var(--ha-primary)); }
-.ha-dashboard .habit-toggle[aria-pressed="true"] .material-symbols-outlined { visibility: visible; }
-.ha-dashboard-history { display: flex; align-items: center; gap: 16px; margin: 14px 0 0 56px; }
-.ha-dashboard-week { display: flex; gap: 7px; align-items: start; }
-.ha-dashboard-day { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 18px; }
-.ha-dashboard-day-mark { display: block; width: 100%; height: 5px; border-radius: 2px; background: rgb(var(--ha-surface-container-highest)); }
-.ha-dashboard-day.is-completed .ha-dashboard-day-mark { background: var(--habit-accent); }
-.ha-dashboard-day.is-today .ha-dashboard-day-mark { height: 7px; }
-.ha-dashboard-day.is-today:not(.is-completed) .ha-dashboard-day-mark { background: rgb(var(--ha-outline)); }
-.ha-dashboard-day-label { font-size: 11px; line-height: 1.2; color: rgb(var(--ha-on-surface-variant)); }
-.ha-dashboard-day.is-today .ha-dashboard-day-label { font-weight: 700; color: rgb(var(--ha-primary)); }
-.ha-dashboard-history-caption { margin-left: auto; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
-.ha-dashboard-view-all { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; width: fit-content; margin: 16px auto 0; padding: 8px 16px; border-radius: 12px; color: rgb(var(--ha-primary)); font-size: 14px; font-weight: 600; }
-.ha-dashboard-view-all .material-symbols-outlined { font-size: 18px; }
-@media (hover: hover) {
-    .ha-dashboard-habit-link:hover h3 { color: rgb(var(--ha-primary)); }
-    .ha-dashboard .habit-toggle:hover, .ha-dashboard-view-all:hover { background: rgb(var(--ha-primary) / .08); }
+.ha-dashboard .ha-dashboard-greeting { margin-bottom: 14px; }
+.ha-dashboard #today-date {
+    margin: 0 0 6px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    color: rgb(var(--ha-on-surface-variant)) !important;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
-@media (max-width: 767px) {
-    .ha-dashboard .ha-dashboard-greeting { margin-bottom: 24px; }
-    body main .ha-dashboard-hero { padding: 22px; }
-    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 112px; gap: 16px; }
-    .ha-dashboard-ring { width: 112px; height: 112px; }
-    .ha-dashboard-count { font-size: 30px; }
-    .ha-dashboard #progress-pct { font-size: 28px; }
-    .ha-dashboard-streaks { gap: 16px; padding-top: 18px; }
-    .ha-dashboard-stat p { font-size: 22px; }
-    .ha-dashboard #habits-container { padding-inline: 16px; }
-    body main.ha-dashboard .ha-dashboard-habit { padding-block: 18px; }
-    .ha-dashboard .ha-dashboard-habit h3 { font-size: 16px; }
-    .ha-dashboard-history { margin-left: 0; }
+.ha-dashboard #greeting {
+    font-family: 'Press Start 2P', 'Silkscreen', monospace;
+    font-size: clamp(16px, 2.8vw, 24px);
+    line-height: 1.45;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: rgb(var(--ha-on-surface)) !important;
 }
-@media (max-width: 359px) {
-    body main .ha-dashboard-hero { padding: 18px; }
-    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 100px; gap: 10px; }
-    .ha-dashboard-ring { width: 100px; height: 100px; }
-    .ha-dashboard-count { font-size: 28px; }
-    .ha-dashboard-habit-main { gap: 10px; }
-    .ha-dashboard-habit-link { gap: 10px; }
-    .ha-dashboard-habit-icon { width: 36px; height: 40px; }
-    .ha-dashboard-habit-meta { font-size: 11px; }
-    .ha-dashboard-week { gap: 5px; }
-    .ha-dashboard-history { gap: 10px; }
+.ha-dashboard #greeting-name { display: inline; color: var(--rpg-text-accent) !important; }
+
+body main .ha-progress-card.ha-dashboard-hero {
+    min-height: 0;
+    padding: 18px 20px 16px;
+    border-radius: 0px !important;
+    border: 2px solid var(--rpg-dialogue-border) !important;
+    box-shadow: var(--rpg-dialogue-shadow) !important;
+    background-color: var(--rpg-dialogue-bg) !important;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 17px,
+        rgba(0, 0, 0, 0.045) 18px
+    ) !important;
+    color: var(--rpg-dialogue-fg) !important;
 }
-@media (prefers-reduced-motion: reduce) {
-    .ha-dashboard .progress-ring-circle, .ha-dashboard .habit-toggle { transition: none; }
+.ha-dashboard-hero :is(h1, h2, h3, p, span, div) { color: var(--rpg-dialogue-fg); }
+.ha-dashboard-hero .ha-dashboard-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--rpg-hero-eyebrow) !important;
+    text-transform: uppercase;
 }
 
-/* Focused Insights: presentation only. All existing theme values and routes
-   remain shared with the Dashboard; analytics and Coach use their existing data. */
-body > main.ha-insights { max-width: 1120px; gap: 24px; padding-inline: 24px; }
+.ha-rpg-hero-toprow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.ha-rpg-keycap {
+    display: inline-block;
+    border: 1.5px solid var(--rpg-dialogue-fg);
+    padding: 2px 7px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--rpg-dialogue-fg) !important;
+    background: rgba(0, 0, 0, 0.04);
+}
+.ha-dashboard-progress {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 88px;
+    gap: 16px;
+    align-items: center;
+}
+.ha-dashboard-progress-copy { min-width: 0; }
+.ha-dashboard-count {
+    font-family: 'Press Start 2P', 'Silkscreen', monospace;
+    font-size: 24px;
+    line-height: 1.25;
+    font-weight: 700;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+    color: var(--rpg-dialogue-fg) !important;
+}
+.ha-dashboard-total { font-size: 15px; opacity: 0.65; }
+.ha-dashboard-caption { margin-top: 4px; font-size: 12px; color: var(--rpg-dialogue-sub) !important; font-weight: 600; }
+.ha-dashboard-ring { position: relative; width: 88px; height: 88px; }
+.ha-dashboard-ring-label { position: absolute; inset: 0; display: grid; place-items: center; }
+.ha-dashboard #progress-pct {
+    font-family: 'Silkscreen', monospace;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--rpg-dialogue-fg) !important;
+}
+.ha-dashboard-hero .stroke-surface-container { stroke: rgba(18, 16, 16, 0.14); }
+.ha-dashboard-hero #progress-arc { stroke: var(--rpg-xp-fill); stroke-width: 3; }
+.ha-dashboard .progress-ring-circle { animation: none; transition: stroke-dasharray 200ms ease; }
+.ha-dashboard .ha-progress-card #progress-msg {
+    max-width: none;
+    margin: 10px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--rpg-dialogue-sub) !important;
+}
+
+/* Segmented 10-Block RPG XP Bar inside Dashboard Hero */
+.ha-rpg-xp-track {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 3px;
+    padding: 3px;
+    margin-top: 12px;
+    border: 2px solid var(--rpg-dialogue-fg);
+    background: rgba(0, 0, 0, 0.08);
+}
+.ha-rpg-xp-seg {
+    height: 10px;
+    background: rgba(0, 0, 0, 0.12);
+    transition: background-color 180ms ease;
+}
+.ha-rpg-xp-seg.is-filled { background: var(--rpg-xp-fill); }
+
+.ha-dashboard-streaks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 2px solid rgba(18, 16, 16, 0.14);
+}
+.ha-dashboard-stat h3 {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px; font-weight: 700;
+    color: var(--rpg-dialogue-sub) !important;
+    text-wrap: initial;
+}
+.ha-dashboard-stat h3 .material-symbols-outlined { font-size: 16px; color: var(--rpg-coral) !important; }
+.ha-dashboard-stat p {
+    margin-top: 4px;
+    font-family: 'Press Start 2P', 'Silkscreen', monospace;
+    font-size: 16px; line-height: 1.3; font-weight: 700;
+    color: var(--rpg-dialogue-fg) !important;
+    font-variant-numeric: tabular-nums;
+}
+.ha-dashboard-unit {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px; font-weight: 700;
+    color: var(--rpg-dialogue-sub) !important;
+    margin-left: 4px;
+}
+
+/* ─── Dashboard Habit Quest Rows ─────────────────────────────────────────────── */
+.ha-dashboard-habits { margin-top: 24px; }
+.ha-section-heading { min-height: 40px; }
+.ha-dashboard .ha-section-heading { margin-bottom: 10px; gap: 12px; }
+.ha-dashboard .ha-section-heading h2 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: rgb(var(--ha-on-surface)) !important;
+}
+.ha-dashboard #habits-remaining {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--rpg-streak-ink) !important;
+    text-align: right;
+}
+:root[data-theme="light"] .ha-dashboard #habits-remaining,
+:root[data-theme="sage"] .ha-dashboard #habits-remaining { color: var(--rpg-cta) !important; }
+
+.ha-dashboard #habits-container {
+    display: flex; flex-direction: column; align-items: stretch; gap: 0;
+    padding-inline: 16px;
+}
+body main.ha-dashboard .ha-dashboard-habit {
+    padding: 16px 0;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+body main.ha-dashboard .ha-dashboard-habit + .ha-dashboard-habit {
+    border-top: 2px solid rgb(var(--ha-outline-variant)) !important;
+}
+.ha-dashboard-habit-main { display: flex; align-items: center; gap: 12px; }
+.ha-dashboard-habit-link { min-width: 0; flex: 1; display: flex; align-items: center; gap: 12px; min-height: 44px; border-radius: 0px; }
+.ha-dashboard-habit-icon {
+    display: grid; place-items: center; flex-shrink: 0;
+    width: 40px; height: 40px;
+    border-radius: 0px !important;
+    border: 2px solid rgb(var(--ha-outline-variant));
+}
+.ha-dashboard-habit-icon .material-symbols-outlined { font-size: 20px; }
+.ha-dashboard-habit-copy { min-width: 0; }
+.ha-dashboard .ha-dashboard-habit h3 {
+    font-family: 'JetBrains Mono', 'Hanken Grotesk', monospace;
+    font-size: 15px; font-weight: 700; line-height: 1.35;
+    color: rgb(var(--ha-on-surface));
+    text-wrap: initial;
+}
+.ha-dashboard-habit-meta {
+    display: block; font-size: 11.5px; margin-top: 2px;
+    color: rgb(var(--ha-on-surface-variant));
+}
+
+.ha-dashboard .habit-toggle {
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    border-radius: 0px !important;
+    background: rgb(var(--ha-background));
+    flex-shrink: 0;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+.ha-dashboard .habit-toggle .material-symbols-outlined { font-size: 22px; visibility: hidden; }
+.ha-dashboard .habit-toggle[aria-pressed="true"] {
+    background: var(--rpg-mint) !important;
+    border-color: #000000 !important;
+    color: #121010 !important;
+    box-shadow: 2px 2px 0 #000000;
+}
+.ha-dashboard .habit-toggle[aria-pressed="true"] .material-symbols-outlined { visibility: visible; color: #121010 !important; }
+
+.ha-dashboard-history { display: flex; align-items: center; gap: 14px; margin: 12px 0 0 52px; }
+.ha-dashboard-week { display: flex; gap: 5px; align-items: start; }
+.ha-dashboard-day { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 16px; }
+.ha-dashboard-day-mark { display: block; width: 100%; height: 6px; border-radius: 0px; background: var(--rpg-bar-off); }
+.ha-dashboard-day.is-completed .ha-dashboard-day-mark { background: var(--habit-accent, var(--rpg-bar-on)); }
+.ha-dashboard-day.is-today .ha-dashboard-day-mark { height: 7px; }
+.ha-dashboard-day.is-today:not(.is-completed) .ha-dashboard-day-mark {
+    background: transparent;
+    border: 1.5px solid rgb(var(--ha-on-surface-variant));
+}
+.ha-dashboard-day-label { font-family: 'Silkscreen', monospace; font-size: 9px; line-height: 1.2; color: rgb(var(--ha-on-surface-variant)); }
+.ha-dashboard-day.is-today .ha-dashboard-day-label { font-weight: 700; color: var(--rpg-text-accent); }
+:root[data-theme="light"] .ha-dashboard-day.is-today .ha-dashboard-day-label { color: #121215; }
+.ha-dashboard-history-caption { margin-left: auto; font-family: 'Silkscreen', monospace; font-size: 9.5px; color: rgb(var(--ha-on-surface-variant)); }
+
+.ha-dashboard-view-all {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px; width: fit-content; margin: 18px auto 0; padding: 10px 18px;
+    border-radius: 0px;
+    border: 2px solid rgb(var(--ha-outline-variant));
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink);
+    background: rgb(var(--ha-surface));
+    color: rgb(var(--ha-on-surface));
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px; font-weight: 700;
+}
+.ha-dashboard-view-all .material-symbols-outlined { font-size: 17px; }
+
+/* ─── Habits Library Page (Quest Inventory) ──────────────────────────────────── */
+body > main.ha-habits { max-width: 960px; padding-inline: 20px; gap: 22px; }
+.ha-library-heading { gap: 18px; }
+.ha-library-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px; color: var(--rpg-cta);
+    letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px;
+}
+.ha-habits h1 {
+    font-family: 'Press Start 2P', 'Silkscreen', monospace;
+    font-size: clamp(20px, 3vw, 28px);
+    line-height: 1.35; letter-spacing: 0;
+    color: rgb(var(--ha-on-surface));
+}
+.ha-library-intro { margin-top: 8px; font-size: 13.5px; line-height: 1.5; color: rgb(var(--ha-on-surface-variant)); }
+.ha-habits #category-filters { margin-inline: 0; padding-inline: 2px; padding-block: 4px; gap: 8px; }
+.ha-habits .cat-filter {
+    font-family: 'Silkscreen', monospace; font-size: 11px; font-weight: 700;
+    min-height: 44px; padding-inline: 16px;
+    border-radius: 0px !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    background: rgb(var(--ha-surface)) !important;
+    color: rgb(var(--ha-on-surface)) !important;
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
+}
+.ha-habits .cat-filter[aria-pressed="true"] {
+    border-color: #000000 !important;
+    background: var(--rpg-mint) !important;
+    color: #121010 !important;
+    box-shadow: 3px 3px 0 #000000;
+}
+:root[data-theme="light"] .ha-habits .cat-filter[aria-pressed="true"] {
+    background: #121215 !important;
+    color: #facc15 !important;
+}
+:root[data-theme="sage"] .ha-habits .cat-filter[aria-pressed="true"] {
+    background: #0e2a1d !important;
+    color: #47e393 !important;
+}
+.ha-habits #habits-list { gap: 16px; align-items: stretch; }
+body main.ha-habits .ha-library-card { display: flex; flex-direction: column; padding: 18px; gap: 0; }
+.ha-library-card-top { gap: 12px; align-items: center; }
+.ha-library-habit-link { min-width: 0; flex: 1; gap: 12px; border-radius: 0px; }
+.ha-library-icon {
+    width: 42px; height: 42px; border-radius: 0px !important;
+    border: 2px solid rgb(var(--ha-outline-variant));
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ha-library-icon .material-symbols-outlined { font-size: 22px; }
+.ha-library-card-copy { min-width: 0; }
+.ha-library-card h2 {
+    font-family: 'JetBrains Mono', 'Hanken Grotesk', monospace;
+    color: rgb(var(--ha-on-surface)); font-size: 16px; line-height: 1.4; font-weight: 700; text-wrap: initial;
+}
+.ha-library-category {
+    font-family: 'Silkscreen', monospace; font-size: 10.5px; line-height: 1.4; margin-top: 3px;
+    color: rgb(var(--ha-on-surface-variant));
+}
+.ha-library-card .habit-toggle {
+    width: 44px; height: 44px; min-width: 44px;
+    border-radius: 0px !important;
+    border-width: 2px !important;
+}
+.ha-library-card .habit-toggle[aria-pressed="true"] {
+    color: #121010 !important;
+    box-shadow: 2px 2px 0 #000000;
+}
+.ha-library-card-meta {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 8px; margin-top: auto; padding-top: 18px;
+    font-family: 'Silkscreen', monospace; font-size: 10px;
+    color: rgb(var(--ha-on-surface-variant));
+}
+.ha-library-streak { display: inline-flex; gap: 4px; align-items: center; font-variant-numeric: tabular-nums; color: var(--rpg-streak-ink); }
+.ha-library-streak .material-symbols-outlined { font-size: 15px; color: var(--rpg-cta); }
+.ha-library-card-bottom {
+    display: flex; align-items: center; gap: 14px; margin-top: 10px; padding-top: 12px;
+    border-top: 2px solid rgb(var(--ha-outline-variant));
+}
+.ha-library-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex: 1; gap: 6px; min-width: 0; }
+.ha-library-day { display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: 'Silkscreen', monospace; font-size: 9.5px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-library-day-bar { width: 100%; height: 7px; border-radius: 0px; background: var(--rpg-bar-off); }
+.ha-library-day.is-complete .ha-library-day-bar { background: var(--habit-accent, var(--rpg-mint)); }
+.ha-library-day.is-today { color: rgb(var(--ha-on-surface)); font-weight: 700; }
+.ha-library-day.is-today .ha-library-day-bar { outline: 1.5px solid var(--habit-accent, var(--rpg-mint)); outline-offset: 1px; }
+.ha-library-detail-link {
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    border-radius: 0px; border: 2px solid rgb(var(--ha-outline-variant));
+    color: rgb(var(--ha-on-surface)); background: rgb(var(--ha-surface-container-low));
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
+}
+.ha-habits .ha-library-empty {
+    grid-column: 1 / -1; text-align: center; padding: 44px 24px;
+    background: rgb(var(--ha-surface)); border: 2px solid rgb(var(--ha-outline-variant));
+    box-shadow: var(--ha-card-shadow); border-radius: 0px;
+}
+.ha-library-empty > .material-symbols-outlined {
+    display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px;
+    border-radius: 0px; border: 2px solid #000000;
+    font-size: 28px; color: #121010; background: var(--rpg-mint); margin-bottom: 18px;
+}
+.ha-library-empty h2 { font-family: 'Silkscreen', monospace; font-size: 18px; font-weight: 700; }
+.ha-library-empty p { margin: 8px 0 22px; font-size: 14px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-library-empty a {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 11px 18px;
+    border-radius: 0px; border: 2px solid #000000; box-shadow: 3px 3px 0 #000000;
+    background: var(--rpg-cta); color: var(--rpg-cta-fg);
+    font-family: 'Silkscreen', monospace; font-size: 12px; font-weight: 700;
+}
+
+/* ─── Insights Page (Stats, Coach & 365-Day Pixel Heatmap) ─────────────────── */
+body > main.ha-insights { max-width: 1120px; gap: 22px; padding-inline: 20px; }
 .ha-insights-heading, .ha-insights-overview { grid-column: 1 / -1; }
-.ha-insights-heading { margin-bottom: 4px; }
-.ha-insights-eyebrow { color: rgb(var(--ha-on-surface-variant)); font-size: 12px; margin-bottom: 10px; }
-.ha-insights #hero-title { color: rgb(var(--ha-on-surface)); font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; letter-spacing: -.04em; font-weight: 700; }
-.ha-insights-intro { color: rgb(var(--ha-on-surface-variant)); font-size: 14px; line-height: 1.6; margin-top: 10px; }
-.ha-insights-overview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 28px 12px; border-radius: var(--ha-card-radius); background: linear-gradient(115deg, rgb(var(--ha-primary-container)), #0d3525); color: #f0fff5; box-shadow: 0 8px 28px rgb(1 45 29 / .12); }
-.ha-insights-metric { padding: 0 24px; min-width: 0; display: flex; flex-direction: column; }
-.ha-insights-metric + .ha-insights-metric { border-left: 1px solid rgb(255 255 255 / .15); }
-.ha-insights-metric h2 { font-size: 12px; line-height: 1.5; font-weight: 400; color: #d2e8dc; text-wrap: initial; }
-.ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) { color: #f0fff5; font-family: 'Hanken Grotesk', sans-serif; font-size: 36px; line-height: 1.25; font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.ha-insights-metric > p { margin-block: 10px 8px; min-height: 45px; }
+.ha-insights-heading { margin-bottom: 2px; }
+.ha-insights-eyebrow {
+    font-family: 'Silkscreen', monospace;
+    color: var(--rpg-cta); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.ha-insights #hero-title {
+    font-family: 'Press Start 2P', 'Silkscreen', monospace;
+    color: rgb(var(--ha-on-surface));
+    font-size: clamp(20px, 3vw, 28px);
+    line-height: 1.35; letter-spacing: 0; font-weight: 700;
+}
+.ha-insights-intro { color: rgb(var(--ha-on-surface-variant)); font-size: 13.5px; line-height: 1.5; margin-top: 8px; }
+
+/* Insights Overview: White Scanline RPG Dialogue Hero */
+.ha-insights-overview {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 22px 12px;
+    border-radius: 0px !important;
+    border: 2px solid var(--rpg-dialogue-border) !important;
+    background-color: var(--rpg-dialogue-bg) !important;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 17px,
+        rgba(0, 0, 0, 0.045) 18px
+    ) !important;
+    color: var(--rpg-dialogue-fg) !important;
+    box-shadow: var(--rpg-dialogue-shadow) !important;
+}
+.ha-insights-metric { padding: 0 20px; min-width: 0; display: flex; flex-direction: column; }
+.ha-insights-metric + .ha-insights-metric { border-left: 2px solid rgba(18, 16, 16, 0.14); }
+.ha-insights-metric h2 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 10.5px; line-height: 1.4; font-weight: 700;
+    color: var(--rpg-hero-eyebrow) !important; text-wrap: initial;
+}
+.ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) {
+    color: var(--rpg-dialogue-fg) !important;
+    font-family: 'Press Start 2P', 'Silkscreen', monospace;
+    font-size: 24px; line-height: 1.35; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.ha-insights-metric > p { margin-block: 8px 6px; min-height: 36px; }
 .ha-insights-trend { display: flex; align-items: center; gap: 6px; }
 .ha-insights #metric-trend:not(.ha-insights-metric-empty) { white-space: nowrap; }
-.ha-insights-trend > .material-symbols-outlined { font-size: 20px; color: #d2e8dc; }
-.ha-insights .ha-insights-metric #metric-trend.ha-insights-metric-empty { font-size: 17px; line-height: 1.4; letter-spacing: -.01em; }
-.ha-insights-metric-context { font-size: 11px; line-height: 1.5; color: #d2e8dc; margin-top: auto; }
-.ha-insights-main, .ha-insights-aside, .ha-insights-coach { min-width: 0; gap: 24px; }
-.ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note) { padding: 24px; }
-.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 { font-size: 18px; line-height: 1.4; font-weight: 600; letter-spacing: -.025em; color: rgb(var(--ha-on-surface)); }
-.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 > .material-symbols-outlined { font-size: 20px; color: rgb(var(--ha-primary)); }
-.ha-insights .ha-insights-recap { gap: 0; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); box-shadow: var(--ha-card-shadow); }
-body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) { padding: 24px; gap: 18px; border: 0; background: transparent; box-shadow: none; border-radius: 0; min-width: 0; }
+.ha-insights-trend > .material-symbols-outlined { font-size: 18px; color: var(--rpg-dialogue-sub) !important; }
+.ha-insights .ha-insights-metric #metric-trend.ha-insights-metric-empty {
+    font-family: 'Silkscreen', monospace; font-size: 13px; line-height: 1.35;
+}
+.ha-insights-metric-context { font-size: 11px; line-height: 1.4; color: var(--rpg-dialogue-sub) !important; margin-top: auto; font-weight: 600; }
+
+.ha-insights-main, .ha-insights-aside, .ha-insights-coach { min-width: 0; gap: 20px; }
+.ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note) { padding: 20px; }
+.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2,
+.ha-insights .ha-insights-coach h2 {
+    font-family: 'Silkscreen', monospace; font-size: 15px; line-height: 1.4; font-weight: 700;
+    color: rgb(var(--ha-on-surface)) !important;
+}
+.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 > .material-symbols-outlined { font-size: 19px; color: var(--rpg-mint); }
+.ha-insights .ha-insights-recap { gap: 0; }
+body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) {
+    padding: 20px; gap: 16px; border: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; min-width: 0;
+}
 .ha-insights #todays-story-list { gap: 0; }
-.ha-insights #todays-story-list > li { padding: 12px 0; border: 0; border-radius: 0; background: transparent; font-size: 13px; line-height: 1.65; }
+.ha-insights #todays-story-list > li {
+    padding: 12px 0; border: 0 !important; border-radius: 0 !important;
+    background: transparent !important; box-shadow: none !important;
+    font-size: 13px; line-height: 1.65;
+}
 .ha-insights #todays-story-list > li:first-child { padding-top: 0; }
 .ha-insights #todays-story-list > li:last-child { padding-bottom: 0; }
-.ha-insights #todays-story-list > li + li { border-top: 1px solid rgb(var(--ha-outline-variant) / .25); }
-.ha-insights #todays-story-list .material-symbols-outlined { font-size: 18px; color: rgb(var(--ha-primary)); margin-top: 2px; }
-.ha-insights #todays-story-list strong { font-weight: 600; }
-.ha-insights-timeline h3 { font-size: 12px; font-weight: 600; }
-.ha-insights-timeline p { font-size: 13px; line-height: 1.65; }
-.ha-insights .ha-insights-legend { font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
-.ha-insights-calendar-scroll { margin-top: 22px; padding-block: 4px 10px; scrollbar-width: thin; scrollbar-color: rgb(var(--ha-outline-variant)) transparent; border-radius: 4px; }
-.ha-insights-calendar-scroll:focus-visible { outline: 2px solid rgb(var(--ha-primary)); outline-offset: 4px; }
+.ha-insights #todays-story-list > li + li { border-top: 2px solid rgb(var(--ha-outline-variant)) !important; }
+.ha-insights #todays-story-list .material-symbols-outlined { font-size: 18px; color: var(--rpg-mint); margin-top: 2px; }
+
+/* 365-Day Pixel Heatmap */
+.ha-insights .ha-insights-legend { font-family: 'Silkscreen', monospace; font-size: 10px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights-calendar-scroll { margin-top: 18px; padding-block: 4px 10px; scrollbar-width: thin; scrollbar-color: rgb(var(--ha-outline-variant)) transparent; }
 .ha-insights #heatmap-grid-365, .ha-insights-months { display: grid; width: max-content; min-width: 100%; grid-template-columns: repeat(var(--heatmap-columns, 53), 12px); column-gap: 4px; }
 .ha-insights #heatmap-grid-365 { grid-template-rows: repeat(7, 12px); row-gap: 4px; }
-.ha-insights #heatmap-grid-365 > div { width: 12px; height: 12px; border: 0; border-radius: 3px; }
-.ha-insights-months { margin-bottom: 8px; font-size: 11px; line-height: 1.4; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights #heatmap-grid-365 > div { width: 12px; height: 12px; border-radius: 0px !important; }
+.ha-insights-months { margin-bottom: 8px; font-family: 'Silkscreen', monospace; font-size: 10px; line-height: 1.4; color: rgb(var(--ha-on-surface-variant)); }
 .ha-insights-months > span { overflow: visible; white-space: nowrap; }
-.ha-insights-calendar-caption { margin-top: 10px; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-insights-calendar-caption { margin-top: 10px; font-family: 'Silkscreen', monospace; font-size: 10px; color: rgb(var(--ha-on-surface-variant)); }
+
 .ha-insights #badges-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
-.ha-insights .ha-insights-badge { padding: 16px 12px; gap: 10px; border: 0; border-radius: 0; border-top: 1px solid rgb(var(--ha-outline-variant) / .25); background: transparent; }
-.ha-insights .ha-insights-badge > div:first-child { width: 36px; height: 36px; border-radius: 12px; box-shadow: none; }
-.ha-insights-badge-title { display: block; font-size: 13px; line-height: 1.45; font-weight: 600; color: rgb(var(--ha-on-surface)); overflow-wrap: anywhere; }
-.ha-insights-badge-description { display: block; font-size: 11px; line-height: 1.6; margin-top: 3px; color: rgb(var(--ha-on-surface-variant)); }
+body main.ha-insights .ha-insights-badge {
+    padding: 14px 10px !important; gap: 10px; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+    border-top: 2px solid rgb(var(--ha-outline-variant)) !important; background: transparent !important;
+}
+.ha-insights .ha-insights-badge > div:first-child { width: 36px; height: 36px; border-radius: 0px !important; border: 1.5px solid #000000; }
+.ha-insights-badge-title { display: block; font-size: 13px; line-height: 1.4; font-weight: 700; color: rgb(var(--ha-on-surface)); overflow-wrap: anywhere; }
+.ha-insights-badge-description { display: block; font-size: 11px; line-height: 1.55; margin-top: 3px; color: rgb(var(--ha-on-surface-variant)); }
 .ha-insights-badge-status { flex-shrink: 0; align-self: flex-start; margin-top: 3px; color: rgb(var(--ha-on-surface-variant)); }
-.ha-insights-badge-status .material-symbols-outlined { font-size: 15px; }
-.ha-insights .is-unlocked .ha-insights-badge-status { color: rgb(var(--ha-primary)); }
-body main.ha-insights .ha-insights-note { background: rgb(var(--ha-primary) / .04); border-color: rgb(var(--ha-primary) / .15); box-shadow: none; }
-.ha-insights #coach-note-text { font-size: 14px; line-height: 1.75; font-style: normal; margin-top: 14px; }
-.ha-insights-note > a { min-height: 44px; font-size: 12px; text-transform: none; letter-spacing: 0; font-family: 'Hanken Grotesk', sans-serif; font-weight: 600; margin-top: 8px; }
-.ha-insights #ai-coach-title { font-size: 18px; }
-.ha-insights #ai-coach-form { margin-top: 20px; }
-.ha-insights #ai-coach-question { min-height: 112px; font-family: inherit; font-size: 14px; line-height: 1.6; background: rgb(var(--ha-background)); border-color: rgb(var(--ha-outline-variant) / .6); padding: 14px; }
-.ha-insights #ai-coach-submit { min-height: 44px; min-width: 72px; justify-content: center; border-radius: 12px; font-size: 13px; font-family: inherit; }
-.ha-insights #ai-coach-submit:hover:not(:disabled) { background: rgb(var(--ha-primary)); filter: brightness(.94); }
-.ha-insights #ai-coach-status { line-height: 1.6; overflow-wrap: anywhere; }
-.ha-insights #ai-coach-status:empty { margin: 0; }
-.ha-insights #ai-coach-answer-card { border: 0; padding: 16px; }
-.ha-insights .ha-insights-spotlight { gap: 0; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); padding: 24px; box-shadow: var(--ha-card-shadow); }
-.ha-insights-spotlight > h2 { margin-bottom: 6px; }
-body main.ha-insights .ha-insights-spotlight-row { padding: 18px 0; gap: 12px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-.ha-insights .ha-insights-spotlight-row:last-child { padding-bottom: 0; border-top: 1px solid rgb(var(--ha-outline-variant) / .25); }
-.ha-insights-spotlight-row > div:first-child { width: 38px; height: 42px; border-radius: 12px; }
-.ha-insights-spotlight-row > div:last-child { flex-shrink: 0; }
-.ha-insights-spotlight-row h3 { font-size: 10px; color: rgb(var(--ha-on-surface-variant)); }
-.ha-insights :is(#strongest-name, #opportunity-name) { font-size: 15px; line-height: 1.45; font-weight: 600; color: rgb(var(--ha-on-surface)); text-wrap: initial; }
-.ha-insights :is(#strongest-streak, #opportunity-streak) { font-size: 20px; font-weight: 600; }
+.ha-insights .is-unlocked .ha-insights-badge-status { color: var(--rpg-text-accent); }
+
+body main.ha-insights .ha-insights-note { background: rgb(var(--ha-surface-container-low)) !important; }
+.ha-insights #coach-note-text { font-size: 14px; line-height: 1.7; font-style: normal; margin-top: 12px; }
+.ha-insights-note > a { min-height: 44px; font-family: 'Silkscreen', monospace; font-size: 11px; font-weight: 700; margin-top: 8px; color: var(--rpg-text-accent) !important; }
+.ha-insights #ai-coach-question {
+    min-height: 100px; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.55;
+    background: rgb(var(--ha-background)) !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    border-radius: 0px !important;
+    color: rgb(var(--ha-on-surface)) !important;
+    padding: 12px;
+}
+.ha-insights #ai-coach-submit {
+    min-height: 44px; min-width: 82px; justify-content: center;
+    border-radius: 0px !important;
+    border: 2px solid #000000;
+    box-shadow: 3px 3px 0 #000000;
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
+    font-family: 'Silkscreen', monospace; font-size: 12px; font-weight: 700;
+}
+.ha-insights #ai-coach-answer-card {
+    border-radius: 0px !important;
+    border: 2px solid var(--rpg-mint) !important;
+    background: rgb(var(--ha-background)) !important;
+    padding: 14px;
+}
+.ha-insights .ha-insights-spotlight { padding: 20px; }
+body main.ha-insights .ha-insights-spotlight-row {
+    padding: 16px 0; gap: 12px; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important;
+}
+.ha-insights .ha-insights-spotlight-row:last-child { padding-bottom: 0; border-top: 2px solid rgb(var(--ha-outline-variant)) !important; }
+.ha-insights-spotlight-row > div:first-child { width: 40px; height: 40px; border-radius: 0px !important; border: 2px solid rgb(var(--ha-outline-variant)); }
+.ha-insights :is(#strongest-name, #opportunity-name) { font-size: 15px; line-height: 1.45; font-weight: 700; color: rgb(var(--ha-on-surface)) !important; text-wrap: initial; }
+.ha-insights :is(#strongest-streak, #opportunity-streak) { font-family: 'Silkscreen', monospace; font-size: 17px; font-weight: 700; color: var(--rpg-streak-ink) !important; }
+
+/* ─── Add Habit, Detail, Profile, Settings Pixel Controls ───────────────────── */
+body .input-boxed {
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    border-radius: 0px !important;
+    background: rgb(var(--ha-background)) !important;
+    color: rgb(var(--ha-on-surface)) !important;
+    min-height: 48px;
+}
+body .input-elegant {
+    background: transparent !important;
+    color: rgb(var(--ha-on-surface)) !important;
+    border-top: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 2px solid rgb(var(--ha-outline-variant)) !important;
+    border-radius: 0px !important;
+    box-shadow: none !important;
+}
+body .input-elegant:focus {
+    border-bottom-color: var(--rpg-mint) !important;
+    box-shadow: none !important;
+}
+body .input-boxed:focus { border-color: var(--rpg-mint) !important; box-shadow: none !important; }
+.cat-pill, .accent-color-btn { min-height: 44px; min-width: 44px; }
+.icon-btn {
+    border-radius: 0px !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+}
+.icon-btn[aria-pressed="true"] {
+    background: var(--rpg-mint) !important;
+    color: #121010 !important;
+    border-color: #000000 !important;
+    box-shadow: 2px 2px 0 #000000;
+}
+.cat-pill {
+    border-radius: 0px !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    font-family: 'Silkscreen', monospace !important;
+    font-size: 11px !important;
+}
+.cat-pill[aria-pressed="true"] {
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
+    border-color: #000000 !important;
+    box-shadow: 2px 2px 0 #000000;
+}
+.accent-color-btn { border-radius: 0px !important; border: 2px solid #000000 !important; }
+#habit-form-cancel, #habit-form-submit { min-height: 48px; border-radius: 0px !important; font-family: 'Silkscreen', monospace !important; }
+#habit-form-submit {
+    background: var(--rpg-cta) !important;
+    color: var(--rpg-cta-fg) !important;
+    border: 2px solid #000000 !important;
+    box-shadow: 4px 4px 0 #000000 !important;
+}
+
+/* Habit Detail */
+body > main.ha-detail { max-width: 760px; padding-inline: 20px; }
+.ha-detail > section + section { margin-top: 22px; }
+.ha-detail .ha-detail-summary { padding: 22px; }
+.ha-detail #habit-icon-wrap { width: 58px; height: 58px; border-radius: 0px !important; border: 2px solid rgb(var(--ha-outline-variant)); }
+.ha-detail #habit-name { font-family: 'Silkscreen', monospace; font-size: clamp(19px, 3vw, 26px); line-height: 1.3; font-weight: 700; text-wrap: initial; }
+.ha-detail #complete-today-btn { width: 48px; height: 48px; border-radius: 0px !important; border: 2px solid rgb(var(--ha-outline-variant)) !important; }
+.ha-detail #complete-today-btn[aria-pressed="true"] { background: var(--rpg-mint) !important; color: #121010 !important; border-color: #000000 !important; box-shadow: 2px 2px 0 #000000; }
+body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 12px !important; border: 2px solid rgb(var(--ha-outline-variant)) !important; background: rgb(var(--ha-background)) !important; box-shadow: none !important; }
+.ha-detail .ha-detail-stats [id^="stat-"] { font-family: 'Press Start 2P', monospace; font-size: 20px; line-height: 1.3; }
+.ha-detail #monthly-calendar-grid > div { min-width: 0; height: 42px; border-radius: 0px !important; }
+.ha-detail :is(#prev-month-btn, #next-month-btn) { border-radius: 0px !important; }
+.ha-detail .ha-detail-month-nav { border-radius: 0px !important; border: 2px solid rgb(var(--ha-outline-variant)); }
+.ha-detail .cal-cell, .ha-detail #calendar-done-key { border-radius: 0px !important; }
+
+/* Profile & Settings */
+.ha-profile section:first-child h2 { font-family: 'Press Start 2P', monospace; font-size: 18px; line-height: 1.4; margin-top: 4px; }
+.ha-profile .w-24.h-24 { border-radius: 0px !important; border: 3px solid var(--rpg-mint) !important; box-shadow: 4px 4px 0 #000000; padding: 2px; }
+.ha-profile #profile-avatar { border-radius: 0px !important; }
+.ha-profile #export-csv-btn { border-radius: 0px !important; background: var(--rpg-mint) !important; color: #121010 !important; border: 2px solid #000000; box-shadow: 3px 3px 0 #000000; font-family: 'Silkscreen', monospace; }
+.ha-profile #profile-sign-out-btn { border-radius: 0px !important; border: 2px solid rgb(var(--ha-outline-variant)) !important; font-family: 'Silkscreen', monospace; }
+.theme-select-btn {
+    border-radius: 0px !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    background: rgb(var(--ha-background)) !important;
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
+}
+.theme-select-btn[aria-pressed="true"] {
+    border-color: var(--rpg-mint) !important;
+    background: rgb(var(--ha-surface-container)) !important;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink);
+}
+:root[data-theme="light"] .theme-select-btn[aria-pressed="true"] {
+    border-color: #121215 !important;
+    background: #c4b5fd !important;
+}
+:root[data-theme="sage"] .theme-select-btn[aria-pressed="true"] {
+    border-color: #0e2a1d !important;
+    background: #47e393 !important;
+}
+.theme-select-btn > div { border-radius: 0px !important; }
+.toggle-label {
+    border-radius: 0px !important;
+    border: 2px solid rgb(var(--ha-outline-variant)) !important;
+    background-color: rgb(var(--ha-surface-container-high)) !important;
+}
+.toggle-checkbox:checked + .toggle-label {
+    background-color: var(--rpg-mint) !important;
+    border-color: #000000 !important;
+}
+.toggle-checkbox-inner {
+    border-radius: 0px !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    box-shadow: none !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+#settings-sign-out-btn { border-radius: 0px !important; border: 2px solid rgb(var(--ha-outline-variant)) !important; font-family: 'Silkscreen', monospace; }
+
+/* ─── Responsive Adjustments ─────────────────────────────────────────────────── */
+@media (hover: hover) {
+    .ha-habit-card:hover { background-color: rgb(var(--ha-surface-container-low)) !important; }
+    .ha-dashboard .habit-toggle:hover, .ha-dashboard-view-all:hover { background: rgb(var(--ha-surface-container-low)); }
+}
 @media (min-width: 768px) {
-    .ha-insights .ha-insights-timeline { border-left: 1px solid rgb(var(--ha-outline-variant) / .3); }
+    body > main { padding-top: 28px; padding-bottom: 64px; }
+    #habits-container, #habits-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    #habits-container > :not(.ha-habit-card), #habits-list > :not(.ha-habit-card) { grid-column: 1 / -1; }
+    .ha-insights-timeline { border-left: 2px solid rgb(var(--ha-outline-variant)); }
 }
 @media (min-width: 1024px) {
-    /* Keep the existing desktop two-column composition while the source order
-       prioritises Coach access immediately after the mobile overview. */
     .ha-insights-main { grid-column: 1 / span 8; grid-row: 3 / span 2; }
     .ha-insights-coach { grid-column: 9 / -1; grid-row: 3; align-self: start; }
     .ha-insights-aside { grid-column: 9 / -1; grid-row: 4; align-self: start; }
 }
 @media (min-width: 768px) and (max-width: 1023px) {
-    .ha-insights-metric { padding-inline: 16px; }
-    .ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak) { font-size: 32px; }
-    .ha-insights .ha-insights-metric #metric-trend { font-size: 28px; }
+    body > header > div:has(> nav) { padding-inline: 20px; gap: 8px; }
+    body > header nav a { padding-inline: 10px; }
+    body > header div:has(> #header-streak-count-web) { display: none; }
     .ha-insights-aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
     .ha-insights-spotlight { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
-    body > main.ha-insights { padding-inline: 20px; gap: 24px; }
-    .ha-insights-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px 20px; }
-    .ha-insights-metric { padding: 20px 12px; }
+    body > main { padding-top: 18px; }
+    body main .ha-progress-card.ha-dashboard-hero { padding: 16px; }
+    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 80px; gap: 12px; }
+    .ha-dashboard-ring { width: 80px; height: 80px; }
+    .ha-dashboard-count { font-size: 21px; }
+    .ha-dashboard #habits-container { padding-inline: 14px; }
+    body main.ha-dashboard .ha-dashboard-habit { padding-block: 14px; }
+    .ha-dashboard-history { margin-left: 0; }
+
+    body > main.ha-insights { padding-inline: 16px; gap: 18px; }
+    .ha-insights-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 8px 14px; }
+    .ha-insights-metric { padding: 16px 10px; }
     .ha-insights-metric:nth-child(odd) { border-left: 0; padding-left: 0; }
-    .ha-insights-metric:nth-child(even) { padding-right: 0; padding-left: 20px; }
-    .ha-insights-metric:nth-child(n+3) { border-top: 1px solid rgb(255 255 255 / .15); }
-    .ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) { font-size: 32px; }
-    .ha-insights-metric h2 { font-size: 11px; }
-    .ha-insights-metric > p { min-height: 40px; margin-block: 8px 5px; }
-    .ha-insights .ha-insights-metric #metric-trend.ha-insights-metric-empty { font-size: 16px; }
-    .ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note, .ha-insights-spotlight) { padding: 20px; }
-    body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) { padding: 20px; }
-    .ha-insights .ha-insights-timeline { border-top: 1px solid rgb(var(--ha-outline-variant) / .3); }
+    .ha-insights-metric:nth-child(even) { padding-right: 0; padding-left: 14px; }
+    .ha-insights-metric:nth-child(n+3) { border-top: 2px solid rgba(18, 16, 16, 0.14); }
+    .ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) { font-size: 20px; }
+    .ha-insights .ha-insights-timeline { border-top: 2px solid rgb(var(--ha-outline-variant)); }
     .ha-insights #ai-coach-question { font-size: 16px; }
     .ha-insights-coach { order: 1; }
     .ha-insights-main { order: 2; }
     .ha-insights-aside { order: 3; }
+
+    body > main:is(.ha-habits, .ha-detail) { padding-inline: 16px; }
+    .ha-detail #monthly-calendar-grid { gap: 4px; }
+    .ha-detail #monthly-calendar-grid > div { height: 34px; }
 }
 @media (max-width: 599px) {
     .ha-insights #badges-grid { grid-template-columns: 1fr; }
     .ha-insights .ha-insights-badge { padding-inline: 0; }
 }
 @media (max-width: 359px) {
-    body > main.ha-insights { padding-inline: 16px; }
-    .ha-insights-overview { padding-inline: 16px; }
-    .ha-insights-metric:nth-child(even) { padding-left: 14px; }
-    .ha-insights .ha-insights-metric #metric-trend { font-size: 24px; }
-    .ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note, .ha-insights-spotlight) { padding: 18px; }
-}
-
-/* Focused habit library and detail. Scoped presentation rules preserve shared
-   themes, navigation, completion calculations and cloud storage behavior. */
-body > main.ha-habits { max-width: 960px; padding-inline: 24px; gap: 28px; }
-.ha-library-heading { gap: 24px; }
-.ha-library-eyebrow { font-size: 12px; color: rgb(var(--ha-on-surface-variant)); margin-bottom: 10px; }
-.ha-habits h1 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; letter-spacing: -.04em; }
-.ha-library-intro { margin-top: 10px; font-size: 14px; line-height: 1.6; color: rgb(var(--ha-on-surface-variant)); }
-.ha-habits #category-filters { margin-inline: 0; padding-inline: 4px; padding-block: 4px; gap: 8px; }
-.ha-habits .cat-filter { font-family: inherit; font-size: 13px; font-weight: 500; min-height: 44px; padding-inline: 20px; border: 1px solid rgb(var(--ha-outline-variant) / .45); background: rgb(var(--ha-surface-container-lowest)); color: rgb(var(--ha-on-surface-variant)); }
-.ha-habits .cat-filter[aria-pressed="true"] { border-color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary)); color: rgb(var(--ha-on-primary)); }
-.ha-habits #habits-list { gap: 20px; align-items: stretch; }
-body main.ha-habits .ha-library-card { display: flex; flex-direction: column; padding: 24px; gap: 0; border: 1px solid rgb(var(--ha-outline-variant) / .38); box-shadow: var(--ha-card-shadow); }
-.ha-library-card-top { gap: 14px; align-items: center; }
-.ha-library-habit-link { min-width: 0; flex: 1; gap: 14px; border-radius: 12px; }
-.ha-library-icon { width: 44px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.ha-library-icon .material-symbols-outlined { font-size: 24px; }
-.ha-library-card-copy { min-width: 0; }
-.ha-library-card h2 { color: rgb(var(--ha-on-surface)); font-size: 18px; line-height: 1.4; letter-spacing: -.025em; font-weight: 600; text-wrap: initial; }
-.ha-library-category { font-size: 12px; line-height: 1.5; margin-top: 4px; color: rgb(var(--ha-on-surface-variant)); }
-.ha-library-card .habit-toggle { width: 44px; height: 44px; min-width: 44px; border-width: 1px; }
-.ha-library-card .habit-toggle .material-symbols-outlined { font-size: 22px; }
-.ha-library-card-meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; padding-top: 24px; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
-.ha-library-streak { display: inline-flex; gap: 4px; align-items: center; font-variant-numeric: tabular-nums; }
-.ha-library-streak .material-symbols-outlined { font-size: 15px; color: var(--habit-accent); }
-.ha-library-card-bottom { display: flex; align-items: center; gap: 20px; margin-top: 10px; padding-top: 14px; border-top: 1px solid rgb(var(--ha-outline-variant) / .25); }
-.ha-library-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex: 1; gap: 8px; min-width: 0; }
-.ha-library-day { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 10px; line-height: 1.4; color: rgb(var(--ha-on-surface-variant)); }
-.ha-library-day-bar { width: 100%; height: 8px; border-radius: 4px; background: rgb(var(--ha-surface-container-high)); }
-.ha-library-day.is-complete .ha-library-day-bar { background: var(--habit-accent); }
-.ha-library-day.is-today { color: rgb(var(--ha-on-surface)); font-weight: 700; }
-.ha-library-day.is-today .ha-library-day-bar { outline: 1px solid var(--habit-accent); outline-offset: 2px; }
-.ha-library-detail-link { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 12px; color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary) / .05); }
-.ha-library-detail-link .material-symbols-outlined { font-size: 20px; }
-.ha-habits .ha-library-empty { grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: rgb(var(--ha-surface-container-lowest)); border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); }
-.ha-library-empty > .material-symbols-outlined { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 20px; font-size: 28px; color: rgb(var(--ha-primary)); background: rgb(var(--ha-primary) / .06); margin-bottom: 20px; }
-.ha-library-empty h2 { font-size: 22px; font-weight: 600; letter-spacing: -.025em; }
-.ha-library-empty p { margin: 8px 0 24px; font-size: 14px; color: rgb(var(--ha-on-surface-variant)); }
-.ha-library-empty a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 12px 20px; border-radius: 12px; background: rgb(var(--ha-primary)); color: rgb(var(--ha-on-primary)); font-size: 14px; font-weight: 600; }
-.ha-library-empty a .material-symbols-outlined { font-size: 18px; }
-
-body > main.ha-detail { max-width: 760px; padding-inline: 24px; }
-.ha-detail > section + section { margin-top: 24px; }
-.ha-detail .ha-detail-summary { padding: 28px; border: 1px solid rgb(var(--ha-outline-variant) / .38); border-radius: var(--ha-card-radius); background: rgb(var(--ha-surface-container-lowest)); box-shadow: var(--ha-card-shadow); }
-.ha-detail-identity { gap: 18px; padding-bottom: 28px; }
-.ha-detail #habit-icon-wrap { width: 64px; height: 68px; border-radius: 20px; }
-.ha-detail #habit-icon { font-size: 32px; }
-.ha-detail #habit-name { font-size: clamp(24px, 3vw, 32px); line-height: 1.2; letter-spacing: -.035em; font-weight: 600; text-wrap: initial; }
-.ha-detail #habit-name + div { margin-top: 10px; }
-.ha-detail :is(#habit-category, #habit-since) { font-family: inherit; font-size: 12px; line-height: 1.5; text-transform: none; letter-spacing: 0; }
-.ha-detail #complete-today-btn { width: 48px; height: 48px; border-width: 1px; }
-.ha-detail .ha-detail-stats { gap: 0; padding-top: 24px; border-top: 1px solid rgb(var(--ha-outline-variant) / .3); }
-.ha-detail .ha-detail-stats > div { min-width: 0; padding: 0 16px; background: transparent; border: 0; border-radius: 0; }
-.ha-detail .ha-detail-stats > div:first-child { padding-left: 0; }
-.ha-detail .ha-detail-stats > div:last-child { padding-right: 0; }
-.ha-detail .ha-detail-stats > div + div { border-left: 1px solid rgb(var(--ha-outline-variant) / .3); }
-.ha-detail .ha-detail-stats > div > span { font-family: inherit; font-size: 11px; line-height: 1.5; text-transform: none; letter-spacing: 0; margin-bottom: 10px; }
-.ha-detail .ha-detail-stats > div > div { gap: 4px; flex-wrap: wrap; }
-.ha-detail .ha-detail-stats [id^="stat-"] { font-size: 28px; line-height: 1.25; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-.ha-detail .ha-detail-stats .text-body-md { font-size: 12px; }
-.ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) > div { padding: 24px; }
-.ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) h3 { font-size: 18px; font-weight: 600; letter-spacing: -.025em; }
-.ha-detail-calendar-heading { flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
-.ha-detail #month-stat-subtitle { font-family: inherit; font-size: 12px; line-height: 1.6; letter-spacing: 0; margin-top: 4px; }
-.ha-detail .ha-detail-month-nav { padding: 0 4px; gap: 2px; border-radius: 12px; background: rgb(var(--ha-primary) / .04); border-color: rgb(var(--ha-outline-variant) / .3); }
-.ha-detail :is(#prev-month-btn, #next-month-btn) { width: 44px; height: 44px; border-radius: 10px; }
-.ha-detail #current-month-title { font-family: inherit; font-size: 12px; letter-spacing: 0; min-width: 70px; text-align: center; }
-.ha-detail .ha-detail-legend { gap: 18px; flex-wrap: wrap; border-color: rgb(var(--ha-outline-variant) / .25); font-family: inherit; letter-spacing: 0; padding-bottom: 16px; margin-bottom: 18px; }
-.ha-detail .ha-detail-weekdays { font-family: inherit; font-size: 11px; letter-spacing: 0; text-transform: none; margin-bottom: 12px; }
-.ha-detail #monthly-calendar-grid { gap: 8px; }
-.ha-detail #monthly-calendar-grid > div { min-width: 0; height: 44px; border-radius: 10px; }
-.ha-detail #monthly-calendar-grid > div > span { font-family: inherit; font-size: 13px; }
-.ha-detail #monthly-calendar-grid [data-status="none"] { color: rgb(var(--ha-on-surface-variant) / .7); }
-.ha-detail #monthly-calendar-grid [aria-current="date"] { --tw-ring-color: rgb(var(--ha-primary)); --tw-ring-offset-color: rgb(var(--ha-surface-container-lowest)); }
-.ha-detail #monthly-bars { display: flex; flex-direction: column; gap: 18px; }
-.ha-detail #monthly-bars > div { margin: 0; gap: 14px; }
-.ha-detail #monthly-bars > div > span { font-family: inherit; font-size: 12px; line-height: 1.5; letter-spacing: 0; }
-.ha-detail #monthly-bars [role="progressbar"] { height: 8px; }
-.ha-detail .stat-bar { transition-duration: 200ms; }
-.ha-detail .ha-detail-why > div { background: rgb(var(--ha-primary) / .04); box-shadow: none; border-color: rgb(var(--ha-primary) / .15); }
-.ha-detail .ha-detail-why #habit-why { font-size: 15px; line-height: 1.7; }
-.ha-detail .ha-detail-why #habit-motivation { font-size: 13px; line-height: 1.7; }
-.ha-habits :is(a, button):focus-visible, .ha-detail :is(a, button):focus-visible { outline: 2px solid rgb(var(--ha-primary)); outline-offset: 4px; }
-@media (hover: hover) {
-    .ha-habits .cat-filter:not([aria-pressed="true"]):hover, .ha-library-detail-link:hover { background: rgb(var(--ha-primary) / .08); }
-    body main.ha-habits .ha-library-card:hover { border-color: rgb(var(--ha-outline-variant) / .8); }
-}
-@media (max-width: 767px) {
-    body > main:is(.ha-habits, .ha-detail) { padding-inline: 20px; }
-    body main.ha-habits .ha-library-card { padding: 20px; }
-    .ha-habits #habits-list { gap: 16px; }
-    .ha-habits #category-filters { margin-inline: -4px; }
-    .ha-library-card-meta { padding-top: 22px; }
-    .ha-detail .ha-detail-summary { padding: 20px; }
-    .ha-detail .ha-detail-identity { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding-bottom: 24px; }
-    .ha-detail-identity > .flex-1 { min-width: 0; grid-column: 1 / -1; grid-row: 2; }
-    .ha-detail #habit-icon-wrap { width: 48px; height: 52px; border-radius: 16px; }
-    .ha-detail #habit-icon { font-size: 26px; }
-    .ha-detail #complete-today-btn { width: 44px; height: 44px; grid-column: 2; grid-row: 1; }
-    .ha-detail .ha-detail-stats { padding-top: 0; }
-    .ha-detail .ha-detail-stats > div { padding: 20px 16px; }
-    .ha-detail .ha-detail-stats > div:nth-child(odd) { padding-left: 0; border-left: 0; }
-    .ha-detail .ha-detail-stats > div:nth-child(even) { padding-right: 0; }
-    .ha-detail .ha-detail-stats > div:nth-child(n+3) { border-top: 1px solid rgb(var(--ha-outline-variant) / .3); padding-bottom: 0; }
-    .ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) > div { padding: 20px; }
-    .ha-detail #monthly-calendar-grid { gap: 5px; }
-    .ha-detail #monthly-calendar-grid > div { height: 36px; border-radius: 8px; }
-}
-@media (max-width: 479px) {
-    .ha-detail-calendar-heading { align-items: flex-start; }
-    .ha-detail .ha-detail-month-nav { width: 100%; justify-content: space-between; }
-}
-@media (max-width: 359px) {
-    body > main:is(.ha-habits, .ha-detail) { padding-inline: 16px; }
-    body main.ha-habits .ha-library-card, .ha-detail .ha-detail-summary, .ha-detail :is(.ha-detail-calendar, .ha-detail-history, .ha-detail-why) > div { padding: 18px; }
-    .ha-library-habit-link { gap: 10px; }
-    .ha-library-card h2 { font-size: 17px; }
-    .ha-library-card-bottom { gap: 12px; }
-    .ha-library-week { gap: 6px; }
-    .ha-detail #monthly-calendar-grid { gap: 4px; }
+    body > main { padding-inline: 14px; }
+    .ha-dashboard .ha-dashboard-greeting #greeting { font-size: 14px; }
+    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 72px; gap: 8px; }
+    .ha-dashboard-ring { width: 72px; height: 72px; }
+    .ha-dashboard-week { gap: 4px; }
+    .ha-dashboard-day { width: 14px; }
+    .ha-detail #habit-name-title { max-width: 140px; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .ha-habits :is(.habit-toggle, .cat-filter), .ha-detail .stat-bar { transition: none; }
+    .ha-habit-card, .ha-progress-card, .ha-rpg-xp-seg { transition: none; }
+    .ha-rpg-buddy, .ha-rpg-star-a, .ha-rpg-star-b { animation: none !important; opacity: 1 !important; }
+    .fade-up { opacity: 1; transform: none; }
 }

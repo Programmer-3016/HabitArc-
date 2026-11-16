@@ -66,7 +66,7 @@ const HabitArc = (() => {
         habits: [],
         completionHistory: {},
         settings: {
-            theme: 'light', // "light" | "dark" | "forest" | "midnight"
+            theme: 'dark', // "dark" | "light" | "forest" | "midnight"
             goalDuration: 30,
             startWeekOn: 'monday',
             defaultReminderTime: '09:00',
@@ -1386,11 +1386,15 @@ const HabitArc = (() => {
 
     // ─── Theme ──────────────────────────────────────
     function getTheme() {
-        return getSettings().theme || 'light';
+        const s = getSettings();
+        if (s.theme && (s.theme !== 'light' || s.rpgThemeChosen)) {
+            return s.theme;
+        }
+        return 'dark';
     }
 
     function setTheme(theme) {
-        updateSettings({ theme });
+        updateSettings({ theme, rpgThemeChosen: true });
         applyTheme();
     }
 

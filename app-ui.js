@@ -6,13 +6,19 @@
     try {
         const uid = localStorage.getItem('habitarc_active_uid');
         const data = JSON.parse(localStorage.getItem(uid ? `habitarc_data:${uid}` : 'habitarc_data') || '{}');
-        const theme = data?.settings?.theme;
-        if (['light', 'dark', 'forest', 'midnight'].includes(theme)) {
+        const rawTheme = data?.settings?.theme;
+        const theme = (!rawTheme || (rawTheme === 'light' && !data?.settings?.rpgThemeChosen)) ? 'dark' : rawTheme;
+        if (['light', 'sage', 'dark', 'forest', 'midnight', 'purple', 'ocean', 'sunset'].includes(theme)) {
+            const isLight = theme === 'light' || theme === 'sage';
             document.documentElement.setAttribute('data-theme', theme);
-            document.documentElement.classList.toggle('dark', theme !== 'light');
-            document.documentElement.classList.toggle('light', theme === 'light');
+            document.documentElement.classList.toggle('dark', !isLight);
+            document.documentElement.classList.toggle('light', isLight);
         }
-    } catch { /* Storage can be unavailable or corrupt; the normal light fallback remains. */ }
+    } catch { /* Storage can be unavailable or corrupt; Night RPG fallback applies below. */
+        document.documentElement?.setAttribute?.('data-theme', 'dark');
+        document.documentElement?.classList?.add('dark');
+        document.documentElement?.classList?.remove('light');
+    }
     const config = window.tailwind?.config;
     const colors = config?.theme?.extend?.colors;
     if (colors) {
@@ -90,5 +96,19 @@
         window.addEventListener('pageshow', () => {
             document.querySelectorAll('.ha-nav-pending').forEach(link => link.classList.remove('ha-nav-pending'));
         });
+
+        const metaColors = {
+            dark: '#141212', light: '#f4f2ea', sage: '#e5f0da',
+            forest: '#0b1a14', midnight: '#0c131e', ocean: '#091c24',
+            purple: '#171026', sunset: '#231116'
+        };
+        const syncMetaTheme = () => {
+            const active = document.documentElement?.getAttribute('data-theme') || 'dark';
+            document.querySelector?.('meta[name="theme-color"]')?.setAttribute('content', metaColors[active] || '#141212');
+        };
+        syncMetaTheme();
+        if (typeof MutationObserver !== 'undefined') {
+            new MutationObserver(syncMetaTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        }
     });
 })();

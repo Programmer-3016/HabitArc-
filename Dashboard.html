@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="HabitArc" name="application-name"/>
-<meta content="#012d1d" name="theme-color"/>
+<meta content="#141212" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
@@ -14,7 +14,7 @@
 <script defer src="pwa-register.js"></script>
 <title>HabitArc Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
@@ -145,9 +145,18 @@
 <!-- TOP BAR — Mobile -->
 <!-- ═══════════════════════════════════════════════════════ -->
 <header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
-    <a href="Dashboard.html" class="flex items-center gap-2.5">
-        <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
-        <span class="text-lg text-primary font-bold tracking-tight">HabitArc</span>
+    <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+        <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="11" width="2" height="2" fill="#ffffff"/>
+            <rect x="4" y="9" width="2" height="2" fill="#ffffff"/>
+            <rect x="6" y="7" width="2" height="2" fill="#ffffff"/>
+            <rect x="8" y="9" width="2" height="2" fill="#ffffff"/>
+            <rect x="10" y="7" width="2" height="2" fill="#ffffff"/>
+            <rect x="12" y="5" width="2" height="2" fill="#ffffff"/>
+            <rect x="9" y="3" width="5" height="2" fill="#47e393"/>
+            <rect x="12" y="3" width="2" height="5" fill="#47e393"/>
+        </svg>
+        <span class="ha-brand-wordmark">HABITARC</span>
     </a>
     <div class="flex items-center gap-2.5">
         <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
@@ -166,9 +175,18 @@
 <header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
     <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
         <!-- Logo -->
-        <a href="Dashboard.html" class="flex items-center gap-2.5">
-            <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
-            <span class="text-[22px] text-primary font-extrabold tracking-tight leading-none">HabitArc</span>
+        <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+            <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="2" y="11" width="2" height="2" fill="#ffffff"/>
+                <rect x="4" y="9" width="2" height="2" fill="#ffffff"/>
+                <rect x="6" y="7" width="2" height="2" fill="#ffffff"/>
+                <rect x="8" y="9" width="2" height="2" fill="#ffffff"/>
+                <rect x="10" y="7" width="2" height="2" fill="#ffffff"/>
+                <rect x="12" y="5" width="2" height="2" fill="#ffffff"/>
+                <rect x="9" y="3" width="5" height="2" fill="#47e393"/>
+                <rect x="12" y="3" width="2" height="5" fill="#47e393"/>
+            </svg>
+            <span class="ha-brand-wordmark">HABITARC</span>
         </a>
 
         <!-- Center Navigation — clean text links -->
@@ -204,39 +222,105 @@
 <!-- ═══════════════════════════════════════════════════════ -->
 <main class="ha-dashboard flex-1 w-full max-w-5xl mx-auto px-5 md:px-8 pb-32 md:pb-12 pt-6 md:pt-8">
 
+    <!-- Live Night Skyline & Pixel Habit Buddy -->
+    <div class="ha-rpg-skyline-banner fade-up fade-up-1">
+        <svg class="ha-rpg-skyline-svg" viewBox="0 0 360 72" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">
+            <rect width="360" height="72" fill="var(--rpg-sky-bg, #141111)"/>
+            <rect x="318" y="8" width="16" height="16" fill="var(--rpg-moon, #e7e5e4)"/>
+            <rect x="314" y="8" width="10" height="12" fill="var(--rpg-sky-bg, #141111)"/>
+            <rect class="ha-rpg-star-a" x="22" y="10" width="3" height="3" fill="#ffffff"/>
+            <rect class="ha-rpg-star-b" x="74" y="16" width="2" height="2" fill="#facc15"/>
+            <rect class="ha-rpg-star-b" x="148" y="9" width="3" height="3" fill="#ffffff"/>
+            <rect class="ha-rpg-star-a" x="212" y="15" width="2" height="2" fill="#ffffff"/>
+            <rect class="ha-rpg-star-b" x="268" y="10" width="3" height="3" fill="#facc15"/>
+            <rect x="6" y="38" width="34" height="34" fill="var(--rpg-sky-b1, #231f1f)"/>
+            <rect x="44" y="28" width="42" height="44" fill="var(--rpg-sky-b2, #2b2626)"/>
+            <rect x="90" y="42" width="32" height="30" fill="var(--rpg-sky-b3, #1e1b1b)"/>
+            <rect x="126" y="32" width="48" height="40" fill="var(--rpg-sky-b1, #262222)"/>
+            <rect x="180" y="40" width="36" height="32" fill="var(--rpg-sky-b3, #1f1c1c)"/>
+            <rect x="222" y="25" width="46" height="47" fill="var(--rpg-sky-b2, #2b2626)"/>
+            <rect x="274" y="36" width="40" height="36" fill="var(--rpg-sky-b1, #221e1e)"/>
+            <rect x="320" y="30" width="34" height="42" fill="var(--rpg-sky-b2, #282323)"/>
+            <rect class="ha-rpg-star-a" x="14" y="46" width="4" height="4" fill="#facc15"/>
+            <rect x="52" y="36" width="4" height="4" fill="var(--rpg-cta, #ff6b4a)"/>
+            <rect x="64" y="36" width="4" height="4" fill="#facc15"/>
+            <rect class="ha-rpg-star-b" x="52" y="46" width="4" height="4" fill="#facc15"/>
+            <rect x="136" y="40" width="4" height="4" fill="#facc15"/>
+            <rect class="ha-rpg-star-a" x="150" y="48" width="4" height="4" fill="var(--rpg-cta, #ff6b4a)"/>
+            <rect x="234" y="34" width="4" height="4" fill="#facc15"/>
+            <rect class="ha-rpg-star-b" x="248" y="34" width="4" height="4" fill="var(--rpg-mint, #47e393)"/>
+            <rect x="284" y="44" width="4" height="4" fill="var(--rpg-cta, #ff6b4a)"/>
+            <rect x="330" y="40" width="4" height="4" fill="#facc15"/>
+        </svg>
+        <svg class="ha-rpg-buddy" width="40" height="40" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
+            <rect x="7" y="3" width="2" height="1" fill="#121215"/>
+            <rect x="4" y="4" width="8" height="1" fill="#121215"/>
+            <rect x="3" y="5" width="1" height="8" fill="#121215"/>
+            <rect x="12" y="5" width="1" height="8" fill="#121215"/>
+            <rect x="4" y="5" width="8" height="8" fill="#ffffff"/>
+            <rect x="4" y="13" width="2" height="1" fill="#121215"/>
+            <rect x="7" y="12" width="2" height="1" fill="#121215"/>
+            <rect x="10" y="13" width="2" height="1" fill="#121215"/>
+            <rect x="5" y="7" width="2" height="2" fill="#121215"/>
+            <rect x="9" y="7" width="2" height="2" fill="#121215"/>
+            <rect x="4" y="9" width="1" height="1" fill="#ff6b4a"/>
+            <rect x="11" y="9" width="1" height="1" fill="#ff6b4a"/>
+        </svg>
+        <div id="rpg-live-pill" class="ha-rpg-live-pill">
+            <span class="ha-rpg-live-dot" aria-hidden="true"></span>
+            <span id="rpg-live-status">LIVE DAY 0</span>
+        </div>
+    </div>
+
     <!-- Greeting -->
     <section class="ha-dashboard-greeting fade-up fade-up-1">
         <p id="today-date" class="text-sm text-on-surface-variant geist font-medium">Loading...</p>
         <h1 id="greeting" class="text-on-surface"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></h1>
     </section>
 
-    <!-- Focused hero: existing progress and streaks in one surface. -->
+    <!-- Focused hero: RPG Scanline Dialogue Card -->
     <section class="ha-progress-card ha-dashboard-hero fade-up fade-up-2" aria-labelledby="progress-title">
+        <div class="ha-rpg-hero-toprow">
+            <h2 id="progress-title" class="ha-dashboard-eyebrow">▶ Today's quests</h2>
+            <span id="rpg-xp-keycap" class="ha-rpg-keycap">0% XP</span>
+        </div>
         <div class="ha-dashboard-progress">
             <div class="ha-dashboard-progress-copy">
-                <h2 id="progress-title" class="ha-dashboard-eyebrow text-on-surface-variant geist">Today's progress</h2>
-                <p class="ha-dashboard-count text-on-surface"><span id="progress-completed">0</span> <span class="ha-dashboard-total">of <span id="progress-total">0</span></span></p>
-                <p class="ha-dashboard-caption text-on-surface-variant">habits completed</p>
+                <p class="ha-dashboard-count"><span id="progress-completed">0</span> <span class="ha-dashboard-total">of <span id="progress-total">0</span></span></p>
+                <p class="ha-dashboard-caption">habits completed</p>
             </div>
             <div id="progress-ring" class="ha-dashboard-ring" role="progressbar" aria-label="Today's habit completion" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                 <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2" class="stroke-surface-container"/>
-                    <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2" stroke-dasharray="0, 100" stroke-linecap="round" class="stroke-primary-container progress-ring-circle"/>
+                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" class="stroke-surface-container"/>
+                    <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" stroke-dasharray="0, 100" stroke-linecap="butt" class="stroke-primary-container progress-ring-circle"/>
                 </svg>
                 <div class="ha-dashboard-ring-label">
-                    <span id="progress-pct" class="text-on-surface">0%</span>
+                    <span id="progress-pct">0%</span>
                 </div>
             </div>
         </div>
-        <p id="progress-msg" class="text-on-surface-variant">Start your day strong.</p>
+        <p id="progress-msg">Start your day strong.</p>
+        <div class="ha-rpg-xp-track" aria-hidden="true">
+            <span id="rpg-xp-0" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-1" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-2" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-3" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-4" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-5" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-6" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-7" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-8" class="ha-rpg-xp-seg"></span>
+            <span id="rpg-xp-9" class="ha-rpg-xp-seg"></span>
+        </div>
         <div class="ha-dashboard-streaks">
             <div class="ha-dashboard-stat">
-                <h3 class="text-on-surface-variant"><span class="material-symbols-outlined" aria-hidden="true">local_fire_department</span>Current streak</h3>
-                <p class="text-on-surface"><span id="current-streak">0</span><span class="ha-dashboard-unit text-on-surface-variant">days</span></p>
+                <h3><span class="material-symbols-outlined" aria-hidden="true">local_fire_department</span>Current streak</h3>
+                <p><span id="current-streak">0</span><span class="ha-dashboard-unit">days</span></p>
             </div>
             <div class="ha-dashboard-stat">
-                <h3 class="text-on-surface-variant"><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Best streak</h3>
-                <p class="text-on-surface"><span id="longest-streak">0</span><span class="ha-dashboard-unit text-on-surface-variant">days</span></p>
+                <h3><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Best streak</h3>
+                <p><span id="longest-streak">0</span><span class="ha-dashboard-unit">days</span></p>
             </div>
         </div>
     </section>
@@ -340,6 +424,22 @@
         document.getElementById('progress-arc').setAttribute('stroke-dasharray', pct + ', 100');
         document.getElementById('habits-remaining').textContent = progress.total === 0 ? 'Nothing scheduled'
             : progress.completed === progress.total ? 'All done today' : `${progress.total - progress.completed} remaining`;
+
+        const xpKeycap = document.getElementById('rpg-xp-keycap');
+        if (xpKeycap) xpKeycap.textContent = `${pct}% XP`;
+        const filledSegs = Math.round(pct / 10);
+        for (let i = 0; i < 10; i++) {
+            const seg = document.getElementById(`rpg-xp-${i}`);
+            if (seg) seg.classList[i < filledSegs ? 'add' : 'remove']('is-filled');
+        }
+        const liveStatus = document.getElementById('rpg-live-status');
+        const livePill = document.getElementById('rpg-live-pill');
+        const isQuestClear = progress.total > 0 && progress.completed === progress.total;
+        if (liveStatus) {
+            const curStreak = HabitArc.getOverallCurrentStreak();
+            liveStatus.textContent = isQuestClear ? `QUEST CLEAR • ${curStreak}D` : `LIVE DAY ${curStreak}`;
+        }
+        if (livePill) livePill.classList[isQuestClear ? 'add' : 'remove']('is-clear');
 
         const msgs = [
             pct === 100 ? 'Perfect day! All habits completed. 🎉' :

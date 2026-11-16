@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="HabitArc" name="application-name"/>
-<meta content="#012d1d" name="theme-color"/>
+<meta content="#141212" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
@@ -15,7 +15,7 @@
 <title>HabitArc - Settings</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&amp;family=Geist:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&amp;family=Geist:wght@500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
 	tailwind.config = {
@@ -199,9 +199,9 @@
 <body class="bg-background text-on-background font-body-md min-h-screen pb-24 md:pb-0">
 <!-- Top App Bar (Mobile) -->
 <header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
-    <a href="Dashboard.html" class="flex items-center gap-2.5">
-        <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
-        <span class="text-lg text-primary font-bold tracking-tight">HabitArc</span>
+    <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+        <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="11" width="2" height="2" fill="#ffffff"/><rect x="4" y="9" width="2" height="2" fill="#ffffff"/><rect x="6" y="7" width="2" height="2" fill="#ffffff"/><rect x="8" y="9" width="2" height="2" fill="#ffffff"/><rect x="10" y="7" width="2" height="2" fill="#ffffff"/><rect x="12" y="5" width="2" height="2" fill="#ffffff"/><rect x="9" y="3" width="5" height="2" fill="#47e393"/><rect x="12" y="3" width="2" height="5" fill="#47e393"/></svg>
+        <span class="ha-brand-wordmark">HABITARC</span>
     </a>
     <div class="flex items-center gap-2.5">
         <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
@@ -217,9 +217,9 @@
 <!-- Desktop Top Bar (Full-width, clean, minimal) -->
 <header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
     <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
-        <a href="Dashboard.html" class="flex items-center gap-2.5">
-            <img src="logo.png" alt="HabitArc" class="w-8 h-8 object-contain"/>
-            <span class="text-[22px] text-primary font-extrabold tracking-tight leading-none">HabitArc</span>
+        <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+            <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="11" width="2" height="2" fill="#ffffff"/><rect x="4" y="9" width="2" height="2" fill="#ffffff"/><rect x="6" y="7" width="2" height="2" fill="#ffffff"/><rect x="8" y="9" width="2" height="2" fill="#ffffff"/><rect x="10" y="7" width="2" height="2" fill="#ffffff"/><rect x="12" y="5" width="2" height="2" fill="#ffffff"/><rect x="9" y="3" width="5" height="2" fill="#47e393"/><rect x="12" y="3" width="2" height="5" fill="#47e393"/></svg>
+            <span class="ha-brand-wordmark">HABITARC</span>
         </a>
         <nav class="flex items-center gap-1">
             <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Dashboard.html">Dashboard</a>
@@ -252,32 +252,68 @@
     <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Theme & Appearance</h3>
     <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="theme-selector-grid">
-            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="light">
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">light_mode</span>
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="dark">
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#141212;">
+                    <span class="w-3.5 h-3.5 block" style="background:#ff6b4a;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#47e393;"></span>
                 </div>
-                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Light</span>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Night RPG</span>
             </button>
 
-            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="dark">
-                <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">dark_mode</span>
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="light">
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#f4f2ea;">
+                    <span class="w-3.5 h-3.5 block" style="background:#c4b5fd;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#facc15;"></span>
                 </div>
-                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Dark</span>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Paper RPG</span>
+            </button>
+
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="sage">
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#e5f0da;">
+                    <span class="w-3.5 h-3.5 block" style="background:#47e393;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#0e2a1d;"></span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Sage Pixel</span>
             </button>
 
             <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="forest">
-                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">park</span>
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#0b1a14;">
+                    <span class="w-3.5 h-3.5 block" style="background:#47e393;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#facc15;"></span>
                 </div>
                 <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Forest</span>
             </button>
 
             <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="midnight">
-                <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">bedtime</span>
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#0c131e;">
+                    <span class="w-3.5 h-3.5 block" style="background:#38bdf8;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#bae6fd;"></span>
                 </div>
                 <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Midnight</span>
+            </button>
+
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="ocean">
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#091c24;">
+                    <span class="w-3.5 h-3.5 block" style="background:#2dd4bf;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#99f6e4;"></span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Ocean</span>
+            </button>
+
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="purple">
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#171026;">
+                    <span class="w-3.5 h-3.5 block" style="background:#c084fc;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#f472b6;"></span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Purple</span>
+            </button>
+
+            <button class="theme-select-btn btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all" data-theme-val="sunset">
+                <div class="w-9 h-9 border-2 border-black flex items-center justify-center relative overflow-hidden" style="background:#231116;">
+                    <span class="w-3.5 h-3.5 block" style="background:#fb7185;"></span>
+                    <span class="w-3.5 h-3.5 block" style="background:#fbbf24;"></span>
+                </div>
+                <span class="font-headline-md text-xs sm:text-sm font-bold text-on-surface">Sunset</span>
             </button>
         </div>
     </div>
