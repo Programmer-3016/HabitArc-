@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildHabitCoachContext } from '../habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown } from '../habit-analytics.js';
 
 const html = readFileSync(new URL('../Insights.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
-    .replace(/^import\s+\{\s*buildHabitCoachContext\s*\}\s+from\s+['"].+?['"];?\s*/m, '');
+    .replace(/^import\s+\{[^}]+\}\s+from\s+['"].+?['"];?\s*/m, '');
 const now = Date.parse('2026-11-15T12:00:00Z');
 test('Coach is prioritised directly after Insights overview for mobile source order', () => {
     assert.ok(html.indexOf('aria-label="Progress overview"') < html.indexOf('id="ai-coach-title"'));
@@ -24,8 +24,14 @@ function insights({ empty = false, signedIn = false } = {}) {
     const requests = [];
     function element() {
         const classes = new Set();
+        let htmlMarkup = '';
+        let plainText = '';
         return {
-            textContent: '', innerHTML: '', value: '', disabled: false, attrs: {}, handlers: {},
+            get textContent() { return plainText; },
+            set textContent(v) { plainText = String(v ?? ''); },
+            get innerHTML() { return htmlMarkup; },
+            set innerHTML(v) { htmlMarkup = String(v ?? ''); plainText = htmlMarkup.replace(/<[^>]+>/g, ''); },
+            value: '', disabled: false, attrs: {}, handlers: {},
             nextElementSibling: { textContent: '' }, style: { setProperty() {} },
             classList: { add: value => classes.add(value), remove: value => classes.delete(value), contains: value => classes.has(value), toggle: (value, on) => on ? classes.add(value) : classes.delete(value) },
             setAttribute(name, value) { this.attrs[name] = String(value); },
@@ -67,7 +73,7 @@ function insights({ empty = false, signedIn = false } = {}) {
         flushCloudSync: async () => {},
     };
     vm.runInNewContext(source, {
-        HabitArc: app, buildHabitCoachContext, Date: Clock, Intl, AbortSignal, AbortController, navigator: { onLine: true },
+        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, Date: Clock, Intl, AbortSignal, AbortController, navigator: { onLine: true },
         console: { warn() {} },
         document: { getElementById: id => elements.get(id) || null, addEventListener: () => {}, hidden: false },
         window: { addEventListener: (name, handler) => events.set(name, handler) },

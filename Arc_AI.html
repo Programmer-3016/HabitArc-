@@ -249,12 +249,15 @@
         </div>
 
         <article id="ai-coach-answer-card" class="hidden ha-arc-answer-card" aria-live="polite">
-            <div class="ha-arc-ht-strip">
-                <span class="ha-arc-spot-kicker">▶ ARC RESPONSE</span>
-                <span class="ha-arc-spot-stat">SYNCED</span>
+            <div class="ha-arc-resp-hdr">
+                <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
+                <div class="ha-arc-resp-tools">
+                    <span class="ha-arc-resp-tag">28D SYNCED</span>
+                    <button id="ai-coach-copy-btn" type="button" class="ha-arc-copy-btn" aria-label="Copy response">COPY</button>
+                </div>
             </div>
             <div class="ha-arc-answer-body">
-                <p id="ai-coach-answer" class="ha-arc-answer-text"></p>
+                <div id="ai-coach-answer" class="ha-arc-answer-text ha-md-prose"></div>
                 <p id="ai-coach-evidence" class="ha-arc-evidence"></p>
                 <div id="ai-coach-action-box" class="hidden ha-arc-action-card">
                     <div class="ha-arc-action-info">
@@ -319,7 +322,7 @@
 
 <script src="app.js"></script>
 <script type="module">
-import { buildHabitCoachContext } from './habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.js';
 (function initArcAI() {
     if (typeof HabitArc === 'undefined') return;
 
@@ -364,6 +367,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
     const actionTitle = document.getElementById('ai-coach-action-title');
     const actionMeta = document.getElementById('ai-coach-action-meta');
     const applyActionButton = document.getElementById('ai-coach-apply-btn');
+    const copyAnswerButton = document.getElementById('ai-coach-copy-btn');
 
     const THREAD_STORAGE_PREFIX = 'habitarc_arc_thread:';
 
@@ -581,6 +585,20 @@ import { buildHabitCoachContext } from './habit-analytics.js';
         actionBox.classList.remove('hidden');
     }
 
+    function renderHistoryList(turns) {
+        if (!historyEl) return;
+        historyEl.innerHTML = turns.map(turn => `
+            <div class="ha-arc-user-msg"><p>${HabitArc.escapeHTML(turn.question)}</p></div>
+            <article class="ha-arc-answer-card">
+                <div class="ha-arc-resp-hdr">
+                    <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
+                    <span class="ha-arc-resp-tag">28D SYNCED</span>
+                </div>
+                <div class="ha-arc-answer-body"><div class="ha-arc-answer-text ha-md-prose">${renderCoachMarkdown(turn.answer, HabitArc.escapeHTML)}</div></div>
+            </article>
+        `).join('');
+    }
+
     function renderThreadFromState() {
         if (!conversation.length) {
             if (historyEl) historyEl.innerHTML = '';
@@ -592,21 +610,11 @@ import { buildHabitCoachContext } from './habit-analytics.js';
         }
         const prior = conversation.slice(0, -1).slice(-4);
         const latest = conversation[conversation.length - 1];
-        if (historyEl) {
-            historyEl.innerHTML = prior.map(turn => `
-                <div class="ha-arc-user-msg"><p>${HabitArc.escapeHTML(turn.question)}</p></div>
-                <article class="ha-arc-answer-card">
-                    <div class="ha-arc-ht-strip">
-                        <span class="ha-arc-spot-kicker">▶ ARC RESPONSE</span>
-                        <span class="ha-arc-spot-stat">SYNCED</span>
-                    </div>
-                    <div class="ha-arc-answer-body"><p class="ha-arc-answer-text">${HabitArc.escapeHTML(turn.answer)}</p></div>
-                </article>
-            `).join('');
-        }
+        renderHistoryList(prior);
         if (askedEl) askedEl.textContent = latest.question;
         askedWrap?.classList.remove('hidden');
-        if (answerEl) answerEl.textContent = latest.answer;
+        if (answerEl) answerEl.innerHTML = renderCoachMarkdown(latest.answer, HabitArc.escapeHTML);
+        if (copyAnswerButton) copyAnswerButton.textContent = 'COPY';
         if (evidenceEl) evidenceEl.textContent = lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.';
         renderSuggestedAction(activeAction, { applied: activeActionApplied });
         answerCard?.classList.remove('hidden');
@@ -645,7 +653,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             try { localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${previousUid}`); } catch {}
         }
         if (historyEl) historyEl.innerHTML = '';
-        if (answerEl) answerEl.textContent = '';
+        if (answerEl) answerEl.innerHTML = '';
         if (askedEl) askedEl.textContent = '';
         if (evidenceEl) evidenceEl.textContent = '';
         renderSuggestedAction(null);
@@ -697,6 +705,14 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             owner = user.uid;
             await cancellable(HabitArc.flushCloudSync(), signal);
             const idToken = await cancellable(HabitArc.getAuthToken(), signal);
+            renderHistoryList(conversation.slice(-4));
+            if (askedEl) askedEl.textContent = question;
+            askedWrap?.classList.remove('hidden');
+            if (answerEl) answerEl.innerHTML = '<div class="ha-arc-skeleton" aria-hidden="true"><span class="ha-arc-skel-line"></span><span class="ha-arc-skel-line"></span><span class="ha-arc-skel-line is-short"></span></div>';
+            if (evidenceEl) evidenceEl.textContent = 'Analyzing your 28-day habit history…';
+            renderSuggestedAction(null);
+            answerCard?.classList.remove('hidden');
+            showThreadView(true);
             setStatus('Reviewing your synced history, goals and conversation…');
             const response = await fetch('/api/coach', {
                 method: 'POST',
@@ -757,6 +773,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             window.HabitArcUI?.announce?.('ARC AI response is ready.');
         } catch (error) {
             if (controller !== requestController || controller.signal.aborted) return;
+            renderThreadFromState();
             setStatus(
                 error?.name === 'TimeoutError'
                     ? 'This is taking too long. Your question is kept—check your connection and try again.'
@@ -811,6 +828,16 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             void askCoach();
         }
     });
+    copyAnswerButton?.addEventListener('click', async () => {
+        const latestAnswer = conversation.at(-1)?.answer;
+        if (!latestAnswer || typeof navigator === 'undefined' || !navigator.clipboard?.writeText) return;
+        try {
+            await navigator.clipboard.writeText(latestAnswer);
+            copyAnswerButton.textContent = 'COPIED ✓';
+            setTimeout(() => { copyAnswerButton.textContent = 'COPY'; }, 1600);
+        } catch { /* Clipboard permission optional */ }
+    });
+
     applyActionButton?.addEventListener('click', () => {
         if (!activeAction || activeActionApplied) return;
         if (activeAction.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {

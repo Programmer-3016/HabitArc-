@@ -269,7 +269,7 @@ Ask
 Coach response
 </div>
 <p id="ai-coach-asked" class="mt-2 text-xs text-on-surface-variant"></p>
-<p id="ai-coach-answer" class="mt-2 whitespace-pre-wrap font-body-md text-sm leading-relaxed text-on-surface"></p>
+<div id="ai-coach-answer" class="mt-2 font-body-md text-sm leading-relaxed text-on-surface ha-md-prose"></div>
 <p id="ai-coach-evidence" class="mt-3 text-xs text-on-surface-variant"></p>
 <div id="ai-coach-action-box" class="hidden ha-arc-action-card">
 <div class="ha-arc-action-info">
@@ -459,7 +459,7 @@ Coach response
 
 <script src="app.js"></script>
 <script type="module">
-import { buildHabitCoachContext } from './habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.js';
 (function initDashboardJourney() {
     if (typeof HabitArc === 'undefined') return;
 
@@ -800,11 +800,11 @@ import { buildHabitCoachContext } from './habit-analytics.js';
 
                 const safeAnswer = String(payload.answer).slice(0, 12000);
                 history.innerHTML = conversation.slice(-2).map(turn =>
-                    `<details><summary>${HabitArc.escapeHTML(turn.question)}</summary><p>${HabitArc.escapeHTML(turn.answer)}</p></details>`
+                    `<details><summary>${HabitArc.escapeHTML(turn.question)}</summary><div class="mt-2 ha-md-prose">${renderCoachMarkdown(turn.answer, HabitArc.escapeHTML)}</div></details>`
                 ).join('');
                 conversation = [...conversation.slice(-2), { question, answer: safeAnswer.slice(0, 4000) }];
                 asked.textContent = question;
-                answer.textContent = safeAnswer;
+                answer.innerHTML = renderCoachMarkdown(safeAnswer, HabitArc.escapeHTML);
                 const source = payload.snapshot;
                 evidence.textContent = source?.dateWindow
                     ? `Based on ${source.habitCount} synced habits · ${source.dateWindow.start} – ${source.dateWindow.end} · ${source.timeZone}. ` +

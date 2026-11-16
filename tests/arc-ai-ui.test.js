@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildHabitCoachContext } from '../habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown } from '../habit-analytics.js';
 
 const html = readFileSync(new URL('../Arc_AI.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
-    .replace(/^import\s+\{\s*buildHabitCoachContext\s*\}\s+from\s+['"].+?['"];?\s*/m, '');
+    .replace(/^import\s+\{[^}]+\}\s+from\s+['"].+?['"];?\s*/m, '');
 const now = Date.parse('2026-11-15T12:00:00Z');
 
 class Clock extends Date {
@@ -22,8 +22,14 @@ function arcAi({ empty = false, signedIn = false } = {}) {
     const announced = [];
     function element() {
         const classes = new Set();
+        let htmlMarkup = '';
+        let plainText = '';
         return {
-            textContent: '', innerHTML: '', value: '', placeholder: '', disabled: false,
+            get textContent() { return plainText; },
+            set textContent(v) { plainText = String(v ?? ''); },
+            get innerHTML() { return htmlMarkup; },
+            set innerHTML(v) { htmlMarkup = String(v ?? ''); plainText = htmlMarkup.replace(/<[^>]+>/g, ''); },
+            value: '', placeholder: '', disabled: false,
             attrs: {}, handlers: {}, scrollHeight: 36,
             style: { height: '', setProperty() {} },
             classList: {
@@ -67,7 +73,7 @@ function arcAi({ empty = false, signedIn = false } = {}) {
     };
     const body = element();
     vm.runInNewContext(source, {
-        HabitArc: app, buildHabitCoachContext, Date: Clock, Intl, AbortSignal, AbortController,
+        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, Date: Clock, Intl, AbortSignal, AbortController,
         setTimeout, clearTimeout,
         navigator: { onLine: true },
         console: { warn() {} },

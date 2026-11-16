@@ -1422,13 +1422,18 @@ body.ha-arc-body > main.ha-arc-ai {
 :root[data-theme="light"] .ha-arc-sq,
 :root[data-theme="sage"] .ha-arc-sq { box-shadow: var(--ha-card-shadow); border-color: rgb(var(--ha-outline-variant)); }
 .ha-arc-ht-dark {
-    background-color: rgb(var(--ha-surface-container));
+    background-color: rgba(255, 255, 255, 0.055);
     background-image: radial-gradient(rgb(var(--ha-on-surface) / .14) 1px, transparent 1px);
     background-size: 6px 6px;
     border-bottom: 1.5px solid #000000;
-    padding: 4px 10px;
+    padding: 5px 10px;
     display: flex; justify-content: space-between; align-items: center; gap: 6px;
-    font-family: 'Silkscreen', monospace; font-size: 9px; font-weight: 700; color: rgb(var(--ha-on-surface-variant));
+    font-family: 'Silkscreen', monospace; font-size: 9.5px; font-weight: 700; color: rgb(var(--ha-on-surface));
+}
+:root[data-theme="light"] .ha-arc-ht-dark,
+:root[data-theme="sage"] .ha-arc-ht-dark {
+    background-color: rgb(var(--ha-surface-container));
+    border-bottom-color: rgb(var(--ha-outline-variant));
 }
 .ha-arc-sq-body { padding: 9px 10px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
 .ha-arc-sq-ico {
@@ -1467,41 +1472,149 @@ body.ha-arc-body > main.ha-arc-ai {
 .ha-arc-momentum-title { display: block; font-size: 13.5px; font-weight: 700; color: rgb(var(--ha-on-surface)); }
 .ha-arc-momentum-sub { display: block; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); margin-top: 1px; }
 
-/* Active Thread View */
-.ha-arc-thread { display: flex; flex-direction: column; gap: 12px; padding-bottom: 6px; }
+/* Active Thread View (Calm ChatGPT/Claude Editorial Card) */
+.ha-arc-thread { display: flex; flex-direction: column; gap: 12px; padding-bottom: 8px; }
 .ha-arc-thread-hdr {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding-bottom: 8px; border-bottom: 1.5px solid rgb(var(--ha-outline-variant));
+    padding-bottom: 9px; border-bottom: 1px solid rgb(var(--ha-outline-variant) / .75);
 }
 .ha-arc-thread-id { display: flex; align-items: center; gap: 9px; min-width: 0; }
-.ha-arc-thread-name { font-family: 'Silkscreen', monospace; font-size: 11.5px; font-weight: 700; color: rgb(var(--ha-on-surface)); }
-.ha-arc-thread-sub { font-size: 11px; color: rgb(var(--ha-on-surface-variant)); }
+.ha-arc-thread-name { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: rgb(var(--ha-on-surface)); }
+.ha-arc-thread-sub { font-size: 11.5px; color: rgb(var(--ha-on-surface-variant)); }
 .ha-arc-new-btn {
-    min-height: 36px; padding: 6px 11px; cursor: pointer;
-    font-family: 'Silkscreen', monospace; font-size: 9.5px; font-weight: 700;
-    background: rgb(var(--ha-surface)); color: rgb(var(--ha-on-surface));
-    border: 2px solid rgb(var(--ha-outline-variant)); box-shadow: 2px 2px 0 #000000;
-}
-.ha-arc-thread-stack { display: flex; flex-direction: column; gap: 10px; }
-.ha-arc-user-msg {
-    align-self: flex-end; max-width: 86%;
+    min-height: 34px; padding: 5px 11px; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 700;
     background: rgb(var(--ha-surface-container)); color: rgb(var(--ha-on-surface));
     border: 1.5px solid rgb(var(--ha-outline-variant)); box-shadow: 2px 2px 0 #000000;
-    padding: 9px 13px; font-size: 13.5px; line-height: 1.45; overflow-wrap: anywhere;
+    transition: background-color 120ms ease, transform 100ms ease;
+}
+.ha-arc-new-btn:hover { background: rgb(var(--ha-surface-container-high)); }
+.ha-arc-thread-stack { display: flex; flex-direction: column; gap: 12px; }
+.ha-arc-user-msg {
+    align-self: flex-end; max-width: min(86%, 540px);
+    background: rgb(var(--ha-surface-container)); color: rgb(var(--ha-on-surface));
+    border: 1.5px solid rgb(var(--ha-outline-variant));
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+    padding: 9px 14px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere;
 }
 .ha-arc-answer-card {
-    background: var(--rpg-dialogue-bg, #ffffff); color: var(--rpg-dialogue-fg, #121010);
-    border: 2px solid #000000; box-shadow: 4px 4px 0 #000000; overflow: hidden;
+    background: rgb(var(--ha-surface-container-low));
+    color: rgb(var(--ha-on-surface));
+    border: 1.5px solid rgb(var(--ha-outline-variant));
+    border-top: 3px solid var(--rpg-cta, #ff6b4a);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.65);
+    overflow: hidden;
 }
-.ha-arc-answer-body { padding: 13px 14px; }
+:root[data-theme="light"] .ha-arc-answer-card,
+:root[data-theme="sage"] .ha-arc-answer-card {
+    background: #ffffff;
+    color: #171619;
+    border-color: rgb(var(--ha-outline-variant));
+    border-top: 3px solid var(--arc-accent, #7c3aed);
+    box-shadow: var(--ha-card-shadow);
+}
+.ha-arc-resp-hdr {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgb(var(--ha-outline-variant) / .55);
+}
+:root[data-theme="light"] .ha-arc-resp-hdr,
+:root[data-theme="sage"] .ha-arc-resp-hdr {
+    background: rgb(var(--ha-surface-container-low));
+}
+.ha-arc-resp-id {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.03em; color: rgb(var(--ha-on-surface));
+}
+.ha-arc-resp-tools { display: inline-flex; align-items: center; gap: 8px; }
+.ha-arc-resp-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    color: rgb(var(--ha-on-surface-variant));
+    padding: 2px 7px; background: rgb(var(--ha-surface-container));
+    border: 1px solid rgb(var(--ha-outline-variant) / .65);
+}
+.ha-arc-copy-btn {
+    min-height: 24px; padding: 2px 8px; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    color: rgb(var(--ha-on-surface-variant)); background: transparent;
+    border: 1px solid rgb(var(--ha-outline-variant) / .7);
+    transition: color 120ms ease, border-color 120ms ease;
+}
+.ha-arc-copy-btn:hover { color: rgb(var(--ha-on-surface)); border-color: var(--rpg-cta, #ff6b4a); }
+.ha-arc-answer-body { padding: 14px 16px; }
 .ha-arc-answer-text {
-    white-space: pre-wrap; font-size: 13.5px; line-height: 1.55;
-    color: var(--rpg-dialogue-fg, #121010); overflow-wrap: anywhere;
+    font-size: 14.5px; line-height: 1.65;
+    color: rgb(var(--ha-on-surface)); overflow-wrap: anywhere;
 }
+:root[data-theme="light"] .ha-arc-answer-text,
+:root[data-theme="sage"] .ha-arc-answer-text { color: #191c1d; }
+
+/* Structured Markdown Reading Styles (.ha-md-prose) */
+.ha-md-prose > :first-child { margin-top: 0 !important; }
+.ha-md-prose > :last-child { margin-bottom: 0 !important; }
+.ha-md-p { margin: 0 0 10px; }
+.ha-md-h {
+    margin: 14px 0 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14.5px; font-weight: 700; letter-spacing: -0.01em;
+    color: rgb(var(--ha-on-surface));
+}
+.ha-md-ul, .ha-md-ol {
+    margin: 0 0 11px; padding-left: 19px;
+    display: flex; flex-direction: column; gap: 5px;
+}
+.ha-md-ul { list-style-type: disc; }
+.ha-md-ol { list-style-type: decimal; }
+.ha-md-ul li::marker, .ha-md-ol li::marker {
+    color: var(--rpg-cta, #ff6b4a); font-weight: 700;
+}
+.ha-md-code {
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    padding: 1px 6px;
+    background: rgb(var(--ha-surface-container));
+    border: 1px solid rgb(var(--ha-outline-variant) / .75);
+    color: rgb(var(--ha-on-surface));
+}
+.ha-md-quote {
+    margin: 8px 0 11px; padding: 6px 12px;
+    border-left: 3px solid var(--rpg-cta, #ff6b4a);
+    background: rgb(var(--ha-surface-container) / .55);
+    color: rgb(var(--ha-on-surface-variant));
+    font-size: 13.5px;
+}
+.ha-md-pre {
+    margin: 8px 0 11px; padding: 10px 12px; overflow-x: auto;
+    background: #121010; color: #f4f2ea;
+    border: 1px solid rgb(var(--ha-outline-variant));
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.5;
+}
+.ha-md-hr { margin: 12px 0; border: 0; border-top: 1px dashed rgb(var(--ha-outline-variant)); }
+.ha-md-table-wrap { margin: 8px 0 12px; overflow-x: auto; border: 1px solid rgb(var(--ha-outline-variant)); }
+.ha-md-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+.ha-md-table th, .ha-md-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgb(var(--ha-outline-variant) / .55);
+}
+.ha-md-table th {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    background: rgb(var(--ha-surface-container)); color: rgb(var(--ha-on-surface));
+}
+.ha-md-table tr:last-child td { border-bottom: 0; }
+
+.ha-arc-skeleton { display: flex; flex-direction: column; gap: 8px; padding: 2px 0; }
+.ha-arc-skel-line {
+    height: 11px; background: rgb(var(--ha-surface-container-high));
+    animation: ha-skel-pulse 1.2s ease-in-out infinite;
+}
+.ha-arc-skel-line.is-short { width: 64%; }
+@keyframes ha-skel-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }
+
 .ha-arc-evidence {
-    margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(18, 16, 16, 0.22);
+    margin-top: 12px; padding-top: 9px; border-top: 1px dashed rgb(var(--ha-outline-variant) / .75);
     font-family: 'JetBrains Mono', monospace; font-size: 10.5px; line-height: 1.45;
-    color: var(--rpg-dialogue-sub, #57534e);
+    color: rgb(var(--ha-on-surface-variant));
 }
 
 /* Composer Docked Bar */
@@ -1509,18 +1622,24 @@ body.ha-arc-body > main.ha-arc-ai {
 .ha-arc-prompt-status {
     min-height: 16px; font-size: 12px; line-height: 1.35; color: rgb(var(--ha-on-surface-variant));
 }
+.ha-arc-prompt-status:is(.text-error, .text-secondary) {
+    padding: 6px 10px;
+    background: rgb(var(--ha-surface-container-low));
+    border: 1px solid rgb(var(--ha-outline-variant) / .7);
+    border-left: 3px solid currentColor;
+}
 .ha-arc-prompt-status:empty { display: none; }
 .ha-arc-prompt-box {
     display: flex; gap: 8px; align-items: flex-end;
     background: rgb(var(--ha-background));
     border: 2px solid var(--rpg-cta, #ff6b4a); box-shadow: 3px 3px 0 #000000;
-    padding: 5px 5px 5px 12px;
+    padding: 5px 5px 5px 14px;
 }
 .ha-arc-prompt-box textarea {
     flex: 1; min-width: 0; resize: none; border: 0 !important; background: transparent !important;
     box-shadow: none !important; --tw-ring-shadow: 0 0 #0000 !important;
-    padding: 6px 0 !important;
-    font-family: 'JetBrains Mono', monospace; font-size: 16px; line-height: 1.4;
+    padding: 7px 0 !important;
+    font-family: 'Hanken Grotesk', -apple-system, sans-serif; font-size: 16px; line-height: 1.45;
     color: rgb(var(--ha-on-surface)) !important; max-height: 112px;
 }
 .ha-arc-prompt-box textarea:focus,
@@ -1568,9 +1687,10 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-arc-cards { grid-template-columns: 1.25fr 1fr 1fr; gap: 13px; margin-top: 10px; }
     .ha-arc-spot { grid-column: auto; display: flex; flex-direction: column; }
     .ha-arc-spot-body { flex: 1; flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 13px; }
+    .ha-arc-spot-body .ha-arc-ask-pill { margin-top: auto; }
     .ha-arc-sq-body { padding: 11px; gap: 6px; }
     .ha-arc-momentum { padding: 11px 13px; }
-    .ha-arc-prompt-box textarea { font-size: 13px; }
+    .ha-arc-prompt-box textarea { font-size: 14.5px; }
     #habits-container, #habits-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
     #habits-container > :not(.ha-habit-card), #habits-list > :not(.ha-habit-card) { grid-column: 1 / -1; }
     .ha-insights-timeline { border-left: 2px solid rgb(var(--ha-outline-variant)); }
@@ -1588,7 +1708,7 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights-spotlight { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
-    body > main { padding-top: 18px; }
+    body > main { padding-top: 18px; padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
     body.ha-arc-body > main.ha-arc-ai { padding-top: 10px; }
     body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer:focus-within)) > nav.fixed { display: none !important; }
     body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer:focus-within)) > main.ha-arc-ai { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; }
@@ -1645,7 +1765,7 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 @media (prefers-reduced-motion: reduce) {
     .ha-habit-card, .ha-progress-card, .ha-rpg-xp-seg, .ha-arc-spot, .ha-arc-sq, .ha-arc-momentum { transition: none; }
-    .ha-rpg-buddy, .ha-rpg-star-a, .ha-rpg-star-b { animation: none !important; opacity: 1 !important; }
+    .ha-rpg-buddy, .ha-rpg-star-a, .ha-rpg-star-b, .ha-arc-skel-line { animation: none !important; opacity: 1 !important; }
     .fade-up { opacity: 1; transform: none; }
 }
 

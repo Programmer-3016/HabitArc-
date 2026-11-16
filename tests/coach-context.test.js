@@ -7,6 +7,7 @@ import {
     normaliseCoachQuestion,
     normaliseCoachTimeZone
 } from '../api/_coach-context.js';
+import { renderCoachMarkdown } from '../habit-analytics.js';
 
 test('an explicit not_completed history record overrides an old completion map', () => {
     const result = buildHabitCoachContext({
@@ -139,4 +140,27 @@ test('Coach action extraction validates habit proposals and blocks hallucinated 
     );
     assert.equal(brokenJson.answer, 'Keep tracking.');
     assert.equal(brokenJson.suggestedAction, null);
+});
+
+test('renderCoachMarkdown formats headings, lists, tables, code and escapes unsafe HTML', () => {
+    const md = [
+        '### Key pattern',
+        '',
+        'Your **Morning Walk** slipped on `Fri` <script>alert(1)</script>.',
+        '',
+        '1. **Move cue** — Pair after breakfast at `08:30`.',
+        '2. **Backup** — Keep a 5-min walk fallback.',
+        '',
+        '| Habit | 28d |',
+        '| --- | --- |',
+        '| Walk | 64% |'
+    ].join('\n');
+    const html = renderCoachMarkdown(md);
+    assert.match(html, /<h4 class="ha-md-h">Key pattern<\/h4>/);
+    assert.match(html, /<strong>Morning Walk<\/strong>/);
+    assert.match(html, /<code class="ha-md-code">Fri<\/code>/);
+    assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+    assert.doesNotMatch(html, /<script>/);
+    assert.match(html, /<ol class="ha-md-ol"><li><strong>Move cue<\/strong>/);
+    assert.match(html, /<table class="ha-md-table"><thead><tr><th>Habit<\/th><th>28d<\/th><\/tr><\/thead><tbody><tr><td>Walk<\/td><td>64%<\/td><\/tr><\/tbody><\/table>/);
 });

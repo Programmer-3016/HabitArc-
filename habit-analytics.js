@@ -227,3 +227,156 @@ export function buildHabitCoachContext({ habits = [], completionHistory = [], se
 export function normaliseCoachQuestion(value) {
     return typeof value === 'string' ? clampText(value, 600) : '';
 }
+
+function defaultEscapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[char]);
+}
+
+function formatInlineMarkdown(text, esc) {
+    const segments = String(text || '').split(/(`[^`\n]+`)/g);
+    return segments.map((seg, index) => {
+        if (index % 2 === 1 && seg.startsWith('`') && seg.endsWith('`') && seg.length >= 2) {
+            return `<code class="ha-md-code">${esc(seg.slice(1, -1))}</code>`;
+        }
+        let html = esc(seg);
+        html = html.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__([^_\n]+?)__/g, '<strong>$1</strong>');
+        html = html.replace(/(^|[^*\w])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
+        return html;
+    }).join('');
+}
+
+function splitTableCells(rowLine) {
+    return rowLine.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
+}
+
+function isTableSeparator(line) {
+    const trimmed = line.trim();
+    if (!trimmed.includes('|') || !trimmed.includes('-')) return false;
+    return splitTableCells(trimmed).every((cell) => /^:?-{2,}:?$/.test(cell));
+}
+
+/**
+ * Pure, XSS-safe Markdown renderer for structured HabitArc Coach responses.
+ * Always escapes raw text via escapeHTML before wrapping semantic HTML tags.
+ */
+export function renderCoachMarkdown(markdown, escapeHTML = defaultEscapeHtml) {
+    const esc = typeof escapeHTML === 'function' ? escapeHTML : defaultEscapeHtml;
+    const source = String(markdown || '').replace(/\r\n?/g, '\n').trim();
+    if (!source) return '';
+
+    const lines = source.split('\n');
+    const blocks = [];
+    let i = 0;
+
+    while (i < lines.length) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        if (!trimmed) {
+            i++;
+            continue;
+        }
+
+        if (trimmed.startsWith('```')) {
+            const codeLines = [];
+            i++;
+            while (i < lines.length && !lines[i].trim().startsWith('```')) {
+                codeLines.push(esc(lines[i]));
+                i++;
+            }
+            if (i < lines.length) i++;
+            blocks.push(`<pre class="ha-md-pre"><code>${codeLines.join('\n')}</code></pre>`);
+            continue;
+        }
+
+        if (/^[-*_]{3,}$/.test(trimmed)) {
+            blocks.push('<hr class="ha-md-hr"/>');
+            i++;
+            continue;
+        }
+
+        const headingMatch = /^(#{1,4})\s+(.+)$/.exec(trimmed);
+        if (headingMatch) {
+            const level = headingMatch[1].length <= 2 ? 'h3' : 'h4';
+            blocks.push(`<${level} class="ha-md-h">${formatInlineMarkdown(headingMatch[2].trim(), esc)}</${level}>`);
+            i++;
+            continue;
+        }
+
+        if (trimmed.includes('|') && i + 1 < lines.length && isTableSeparator(lines[i + 1])) {
+            const headers = splitTableCells(trimmed);
+            i += 2;
+            const bodyRows = [];
+            while (i < lines.length && lines[i].trim().includes('|') && !/^\s*$/.test(lines[i])) {
+                bodyRows.push(splitTableCells(lines[i]));
+                i++;
+            }
+            const thead = `<thead><tr>${headers.map((h) => `<th>${formatInlineMarkdown(h, esc)}</th>`).join('')}</tr></thead>`;
+            const tbody = bodyRows.length
+                ? `<tbody>${bodyRows.map((row) => `<tr>${headers.map((_, col) => `<td>${formatInlineMarkdown(row[col] ?? '', esc)}</td>`).join('')}</tr>`).join('')}</tbody>`
+                : '';
+            blocks.push(`<div class="ha-md-table-wrap"><table class="ha-md-table">${thead}${tbody}</table></div>`);
+            continue;
+        }
+
+        if (/^>\s?/.test(trimmed)) {
+            const quoteLines = [];
+            while (i < lines.length && /^>\s?/.test(lines[i].trim())) {
+                quoteLines.push(formatInlineMarkdown(lines[i].trim().replace(/^>\s?/, ''), esc));
+                i++;
+            }
+            blocks.push(`<blockquote class="ha-md-quote">${quoteLines.join('<br/>')}</blockquote>`);
+            continue;
+        }
+
+        if (/^[-*\u2022]\s+/.test(trimmed)) {
+            const items = [];
+            while (i < lines.length && /^[-*\u2022]\s+/.test(lines[i].trim())) {
+                items.push(`<li>${formatInlineMarkdown(lines[i].trim().replace(/^[-*\u2022]\s+/, ''), esc)}</li>`);
+                i++;
+            }
+            blocks.push(`<ul class="ha-md-ul">${items.join('')}</ul>`);
+            continue;
+        }
+
+        if (/^\d+[.)]\s+/.test(trimmed)) {
+            const items = [];
+            while (i < lines.length && /^\d+[.)]\s+/.test(lines[i].trim())) {
+                items.push(`<li>${formatInlineMarkdown(lines[i].trim().replace(/^\d+[.)]\s+/, ''), esc)}</li>`);
+                i++;
+            }
+            blocks.push(`<ol class="ha-md-ol">${items.join('')}</ol>`);
+            continue;
+        }
+
+        const paraLines = [];
+        while (i < lines.length) {
+            const cur = lines[i].trim();
+            if (
+                !cur
+                || cur.startsWith('```')
+                || /^#{1,4}\s+/.test(cur)
+                || /^>\s?/.test(cur)
+                || /^[-*\u2022]\s+/.test(cur)
+                || /^\d+[.)]\s+/.test(cur)
+                || /^[-*_]{3,}$/.test(cur)
+                || (cur.includes('|') && i + 1 < lines.length && isTableSeparator(lines[i + 1]))
+            ) {
+                break;
+            }
+            paraLines.push(formatInlineMarkdown(cur, esc));
+            i++;
+        }
+        if (paraLines.length) {
+            blocks.push(`<p class="ha-md-p">${paraLines.join('<br/>')}</p>`);
+        }
+    }
+
+    return blocks.join('');
+}
