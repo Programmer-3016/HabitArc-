@@ -10,7 +10,8 @@
 <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="HabitArc" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
-<link href="logo.png" rel="apple-touch-icon"/>
+<link href="icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
 <script defer src="pwa-register.js"></script>
 <title>HabitArc - Insights</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -270,6 +271,14 @@ Coach response
 <p id="ai-coach-asked" class="mt-2 text-xs text-on-surface-variant"></p>
 <p id="ai-coach-answer" class="mt-2 whitespace-pre-wrap font-body-md text-sm leading-relaxed text-on-surface"></p>
 <p id="ai-coach-evidence" class="mt-3 text-xs text-on-surface-variant"></p>
+<div id="ai-coach-action-box" class="hidden ha-arc-action-card">
+<div class="ha-arc-action-info">
+<div id="ai-coach-action-kicker" class="ha-arc-action-kicker">HABITARC ACTION</div>
+<div id="ai-coach-action-title" class="ha-arc-action-title"></div>
+<div id="ai-coach-action-meta" class="ha-arc-action-meta"></div>
+</div>
+<button id="ai-coach-apply-btn" type="button" class="ha-arc-action-btn">APPLY</button>
+</div>
 </article>
 </section>
 
@@ -658,9 +667,42 @@ import { buildHabitCoachContext } from './habit-analytics.js';
         const clearButton = document.getElementById('ai-coach-clear');
         const asked = document.getElementById('ai-coach-asked');
         const evidence = document.getElementById('ai-coach-evidence');
+        const actionBox = document.getElementById('ai-coach-action-box');
+        const actionKicker = document.getElementById('ai-coach-action-kicker');
+        const actionTitle = document.getElementById('ai-coach-action-title');
+        const actionMeta = document.getElementById('ai-coach-action-meta');
+        const applyActionButton = document.getElementById('ai-coach-apply-btn');
         let conversation = [];
         let owner = null;
         let requestController = null;
+        let activeAction = null;
+        let activeActionApplied = false;
+
+        function renderSuggestedAction(action, { applied = false } = {}) {
+            activeAction = action || null;
+            activeActionApplied = Boolean(applied);
+            if (!actionBox || !actionTitle || !actionMeta || !applyActionButton) return;
+            if (!action || (action.type !== 'create_habit' && action.type !== 'update_habit')) {
+                actionBox.classList.add('hidden');
+                return;
+            }
+            if (actionKicker) {
+                actionKicker.textContent = action.type === 'create_habit' ? 'PROPOSED NEW HABIT' : 'PROPOSED HABIT UPDATE';
+            }
+            actionTitle.textContent = action.type === 'create_habit'
+                ? `Add "${action.name}"`
+                : `Update "${action.habitName || 'Habit'}"`;
+            const metaParts = [];
+            if (action.category) metaParts.push(action.category);
+            if (action.reminder) metaParts.push(`Reminder ${action.reminder}`);
+            if (Array.isArray(action.repeat) && action.repeat.length) {
+                metaParts.push(action.repeat.length === 7 ? 'Daily' : action.repeat.map(d => d.toUpperCase()).join(', '));
+            }
+            actionMeta.textContent = metaParts.join(' · ');
+            applyActionButton.disabled = activeActionApplied;
+            applyActionButton.textContent = activeActionApplied ? 'APPLIED ✓' : (action.type === 'create_habit' ? 'ADD HABIT' : 'APPLY UPDATE');
+            actionBox.classList.remove('hidden');
+        }
 
         function resetConversation() {
             requestController?.abort();
@@ -671,6 +713,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             answer.textContent = '';
             asked.textContent = '';
             evidence.textContent = '';
+            renderSuggestedAction(null);
             answerCard.classList.add('hidden');
             clearButton.classList.add('hidden');
             questionInput.value = '';
@@ -769,6 +812,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
                       (source.truncated ? 'Some history was outside the context limit. ' : '') +
                       'Today is in progress. Advice is not a guarantee.'
                     : 'Based on your synced HabitArc records. Advice is not a guarantee.';
+                renderSuggestedAction(payload.suggestedAction || null);
                 answerCard.classList.remove('hidden');
                 clearButton.classList.remove('hidden');
                 questionInput.value = '';
@@ -804,6 +848,41 @@ import { buildHabitCoachContext } from './habit-analytics.js';
                 void askCoach();
             }
         });
+        applyActionButton?.addEventListener('click', () => {
+            if (!activeAction || activeActionApplied) return;
+            if (activeAction.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
+                const created = HabitArc.addHabit({
+                    name: activeAction.name,
+                    category: activeAction.category || 'General',
+                    reminder: activeAction.reminder || '09:00',
+                    repeat: activeAction.repeat,
+                    why: activeAction.why || ''
+                });
+                if (!created?.success) {
+                    setStatus(created?.message || 'Could not add habit.', 'error');
+                    return;
+                }
+                renderSuggestedAction(activeAction, { applied: true });
+                setStatus(`Added "${activeAction.name}" to HabitArc.`, 'success');
+                window.HabitArcUI?.announce?.(`Added ${activeAction.name} to HabitArc.`);
+                return;
+            }
+            if (activeAction.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
+                const updates = {};
+                if (activeAction.reminder) updates.reminder = activeAction.reminder;
+                if (activeAction.repeat) updates.repeat = activeAction.repeat;
+                if (activeAction.why) updates.why = activeAction.why;
+                const ok = HabitArc.updateHabit(activeAction.habitId, updates);
+                if (!ok) {
+                    setStatus('Could not find that habit to update.', 'error');
+                    return;
+                }
+                renderSuggestedAction(activeAction, { applied: true });
+                setStatus(`Updated "${activeAction.habitName || 'habit'}" in HabitArc.`, 'success');
+                window.HabitArcUI?.announce?.(`Updated ${activeAction.habitName || 'habit'} in HabitArc.`);
+            }
+        });
+
         clearButton.addEventListener('click', () => { resetConversation(); questionInput.focus(); });
         window.addEventListener('pagehide', resetConversation);
         window.addEventListener('habitarc:data-changed', () => {

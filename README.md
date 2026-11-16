@@ -52,16 +52,17 @@ Access the deployed application on Vercel:
 - **Data Privacy & Export**: Export habit data directly to CSV format.
 - **Reset Options**: Option to reset or seed demo data.
 
-### 6. 📲 PWA foundation & reminders
-- **PWA foundation**: Manifest, install-prompt handling and a self-contained reconnect screen are included. Reliable installability still needs square 192×192 and 512×512 icons and a real-device check; the existing logo is not square.
+### 6. 📲 PWA App Shell & Reminders
+- **Installable PWA**: `manifest.webmanifest` with square `192×192`, `512×512`, `maskable`, and `180×180` Apple touch icons (`icons/`), app shortcuts, and install banners/controls across Dashboard, Profile, and Settings.
+- **Offline App-Shell**: `sw.js` (`habitarc-shell-v3`) precaches the core static app shell with network-first updates online and cached offline navigation/habit logging backed by local storage (auto-syncing when back online), while keeping `/__*`, `/api/*`, OAuth, and Firebase backends uncached.
 - **Local Reminder Delivery**: Daily habit reminders and the weekly check-in can use browser notifications while HabitArc is open, after an explicit permission choice.
 - **Honest delivery boundary**: Closed-browser background push needs Firebase Cloud Messaging and a trusted server-side sender; it is not claimed as complete until that infrastructure is configured.
 
-### 7. ✨ Secure HabitArc Coach
-- **Server-side only**: The Coach calls the Vercel AI Gateway from `/api/coach`; no AI key is ever shipped to the browser.
-- **Private context**: Firebase ID tokens are verified on the server, which reads only the signed-in member's habits and recent completion history.
+### 7. ✨ Dedicated HabitArc Coach (`/api/coach`)
+- **HabitArc-exclusive & Server-side**: Calls Gemini directly from `/api/coach` using a separated `HABITARC_GEMINI_API_KEY` (or `GEMINI_API_KEY`); no AI key is ever shipped to the browser, and prompts stay scoped to habit routines, streaks, and planning.
+- **Private context & 1-Tap Actions**: Firebase ID tokens are verified on the server, reading only the signed-in member's habits and recent completion history, and optionally returning validated `<habitarc_action>` proposals applied only after user confirmation.
 - **Guardrails**: Per-user daily quota, bounded data context, no-cache responses, input limits, and non-clinical habit-planning boundaries.
-- **Data-grounded advice**: The Coach receives real completion rates, trends, schedules, and weak/strong habits—not mock analytics.
+- **Persistent On-Device Thread**: Signed-in ARC AI conversation threads stay cached per UID on the device until cleared with `+ NEW`.
 
 ---
 
@@ -189,7 +190,7 @@ The UI and `/api/coach` function are included in this repository, but the Coach 
 
    | Variable | Value |
    | --- | --- |
-   | `GEMINI_API_KEY` | The Gemini Developer API key (server-only) |
+   | `HABITARC_GEMINI_API_KEY` | Dedicated Gemini API key solely for HabitArc (or fallback `GEMINI_API_KEY`, server-only) |
    | `GEMINI_MODEL` | Optional. Defaults to `gemini-2.5-flash` |
    | `FIREBASE_SERVICE_ACCOUNT_BASE64` | The base64 value from Step 3 |
    | `AI_COACH_DAILY_LIMIT` | Optional, defaults to `15` |

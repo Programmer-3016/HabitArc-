@@ -1648,3 +1648,172 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-rpg-buddy, .ha-rpg-star-a, .ha-rpg-star-b { animation: none !important; opacity: 1 !important; }
     .fade-up { opacity: 1; transform: none; }
 }
+
+/* ─── PWA Shell Controls & ARC AI 1-Tap Habit Actions ─────────────────────────── */
+.ha-offline-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    background: #141212;
+    color: #f4f2ea;
+    border: 2px solid #f59e0b;
+    box-shadow: 3px 3px 0 #000000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+.ha-offline-pill.hidden { display: none !important; }
+
+.ha-pwa-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px;
+    margin-bottom: 16px;
+    background: rgb(var(--ha-surface-container-lowest));
+    border: 2px solid rgb(var(--ha-on-surface));
+    box-shadow: 4px 4px 0 var(--arc-accent, #7c3aed);
+}
+.ha-pwa-banner-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.ha-pwa-banner-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border: 1.5px solid #000000;
+    box-shadow: 2px 2px 0 #000000;
+    background: #141212;
+}
+.ha-pwa-banner-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: rgb(var(--ha-on-surface));
+    line-height: 1.2;
+}
+.ha-pwa-banner-sub {
+    font-size: 11.5px;
+    color: rgb(var(--ha-on-surface-variant));
+    line-height: 1.3;
+    margin-top: 2px;
+}
+.ha-pwa-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.ha-pwa-install-cta {
+    padding: 7px 12px;
+    min-height: 34px;
+    background: var(--rpg-cta, #7c3aed);
+    color: #ffffff;
+    border: 2px solid #000000;
+    box-shadow: 2px 2px 0 #000000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.ha-pwa-dismiss-btn {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    color: rgb(var(--ha-on-surface-variant));
+    border: 1.5px solid rgb(var(--ha-outline-variant));
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.ha-sw-update-toast {
+    position: fixed;
+    top: 66px;
+    right: 16px;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: #141212;
+    color: #ffffff;
+    border: 2px solid #10b981;
+    box-shadow: 3px 3px 0 #000000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+.ha-sw-update-toast button {
+    padding: 4px 10px;
+    background: #10b981;
+    color: #141212;
+    border: 1.5px solid #000000;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.ha-arc-action-card {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgb(var(--ha-surface-container-low));
+    border: 2px solid var(--arc-accent, #7c3aed);
+    box-shadow: 3px 3px 0 #000000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.ha-arc-action-info { min-width: 0; flex: 1 1 180px; }
+.ha-arc-action-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--arc-accent, #7c3aed);
+    text-transform: uppercase;
+}
+.ha-arc-action-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgb(var(--ha-on-surface));
+    margin-top: 2px;
+}
+.ha-arc-action-meta {
+    font-size: 11px;
+    color: rgb(var(--ha-on-surface-variant));
+    margin-top: 2px;
+}
+.ha-arc-action-btn {
+    padding: 7px 12px;
+    min-height: 34px;
+    background: var(--rpg-cta, #ff6b4a);
+    color: var(--arc-cta-ink, #121010);
+    border: 2px solid #000000;
+    box-shadow: 2px 2px 0 #000000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.ha-arc-action-btn[disabled] {
+    background: #10b981;
+    color: #141212;
+    cursor: default;
+}

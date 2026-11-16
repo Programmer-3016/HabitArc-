@@ -49,12 +49,16 @@ function arcAi({ empty = false, signedIn = false } = {}) {
         }
         return { id: `habit-${index}`, name, icon: 'book', completions, createdAt: '2026-10-01' };
     });
+    const addedHabits = [];
+    const updatedHabits = [];
     const app = {
         getSettings: () => ({ userName: 'Alex' }),
         getHabits: () => habits,
         getCompletionHistory: () => [],
         getOverallCurrentStreak: () => empty ? 0 : 14,
         getOverallLongestStreak: () => empty ? 0 : 14,
+        addHabit: payload => { const h = { id: `new-${addedHabits.length}`, ...payload }; addedHabits.push(h); habits.push(h); return { success: true, habit: h }; },
+        updateHabit: (id, updates) => { updatedHabits.push({ id, updates }); return true; },
         escapeHTML,
         whenAuthReady: async () => signedIn ? { uid: 'qa-user' } : null,
         getAuthUser: () => signedIn ? { uid: 'qa-user' } : null,
@@ -75,13 +79,21 @@ function arcAi({ empty = false, signedIn = false } = {}) {
                 ok: true,
                 json: async () => ({
                     answer: 'Try reading 10 minutes right after dinner.',
+                    suggestedAction: {
+                        type: 'create_habit',
+                        name: '10-Min Wind-Down',
+                        category: 'Mindfulness',
+                        reminder: '21:15',
+                        repeat: ['mon', 'wed', 'fri'],
+                        why: 'Anchor bedtime consistency'
+                    },
                     usage: { remaining: 6 },
                     snapshot: { habitCount: 2, dateWindow: { start: '2026-10-18', end: '2026-11-15' }, timeZone: 'UTC', insufficientData: false, truncated: false },
                 }),
             };
         },
     });
-    return { elements, events, requests, announced, body };
+    return { elements, events, requests, announced, addedHabits, updatedHabits, body };
 }
 
 test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and locked 100dvh shell', () => {
@@ -150,9 +162,17 @@ test('Arc_AI guest guard blocks network calls and authenticated starter card sub
     assert.equal(authed.elements.get('arc-thread-view').classList.contains('hidden'), false);
     assert.equal(authed.elements.get('ai-coach-answer').textContent, 'Try reading 10 minutes right after dinner.');
     assert.match(authed.elements.get('ai-coach-status').textContent, /6 ARC AI messages/);
+    assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), false);
+    assert.equal(authed.elements.get('ai-coach-action-title').textContent, 'Add "10-Min Wind-Down"');
+    authed.elements.get('ai-coach-apply-btn').handlers.click();
+    assert.equal(authed.addedHabits.length, 1);
+    assert.equal(authed.addedHabits[0].name, '10-Min Wind-Down');
+    assert.equal(authed.elements.get('ai-coach-apply-btn').disabled, true);
+    assert.equal(authed.elements.get('ai-coach-apply-btn').textContent, 'APPLIED ✓');
 
     authed.elements.get('ai-coach-clear').handlers.click();
     assert.equal(authed.elements.get('arc-zen-home').classList.contains('hidden'), false);
     assert.equal(authed.elements.get('arc-thread-view').classList.contains('hidden'), true);
+    assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), true);
     assert.equal(authed.elements.get('ai-coach-question').value, '');
 });

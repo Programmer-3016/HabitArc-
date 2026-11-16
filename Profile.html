@@ -10,7 +10,8 @@
     <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
     <meta content="HabitArc" name="apple-mobile-web-app-title"/>
     <link href="manifest.webmanifest" rel="manifest"/>
-    <link href="logo.png" rel="apple-touch-icon"/>
+    <link href="icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+    <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
     <script defer src="pwa-register.js"></script>
     <title>Profile - HabitArc</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -151,7 +152,7 @@
                 <span class="material-symbols-outlined text-primary-container">settings</span>
                 <h3 class="font-body-lg text-lg text-on-surface font-semibold">Settings &amp; Themes</h3>
             </div>
-            <div class="flex flex-col gap-4 flex-grow justify-center">
+            <div class="flex flex-col gap-3 flex-grow justify-center">
                 <a href="Settings.html" class="flex justify-between items-center cursor-pointer hover:bg-surface-container-low p-2 -mx-2 rounded-lg transition-colors">
                     <span class="font-body-md text-sm text-on-surface">Themes &amp; Preferences</span>
                     <div class="flex items-center gap-2 text-on-surface-variant">
@@ -159,6 +160,14 @@
                         <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                     </div>
                 </a>
+                <div class="w-full h-px bg-surface-variant"></div>
+                <button id="profile-pwa-install-btn" type="button" class="flex justify-between items-center text-left hover:bg-surface-container-low p-2 -mx-2 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-default">
+                    <div>
+                        <span class="block font-body-md text-sm text-on-surface font-medium">Install HabitArc App</span>
+                        <span id="profile-pwa-status" class="block font-body-md text-xs text-on-surface-variant">Offline-ready PWA shell</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[18px] text-primary">install_mobile</span>
+                </button>
             </div>
         </div>
 
@@ -334,6 +343,32 @@
     }
 
     renderProfile();
+
+    const profileInstallBtn = document.getElementById('profile-pwa-install-btn');
+    const profileInstallStatus = document.getElementById('profile-pwa-status');
+    function updateProfilePwaUI() {
+        if (!profileInstallBtn || !window.HabitArcUI?.getPWAInstallState) return;
+        const state = window.HabitArcUI.getPWAInstallState();
+        profileInstallBtn.disabled = state.installed || (!state.available && !state.isIOS);
+        if (profileInstallStatus) {
+            if (state.installed) profileInstallStatus.textContent = 'Installed on this device · Offline ready';
+            else if (state.available) profileInstallStatus.textContent = 'Tap to install on home screen';
+            else if (state.isIOS) profileInstallStatus.textContent = state.instructions;
+            else profileInstallStatus.textContent = 'Offline-ready PWA (open Chrome menu to install)';
+        }
+    }
+    profileInstallBtn?.addEventListener('click', async () => {
+        const state = window.HabitArcUI?.getPWAInstallState?.();
+        if (state?.isIOS && !state.available) {
+            window.HabitArcUI?.announce?.(state.instructions);
+            return;
+        }
+        await window.HabitArcUI?.promptPWAInstall?.();
+        updateProfilePwaUI();
+    });
+    updateProfilePwaUI();
+    window.addEventListener('habitarc:pwa-state-changed', updateProfilePwaUI);
+
     window.addEventListener('habitarc-auth-state-changed', (event) => {
         applyAuthenticatedUser(event.detail?.user || null);
     });

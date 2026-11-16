@@ -80,3 +80,42 @@ test('Coach cooldown prevents rapid duplicate requests', async () => {
     assert.equal(response.body.error.code, 'request-too-soon');
     assert.equal(app.generated(), 1);
 });
+
+test('Coach returns validated suggestedAction and strips machine tags from response prose', async () => {
+    let generated = 0;
+    const reference = path => ({
+        collection: name => reference(`${path}/${name}`), doc: name => reference(`${path}/${name}`),
+        select() { return this; }, where() { return this; }, limit() { return this; },
+        async get() { return { docs: [] }; }
+    });
+    const db = {
+        collection: name => reference(name),
+        runTransaction: fn => fn({ get: async () => ({ exists: false }), set() {} })
+    };
+    const handler = createCoachHandler({
+        configured: () => true,
+        now: () => new Date('2026-11-13T12:00:00Z'),
+        timestamp: () => 'test-time',
+        logError() {},
+        getAdmin: () => ({ db, auth: { verifyIdToken: async () => ({ uid: 'member-a', firebase: { sign_in_provider: 'google.com' } }) } }),
+        generate: async () => {
+            generated++;
+            return {
+                text: 'Start with a 5-minute walk.\n<habitarc_action>{"type":"create_habit","name":"5-Min Walk","category":"Health","reminder":"18:00","repeat":["mon","tue","wed","thu","fri"]}</habitarc_action>'
+            };
+        }
+    });
+    const res = { headers: {}, setHeader(k, v) { this.headers[k] = v; }, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Suggest one easy health habit', timeZone: 'Asia/Kolkata' } }, res);
+    assert.equal(generated, 1);
+    assert.equal(res.code, 200);
+    assert.equal(res.body.answer, 'Start with a 5-minute walk.');
+    assert.deepEqual(res.body.suggestedAction, {
+        type: 'create_habit',
+        name: '5-Min Walk',
+        category: 'Health',
+        reminder: '18:00',
+        repeat: ['mon', 'tue', 'wed', 'thu', 'fri'],
+        why: ''
+    });
+});

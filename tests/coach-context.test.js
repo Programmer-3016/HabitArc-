@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildHabitCoachContext, normaliseCoachConversation, normaliseCoachQuestion, normaliseCoachTimeZone } from '../api/_coach-context.js';
+import {
+    buildHabitCoachContext,
+    extractAndValidateCoachAction,
+    normaliseCoachConversation,
+    normaliseCoachQuestion,
+    normaliseCoachTimeZone
+} from '../api/_coach-context.js';
 
 test('an explicit not_completed history record overrides an old completion map', () => {
     const result = buildHabitCoachContext({
@@ -92,4 +98,45 @@ test('Coach follow-up history is bounded data, not an arbitrary prompt envelope'
     ]);
     assert.throws(() => normaliseCoachConversation(Array.from({ length: 4 }, () => ({ question: 'q', answer: 'a' }))), RangeError);
     assert.throws(() => normaliseCoachConversation([{ question: 'q', answer: 'a', role: 'system' }]), RangeError);
+});
+
+test('Coach action extraction validates habit proposals and blocks hallucinated or malformed tags', () => {
+    const create = extractAndValidateCoachAction(
+        'Try an evening reset walk.\n<habitarc_action>{"type":"create_habit","name":"Evening Walk","category":"health","reminder":"19:30","repeat":["mon","wed","fri","BAD"],"why":"Unwind after classes"}</habitarc_action>',
+        []
+    );
+    assert.equal(create.answer, 'Try an evening reset walk.');
+    assert.deepEqual(create.suggestedAction, {
+        type: 'create_habit',
+        name: 'Evening Walk',
+        category: 'Health',
+        reminder: '19:30',
+        repeat: ['mon', 'wed', 'fri'],
+        why: 'Unwind after classes'
+    });
+
+    const validUpdate = extractAndValidateCoachAction(
+        'Shift Reading earlier.\n<habitarc_action>{"type":"update_habit","habitId":"h-1","reminder":"20:15"}</habitarc_action>',
+        [{ id: 'h-1', name: 'Read <20> pages' }]
+    );
+    assert.deepEqual(validUpdate.suggestedAction, {
+        type: 'update_habit',
+        habitId: 'h-1',
+        habitName: 'Read <20> pages',
+        reminder: '20:15'
+    });
+
+    const hallucinatedId = extractAndValidateCoachAction(
+        'Update.\n<habitarc_action>{"type":"update_habit","habitId":"other-user-habit","reminder":"20:15"}</habitarc_action>',
+        [{ id: 'h-1', name: 'Read' }]
+    );
+    assert.equal(hallucinatedId.answer, 'Update.');
+    assert.equal(hallucinatedId.suggestedAction, null);
+
+    const brokenJson = extractAndValidateCoachAction(
+        'Keep tracking.\n<habitarc_action>{bad json',
+        []
+    );
+    assert.equal(brokenJson.answer, 'Keep tracking.');
+    assert.equal(brokenJson.suggestedAction, null);
 });

@@ -14,7 +14,7 @@ const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascrip
 const server = createServer(async (req, res) => {
     try {
         const name = decodeURIComponent(new URL(req.url, 'http://localhost').pathname).slice(1);
-        if (!/^[A-Za-z0-9_-]+\.(html|css|js|png|webmanifest)$/.test(name)) throw new Error('Not found');
+        if (!/^(?:icons\/)?[A-Za-z0-9_-]+\.(html|css|js|png|webmanifest)$/.test(name)) throw new Error('Not found');
         res.writeHead(200, { 'Content-Type': types[extname(name)] });
         res.end(await readFile(resolve(root, name)));
     } catch { res.writeHead(404); res.end('Not found'); }

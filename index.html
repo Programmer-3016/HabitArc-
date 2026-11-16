@@ -4,22 +4,33 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="application-name" content="HabitArc" />
-    <meta name="theme-color" content="#012d1d" />
+    <meta name="theme-color" content="#141212" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="HabitArc" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="logo.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
     <script defer src="pwa-register.js"></script>
     <title>HabitArc - AI-Powered Smart Habit Tracking</title>
     <script src="app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for Firebase to restore the user's session before routing.
-            // This prevents a signed-in user from briefly seeing onboarding.
+            // Preserve offline PWA launch for signed-in users instead of kicking them to onboarding.
+            let activeUid = null;
+            let cachedComplete = false;
+            try {
+                activeUid = localStorage.getItem('habitarc_active_uid');
+                const scopedRaw = localStorage.getItem(activeUid ? `habitarc_data:${activeUid}` : 'habitarc_data');
+                cachedComplete = Boolean(scopedRaw && JSON.parse(scopedRaw)?.onboardingComplete);
+            } catch {
+                // Storage access optional; online Firebase check decides below.
+            }
+
             const user = await HabitArc.whenAuthReady();
-            window.location.replace(user ? 'Dashboard.html' : 'Onboarding.html');
+            const offlineSignedIn = !user && (navigator.onLine === false || Boolean(window.HabitArcAuthInitError)) && (Boolean(activeUid) || cachedComplete);
+            window.location.replace(user || offlineSignedIn ? 'Dashboard.html' : 'Onboarding.html');
         });
     </script>
 </head>

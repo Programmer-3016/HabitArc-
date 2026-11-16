@@ -10,7 +10,8 @@
 <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="HabitArc" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
-<link href="logo.png" rel="apple-touch-icon"/>
+<link href="icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
 <script defer src="pwa-register.js"></script>
 <title>HabitArc - Settings</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -374,7 +375,7 @@
 <span class="material-symbols-outlined text-primary-container">install_mobile</span>
 <span>
 <span class="block font-body-lg text-body-lg text-on-surface">Install HabitArc</span>
-<span id="pwa-install-description" class="block font-body-md text-body-md text-on-surface-variant mt-0.5">Use HabitArc like an app, with a reconnect screen when offline.</span>
+<span id="pwa-install-description" class="block font-body-md text-body-md text-on-surface-variant mt-0.5">Install HabitArc for instant home-screen launch and offline habit logging.</span>
 </span>
 </span>
 <span class="material-symbols-outlined text-sm text-on-surface-variant" aria-hidden="true">chevron_right</span>
@@ -612,7 +613,7 @@
             if (installDescription) installDescription.textContent = 'HabitArc is installed on this device.';
         } else if (state.available) {
             installButton.setAttribute('aria-label', 'Install HabitArc');
-            if (installDescription) installDescription.textContent = 'Use HabitArc like an app, with a reconnect screen when offline.';
+            if (installDescription) installDescription.textContent = 'Install HabitArc for instant home-screen launch and offline habit logging.';
         } else if (state.isIOS) {
             installButton.setAttribute('aria-label', 'How to install HabitArc on iPhone or iPad');
             if (installDescription) installDescription.textContent = state.instructions;

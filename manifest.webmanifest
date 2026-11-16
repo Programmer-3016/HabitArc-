@@ -2,18 +2,62 @@
   "id": "/",
   "name": "HabitArc",
   "short_name": "HabitArc",
-  "description": "A mindful habit tracker for daily consistency and growth.",
-  "start_url": "/",
+  "description": "AI-powered habit tracker for daily consistency, streaks, and routine planning.",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f8f9fa",
-  "theme_color": "#012d1d",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#141212",
+  "theme_color": "#141212",
+  "categories": ["productivity", "health", "lifestyle"],
   "icons": [
     {
-      "src": "/logo.png",
-      "sizes": "555x615",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Habits",
+      "short_name": "Dashboard",
+      "description": "Check off today's scheduled habits",
+      "url": "/Dashboard.html?source=shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "New Habit",
+      "short_name": "Add Habit",
+      "description": "Create a new habit routine",
+      "url": "/Add_Habit.html?source=shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Ask ARC AI",
+      "short_name": "ARC AI",
+      "description": "Open your HabitArc AI coach",
+      "url": "/Arc_AI.html?source=shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

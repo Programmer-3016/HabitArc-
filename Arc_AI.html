@@ -10,7 +10,8 @@
 <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="HabitArc" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
-<link href="logo.png" rel="apple-touch-icon"/>
+<link href="icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
 <script defer src="pwa-register.js"></script>
 <title>ARC AI - HabitArc</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -256,6 +257,14 @@
             <div class="ha-arc-answer-body">
                 <p id="ai-coach-answer" class="ha-arc-answer-text"></p>
                 <p id="ai-coach-evidence" class="ha-arc-evidence"></p>
+                <div id="ai-coach-action-box" class="hidden ha-arc-action-card">
+                    <div class="ha-arc-action-info">
+                        <div id="ai-coach-action-kicker" class="ha-arc-action-kicker">HABITARC ACTION</div>
+                        <div id="ai-coach-action-title" class="ha-arc-action-title"></div>
+                        <div id="ai-coach-action-meta" class="ha-arc-action-meta"></div>
+                    </div>
+                    <button id="ai-coach-apply-btn" type="button" class="ha-arc-action-btn">APPLY</button>
+                </div>
             </div>
         </article>
     </section>
@@ -271,7 +280,7 @@
                 <span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>
             </button>
         </form>
-        <p class="ha-arc-disclaimer">Synced HabitArc history · Chat stays in page memory</p>
+        <p class="ha-arc-disclaimer">Dedicated HabitArc AI · Thread saved for your account on this device</p>
     </div>
 
 </main>
@@ -351,6 +360,13 @@ import { buildHabitCoachContext } from './habit-analytics.js';
     const answerCard = document.getElementById('ai-coach-answer-card');
     const answerEl = document.getElementById('ai-coach-answer');
     const evidenceEl = document.getElementById('ai-coach-evidence');
+    const actionBox = document.getElementById('ai-coach-action-box');
+    const actionKicker = document.getElementById('ai-coach-action-kicker');
+    const actionTitle = document.getElementById('ai-coach-action-title');
+    const actionMeta = document.getElementById('ai-coach-action-meta');
+    const applyActionButton = document.getElementById('ai-coach-apply-btn');
+
+    const THREAD_STORAGE_PREFIX = 'habitarc_arc_thread:';
 
     const prompts = {
         priority: 'Where am I losing consistency this week, and what small change would help most?',
@@ -362,6 +378,9 @@ import { buildHabitCoachContext } from './habit-analytics.js';
     let conversation = [];
     let owner = null;
     let requestController = null;
+    let activeAction = null;
+    let activeActionApplied = false;
+    let lastEvidence = '';
 
     function shorten(text, max) {
         const value = String(text || '').trim();
@@ -506,15 +525,131 @@ import { buildHabitCoachContext } from './habit-analytics.js';
         questionInput.style.height = Math.min(questionInput.scrollHeight || 36, 120) + 'px';
     }
 
-    function resetConversation() {
+    function getActiveThreadUid() {
+        const authUid = HabitArc.getAuthUser?.()?.uid;
+        if (authUid) return authUid;
+        try {
+            return typeof localStorage !== 'undefined' ? (localStorage.getItem('habitarc_active_uid') || '') : '';
+        } catch { return ''; }
+    }
+
+    function saveThreadState(uid = owner || getActiveThreadUid()) {
+        if (!uid || typeof localStorage === 'undefined') return;
+        try {
+            if (!conversation.length) {
+                localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${uid}`);
+                return;
+            }
+            localStorage.setItem(`${THREAD_STORAGE_PREFIX}${uid}`, JSON.stringify({
+                turns: conversation.slice(-6),
+                lastEvidence,
+                lastAction: activeAction,
+                lastActionApplied: activeActionApplied,
+                updatedAt: Date.now()
+            }));
+        } catch { /* Optional device cache */ }
+    }
+
+    function formatActionMeta(action) {
+        if (!action) return '';
+        const parts = [];
+        if (action.category) parts.push(action.category);
+        if (action.reminder) parts.push(`Reminder ${action.reminder}`);
+        if (Array.isArray(action.repeat) && action.repeat.length) {
+            parts.push(action.repeat.length === 7 ? 'Daily' : action.repeat.map(d => d.toUpperCase()).join(', '));
+        }
+        if (action.why) parts.push(shorten(action.why, 58));
+        return parts.join(' · ');
+    }
+
+    function renderSuggestedAction(action, { applied = false } = {}) {
+        activeAction = action || null;
+        activeActionApplied = Boolean(applied);
+        if (!actionBox || !actionTitle || !actionMeta || !applyActionButton) return;
+        if (!action || (action.type !== 'create_habit' && action.type !== 'update_habit')) {
+            actionBox.classList.add('hidden');
+            return;
+        }
+        if (actionKicker) {
+            actionKicker.textContent = action.type === 'create_habit' ? 'PROPOSED NEW HABIT' : 'PROPOSED HABIT UPDATE';
+        }
+        actionTitle.textContent = action.type === 'create_habit'
+            ? `Add "${action.name}"`
+            : `Update "${action.habitName || 'Habit'}"`;
+        actionMeta.textContent = formatActionMeta(action);
+        applyActionButton.disabled = activeActionApplied;
+        applyActionButton.textContent = activeActionApplied ? 'APPLIED ✓' : (action.type === 'create_habit' ? 'ADD HABIT' : 'APPLY UPDATE');
+        actionBox.classList.remove('hidden');
+    }
+
+    function renderThreadFromState() {
+        if (!conversation.length) {
+            if (historyEl) historyEl.innerHTML = '';
+            askedWrap?.classList.add('hidden');
+            answerCard?.classList.add('hidden');
+            renderSuggestedAction(null);
+            showThreadView(false);
+            return;
+        }
+        const prior = conversation.slice(0, -1).slice(-4);
+        const latest = conversation[conversation.length - 1];
+        if (historyEl) {
+            historyEl.innerHTML = prior.map(turn => `
+                <div class="ha-arc-user-msg"><p>${HabitArc.escapeHTML(turn.question)}</p></div>
+                <article class="ha-arc-answer-card">
+                    <div class="ha-arc-ht-strip">
+                        <span class="ha-arc-spot-kicker">▶ ARC RESPONSE</span>
+                        <span class="ha-arc-spot-stat">SYNCED</span>
+                    </div>
+                    <div class="ha-arc-answer-body"><p class="ha-arc-answer-text">${HabitArc.escapeHTML(turn.answer)}</p></div>
+                </article>
+            `).join('');
+        }
+        if (askedEl) askedEl.textContent = latest.question;
+        askedWrap?.classList.remove('hidden');
+        if (answerEl) answerEl.textContent = latest.answer;
+        if (evidenceEl) evidenceEl.textContent = lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.';
+        renderSuggestedAction(activeAction, { applied: activeActionApplied });
+        answerCard?.classList.remove('hidden');
+        showThreadView(true);
+    }
+
+    function restoreSavedThread() {
+        const uid = getActiveThreadUid();
+        if (!uid || typeof localStorage === 'undefined') return;
+        try {
+            const raw = localStorage.getItem(`${THREAD_STORAGE_PREFIX}${uid}`);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed?.turns) || !parsed.turns.length) return;
+            const validTurns = parsed.turns.filter(t => t && typeof t.question === 'string' && typeof t.answer === 'string');
+            if (!validTurns.length) return;
+            owner = uid;
+            conversation = validTurns.slice(-6);
+            lastEvidence = typeof parsed.lastEvidence === 'string' ? parsed.lastEvidence : '';
+            activeAction = parsed.lastAction || null;
+            activeActionApplied = Boolean(parsed.lastActionApplied);
+            renderThreadFromState();
+        } catch { /* Ignore corrupt storage */ }
+    }
+
+    function resetConversation({ clearStored = false } = {}) {
+        const previousUid = owner || getActiveThreadUid();
         requestController?.abort();
         requestController = null;
         conversation = [];
         owner = null;
+        lastEvidence = '';
+        activeAction = null;
+        activeActionApplied = false;
+        if (clearStored && previousUid && typeof localStorage !== 'undefined') {
+            try { localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${previousUid}`); } catch {}
+        }
         if (historyEl) historyEl.innerHTML = '';
         if (answerEl) answerEl.textContent = '';
         if (askedEl) askedEl.textContent = '';
         if (evidenceEl) evidenceEl.textContent = '';
+        renderSuggestedAction(null);
         askedWrap?.classList.add('hidden');
         answerCard?.classList.add('hidden');
         showThreadView(false);
@@ -587,31 +722,18 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             if (controller !== requestController || HabitArc.getAuthUser()?.uid !== owner) return;
 
             const safeAnswer = String(payload.answer).slice(0, 12000);
-            if (historyEl) {
-                historyEl.innerHTML = conversation.slice(-2).map(turn => `
-                    <div class="ha-arc-user-msg"><p>${HabitArc.escapeHTML(turn.question)}</p></div>
-                    <article class="ha-arc-answer-card">
-                        <div class="ha-arc-ht-strip">
-                            <span class="ha-arc-spot-kicker">▶ ARC RESPONSE</span>
-                            <span class="ha-arc-spot-stat">SYNCED</span>
-                        </div>
-                        <div class="ha-arc-answer-body"><p class="ha-arc-answer-text">${HabitArc.escapeHTML(turn.answer)}</p></div>
-                    </article>
-                `).join('');
-            }
-            conversation = [...conversation.slice(-2), { question, answer: safeAnswer.slice(0, 4000) }];
-            askedEl.textContent = question;
-            askedWrap?.classList.remove('hidden');
-            answerEl.textContent = safeAnswer;
+            conversation = [...conversation.slice(-5), { question, answer: safeAnswer.slice(0, 4000) }];
             const source = payload.snapshot;
-            evidenceEl.textContent = source?.dateWindow
+            lastEvidence = source?.dateWindow
                 ? `Based on ${source.habitCount} synced habits · ${source.dateWindow.start} – ${source.dateWindow.end} · ${source.timeZone}. ` +
                   (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
                   (source.truncated ? 'Some history was outside the context limit. ' : '') +
                   'Today is in progress. Advice is not a guarantee.'
                 : 'Based on your synced HabitArc records. Advice is not a guarantee.';
-            answerCard.classList.remove('hidden');
-            showThreadView(true);
+            activeAction = payload.suggestedAction || null;
+            activeActionApplied = false;
+            renderThreadFromState();
+            saveThreadState(owner);
 
             questionInput.value = '';
             questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
@@ -690,15 +812,56 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             void askCoach();
         }
     });
+    applyActionButton?.addEventListener('click', () => {
+        if (!activeAction || activeActionApplied) return;
+        if (activeAction.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
+            const created = HabitArc.addHabit({
+                name: activeAction.name,
+                category: activeAction.category || 'General',
+                reminder: activeAction.reminder || '09:00',
+                repeat: activeAction.repeat,
+                why: activeAction.why || ''
+            });
+            if (!created?.success) {
+                setStatus(created?.message || 'Could not add habit.', 'error');
+                return;
+            }
+            renderSuggestedAction(activeAction, { applied: true });
+            saveThreadState(owner);
+            renderArcConsole();
+            setStatus(`Added "${activeAction.name}" to HabitArc.`, 'success');
+            window.HabitArcUI?.announce?.(`Added ${activeAction.name} to HabitArc.`);
+            return;
+        }
+        if (activeAction.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
+            const updates = {};
+            if (activeAction.reminder) updates.reminder = activeAction.reminder;
+            if (activeAction.repeat) updates.repeat = activeAction.repeat;
+            if (activeAction.why) updates.why = activeAction.why;
+            const ok = HabitArc.updateHabit(activeAction.habitId, updates);
+            if (!ok) {
+                setStatus('Could not find that habit to update.', 'error');
+                return;
+            }
+            renderSuggestedAction(activeAction, { applied: true });
+            saveThreadState(owner);
+            renderArcConsole();
+            setStatus(`Updated "${activeAction.habitName || 'habit'}" in HabitArc.`, 'success');
+            window.HabitArcUI?.announce?.(`Updated ${activeAction.habitName || 'habit'} in HabitArc.`);
+        }
+    });
+
     clearButton?.addEventListener('click', () => {
-        resetConversation();
+        resetConversation({ clearStored: true });
         if (scrollArea) scrollArea.scrollTop = 0;
         questionInput.focus();
     });
 
-    window.addEventListener('pagehide', resetConversation);
     window.addEventListener('habitarc:data-changed', () => {
-        if (owner && HabitArc.getAuthUser()?.uid !== owner) resetConversation();
+        const currentUid = HabitArc.getAuthUser?.()?.uid || '';
+        if (owner && currentUid && currentUid !== owner) {
+            resetConversation();
+        }
         renderArcConsole();
     });
     window.addEventListener('habitarc:sync-status-changed', renderArcConsole);
@@ -707,6 +870,7 @@ import { buildHabitCoachContext } from './habit-analytics.js';
     document.addEventListener('visibilitychange', () => { if (!document.hidden) renderArcConsole(); });
 
     renderArcConsole();
+    restoreSavedThread();
 })();
 </script>
 </body>

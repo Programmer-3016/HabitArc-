@@ -115,5 +115,81 @@
         if (typeof MutationObserver !== 'undefined') {
             new MutationObserver(syncMetaTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
         }
+
+        if (appPages.has(page) && main && page !== 'Arc_AI.html') {
+            const offlinePill = document.createElement('div');
+            offlinePill.id = 'ha-offline-pill';
+            offlinePill.className = 'ha-offline-pill hidden';
+            offlinePill.setAttribute('role', 'status');
+            offlinePill.setAttribute('aria-live', 'polite');
+            offlinePill.textContent = 'OFFLINE MODE · HABITS SAVED ON DEVICE';
+            main.prepend(offlinePill);
+
+            const syncOnlineBadge = () => {
+                offlinePill.classList.toggle('hidden', navigator.onLine !== false);
+            };
+            syncOnlineBadge();
+            window.addEventListener?.('online', syncOnlineBadge);
+            window.addEventListener?.('offline', syncOnlineBadge);
+        }
+
+        window.addEventListener?.('habitarc:sw-update-ready', () => {
+            if (document.getElementById('ha-sw-update-toast')) return;
+            const toast = document.createElement('div');
+            toast.id = 'ha-sw-update-toast';
+            toast.className = 'ha-sw-update-toast';
+            toast.setAttribute('role', 'status');
+            toast.innerHTML = '<span>UPDATE READY</span><button type="button">REFRESH</button>';
+            toast.querySelector('button')?.addEventListener('click', () => location.reload());
+            document.body?.append?.(toast);
+        });
+
+        if ((page === 'Dashboard.html' || page === 'Profile.html') && main) {
+            const DISMISS_KEY = 'habitarc_pwa_banner_dismissed_at';
+            const DISMISS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+            function isBannerDismissed() {
+                try {
+                    const ts = Number(localStorage.getItem(DISMISS_KEY) || 0);
+                    return Number.isFinite(ts) && ts > 0 && (Date.now() - ts) < DISMISS_TTL_MS;
+                } catch { return false; }
+            }
+            function renderInstallBanner() {
+                const state = window.HabitArcUI?.getPWAInstallState?.();
+                const existing = document.getElementById('ha-pwa-install-banner');
+                if (!state || state.installed || (!state.available && !state.isIOS) || isBannerDismissed()) {
+                    existing?.remove();
+                    return;
+                }
+                if (existing) return;
+                const banner = document.createElement('section');
+                banner.id = 'ha-pwa-install-banner';
+                banner.className = 'ha-pwa-banner';
+                banner.setAttribute('aria-label', 'Install HabitArc app');
+                banner.innerHTML = `
+                    <div class="ha-pwa-banner-info">
+                        <img class="ha-pwa-banner-icon" src="icons/icon-192.png" alt="HabitArc icon" width="34" height="34"/>
+                        <div class="min-w-0">
+                            <div class="ha-pwa-banner-title">Install HabitArc App</div>
+                            <div class="ha-pwa-banner-sub">${state.available ? 'Quick home-screen launch & offline habit check-ins.' : state.instructions}</div>
+                        </div>
+                    </div>
+                    <div class="ha-pwa-banner-actions">
+                        ${state.available ? '<button type="button" class="ha-pwa-install-cta">Install</button>' : ''}
+                        <button type="button" class="ha-pwa-dismiss-btn" aria-label="Dismiss install prompt">&times;</button>
+                    </div>
+                `;
+                banner.querySelector('.ha-pwa-install-cta')?.addEventListener('click', async () => {
+                    await window.HabitArcUI?.promptPWAInstall?.();
+                    renderInstallBanner();
+                });
+                banner.querySelector('.ha-pwa-dismiss-btn')?.addEventListener('click', () => {
+                    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
+                    banner.remove();
+                });
+                main.prepend(banner);
+            }
+            renderInstallBanner();
+            window.addEventListener?.('habitarc:pwa-state-changed', renderInstallBanner);
+        }
     });
 })();
