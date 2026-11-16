@@ -753,10 +753,14 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
             questionInput.value = '';
             questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
             resizeTextarea();
+            const anchorEl = askedWrap || answerCard;
+            const targetTop = scrollArea && anchorEl && typeof scrollArea.getBoundingClientRect === 'function' && typeof anchorEl.getBoundingClientRect === 'function'
+                ? Math.max(0, (scrollArea.scrollTop || 0) + anchorEl.getBoundingClientRect().top - scrollArea.getBoundingClientRect().top - 8)
+                : 0;
             if (scrollArea && typeof scrollArea.scrollTo === 'function') {
-                scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
+                scrollArea.scrollTo({ top: targetTop, behavior: 'smooth' });
             } else if (scrollArea) {
-                scrollArea.scrollTop = scrollArea.scrollHeight || 0;
+                scrollArea.scrollTop = targetTop;
             }
             if (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767px)').matches) {
                 questionInput.blur?.();
