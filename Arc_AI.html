@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#141212" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<script defer src="pwa-register.js"></script>
+<title>ARC AI - HabitArc</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "on-surface": "#191c1d",
+                    "on-background": "#191c1d",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "inverse-surface": "#2e3132",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f3f4f5",
+                    "primary": "#012d1d",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#a0f4c8",
+                    "on-surface-variant": "#414844",
+                    "primary-fixed": "#c1ecd4",
+                    "secondary": "#0e6c4a",
+                    "outline-variant": "#c1c8c2",
+                    "outline": "#717973",
+                    "surface-variant": "#e1e3e4",
+                    "surface-container": "#edeeef",
+                    "surface": "#f8f9fa",
+                    "primary-container": "#1b4332",
+                    "surface-container-high": "#e7e8e9",
+                    "background": "#f8f9fa"
+                },
+                borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
+                fontFamily: {
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "body-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"]
+                }
+            }
+        }
+    };
+</script>
+<style>
+    body { font-family: 'Hanken Grotesk', sans-serif; }
+    .geist { font-family: 'Geist', sans-serif; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+    .grid-bg {
+        background-image: linear-gradient(to right, #e1e3e4 1px, transparent 1px),
+                          linear-gradient(to bottom, #e1e3e4 1px, transparent 1px);
+        background-size: 24px 24px;
+        opacity: 0.4;
+    }
+</style>
+<link rel="stylesheet" href="app-ui.css"/>
+<script src="app-ui.js"></script>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+
+<!-- Subtle Background Pattern -->
+<div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
+
+<!-- Top App Bar (Mobile) -->
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
+    <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+        <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="11" width="2" height="2" fill="#ffffff"/>
+            <rect x="4" y="9" width="2" height="2" fill="#ffffff"/>
+            <rect x="6" y="7" width="2" height="2" fill="#ffffff"/>
+            <rect x="8" y="9" width="2" height="2" fill="#ffffff"/>
+            <rect x="10" y="7" width="2" height="2" fill="#ffffff"/>
+            <rect x="12" y="5" width="2" height="2" fill="#ffffff"/>
+            <rect x="9" y="3" width="5" height="2" fill="#47e393"/>
+            <rect x="12" y="3" width="2" height="5" fill="#47e393"/>
+        </svg>
+        <span class="ha-brand-wordmark">HABITARC</span>
+    </a>
+    <div class="flex items-center gap-2.5">
+        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
+            <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+            <span id="header-streak-count">0d</span>
+        </div>
+        <a class="w-8 h-8 rounded-full bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html" aria-label="Profile">
+            <span class="material-symbols-outlined text-[18px]">person</span>
+        </a>
+        <a class="w-8 h-8 rounded-full bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Settings.html" aria-label="Settings">
+            <span class="material-symbols-outlined text-[18px]">settings</span>
+        </a>
+    </div>
+</header>
+
+<!-- Desktop Top Bar -->
+<header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
+    <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
+        <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+            <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="2" y="11" width="2" height="2" fill="#ffffff"/>
+                <rect x="4" y="9" width="2" height="2" fill="#ffffff"/>
+                <rect x="6" y="7" width="2" height="2" fill="#ffffff"/>
+                <rect x="8" y="9" width="2" height="2" fill="#ffffff"/>
+                <rect x="10" y="7" width="2" height="2" fill="#ffffff"/>
+                <rect x="12" y="5" width="2" height="2" fill="#ffffff"/>
+                <rect x="9" y="3" width="5" height="2" fill="#47e393"/>
+                <rect x="12" y="3" width="2" height="5" fill="#47e393"/>
+            </svg>
+            <span class="ha-brand-wordmark">HABITARC</span>
+        </a>
+        <nav class="flex items-center gap-1">
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Dashboard.html">Dashboard</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Habits.html">Habits</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Insights.html">Insights</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-semibold text-primary bg-primary/[0.06] transition-colors" href="Arc_AI.html">ARC AI</a>
+        </nav>
+        <div class="flex items-center gap-2.5">
+            <a href="Add_Habit.html" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">add</span>
+                New Habit
+            </a>
+            <div class="px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/15 text-amber-600 flex items-center gap-1.5 font-semibold text-xs geist">
+                <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+                <span id="header-streak-count-web">0 Day Streak</span>
+            </div>
+            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html" aria-label="Profile">
+                <span class="material-symbols-outlined text-[20px]">person</span>
+            </a>
+            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Settings.html" aria-label="Settings">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content Canvas: Option 4A Zen Console + 4D 28-Day Momentum Card -->
+<main class="ha-arc-ai flex-1 w-full mx-auto px-4 md:px-8 flex flex-col">
+
+    <!-- Zen Entry State -->
+    <section id="arc-zen-home" aria-labelledby="arc-zen-title">
+        <div class="ha-arc-zen-top">
+            <div class="ha-arc-mascot-sq" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                    <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
+                    <rect x="4" y="4" width="8" height="1" fill="#000000"/>
+                    <rect x="4" y="5" width="8" height="8" fill="#121010"/>
+                    <rect x="5" y="7" width="2" height="2" fill="#ffffff"/>
+                    <rect x="9" y="7" width="2" height="2" fill="#ffffff"/>
+                </svg>
+            </div>
+            <p class="ha-arc-status">ARC AI · ONLINE</p>
+            <h1 id="arc-zen-title" class="ha-arc-zen-q">What should we fix today?</h1>
+            <p id="arc-telemetry-pill" class="ha-arc-zen-meta">
+                <span class="ha-arc-dot" aria-hidden="true"></span>
+                <span id="arc-telemetry-text">Loading synced habit history…</span>
+            </p>
+        </div>
+
+        <div class="ha-arc-cards" aria-label="Suggested AI actions">
+            <!-- 1. 4A White Halftone Spotlight Card -->
+            <button id="arc-card-priority" type="button" class="ha-arc-spot">
+                <div class="ha-arc-ht-strip">
+                    <span id="arc-priority-kicker" class="ha-arc-spot-kicker">⚡ PRIORITY LEAK</span>
+                    <span id="arc-priority-stat" class="ha-arc-spot-stat">28D READY</span>
+                </div>
+                <div class="ha-arc-spot-body">
+                    <div class="min-w-0">
+                        <div id="arc-priority-title" class="ha-arc-spot-title">Find my consistency leaks</div>
+                        <div id="arc-priority-sub" class="ha-arc-spot-sub">Analyze missed days &amp; late hours</div>
+                    </div>
+                    <span class="ha-arc-ask-pill">ASK ▶</span>
+                </div>
+            </button>
+
+            <!-- 2. 4A Streak Shield Tile -->
+            <button id="arc-card-streak" type="button" class="ha-arc-sq">
+                <div class="ha-arc-ht-dark">
+                    <span>STREAK</span>
+                    <span id="arc-streak-badge" class="ha-arc-accent-txt">0D</span>
+                </div>
+                <div class="ha-arc-sq-body">
+                    <div class="ha-arc-sq-ico is-coral" aria-hidden="true">
+                        <span class="material-symbols-outlined">shield</span>
+                    </div>
+                    <div id="arc-streak-title" class="ha-arc-sq-title">Build a 7d streak</div>
+                    <div id="arc-streak-sub" class="ha-arc-sq-sub">Low-energy backup plan</div>
+                    <div class="ha-arc-sq-foot">
+                        <span>PLAN B</span>
+                        <span class="ha-arc-accent-txt">-&gt;</span>
+                    </div>
+                </div>
+            </button>
+
+            <!-- 3. 4A Weekly Trend Tile -->
+            <button id="arc-card-trend" type="button" class="ha-arc-sq">
+                <div class="ha-arc-ht-dark">
+                    <span>TREND</span>
+                    <span id="arc-trend-badge" class="ha-arc-mint-txt">7D</span>
+                </div>
+                <div class="ha-arc-sq-body">
+                    <div class="ha-arc-sq-ico is-white" aria-hidden="true">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+                    <div id="arc-trend-title" class="ha-arc-sq-title">Weekly 7d recap</div>
+                    <div id="arc-trend-sub" class="ha-arc-sq-sub">Compare vs prior week</div>
+                    <div class="ha-arc-sq-foot">
+                        <span>REPORT</span>
+                        <span class="ha-arc-accent-txt">-&gt;</span>
+                    </div>
+                </div>
+            </button>
+
+            <!-- 4. 4D Swapped Wide Dashed Card: 28-Day Momentum Check -->
+            <button id="arc-card-momentum" type="button" class="ha-arc-momentum">
+                <div class="ha-arc-momentum-left">
+                    <span class="material-symbols-outlined ha-arc-gold-ico" aria-hidden="true">trending_up</span>
+                    <div class="min-w-0">
+                        <span id="arc-momentum-title" class="ha-arc-momentum-title">28-day momentum check</span>
+                        <span id="arc-momentum-sub" class="ha-arc-momentum-sub">Review your 4-week consistency trajectory</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined ha-arc-accent-txt" aria-hidden="true">arrow_forward</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Active Thread View (shown after submitting a question or tapping a card) -->
+    <section id="arc-thread-view" class="hidden ha-arc-thread" aria-label="ARC AI conversation">
+        <div class="ha-arc-thread-hdr">
+            <div class="ha-arc-thread-id">
+                <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                    <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
+                    <rect x="4" y="4" width="8" height="1" fill="#000000"/>
+                    <rect x="4" y="5" width="8" height="8" fill="#ffffff"/>
+                    <rect x="5" y="7" width="2" height="2" fill="#121010"/>
+                    <rect x="9" y="7" width="2" height="2" fill="#121010"/>
+                </svg>
+                <div class="min-w-0">
+                    <div class="ha-arc-thread-name">ARC THREAD</div>
+                    <div id="arc-thread-context" class="ha-arc-thread-sub">28d log loaded</div>
+                </div>
+            </div>
+            <button id="ai-coach-clear" type="button" class="ha-arc-new-btn">+ NEW</button>
+        </div>
+
+        <div id="ai-coach-history" class="ha-arc-thread-stack"></div>
+
+        <div id="ai-coach-asked-wrap" class="hidden ha-arc-user-msg">
+            <p id="ai-coach-asked"></p>
+        </div>
+
+        <article id="ai-coach-answer-card" class="hidden ha-arc-answer-card" aria-live="polite">
+            <div class="ha-arc-ht-strip">
+                <span class="ha-arc-spot-kicker">▶ ARC RESPONSE</span>
+                <span class="ha-arc-spot-stat">SYNCED</span>
+            </div>
+            <div class="ha-arc-answer-body">
+                <p id="ai-coach-answer" class="ha-arc-answer-text"></p>
+                <p id="ai-coach-evidence" class="ha-arc-evidence"></p>
+            </div>
+        </article>
+    </section>
+
+    <!-- Docked Composer Bar -->
+    <div id="arc-composer-wrap" class="ha-arc-composer">
+        <p id="ai-coach-status" class="ha-arc-prompt-status" role="status" aria-live="polite"></p>
+        <form id="ai-coach-form" class="ha-arc-prompt-box" novalidate>
+            <label for="ai-coach-question" class="sr-only">Ask ARC AI a question about your habits</label>
+            <textarea id="ai-coach-question" name="question" rows="1" maxlength="600" placeholder="Ask ARC anything..." required></textarea>
+            <button id="ai-coach-submit" type="submit" class="ha-arc-send-btn" aria-label="Ask ARC AI">
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>
+            </button>
+        </form>
+        <p class="ha-arc-disclaimer">Synced HabitArc history · Chat stays in page memory</p>
+    </div>
+
+</main>
+
+<!-- Floating Bottom Nav Bar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-3xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] px-2 py-2 grid grid-cols-5 items-center">
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Dashboard.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">home</span>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Habits.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
+    </a>
+    <a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
+        <div class="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background dark:ring-surface-container active:scale-90 hover:scale-105 transition-all">
+            <span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
+        </div>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Insights.html">
+        <span class="material-symbols-outlined text-[22px] leading-none">insights</span>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
+    </a>
+    <a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary/[0.08] text-primary font-semibold shadow-sm transition-all duration-200" href="Arc_AI.html">
+        <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
+            <rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
+            <rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
+            <rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
+            <rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
+            <rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
+            <rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
+        </svg>
+        <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">ARC AI</span>
+    </a>
+</nav>
+
+<script src="app.js"></script>
+<script type="module">
+import { buildHabitCoachContext } from './habit-analytics.js';
+(function initArcAI() {
+    if (typeof HabitArc === 'undefined') return;
+
+    const zenHome = document.getElementById('arc-zen-home');
+    const threadView = document.getElementById('arc-thread-view');
+    const threadContext = document.getElementById('arc-thread-context');
+    const telemetryText = document.getElementById('arc-telemetry-text');
+
+    const cardPriority = document.getElementById('arc-card-priority');
+    const priorityKicker = document.getElementById('arc-priority-kicker');
+    const priorityStat = document.getElementById('arc-priority-stat');
+    const priorityTitle = document.getElementById('arc-priority-title');
+    const prioritySub = document.getElementById('arc-priority-sub');
+
+    const cardStreak = document.getElementById('arc-card-streak');
+    const streakBadge = document.getElementById('arc-streak-badge');
+    const streakTitle = document.getElementById('arc-streak-title');
+    const streakSub = document.getElementById('arc-streak-sub');
+
+    const cardTrend = document.getElementById('arc-card-trend');
+    const trendBadge = document.getElementById('arc-trend-badge');
+    const trendTitle = document.getElementById('arc-trend-title');
+    const trendSub = document.getElementById('arc-trend-sub');
+
+    const cardMomentum = document.getElementById('arc-card-momentum');
+    const momentumSub = document.getElementById('arc-momentum-sub');
+
+    const form = document.getElementById('ai-coach-form');
+    const questionInput = document.getElementById('ai-coach-question');
+    const submitButton = document.getElementById('ai-coach-submit');
+    const statusEl = document.getElementById('ai-coach-status');
+    const historyEl = document.getElementById('ai-coach-history');
+    const clearButton = document.getElementById('ai-coach-clear');
+    const askedWrap = document.getElementById('ai-coach-asked-wrap');
+    const askedEl = document.getElementById('ai-coach-asked');
+    const answerCard = document.getElementById('ai-coach-answer-card');
+    const answerEl = document.getElementById('ai-coach-answer');
+    const evidenceEl = document.getElementById('ai-coach-evidence');
+
+    const prompts = {
+        priority: 'Where am I losing consistency this week, and what small change would help most?',
+        streak: 'How can I build a low-energy backup routine to keep my streak alive on tight days?',
+        trend: 'Give me a concise 7-day habit recap compared with the previous week.',
+        momentum: 'Review my 28-day habit momentum and suggest the single highest-impact adjustment.'
+    };
+
+    let conversation = [];
+    let owner = null;
+    let requestController = null;
+
+    function shorten(text, max) {
+        const value = String(text || '').trim();
+        return value.length > max ? value.slice(0, max - 1).trimEnd() + '…' : value;
+    }
+
+    function renderArcConsole() {
+        const settings = HabitArc.getSettings ? HabitArc.getSettings() : {};
+        const habits = HabitArc.getHabits ? HabitArc.getHabits() : [];
+        const history = HabitArc.getCompletionHistory ? HabitArc.getCompletionHistory() : [];
+        const { snapshot } = buildHabitCoachContext({
+            habits,
+            completionHistory: history,
+            settings,
+            now: new Date(),
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        });
+
+        const curStreak = HabitArc.getOverallCurrentStreak ? (HabitArc.getOverallCurrentStreak() || 0) : 0;
+        const longestStreak = HabitArc.getOverallLongestStreak ? (HabitArc.getOverallLongestStreak() || 0) : 0;
+        if (document.getElementById('header-streak-count')) {
+            document.getElementById('header-streak-count').textContent = curStreak + 'd';
+        }
+        if (document.getElementById('header-streak-count-web')) {
+            document.getElementById('header-streak-count-web').textContent = curStreak + ' Day Streak';
+        }
+
+        const count = habits.length;
+        const syncLabel = `${count} habit${count === 1 ? '' : 's'} · ${snapshot.total.completed}/${snapshot.total.scheduled} logs synced`;
+        if (telemetryText) {
+            telemetryText.textContent = count > 0
+                ? `28d · ${syncLabel}`
+                : 'No habits yet · add one to unlock personal coaching';
+        }
+        if (threadContext) {
+            threadContext.textContent = count > 0 ? syncLabel : 'Ready to plan your first habit';
+        }
+
+        // Card 1: Priority Leak (4A White Halftone Card)
+        const weakest = snapshot.weakestHabit;
+        if (count === 0) {
+            priorityKicker.textContent = '⚡ GET STARTED';
+            priorityStat.textContent = '0 HABITS';
+            priorityTitle.textContent = 'Design my first habit routine';
+            prioritySub.textContent = 'Build a realistic 2-habit baseline for your week';
+            prompts.priority = 'I do not have any habits set up yet. Help me choose 2 realistic daily habits I can stick to consistently.';
+        } else if (weakest && weakest.rate !== null && weakest.rate < 85) {
+            const habitObj = habits.find(h => h.id === weakest.id);
+            const weakestStat = snapshot.habits?.find(h => h.id === weakest.id);
+            const name = habitObj?.name || weakest.name;
+            const logSummary = Number.isFinite(weakestStat?.completed) && Number.isFinite(weakestStat?.scheduled)
+                ? `${weakestStat.completed}/${weakestStat.scheduled} logged`
+                : `${weakest.rate}% completion`;
+            priorityKicker.textContent = '⚡ PRIORITY LEAK';
+            priorityStat.textContent = `${weakest.rate}% RATE`;
+            priorityTitle.textContent = `Fix ${shorten(name, 22)} drop-offs`;
+            prioritySub.textContent = `${logSummary} over 28d · find trigger & timing`;
+            prompts.priority = `Analyze why "${name}" is at ${weakest.rate}% (${logSummary}) over the last 28 days and suggest one practical adjustment.`;
+        } else {
+            priorityKicker.textContent = '⚡ ROUTINE AUDIT';
+            priorityStat.textContent = snapshot.fourWeekRate !== null ? `${snapshot.fourWeekRate}% 28D` : '28D READY';
+            priorityTitle.textContent = 'Find my consistency leaks';
+            prioritySub.textContent = 'Analyze missed days, reminders & late hours';
+            prompts.priority = 'Where am I losing consistency over the last 28 days, and which day or reminder window needs tightening?';
+        }
+
+        // Card 2: Streak Protection (4A Left Bento Tile)
+        const focusStreak = curStreak > 0 ? curStreak : longestStreak;
+        streakBadge.textContent = `${focusStreak}D`;
+        if (curStreak > 0) {
+            streakTitle.textContent = `Protect my ${curStreak}d streak`;
+            streakSub.textContent = 'Low-energy backup plan';
+            prompts.streak = `Help me draft a low-energy Plan B routine to protect my ${curStreak}-day streak on busy or tired days.`;
+        } else {
+            streakTitle.textContent = 'Build a 7d streak';
+            streakSub.textContent = 'Minimum viable daily anchor';
+            prompts.streak = 'Design a simple 7-day starter plan so I can build a steady streak without burning out.';
+        }
+
+        // Card 3: Weekly Trend (4A Right Bento Tile)
+        const { latestWeek, priorWeek } = snapshot;
+        const hasTrend = Boolean(latestWeek?.scheduled && priorWeek?.scheduled);
+        const trend = hasTrend ? latestWeek.rate - priorWeek.rate : null;
+        trendTitle.textContent = 'Weekly 7d recap';
+        if (hasTrend) {
+            const signed = `${trend > 0 ? '+' : ''}${trend} PP`;
+            trendBadge.textContent = signed;
+            trendSub.textContent = `${latestWeek.rate}% vs ${priorWeek.rate}% prior wk`;
+            prompts.trend = `Give me a concise 7-day recap comparing this week (${latestWeek.rate}%) with the prior week (${priorWeek.rate}%), and one action to repeat next week.`;
+        } else if (latestWeek?.scheduled) {
+            trendBadge.textContent = `${latestWeek.rate}% 7D`;
+            trendSub.textContent = `${latestWeek.completed}/${latestWeek.scheduled} logged last 7d`;
+            prompts.trend = `Review my last 7 days (${latestWeek.completed}/${latestWeek.scheduled} scheduled checks completed) and suggest what to prioritize next.`;
+        } else {
+            trendBadge.textContent = '7D VIEW';
+            trendSub.textContent = 'Compare vs prior week';
+            prompts.trend = 'Help me structure a quick weekly review checklist for my current habits.';
+        }
+
+        // Card 4: 4D Swapped Wide Card (28-day momentum check)
+        if (count === 0) {
+            momentumSub.textContent = 'Map out a sustainable 28-day baseline';
+            prompts.momentum = 'How should I pace my first 28 days in HabitArc so my habits stay realistic and consistent?';
+        } else if (hasTrend && snapshot.fourWeekRate !== null) {
+            const signedWeek = `${trend >= 0 ? '+' : ''}${trend} pp vs prior week`;
+            momentumSub.textContent = `${snapshot.fourWeekRate}% 28d rate · ${signedWeek}`;
+            prompts.momentum = `Check my 28-day momentum (${snapshot.fourWeekRate}% overall, ${trend >= 0 ? '+' : ''}${trend} pp week-over-week) and recommend my highest-leverage next step.`;
+        } else if (snapshot.fourWeekRate !== null) {
+            momentumSub.textContent = `${snapshot.fourWeekRate}% recorded across ${snapshot.total.scheduled} scheduled checks`;
+            prompts.momentum = `Review my 28-day habit momentum (${snapshot.fourWeekRate}% across ${snapshot.total.completed}/${snapshot.total.scheduled} logged checks) and what to tune next.`;
+        } else {
+            momentumSub.textContent = 'Start logging daily checks to unlock 28d trend';
+            prompts.momentum = 'I am just starting my 28-day log — what daily check-in cadence gives the clearest progress signal?';
+        }
+    }
+
+    function showThreadView(show) {
+        if (zenHome) zenHome.classList.toggle('hidden', show);
+        if (threadView) threadView.classList.toggle('hidden', !show);
+    }
+
+    function setStatus(message, tone = 'muted') {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.classList.toggle('text-error', tone === 'error');
+        statusEl.classList.toggle('text-secondary', tone === 'success');
+        statusEl.classList.toggle('text-on-surface-variant', tone === 'muted');
+    }
+
+    function setLoading(isLoading) {
+        submitButton.disabled = isLoading;
+        submitButton.setAttribute('aria-busy', String(isLoading));
+        questionInput.disabled = isLoading;
+        submitButton.innerHTML = isLoading
+            ? '<span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>'
+            : '<span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>';
+    }
+
+    function resizeTextarea() {
+        if (!questionInput?.style) return;
+        questionInput.style.height = 'auto';
+        questionInput.style.height = Math.min(questionInput.scrollHeight || 36, 120) + 'px';
+    }
+
+    function resetConversation() {
+        requestController?.abort();
+        requestController = null;
+        conversation = [];
+        owner = null;
+        if (historyEl) historyEl.innerHTML = '';
+        if (answerEl) answerEl.textContent = '';
+        if (askedEl) askedEl.textContent = '';
+        if (evidenceEl) evidenceEl.textContent = '';
+        askedWrap?.classList.add('hidden');
+        answerCard?.classList.add('hidden');
+        showThreadView(false);
+        questionInput.value = '';
+        questionInput.placeholder = 'Ask ARC anything...';
+        resizeTextarea();
+        setStatus('');
+        setLoading(false);
+    }
+
+    async function cancellable(promise, signal) {
+        signal.throwIfAborted();
+        let abort;
+        const cancelled = new Promise((_, reject) => {
+            abort = () => reject(signal.reason);
+            signal.addEventListener('abort', abort, { once: true });
+        });
+        try { return await Promise.race([promise, cancelled]); }
+        finally { signal.removeEventListener('abort', abort); }
+    }
+
+    async function askCoach() {
+        if (submitButton.disabled) return;
+        const question = questionInput.value.trim();
+        if (question.length < 3) {
+            setStatus('Ask a slightly more specific question so ARC AI can help.', 'error');
+            questionInput.focus();
+            return;
+        }
+
+        setLoading(true);
+        setStatus('Syncing your latest habits before asking ARC AI…');
+        const controller = new AbortController();
+        requestController = controller;
+        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45000)]);
+
+        try {
+            if (navigator.onLine === false) {
+                throw new Error('You are offline. Reconnect to ask ARC AI; your habits remain saved on this device.');
+            }
+            const user = await cancellable(HabitArc.whenAuthReady(), signal);
+            if (!user || user.isAnonymous) {
+                throw new Error('Create or sign in to an account before using ARC AI.');
+            }
+
+            owner = user.uid;
+            await cancellable(HabitArc.flushCloudSync(), signal);
+            const idToken = await cancellable(HabitArc.getAuthToken(), signal);
+            setStatus('Reviewing your synced history, goals and conversation…');
+            const response = await fetch('/api/coach', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`
+                },
+                body: JSON.stringify({
+                    question,
+                    conversation: conversation.slice(-3),
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                }),
+                signal
+            });
+
+            let payload = null;
+            try { payload = await response.json(); } catch {}
+
+            if (!response.ok || !payload?.answer) {
+                throw new Error(payload?.error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.');
+            }
+            if (controller !== requestController || HabitArc.getAuthUser()?.uid !== owner) return;
+
+            const safeAnswer = String(payload.answer).slice(0, 12000);
+            if (historyEl) {
+                historyEl.innerHTML = conversation.slice(-2).map(turn => `
+                    <div class="ha-arc-user-msg"><p>${HabitArc.escapeHTML(turn.question)}</p></div>
+                    <article class="ha-arc-answer-card">
+                        <div class="ha-arc-ht-strip">
+                            <span class="ha-arc-spot-kicker">▶ ARC RESPONSE</span>
+                            <span class="ha-arc-spot-stat">SYNCED</span>
+                        </div>
+                        <div class="ha-arc-answer-body"><p class="ha-arc-answer-text">${HabitArc.escapeHTML(turn.answer)}</p></div>
+                    </article>
+                `).join('');
+            }
+            conversation = [...conversation.slice(-2), { question, answer: safeAnswer.slice(0, 4000) }];
+            askedEl.textContent = question;
+            askedWrap?.classList.remove('hidden');
+            answerEl.textContent = safeAnswer;
+            const source = payload.snapshot;
+            evidenceEl.textContent = source?.dateWindow
+                ? `Based on ${source.habitCount} synced habits · ${source.dateWindow.start} – ${source.dateWindow.end} · ${source.timeZone}. ` +
+                  (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
+                  (source.truncated ? 'Some history was outside the context limit. ' : '') +
+                  'Today is in progress. Advice is not a guarantee.'
+                : 'Based on your synced HabitArc records. Advice is not a guarantee.';
+            answerCard.classList.remove('hidden');
+            showThreadView(true);
+
+            questionInput.value = '';
+            questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
+            resizeTextarea();
+
+            const remaining = payload.usage?.remaining;
+            setStatus(
+                Number.isFinite(remaining)
+                    ? `${remaining} ARC AI messages remaining today.`
+                    : 'ARC AI response ready.',
+                'success'
+            );
+            window.HabitArcUI?.announce?.('ARC AI response is ready.');
+        } catch (error) {
+            if (controller !== requestController || controller.signal.aborted) return;
+            setStatus(
+                error?.name === 'TimeoutError'
+                    ? 'This is taking too long. Your question is kept—check your connection and try again.'
+                    : error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.',
+                'error'
+            );
+        } finally {
+            if (controller === requestController) {
+                requestController = null;
+                setLoading(false);
+            }
+        }
+    }
+
+    function launchStarterPrompt(key) {
+        if (submitButton.disabled) return;
+        questionInput.value = prompts[key];
+        resizeTextarea();
+        void askCoach();
+    }
+
+    cardPriority?.addEventListener('click', () => launchStarterPrompt('priority'));
+    cardStreak?.addEventListener('click', () => launchStarterPrompt('streak'));
+    cardTrend?.addEventListener('click', () => launchStarterPrompt('trend'));
+    cardMomentum?.addEventListener('click', () => launchStarterPrompt('momentum'));
+
+    form?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        void askCoach();
+    });
+    questionInput?.addEventListener('input', resizeTextarea);
+    questionInput?.addEventListener('keydown', (event) => {
+        if (((event.metaKey || event.ctrlKey) && event.key === 'Enter') || (event.key === 'Enter' && !event.shiftKey && !event.isComposing)) {
+            event.preventDefault();
+            void askCoach();
+        }
+    });
+    clearButton?.addEventListener('click', () => {
+        resetConversation();
+        questionInput.focus();
+    });
+
+    window.addEventListener('pagehide', resetConversation);
+    window.addEventListener('habitarc:data-changed', () => {
+        if (owner && HabitArc.getAuthUser()?.uid !== owner) resetConversation();
+        renderArcConsole();
+    });
+    window.addEventListener('habitarc:sync-status-changed', renderArcConsole);
+    window.addEventListener('habitarc:cloud-sync-error', renderArcConsole);
+    window.addEventListener('pageshow', renderArcConsole);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderArcConsole(); });
+
+    renderArcConsole();
+})();
+</script>
+</body>
+</html>

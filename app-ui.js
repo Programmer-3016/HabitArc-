@@ -45,7 +45,7 @@
             document.body.prepend(skip);
         }
         const page = location.pathname.split('/').pop();
-        const appPages = new Set(['Dashboard.html', 'Habits.html', 'Insights.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html']);
+        const appPages = new Set(['Dashboard.html', 'Habits.html', 'Insights.html', 'Arc_AI.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html']);
         if (appPages.has(page)) document.documentElement.classList.add('ha-app-navigation');
         const activePage = page === 'Habit_Detail.html' ? 'Habits.html'
             : page === 'Settings.html' ? 'Profile.html' : page;
@@ -55,7 +55,12 @@
                 if (link.getAttribute('href') === activePage) link.setAttribute('aria-current', 'page');
             });
         });
-        const labels = { 'Settings.html': 'Settings', 'Profile.html': 'Profile', 'Add_Habit.html': 'Add habit' };
+        if (page === 'Profile.html' || page === 'Settings.html') {
+            document.querySelectorAll(`body > header a[href="${page}"]`).forEach(link => {
+                link.setAttribute('aria-current', 'page');
+            });
+        }
+        const labels = { 'Settings.html': 'Settings', 'Profile.html': 'Profile', 'Add_Habit.html': 'Add habit', 'Arc_AI.html': 'ARC AI' };
         document.querySelectorAll('body > header a, body > nav a').forEach(link => {
             const label = labels[link.getAttribute('href')];
             if (label && !link.hasAttribute('aria-label')) link.setAttribute('aria-label', label);

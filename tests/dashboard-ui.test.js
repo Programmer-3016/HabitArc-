@@ -105,8 +105,11 @@ test('focused dashboard still responds to cloud data and authentication updates'
     assert.equal(page.elements.get('greeting-name').textContent, 'New.');
 });
 
-test('focused dashboard retains the five existing mobile navigation destinations', () => {
+test('focused dashboard retains the five mobile navigation destinations and top-bar profile shortcut', () => {
     const nav = html.match(/<nav class="md:hidden[\s\S]*?<\/nav>/)[0];
-    assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]), ['Dashboard.html', 'Habits.html', 'Add_Habit.html', 'Insights.html', 'Profile.html']);
+    assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]), ['Dashboard.html', 'Habits.html', 'Add_Habit.html', 'Insights.html', 'Arc_AI.html']);
+    const mobileHeader = html.match(/<header class="[^"]*md:hidden[\s\S]*?<\/header>/)[0];
+    assert.ok(mobileHeader.includes('href="Profile.html"'));
+    assert.ok(mobileHeader.includes('href="Settings.html"'));
     assert.ok(html.indexOf('class="ha-dashboard-view-all"') > html.indexOf('id="habits-container"'));
 });

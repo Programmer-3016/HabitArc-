@@ -58,7 +58,7 @@ try {
     assert.equal(await page.evaluate(id => HabitArc.getCompletionHistory(id)[0].status, id), 'not_completed');
     for (const width of [390, 1366]) {
         await page.setViewportSize({ width, height: 900 });
-        for (const name of ['Dashboard', 'Habits', 'Habit_Detail', 'Add_Habit', 'Insights', 'Settings', 'Profile']) {
+        for (const name of ['Dashboard', 'Habits', 'Habit_Detail', 'Add_Habit', 'Insights', 'Arc_AI', 'Settings', 'Profile']) {
             await page.goto(`${base}/${name}.html${name === 'Habit_Detail' ? `?id=${id}` : ''}`, { waitUntil: 'networkidle' });
             const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2);
             assert.equal(overflow, false, `${name} horizontal overflow at ${width}px`);
