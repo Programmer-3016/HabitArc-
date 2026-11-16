@@ -258,28 +258,42 @@
         border: 2px solid #031e13;
         box-shadow: 0 3px 0 #031e13;
         color: #012d1d;
-        transition: background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, color 0.18s ease;
+        transition: background-color 0.14s cubic-bezier(0.22, 1, 0.36, 1), transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), color 0.12s ease;
         cursor: pointer;
         text-align: left;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
-    .opt { position: relative; border-radius: 20px; padding: 20px 12px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .opt { position: relative; border-radius: 20px; padding: 17px 12px 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .opt-ico {
-        width: 46px;
-        height: 46px;
+        width: 44px;
+        height: 44px;
         border-radius: 14px;
         background: #eafaf1;
         color: #012d1d;
-        font-size: 25px;
+        font-size: 24px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.2s ease, color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: background-color 0.13s ease, color 0.12s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .opt-label { font-size: 15.5px; font-weight: 600; transition: color 0.18s ease; }
+    .opt-label { font-size: 15px; font-weight: 600; transition: color 0.12s ease; }
     .opt .check-badge { position: absolute; top: 10px; right: 10px; }
-    .opt-row { width: 100%; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
+    .opt-row { width: 100%; border-radius: 18px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
     .opt-row .opt-label { flex: 1; }
-    .opt-ico-box { width: 40px; height: 40px; border-radius: 12px; background: #eafaf1; color: #012d1d; display: flex; align-items: center; justify-content: center; font-size: 21px; transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1); flex-shrink: 0; }
+    .opt-ico-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #eafaf1;
+        color: #012d1d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        transition: background-color 0.13s ease, color 0.12s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+        flex-shrink: 0;
+    }
     .opt-big { position: relative; border-radius: 24px; padding: 32px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
     .opt-big .check-badge { position: absolute; top: 12px; right: 12px; }
     .opt-big > .material-symbols-outlined {
@@ -292,35 +306,35 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.2s ease, color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: background-color 0.13s ease, color 0.12s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* Tactile press feedback */
+    /* Snappy 60fps tactile press & crisp invert selection */
     .opt:active, .opt-row:active, .opt-big:active, .chip:active, .auth-btn:active {
-        transform: scale(0.96) translateY(1px) !important;
-        box-shadow: 0 1px 0 #031e13 !important;
+        transform: scale(0.97) translateY(1px);
+        transition-duration: 0.06s;
     }
 
     /* Crisp #0d1612 Ink Invert Selected State across Steps 2, 3 & 5 */
     .opt.selected, .opt-row.selected, .opt-big.selected {
-        background: #0d1612 !important;
-        border-color: #031e13 !important;
-        box-shadow: 0 4px 0 #012d1d !important;
-        color: #ffffff !important;
+        background: #0d1612;
+        border-color: #031e13;
+        box-shadow: 0 3px 0 #031e13;
+        color: #ffffff;
         transform: translateY(-2px);
     }
     .opt.selected .opt-ico,
     .opt-big.selected > .material-symbols-outlined {
         background: rgba(71, 227, 147, 0.18);
         color: #47e393;
-        transform: scale(1.08);
+        transform: scale(1.06);
     }
     .opt.selected .opt-label,
     .opt-row.selected .opt-label,
     .opt-big.selected .opt-label { color: #ffffff; }
-    .opt-row.selected .opt-ico-box { background: #47e393; color: #012d1d; transform: scale(1.05); }
+    .opt-row.selected .opt-ico-box { background: #47e393; color: #012d1d; transform: scale(1.04); }
 
-    /* Springy mint check badge on selected cards */
+    /* Snappy springy mint check badge on selected cards */
     .check-badge {
         width: 22px;
         height: 22px;
@@ -331,8 +345,8 @@
         align-items: center;
         justify-content: center;
         opacity: 0;
-        transform: scale(0.45);
-        transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: scale(0.5);
+        transition: opacity 0.12s ease-out, transform 0.16s cubic-bezier(0.34, 1.45, 0.64, 1);
     }
     .selected > .check-badge { opacity: 1; transform: scale(1); }
     .check-badge .material-symbols-outlined { font-size: 14px; font-weight: 700; }
@@ -340,16 +354,29 @@
     .chip { padding: 8px 14px; border-radius: 9999px; font-size: 14px; font-weight: 600; box-shadow: 0 2.5px 0 #031e13; }
     .chip:hover { background: #0d1612; color: #ffffff; border-color: #031e13; }
 
-    .theme-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; cursor: pointer; }
+    .custom-option-input,
+    .custom-option-input:focus,
+    .custom-option-input:focus-visible {
+        background: #ffffff !important;
+        border: 2px solid #031e13 !important;
+        box-shadow: 0 3px 0 #031e13 !important;
+        outline: none !important;
+        --tw-ring-offset-shadow: 0 0 #0000 !important;
+        --tw-ring-shadow: 0 0 #0000 !important;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+
+    .theme-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
     .swatch {
         width: 52px;
         height: 52px;
         border-radius: 9999px;
-        border: 2px solid #031e13;
-        box-shadow: 0 2.5px 0 #031e13;
-        transition: outline-color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 2px solid var(--s4-swatch-border, #031e13);
+        box-shadow: 0 2.5px 0 rgba(3, 30, 19, 0.45);
+        transition: outline-color 0.16s ease, transform 0.16s cubic-bezier(0.34, 1.45, 0.64, 1);
     }
-    .swatch-label { font-size: 12px; color: rgba(1, 45, 29, 0.8); font-weight: 600; }
+    .swatch-label { font-size: 12px; color: rgba(1, 45, 29, 0.8); font-weight: 600; transition: color 0.2s ease; }
     .theme-btn.selected-theme .swatch { outline: 2.5px solid #012d1d; outline-offset: 3px; transform: scale(1.08); }
     .theme-btn.selected-theme .swatch-label { color: #012d1d; font-weight: 800; }
 
@@ -368,7 +395,8 @@
         font-size: 15px;
         font-weight: 600;
         cursor: pointer;
-        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, background-color 0.18s ease;
+        touch-action: manipulation;
+        transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.14s ease;
         -webkit-tap-highlight-color: transparent;
     }
     .auth-btn:hover { transform: translateY(-1px); }
@@ -424,19 +452,17 @@
     body {
         background-color: #47e393 !important;
         color: #012d1d;
+        transition: background-color 0.34s cubic-bezier(0.22, 1, 0.36, 1), color 0.24s ease;
     }
     #progress-bar-track {
         background-color: rgba(1, 45, 29, 0.14);
-    }
-    header img[alt="HabitArc"] {
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 7px;
-        padding: 2px;
+        transition: background-color 0.3s ease;
     }
     #step-indicator,
     .step-card > p.text-outline,
     #guest-note {
         color: rgba(1, 45, 29, 0.78) !important;
+        transition: color 0.24s ease;
     }
     #step-6 > span.inline-flex {
         background: #ffffff;
@@ -472,12 +498,14 @@
         background: rgba(255, 255, 255, 0.95) !important;
         border: 2px solid #031e13 !important;
         box-shadow: 0 4px 0 #031e13 !important;
+        transition: background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
     }
     #prev-step-btn { color: #012d1d !important; }
     #next-step-btn,
     #email-submit-btn {
         background-color: #0d1612;
         color: #ffffff;
+        transition: background-color 0.24s ease, color 0.24s ease, opacity 0.15s ease;
     }
 
     /* Step 1 Specific Welcome CTA & Headline Contrast */
@@ -496,54 +524,104 @@
         color: #012d1d;
     }
 
-    /* Video-Inspired Staggered Card Cascade Across Steps 2–7 */
+    /* Step 4 Full-Screen Live Theme Morphing */
+    body.step-4-theme-active {
+        background-color: var(--s4-bg, #f4f7f5) !important;
+        color: var(--s4-text, #012d1d);
+    }
+    body.step-4-theme-active #progress-bar-track {
+        background-color: var(--s4-track, rgba(1, 45, 29, 0.14));
+    }
+    body.step-4-theme-active #progress-bar {
+        background-color: var(--s4-accent, #012d1d) !important;
+    }
+    body.step-4-theme-active header span,
+    body.step-4-theme-active #step-4 > h2 {
+        color: var(--s4-text, #012d1d) !important;
+    }
+    body.step-4-theme-active #step-indicator,
+    body.step-4-theme-active #step-4 > p.text-outline,
+    body.step-4-theme-active .swatch-label {
+        color: var(--s4-sub, rgba(1, 45, 29, 0.72)) !important;
+    }
+    body.step-4-theme-active .theme-btn.selected-theme .swatch {
+        outline-color: var(--s4-accent, #012d1d) !important;
+    }
+    body.step-4-theme-active .theme-btn.selected-theme .swatch-label {
+        color: var(--s4-text, #012d1d) !important;
+    }
+    body.step-4-theme-active #mini-dashboard-preview {
+        background-color: var(--s4-card-bg, #ffffff) !important;
+        color: var(--s4-text, #012d1d) !important;
+        border-color: var(--s4-card-border, #031e13) !important;
+        box-shadow: 0 4px 0 var(--s4-card-border, #031e13) !important;
+    }
+    body.step-4-theme-active #bottom-nav:not(.bare) {
+        background: var(--s4-nav-bg, rgba(255, 255, 255, 0.96)) !important;
+        border-color: var(--s4-card-border, #031e13) !important;
+        box-shadow: 0 4px 0 var(--s4-card-border, #031e13) !important;
+    }
+    body.step-4-theme-active #prev-step-btn {
+        color: var(--s4-text, #012d1d) !important;
+    }
+    body.step-4-theme-active #next-step-btn {
+        background-color: var(--s4-cta-bg, #0d1612) !important;
+        color: var(--s4-cta-text, #ffffff) !important;
+    }
+
+    /* Staggered Entrance Only While Entering (clears immediately so tap transforms stay 60fps) */
     @keyframes cardCascade {
-        0%   { opacity: 0; transform: translateY(14px) scale(0.96); }
+        0%   { opacity: 0; transform: translateY(10px) scale(0.98); }
         100% { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .step-card.active:not(#step-1) > h2 { animation: cardCascade 0.36s cubic-bezier(0.22, 1, 0.36, 1) both; }
-    .step-card.active:not(#step-1) > p  { animation: cardCascade 0.36s cubic-bezier(0.22, 1, 0.36, 1) 40ms both; }
-    .step-card.active .opt,
-    .step-card.active .opt-row,
-    .step-card.active .opt-big,
-    .step-card.active .theme-btn,
-    .step-card.active .chip,
-    .step-card.active #mini-dashboard-preview,
-    .step-card.active #north-star-input,
-    .step-card.active #auth-tabs,
-    .step-card.active #google-signin-btn,
-    .step-card.active #email-toggle-btn,
-    .step-card.active #guest-signin-btn {
-        animation: cardCascade 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    .custom-opt-enter { animation: cardCascade 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .step-card.is-entering:not(#step-1) > h2 { animation: cardCascade 0.26s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .step-card.is-entering:not(#step-1) > p  { animation: cardCascade 0.26s cubic-bezier(0.22, 1, 0.36, 1) 25ms both; }
+    .step-card.is-entering .opt,
+    .step-card.is-entering .opt-row,
+    .step-card.is-entering .opt-big,
+    .step-card.is-entering .theme-btn,
+    .step-card.is-entering .chip,
+    .step-card.is-entering #custom-intent-wrap,
+    .step-card.is-entering #custom-challenge-wrap,
+    .step-card.is-entering #mini-dashboard-preview,
+    .step-card.is-entering #north-star-input,
+    .step-card.is-entering #auth-tabs,
+    .step-card.is-entering #google-signin-btn,
+    .step-card.is-entering #email-toggle-btn,
+    .step-card.is-entering #guest-signin-btn {
+        animation: cardCascade 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .step-card.active .opt:nth-child(1),
-    .step-card.active .opt-row:nth-child(1),
-    .step-card.active .opt-big:nth-child(1),
-    .step-card.active .chip:nth-child(1),
-    .step-card.active #mini-dashboard-preview,
-    .step-card.active #north-star-input,
-    .step-card.active #auth-tabs { animation-delay: 55ms; }
-    .step-card.active .opt:nth-child(2),
-    .step-card.active .opt-row:nth-child(2),
-    .step-card.active .opt-big:nth-child(2),
-    .step-card.active .chip:nth-child(2),
-    .step-card.active #google-signin-btn { animation-delay: 110ms; }
-    .step-card.active .opt:nth-child(3),
-    .step-card.active .opt-row:nth-child(3),
-    .step-card.active .chip:nth-child(3),
-    .step-card.active #email-toggle-btn { animation-delay: 165ms; }
-    .step-card.active .opt:nth-child(4),
-    .step-card.active .opt-row:nth-child(4),
-    .step-card.active #guest-signin-btn { animation-delay: 220ms; }
-    .step-card.active .opt:nth-child(5),
-    .step-card.active .opt-row:nth-child(5) { animation-delay: 275ms; }
-    .step-card.active .opt:nth-child(6)     { animation-delay: 330ms; }
-    .step-card.active .theme-btn:nth-child(1) { animation-delay: 95ms; }
-    .step-card.active .theme-btn:nth-child(2) { animation-delay: 140ms; }
-    .step-card.active .theme-btn:nth-child(3) { animation-delay: 185ms; }
-    .step-card.active .theme-btn:nth-child(4) { animation-delay: 230ms; }
-    .step-card.active .theme-btn:nth-child(5) { animation-delay: 275ms; }
-    .step-card.active .theme-btn:nth-child(6) { animation-delay: 320ms; }
+    .step-card.is-entering .opt:nth-child(1),
+    .step-card.is-entering .opt-row:nth-child(1),
+    .step-card.is-entering .opt-big:nth-child(1),
+    .step-card.is-entering .chip:nth-child(1),
+    .step-card.is-entering #mini-dashboard-preview,
+    .step-card.is-entering #north-star-input,
+    .step-card.is-entering #auth-tabs { animation-delay: 25ms; }
+    .step-card.is-entering .opt:nth-child(2),
+    .step-card.is-entering .opt-row:nth-child(2),
+    .step-card.is-entering .opt-big:nth-child(2),
+    .step-card.is-entering .chip:nth-child(2),
+    .step-card.is-entering #google-signin-btn { animation-delay: 55ms; }
+    .step-card.is-entering .opt:nth-child(3),
+    .step-card.is-entering .opt-row:nth-child(3),
+    .step-card.is-entering .chip:nth-child(3),
+    .step-card.is-entering #email-toggle-btn { animation-delay: 85ms; }
+    .step-card.is-entering .opt:nth-child(4),
+    .step-card.is-entering .opt-row:nth-child(4),
+    .step-card.is-entering #guest-signin-btn { animation-delay: 115ms; }
+    .step-card.is-entering .opt:nth-child(5),
+    .step-card.is-entering .opt-row:nth-child(5),
+    .step-card.is-entering #custom-challenge-wrap { animation-delay: 145ms; }
+    .step-card.is-entering .opt:nth-child(6),
+    .step-card.is-entering #custom-intent-wrap { animation-delay: 175ms; }
+    .step-card.is-entering .theme-btn:nth-child(1) { animation-delay: 50ms; }
+    .step-card.is-entering .theme-btn:nth-child(2) { animation-delay: 80ms; }
+    .step-card.is-entering .theme-btn:nth-child(3) { animation-delay: 110ms; }
+    .step-card.is-entering .theme-btn:nth-child(4) { animation-delay: 140ms; }
+    .step-card.is-entering .theme-btn:nth-child(5) { animation-delay: 170ms; }
+    .step-card.is-entering .theme-btn:nth-child(6) { animation-delay: 200ms; }
 
     @keyframes heroIsoFloat {
         0%, 100% { transform: translateY(0px); }
@@ -568,19 +646,22 @@
     .hero-tile-pulse { animation: heroTilePulse 3.6s ease-in-out infinite; }
     @media (prefers-reduced-motion: reduce) {
         .hero-iso-float, .hero-coin-bob, .hero-pill-bob, .hero-tile-pulse,
-        .step-card.active:not(#step-1) > h2,
-        .step-card.active:not(#step-1) > p,
-        .step-card.active .opt,
-        .step-card.active .opt-row,
-        .step-card.active .opt-big,
-        .step-card.active .theme-btn,
-        .step-card.active .chip,
-        .step-card.active #mini-dashboard-preview,
-        .step-card.active #north-star-input,
-        .step-card.active #auth-tabs,
-        .step-card.active #google-signin-btn,
-        .step-card.active #email-toggle-btn,
-        .step-card.active #guest-signin-btn {
+        .custom-opt-enter,
+        .step-card.is-entering:not(#step-1) > h2,
+        .step-card.is-entering:not(#step-1) > p,
+        .step-card.is-entering .opt,
+        .step-card.is-entering .opt-row,
+        .step-card.is-entering .opt-big,
+        .step-card.is-entering .theme-btn,
+        .step-card.is-entering .chip,
+        .step-card.is-entering #custom-intent-wrap,
+        .step-card.is-entering #custom-challenge-wrap,
+        .step-card.is-entering #mini-dashboard-preview,
+        .step-card.is-entering #north-star-input,
+        .step-card.is-entering #auth-tabs,
+        .step-card.is-entering #google-signin-btn,
+        .step-card.is-entering #email-toggle-btn,
+        .step-card.is-entering #guest-signin-btn {
             animation: none !important;
         }
     }
@@ -595,10 +676,7 @@
 
 <!-- Header -->
 <header class="w-full max-w-md mx-auto flex items-center justify-between px-6 pt-5 pb-2 shrink-0">
-    <div class="flex items-center gap-2">
-        <img src="logo.png" alt="HabitArc" class="w-6 h-6 object-contain"/>
-        <span class="text-base text-primary font-bold tracking-tight">HabitArc</span>
-    </div>
+    <span class="text-base text-primary font-bold tracking-tight">HabitArc</span>
     <span id="step-indicator" class="text-sm text-outline geist font-medium">1 / 7</span>
 </header>
 
@@ -705,10 +783,10 @@
     </div>
 
     <!-- STEP 2: What brought you here? -->
-    <div id="step-2" class="step-card animate-in pt-6 sm:pt-10 w-full">
+    <div id="step-2" class="step-card animate-in pt-5 sm:pt-8 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">What brought you<br/>here today?</h2>
         <p class="mt-2 text-[15px] text-outline">Select all that apply.</p>
-        <div class="mt-7 grid grid-cols-2 gap-3" id="intent-options">
+        <div class="mt-5 grid grid-cols-2 gap-3" id="intent-options">
             <button type="button" class="opt intent-opt btn-press" data-val="Health"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">favorite</span><span class="opt-label">Health</span></button>
             <button type="button" class="opt intent-opt btn-press" data-val="Fitness"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">fitness_center</span><span class="opt-label">Fitness</span></button>
             <button type="button" class="opt intent-opt btn-press" data-val="Study"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">auto_stories</span><span class="opt-label">Study</span></button>
@@ -716,18 +794,38 @@
             <button type="button" class="opt intent-opt btn-press" data-val="Mindfulness"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">self_improvement</span><span class="opt-label">Mindfulness</span></button>
             <button type="button" class="opt intent-opt btn-press" data-val="Finance"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">account_balance_wallet</span><span class="opt-label">Finance</span></button>
         </div>
+        <div class="mt-3.5" id="custom-intent-wrap">
+            <button id="add-intent-toggle" type="button" class="chip btn-press inline-flex items-center gap-1.5">
+                <span class="material-symbols-outlined" style="font-size:17px;">add</span>
+                <span>Add your own</span>
+            </button>
+            <div id="custom-intent-form" class="hidden flex items-center gap-2 mt-1">
+                <input id="custom-intent-input" type="text" maxlength="32" autocomplete="off" aria-label="Add your own goal" class="custom-option-input flex-1 min-w-0 rounded-2xl px-3.5 py-2.5 text-[14.5px] font-medium text-[#012d1d] placeholder:text-[#012d1d]/45" placeholder="e.g. Better sleep"/>
+                <button id="custom-intent-add-btn" type="button" class="btn-press bg-[#0d1612] text-white text-[14px] font-semibold px-4 py-2.5 rounded-2xl border-2 border-[#031e13] shadow-[0_3px_0_#031e13] shrink-0">Add</button>
+            </div>
+        </div>
     </div>
 
     <!-- STEP 3: Biggest challenge -->
-    <div id="step-3" class="step-card animate-in pt-6 sm:pt-10 w-full">
+    <div id="step-3" class="step-card animate-in pt-5 sm:pt-8 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">What's your<br/>biggest challenge?</h2>
-        <p class="mt-2 text-[15px] text-outline">We'll personalize your insights.</p>
-        <div class="mt-7 space-y-2.5" id="challenge-options">
+        <p class="mt-2 text-[15px] text-outline">Select all that apply — we'll personalize your insights.</p>
+        <div class="mt-5 space-y-2.5" id="challenge-options">
             <button type="button" class="opt-row challenge-opt btn-press selected" data-val="consistency"><span class="material-symbols-outlined opt-ico-box">event_repeat</span><span class="opt-label">I lose consistency</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="distracted"><span class="material-symbols-outlined opt-ico-box">center_focus_weak</span><span class="opt-label">I get distracted</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="time"><span class="material-symbols-outlined opt-ico-box">schedule</span><span class="opt-label">I don't have enough time</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="motivation"><span class="material-symbols-outlined opt-ico-box">local_fire_department</span><span class="opt-label">I lose motivation</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="forget"><span class="material-symbols-outlined opt-ico-box">psychology</span><span class="opt-label">I forget my habits</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
+        </div>
+        <div class="mt-3.5" id="custom-challenge-wrap">
+            <button id="add-challenge-toggle" type="button" class="chip btn-press inline-flex items-center gap-1.5">
+                <span class="material-symbols-outlined" style="font-size:17px;">add</span>
+                <span>Add another reason</span>
+            </button>
+            <div id="custom-challenge-form" class="hidden flex items-center gap-2 mt-1">
+                <input id="custom-challenge-input" type="text" maxlength="48" autocomplete="off" aria-label="Add another challenge reason" class="custom-option-input flex-1 min-w-0 rounded-2xl px-3.5 py-2.5 text-[14.5px] font-medium text-[#012d1d] placeholder:text-[#012d1d]/45" placeholder="e.g. Late-night fatigue"/>
+                <button id="custom-challenge-add-btn" type="button" class="btn-press bg-[#0d1612] text-white text-[14px] font-semibold px-4 py-2.5 rounded-2xl border-2 border-[#031e13] shadow-[0_3px_0_#031e13] shrink-0">Add</button>
+            </div>
         </div>
     </div>
 
@@ -906,7 +1004,7 @@
     let jumpedToLoginFromStep1 = false;
 
     let selectedIntents = [];
-    let selectedChallenge = 'consistency';
+    let selectedChallenges = ['consistency'];
     let selectedCap = '5';
     let selectedTheme = 'light';
     let selectedGridShape = 'square';
@@ -947,7 +1045,8 @@
                 version: googleRedirectDraftVersion,
                 currentStep,
                 selectedIntents,
-                selectedChallenge,
+                selectedChallenges,
+                selectedChallenge: selectedChallenges[0] || '',
                 selectedCap,
                 selectedTheme,
                 selectedGridShape,
@@ -978,8 +1077,10 @@
         if (Array.isArray(pendingGoogleRedirectDraft.selectedIntents)) {
             selectedIntents = pendingGoogleRedirectDraft.selectedIntents;
         }
-        if (typeof pendingGoogleRedirectDraft.selectedChallenge === 'string') {
-            selectedChallenge = pendingGoogleRedirectDraft.selectedChallenge;
+        if (Array.isArray(pendingGoogleRedirectDraft.selectedChallenges)) {
+            selectedChallenges = pendingGoogleRedirectDraft.selectedChallenges;
+        } else if (typeof pendingGoogleRedirectDraft.selectedChallenge === 'string' && pendingGoogleRedirectDraft.selectedChallenge) {
+            selectedChallenges = [pendingGoogleRedirectDraft.selectedChallenge];
         }
         if (typeof pendingGoogleRedirectDraft.selectedCap === 'string') {
             selectedCap = pendingGoogleRedirectDraft.selectedCap;
@@ -997,21 +1098,40 @@
             notificationsEnabled = pendingGoogleRedirectDraft.notificationsEnabled;
         }
     }
+    let stepEnterTimer = null;
     function updateStep() {
+        if (stepEnterTimer) {
+            clearTimeout(stepEnterTimer);
+            stepEnterTimer = null;
+        }
+
+        let activeCardEl = null;
         document.querySelectorAll('.step-card').forEach((card, idx) => {
             const isActive = (idx + 1 === currentStep);
-            if (isActive && !card.classList.contains('active')) {
+            const wasActive = card.classList.contains('active');
+            card.classList.remove('is-entering');
+            if (isActive) activeCardEl = card;
+            if (isActive && !wasActive) {
                 card.classList.remove('animate-in');
                 void card.offsetWidth;
-                card.classList.add('animate-in');
+                card.classList.add('animate-in', 'is-entering');
             }
             card.classList.toggle('active', isActive);
         });
+
+        // Clear the stagger entrance class once done (or immediately on first pointerdown)
+        // so card tap & select CSS transform transitions never compete with a forwards animation.
+        if (activeCardEl?.classList.contains('is-entering')) {
+            const clearEnter = () => activeCardEl.classList.remove('is-entering');
+            activeCardEl.addEventListener('pointerdown', clearEnter, { once: true });
+            stepEnterTimer = setTimeout(clearEnter, 460);
+        }
 
         const pct = Math.round((currentStep / totalSteps) * 100);
         document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('step-indicator').textContent = `${currentStep} / ${totalSteps}`;
         document.body.classList.toggle('step-1-active', currentStep === 1 && !pendingGoogleRedirectDraft);
+        document.body.classList.toggle('step-4-theme-active', currentStep === 4 && !pendingGoogleRedirectDraft);
 
         const prevBtn = document.getElementById('prev-step-btn');
         if (prevBtn) {
@@ -1055,46 +1175,183 @@
         if (currentStep === 4) updatePreview();
     }
 
-    function autoAdvance() {
-        setTimeout(() => {
-            if (currentStep < totalSteps) {
-                currentStep++;
-                updateStep();
+    // Shared helper for multi-select option toggles + custom option builders (Steps 2 & 3)
+    function setupMultiOptionStep({
+        containerId, optionSelector, rowMode, customIcon,
+        toggleBtnId, formId, inputId, addBtnId, maxLen,
+        getList, setList
+    }) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        function bindToggle(btn) {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('selected');
+                const val = this.dataset.val;
+                const list = getList();
+                if (this.classList.contains('selected')) {
+                    if (!list.includes(val)) setList([...list, val]);
+                } else {
+                    setList(list.filter((item) => item !== val));
+                }
+            });
+        }
+
+        container.querySelectorAll(optionSelector).forEach(bindToggle);
+
+        function ensureSelectedOption(rawValue, animateIn = false) {
+            const cleaned = String(rawValue || '').replace(/\s+/g, ' ').trim().slice(0, maxLen);
+            if (!cleaned) return false;
+            const lower = cleaned.toLowerCase();
+
+            const existing = Array.from(container.querySelectorAll(optionSelector)).find((el) => {
+                const labelText = el.querySelector('.opt-label')?.textContent?.trim().toLowerCase() || '';
+                return (el.dataset.val || '').toLowerCase() === lower || labelText === lower;
+            });
+
+            if (existing) {
+                if (!existing.classList.contains('selected')) existing.click();
+                return true;
             }
-        }, 300);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `${rowMode ? 'opt-row challenge-opt' : 'opt intent-opt'} btn-press selected${animateIn ? ' custom-opt-enter' : ''}`;
+            btn.dataset.val = cleaned;
+
+            const iconSpan = document.createElement('span');
+            iconSpan.className = `material-symbols-outlined ${rowMode ? 'opt-ico-box' : 'opt-ico'}`;
+            iconSpan.textContent = customIcon;
+
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'opt-label';
+            labelSpan.textContent = cleaned;
+
+            const badgeSpan = document.createElement('span');
+            badgeSpan.className = 'check-badge';
+            const checkIcon = document.createElement('span');
+            checkIcon.className = 'material-symbols-outlined';
+            checkIcon.textContent = 'check';
+            badgeSpan.appendChild(checkIcon);
+
+            if (rowMode) {
+                btn.append(iconSpan, labelSpan, badgeSpan);
+            } else {
+                btn.append(badgeSpan, iconSpan, labelSpan);
+            }
+
+            if (animateIn) {
+                btn.addEventListener('animationend', () => btn.classList.remove('custom-opt-enter'), { once: true });
+            }
+
+            bindToggle(btn);
+            container.appendChild(btn);
+            if (animateIn) btn.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+            const list = getList();
+            if (!list.includes(cleaned)) setList([...list, cleaned]);
+            return true;
+        }
+
+        const toggleBtn = document.getElementById(toggleBtnId);
+        const form = document.getElementById(formId);
+        const input = document.getElementById(inputId);
+        const addBtn = document.getElementById(addBtnId);
+
+        if (toggleBtn && form && input) {
+            toggleBtn.addEventListener('click', () => {
+                toggleBtn.classList.add('hidden');
+                form.classList.remove('hidden');
+                form.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                input.focus();
+            });
+
+            const submitCustom = () => {
+                if (!ensureSelectedOption(input.value, true)) {
+                    input.focus();
+                    return;
+                }
+                input.value = '';
+                form.classList.add('hidden');
+                toggleBtn.classList.remove('hidden');
+            };
+
+            addBtn?.addEventListener('click', submitCustom);
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    submitCustom();
+                } else if (event.key === 'Escape') {
+                    input.value = '';
+                    form.classList.add('hidden');
+                    toggleBtn.classList.remove('hidden');
+                }
+            });
+        }
+
+        return { ensureSelectedOption };
     }
 
-    // Step 2: multi-select intents
-    document.querySelectorAll('.intent-opt').forEach(opt => {
-        opt.addEventListener('click', function() {
-            this.classList.toggle('selected');
-            const val = this.dataset.val;
-            if (selectedIntents.includes(val)) {
-                selectedIntents = selectedIntents.filter(i => i !== val);
-            } else {
-                selectedIntents.push(val);
-            }
-        });
+    const intentStepApi = setupMultiOptionStep({
+        containerId: 'intent-options',
+        optionSelector: '.intent-opt',
+        rowMode: false,
+        customIcon: 'auto_awesome',
+        toggleBtnId: 'add-intent-toggle',
+        formId: 'custom-intent-form',
+        inputId: 'custom-intent-input',
+        addBtnId: 'custom-intent-add-btn',
+        maxLen: 32,
+        getList: () => selectedIntents,
+        setList: (next) => { selectedIntents = next; }
     });
 
-    // Step 3: single-select challenge (auto advance)
-    document.querySelectorAll('.challenge-opt').forEach(opt => {
-        opt.addEventListener('click', function() {
-            document.querySelectorAll('.challenge-opt').forEach(o => o.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedChallenge = this.dataset.val;
-            autoAdvance();
-        });
+    const challengeStepApi = setupMultiOptionStep({
+        containerId: 'challenge-options',
+        optionSelector: '.challenge-opt',
+        rowMode: true,
+        customIcon: 'edit_note',
+        toggleBtnId: 'add-challenge-toggle',
+        formId: 'custom-challenge-form',
+        inputId: 'custom-challenge-input',
+        addBtnId: 'custom-challenge-add-btn',
+        maxLen: 48,
+        getList: () => selectedChallenges,
+        setList: (next) => { selectedChallenges = next; }
     });
 
-    // Step 4: theme + compact live preview
+    // Step 4: full-screen theme preview + compact dashboard card
     const previewThemes = {
-        purple: { bg: '#181028', text: '#f3e8ff', border: 'rgba(167,139,250,0.25)', accent: '#8b5cf6', off: 'rgba(255,255,255,0.10)' },
-        dark:   { bg: '#15181e', text: '#f1f5f9', border: 'rgba(148,163,184,0.25)', accent: '#34d399', off: 'rgba(255,255,255,0.10)' },
-        light:  { bg: '#ffffff', text: '#012d1d', border: '#e2e8f0',                accent: '#0e6c4a', off: 'rgba(0,0,0,0.07)' },
-        forest: { bg: '#0b2419', text: '#ecfdf5', border: 'rgba(110,231,183,0.25)', accent: '#34d399', off: 'rgba(255,255,255,0.10)' },
-        ocean:  { bg: '#0f1d32', text: '#f0f9ff', border: 'rgba(125,211,252,0.25)', accent: '#3b82f6', off: 'rgba(255,255,255,0.10)' },
-        sunset: { bg: '#251017', text: '#fff1f2', border: 'rgba(253,164,175,0.25)', accent: '#f43f5e', off: 'rgba(255,255,255,0.10)' }
+        purple: {
+            bg: '#311f52', text: '#f5f0ff', border: '#c084fc', accent: '#c084fc', off: 'rgba(255,255,255,0.13)',
+            pageBg: '#22153a', pageText: '#f5f0ff', pageSub: 'rgba(245,240,255,0.74)', pageTrack: 'rgba(255,255,255,0.18)',
+            swatchBorder: 'rgba(255,255,255,0.36)', navBg: 'rgba(42,26,70,0.94)', ctaBg: '#c084fc', ctaText: '#1c0f30'
+        },
+        dark: {
+            bg: '#1c212b', text: '#f8fafc', border: '#34d399', accent: '#34d399', off: 'rgba(255,255,255,0.11)',
+            pageBg: '#12151b', pageText: '#f8fafc', pageSub: 'rgba(248,250,252,0.72)', pageTrack: 'rgba(255,255,255,0.16)',
+            swatchBorder: 'rgba(255,255,255,0.36)', navBg: 'rgba(24,29,38,0.95)', ctaBg: '#34d399', ctaText: '#091510'
+        },
+        light: {
+            bg: '#ffffff', text: '#012d1d', border: '#031e13', accent: '#0e6c4a', off: 'rgba(1,45,29,0.08)',
+            pageBg: '#f4f7f5', pageText: '#012d1d', pageSub: 'rgba(1,45,29,0.72)', pageTrack: 'rgba(1,45,29,0.14)',
+            swatchBorder: '#031e13', navBg: 'rgba(255,255,255,0.96)', ctaBg: '#0d1612', ctaText: '#ffffff'
+        },
+        forest: {
+            bg: '#123626', text: '#ecfdf5', border: '#47e393', accent: '#47e393', off: 'rgba(255,255,255,0.12)',
+            pageBg: '#0b2419', pageText: '#ecfdf5', pageSub: 'rgba(236,253,245,0.72)', pageTrack: 'rgba(71,227,147,0.2)',
+            swatchBorder: 'rgba(255,255,255,0.36)', navBg: 'rgba(15,48,34,0.94)', ctaBg: '#47e393', ctaText: '#012d1d'
+        },
+        ocean: {
+            bg: '#163156', text: '#f0f9ff', border: '#38bdf8', accent: '#38bdf8', off: 'rgba(255,255,255,0.12)',
+            pageBg: '#0e203a', pageText: '#f0f9ff', pageSub: 'rgba(240,249,255,0.74)', pageTrack: 'rgba(255,255,255,0.18)',
+            swatchBorder: 'rgba(255,255,255,0.36)', navBg: 'rgba(18,41,72,0.94)', ctaBg: '#38bdf8', ctaText: '#071c2e'
+        },
+        sunset: {
+            bg: '#521e34', text: '#fff1f2', border: '#fb7185', accent: '#fb7185', off: 'rgba(255,255,255,0.13)',
+            pageBg: '#3a1424', pageText: '#fff1f2', pageSub: 'rgba(255,241,242,0.76)', pageTrack: 'rgba(255,255,255,0.18)',
+            swatchBorder: 'rgba(255,255,255,0.36)', navBg: 'rgba(71,24,44,0.94)', ctaBg: '#fb7185', ctaText: '#2c0a17'
+        }
     };
 
     document.querySelectorAll('.theme-btn').forEach(btn => {
@@ -1108,6 +1365,19 @@
 
     function updatePreview() {
         const t = previewThemes[selectedTheme] || previewThemes.light;
+        const bodyStyle = document.body.style;
+        bodyStyle.setProperty('--s4-bg', t.pageBg);
+        bodyStyle.setProperty('--s4-text', t.pageText);
+        bodyStyle.setProperty('--s4-sub', t.pageSub);
+        bodyStyle.setProperty('--s4-track', t.pageTrack);
+        bodyStyle.setProperty('--s4-accent', t.accent);
+        bodyStyle.setProperty('--s4-card-bg', t.bg);
+        bodyStyle.setProperty('--s4-card-border', t.border);
+        bodyStyle.setProperty('--s4-swatch-border', t.swatchBorder);
+        bodyStyle.setProperty('--s4-nav-bg', t.navBg);
+        bodyStyle.setProperty('--s4-cta-bg', t.ctaBg);
+        bodyStyle.setProperty('--s4-cta-text', t.ctaText);
+
         const card = document.getElementById('mini-dashboard-preview');
         if (card) {
             card.style.backgroundColor = t.bg;
@@ -1125,7 +1395,7 @@
                 const cell = document.createElement('div');
                 cell.className = 'h-3 rounded-[3px] transition-all duration-300';
                 cell.style.backgroundColor = active ? t.accent : t.off;
-                cell.style.animation = `cardCascade 0.32s cubic-bezier(0.22, 1, 0.36, 1) ${80 + idx * 18}ms both`;
+                cell.style.animation = `cardCascade 0.28s cubic-bezier(0.22, 1, 0.36, 1) ${45 + idx * 14}ms both`;
                 cells.appendChild(cell);
             });
         }
@@ -1238,6 +1508,19 @@
     function restoreGoogleRedirectDraft(draft = pendingGoogleRedirectDraft) {
         if (!draft) return;
 
+        if (Array.isArray(draft.selectedIntents)) {
+            selectedIntents.forEach((val) => intentStepApi?.ensureSelectedOption(val, false));
+        }
+        if (Array.isArray(draft.selectedChallenges) || typeof draft.selectedChallenge === 'string') {
+            document.querySelectorAll('.challenge-opt').forEach((o) => o.classList.remove('selected'));
+            const incomingChallenges = Array.isArray(draft.selectedChallenges)
+                ? draft.selectedChallenges
+                : [draft.selectedChallenge];
+            incomingChallenges.forEach((val) => challengeStepApi?.ensureSelectedOption(val, false));
+        }
+        if (typeof draft.selectedTheme === 'string') {
+            document.querySelectorAll('.theme-btn').forEach((b) => b.classList.toggle('selected-theme', b.dataset.theme === draft.selectedTheme));
+        }
         if (typeof draft.northStar === 'string') {
             const northStarInput = document.getElementById('north-star-input');
             if (northStarInput) northStarInput.value = draft.northStar;
@@ -1498,7 +1781,8 @@
                 && Notification.permission === 'granted'
             ),
             intents: selectedIntents,
-            challenge: selectedChallenge,
+            challenge: selectedChallenges[0] || '',
+            challenges: selectedChallenges,
             notificationsEnabled,
             onboardingComplete: true
         });
