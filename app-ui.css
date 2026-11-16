@@ -735,6 +735,7 @@ body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) .material
 body > nav.fixed > a[aria-current="page"] .ha-arc-buddy-body { fill: var(--rpg-dock-active-fg, #121215); }
 body > nav.fixed > a[aria-current="page"] .ha-arc-buddy-eyes { fill: var(--rpg-dock-active-bg, #c4b5fd); }
 body > nav.fixed > a[href="Add_Habit.html"] {
+    position: relative;
     top: 0 !important;
     min-height: 46px;
     display: flex;
@@ -742,15 +743,22 @@ body > nav.fixed > a[href="Add_Habit.html"] {
     justify-content: center;
     overflow: visible !important;
 }
+body > nav.fixed > a[href="Add_Habit.html"]::after {
+    content: '';
+    position: absolute;
+    inset: -24px 0 0;
+}
 body > nav.fixed > a[href="Add_Habit.html"] > div {
-    width: 48px !important;
-    height: 46px !important;
+    position: relative;
+    z-index: 2;
+    width: 52px !important;
+    height: 52px !important;
     background: var(--rpg-fab-bg) !important;
     color: var(--rpg-fab-fg) !important;
     border: 2px solid #121215 !important;
-    border-radius: 15px !important;
-    box-shadow: 0 3px 0 #121215 !important;
-    transform: translateY(-12px);
+    border-radius: 9999px !important;
+    box-shadow: 0 3px 0 #121215, 0 0 0 5px rgb(var(--ha-background)) !important;
+    transform: translateY(-22px);
     display: grid !important;
     place-items: center !important;
     --tw-ring-color: transparent !important;
@@ -758,11 +766,11 @@ body > nav.fixed > a[href="Add_Habit.html"] > div {
     transition: transform 120ms ease, box-shadow 120ms ease !important;
 }
 body > nav.fixed > a[href="Add_Habit.html"]:active > div {
-    transform: translateY(-10px) scale(0.96) !important;
-    box-shadow: 0 1px 0 #121215 !important;
+    transform: translateY(-20px) scale(0.96) !important;
+    box-shadow: 0 1px 0 #121215, 0 0 0 5px rgb(var(--ha-background)) !important;
 }
 body > nav.fixed > a[href="Add_Habit.html"] .material-symbols-outlined {
-    font-size: 25px !important;
+    font-size: 26px !important;
     line-height: 1 !important;
     font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24 !important;
 }
