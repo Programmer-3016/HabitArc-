@@ -166,8 +166,14 @@
             document.querySelectorAll('nav').forEach(nav => {
                 nav.setAttribute('aria-label', nav.classList.contains('fixed') ? 'Mobile navigation' : 'Main navigation');
                 nav.querySelectorAll('a').forEach(link => {
-                    link.classList.remove('ha-nav-pending');
-                    if (link.getAttribute('href') === activePage) {
+                    const href = link.getAttribute('href');
+                    const isActive = href === activePage;
+                    link.classList.remove('ha-nav-pending', 'bg-primary/[0.08]', 'bg-primary/[0.06]', 'text-primary', 'shadow-sm');
+                    const icon = link.querySelector('.material-symbols-outlined');
+                    if (icon && href !== 'Add_Habit.html') {
+                        icon.classList.toggle('fill', isActive);
+                    }
+                    if (isActive) {
                         link.setAttribute('aria-current', 'page');
                     } else {
                         link.removeAttribute('aria-current');

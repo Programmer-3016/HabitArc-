@@ -712,6 +712,20 @@ body > nav.fixed > a {
     border-radius: 15px !important;
     color: rgb(var(--ha-on-surface-variant)) !important;
 }
+body > nav.fixed > a:not([href="Add_Habit.html"]) {
+    transition: none !important;
+}
+body > nav.fixed > a:not([aria-current="page"]):not([href="Add_Habit.html"]) {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 1.5px solid transparent !important;
+    box-shadow: none !important;
+    color: rgb(var(--ha-on-surface-variant)) !important;
+}
+body > nav.fixed > a:not([aria-current="page"]):not([href="Add_Habit.html"]) .material-symbols-outlined {
+    color: rgb(var(--ha-on-surface-variant)) !important;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+}
 body > nav.fixed > a > span:last-child {
     font-family: 'Hanken Grotesk', 'Space Grotesk', sans-serif !important;
     font-size: 10.5px !important;
@@ -721,11 +735,12 @@ body > nav.fixed > a > span:last-child {
 body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) {
     color: var(--rpg-dock-active-fg) !important;
     background: var(--rpg-dock-active-bg) !important;
-    border: 1.5px solid var(--rpg-dock-active-border, #121215);
-    box-shadow: none;
+    border: 1.5px solid var(--rpg-dock-active-border, #121215) !important;
+    box-shadow: none !important;
 }
 body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) .material-symbols-outlined {
     color: var(--rpg-dock-active-fg) !important;
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24 !important;
 }
 .ha-arc-nav-icon { flex-shrink: 0; display: block; margin-bottom: 1px; }
 .ha-arc-buddy-antenna { fill: var(--ha-primary-fixed-dim, #7c3aed); }
