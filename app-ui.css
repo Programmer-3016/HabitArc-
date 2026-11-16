@@ -749,7 +749,6 @@ body main :is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.p-card-padding, .p-5, 
 body main .ha-habit-card,
 body main .ha-insights-calendar,
 body main .ha-insights-achievements,
-body main .ha-insights-coach,
 body main .ha-insights-note,
 body main .ha-insights-spotlight,
 body main .ha-insights-recap,
@@ -1157,10 +1156,9 @@ body > main.ha-insights { max-width: 1120px; gap: 22px; padding-inline: 20px; }
 }
 .ha-insights-metric-context { font-size: 11px; line-height: 1.4; color: var(--ha-hero-sub) !important; margin-top: auto; font-weight: 500; }
 
-.ha-insights-main, .ha-insights-aside, .ha-insights-coach { min-width: 0; gap: 20px; }
-.ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-coach, .ha-insights-note) { padding: 20px; }
-.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2,
-.ha-insights .ha-insights-coach h2 {
+.ha-insights-main, .ha-insights-aside { min-width: 0; gap: 20px; }
+.ha-insights :is(.ha-insights-calendar, .ha-insights-achievements, .ha-insights-note) { padding: 20px; }
+.ha-insights :is(.ha-insights-main, .ha-insights-aside) h2 {
     font-family: 'Space Grotesk', sans-serif; font-size: 16px; line-height: 1.35; font-weight: 700;
     color: rgb(var(--ha-on-surface)) !important;
 }
@@ -1204,29 +1202,6 @@ body main.ha-insights .ha-insights-badge {
 body main.ha-insights .ha-insights-note { background: rgb(var(--ha-surface-container-low)) !important; }
 .ha-insights #coach-note-text { font-size: 14px; line-height: 1.65; font-style: normal; margin-top: 12px; }
 .ha-insights-note > a { min-height: 44px; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; margin-top: 8px; color: var(--rpg-text-accent) !important; }
-.ha-insights #ai-coach-question {
-    min-height: 92px; font-family: 'Hanken Grotesk', sans-serif; font-size: 14px; line-height: 1.55;
-    background: rgb(var(--ha-background)) !important;
-    border: 2px solid rgb(var(--ha-outline-variant)) !important;
-    border-radius: 12px !important;
-    color: rgb(var(--ha-on-surface)) !important;
-    padding: 12px 14px;
-}
-.ha-insights #ai-coach-submit {
-    min-height: 42px; min-width: 84px; justify-content: center;
-    border-radius: 12px !important;
-    border: 2px solid #121215;
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
-    background: var(--rpg-cta) !important;
-    color: var(--rpg-cta-fg) !important;
-    font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
-}
-.ha-insights #ai-coach-answer-card {
-    border-radius: 14px !important;
-    border: 2px solid rgb(var(--ha-outline-variant)) !important;
-    background: rgb(var(--ha-surface-container-low)) !important;
-    padding: 16px;
-}
 .ha-insights .ha-insights-spotlight { padding: 20px; }
 body main.ha-insights .ha-insights-spotlight-row {
     padding: 16px 0; gap: 12px; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important;
@@ -1732,9 +1707,8 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights-timeline { border-left: 2px solid rgb(var(--ha-outline-variant)); }
 }
 @media (min-width: 1024px) {
-    .ha-insights-main { grid-column: 1 / span 8; grid-row: 3 / span 2; }
-    .ha-insights-coach { grid-column: 9 / -1; grid-row: 3; align-self: start; }
-    .ha-insights-aside { grid-column: 9 / -1; grid-row: 4; align-self: start; }
+    .ha-insights-main { grid-column: 1 / span 8; grid-row: 3; }
+    .ha-insights-aside { grid-column: 9 / -1; grid-row: 3; align-self: start; }
 }
 @media (min-width: 768px) and (max-width: 1023px) {
     body > header > div:has(> nav) { padding-inline: 20px; gap: 8px; }
@@ -1764,10 +1738,8 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights-metric:nth-child(n+3) { border-top: 2px solid rgba(18, 16, 16, 0.14); }
     .ha-insights .ha-insights-metric :is(#metric-progress, #metric-consistency, #metric-streak, #metric-trend) { font-size: 20px; }
     .ha-insights .ha-insights-timeline { border-top: 2px solid rgb(var(--ha-outline-variant)); }
-    .ha-insights #ai-coach-question { font-size: 16px; }
-    .ha-insights-coach { order: 1; }
-    .ha-insights-main { order: 2; }
-    .ha-insights-aside { order: 3; }
+    .ha-insights-main { order: 1; }
+    .ha-insights-aside { order: 2; }
 
     body > main:is(.ha-habits, .ha-detail) { padding-inline: 16px; }
     .ha-detail #monthly-calendar-grid { gap: 4px; }

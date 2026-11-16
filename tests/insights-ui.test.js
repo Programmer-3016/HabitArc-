@@ -2,16 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildHabitCoachContext, renderCoachMarkdown } from '../habit-analytics.js';
+import { buildHabitCoachContext } from '../habit-analytics.js';
 
 const html = readFileSync(new URL('../Insights.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
     .replace(/^import\s+\{[^}]+\}\s+from\s+['"].+?['"];?\s*/m, '');
 const now = Date.parse('2026-11-15T12:00:00Z');
-test('Coach is prioritised directly after Insights overview for mobile source order', () => {
-    assert.ok(html.indexOf('aria-label="Progress overview"') < html.indexOf('id="ai-coach-title"'));
-    assert.ok(html.indexOf('id="ai-coach-title"') < html.indexOf('class="ha-insights-main'));
-    assert.equal((html.match(/id="ai-coach-title"/g) || []).length, 1);
+test('Insights focuses on analytics without duplicating the ARC AI chat widget', () => {
+    assert.ok(html.indexOf('aria-label="Progress overview"') < html.indexOf('class="ha-insights-main'));
+    assert.ok(!html.includes('id="ai-coach-form"'));
+    assert.ok(!html.includes('id="ai-coach-title"'));
 });
 class Clock extends Date {
     constructor(...args) { super(...(args.length ? args : [now])); }
@@ -73,11 +73,10 @@ function insights({ empty = false, signedIn = false } = {}) {
         flushCloudSync: async () => {},
     };
     vm.runInNewContext(source, {
-        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, Date: Clock, Intl, AbortSignal, AbortController, navigator: { onLine: true },
+        HabitArc: app, buildHabitCoachContext, Date: Clock, Intl,
         console: { warn() {} },
         document: { getElementById: id => elements.get(id) || null, addEventListener: () => {}, hidden: false },
         window: { addEventListener: (name, handler) => events.set(name, handler) },
-        fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => ({ answer: 'Focus on your routine.', usage: { remaining: 4 } }) }; },
     });
     return { elements, events, requests };
 }
@@ -115,29 +114,4 @@ test('Insights empty history retains honest insufficient-data and empty spotligh
     assert.equal(page.elements.get('metric-trend').classList.contains('ha-insights-metric-empty'), true);
     assert.equal(page.elements.get('strongest-name').textContent, 'No habits yet');
     assert.match(page.elements.get('coach-note-text').textContent, /Complete habits for a few days/);
-});
-
-test('restyled Coach still blocks guest requests before calling an API', async () => {
-    const page = insights();
-    page.elements.get('ai-coach-question').value = 'Where can I improve?';
-    page.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
-    await new Promise(resolve => setImmediate(resolve));
-    assert.equal(page.requests.length, 0);
-    assert.match(page.elements.get('ai-coach-status').textContent, /sign in/);
-    assert.equal(page.elements.get('ai-coach-submit').disabled, false);
-});
-
-test('restyled Coach preserves authenticated question submission and text-only answers', async () => {
-    const page = insights({ signedIn: true });
-    page.elements.get('ai-coach-question').value = 'Where can I improve?';
-    page.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
-    await new Promise(resolve => setImmediate(resolve));
-    await new Promise(resolve => setImmediate(resolve));
-    await new Promise(resolve => setImmediate(resolve));
-    assert.equal(page.requests[0].url, '/api/coach');
-    assert.equal(page.requests[0].options.headers.Authorization, 'Bearer qa-token');
-    assert.equal(JSON.parse(page.requests[0].options.body).question, 'Where can I improve?');
-    assert.deepEqual(JSON.parse(page.requests[0].options.body).conversation, []);
-    assert.equal(page.elements.get('ai-coach-answer').textContent, 'Focus on your routine.');
-    assert.match(page.elements.get('ai-coach-status').textContent, /4 secure Coach messages/);
 });

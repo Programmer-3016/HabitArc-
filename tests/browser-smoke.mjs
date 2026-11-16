@@ -64,7 +64,7 @@ try {
             assert.equal(overflow, false, `${name} horizontal overflow at ${width}px`);
         }
     }
-    await page.goto(`${base}/Insights.html`, { waitUntil: 'networkidle' });
+    await page.goto(`${base}/Arc_AI.html`, { waitUntil: 'networkidle' });
     await page.locator('#ai-coach-question').fill('Where can I improve?');
     await page.locator('#ai-coach-submit').click();
     await page.waitForFunction(() => document.querySelector('#ai-coach-status').textContent.includes('sign in'));
