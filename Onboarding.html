@@ -255,47 +255,129 @@
 
     .opt, .opt-row, .opt-big, .chip {
         background: #ffffff;
-        border: 1.5px solid #eceeef;
-        color: #191c1d;
-        transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+        border: 2px solid #031e13;
+        box-shadow: 0 3px 0 #031e13;
+        color: #012d1d;
+        transition: background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, color 0.18s ease;
         cursor: pointer;
         text-align: left;
     }
-    .opt { position: relative; border-radius: 20px; padding: 24px 12px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-    .opt-ico { font-size: 28px; color: #012d1d; }
-    .opt-label { font-size: 16px; font-weight: 600; }
+    .opt { position: relative; border-radius: 20px; padding: 20px 12px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .opt-ico {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: #eafaf1;
+        color: #012d1d;
+        font-size: 25px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease, color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .opt-label { font-size: 15.5px; font-weight: 600; transition: color 0.18s ease; }
     .opt .check-badge { position: absolute; top: 10px; right: 10px; }
     .opt-row { width: 100%; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
     .opt-row .opt-label { flex: 1; }
-    .opt-ico-box { width: 40px; height: 40px; border-radius: 12px; background: #f3f4f5; color: #012d1d; display: flex; align-items: center; justify-content: center; font-size: 22px; transition: all .18s ease; flex-shrink: 0; }
-    .opt-big { position: relative; border-radius: 24px; padding: 34px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+    .opt-ico-box { width: 40px; height: 40px; border-radius: 12px; background: #eafaf1; color: #012d1d; display: flex; align-items: center; justify-content: center; font-size: 21px; transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1); flex-shrink: 0; }
+    .opt-big { position: relative; border-radius: 24px; padding: 32px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
     .opt-big .check-badge { position: absolute; top: 12px; right: 12px; }
-    .opt-big > .material-symbols-outlined { font-size: 38px; color: #012d1d; }
-    /* Calm selected state: soft pine tint + pine border instead of a loud mint fill. */
-    .opt.selected, .opt-row.selected, .opt-big.selected { background: #eaf5ef; border-color: #012d1d; box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.06); }
-    .opt-row.selected .opt-ico-box { background: #012d1d; color: #ffffff; }
-    /* Check badges only appear on selected options, so unselected cards stay clean. */
-    .check-badge { width: 22px; height: 22px; border-radius: 9999px; background: #012d1d; color: #fff; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.6); transition: opacity .18s ease, transform .18s ease; }
-    .selected > .check-badge { opacity: 1; transform: scale(1); }
-    .check-badge .material-symbols-outlined { font-size: 14px; }
+    .opt-big > .material-symbols-outlined {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        background: #eafaf1;
+        color: #012d1d;
+        font-size: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease, color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
 
-    .chip { padding: 8px 14px; border-radius: 9999px; font-size: 14px; font-weight: 500; }
-    .chip:hover { border-color: #012d1d; }
+    /* Tactile press feedback */
+    .opt:active, .opt-row:active, .opt-big:active, .chip:active, .auth-btn:active {
+        transform: scale(0.96) translateY(1px) !important;
+        box-shadow: 0 1px 0 #031e13 !important;
+    }
+
+    /* Crisp #0d1612 Ink Invert Selected State across Steps 2, 3 & 5 */
+    .opt.selected, .opt-row.selected, .opt-big.selected {
+        background: #0d1612 !important;
+        border-color: #031e13 !important;
+        box-shadow: 0 4px 0 #012d1d !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+    }
+    .opt.selected .opt-ico,
+    .opt-big.selected > .material-symbols-outlined {
+        background: rgba(71, 227, 147, 0.18);
+        color: #47e393;
+        transform: scale(1.08);
+    }
+    .opt.selected .opt-label,
+    .opt-row.selected .opt-label,
+    .opt-big.selected .opt-label { color: #ffffff; }
+    .opt-row.selected .opt-ico-box { background: #47e393; color: #012d1d; transform: scale(1.05); }
+
+    /* Springy mint check badge on selected cards */
+    .check-badge {
+        width: 22px;
+        height: 22px;
+        border-radius: 9999px;
+        background: #47e393;
+        color: #012d1d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0.45);
+        transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .selected > .check-badge { opacity: 1; transform: scale(1); }
+    .check-badge .material-symbols-outlined { font-size: 14px; font-weight: 700; }
+
+    .chip { padding: 8px 14px; border-radius: 9999px; font-size: 14px; font-weight: 600; box-shadow: 0 2.5px 0 #031e13; }
+    .chip:hover { background: #0d1612; color: #ffffff; border-color: #031e13; }
 
     .theme-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; cursor: pointer; }
-    .swatch { width: 52px; height: 52px; border-radius: 9999px; border: 1.5px solid rgba(1, 45, 29, 0.14); transition: outline-color .18s ease, transform .18s ease; }
-    .swatch-label { font-size: 12px; color: #717973; font-weight: 500; }
-    .theme-btn.selected-theme .swatch { outline: 2px solid #012d1d; outline-offset: 3px; }
-    .theme-btn.selected-theme .swatch-label { color: #012d1d; font-weight: 700; }
+    .swatch {
+        width: 52px;
+        height: 52px;
+        border-radius: 9999px;
+        border: 2px solid #031e13;
+        box-shadow: 0 2.5px 0 #031e13;
+        transition: outline-color 0.18s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .swatch-label { font-size: 12px; color: rgba(1, 45, 29, 0.8); font-weight: 600; }
+    .theme-btn.selected-theme .swatch { outline: 2.5px solid #012d1d; outline-offset: 3px; transform: scale(1.08); }
+    .theme-btn.selected-theme .swatch-label { color: #012d1d; font-weight: 800; }
 
-    .auth-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: 18px; background: #ffffff; border: 1.5px solid #e4e7e8; color: #191c1d; font-size: 15px; font-weight: 600; cursor: pointer; transition: border-color .18s ease; -webkit-tap-highlight-color: transparent; }
-    .auth-btn:hover { border-color: #012d1d; }
+    .auth-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 2px solid #031e13;
+        box-shadow: 0 3px 0 #031e13;
+        color: #012d1d;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, background-color 0.18s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .auth-btn:hover { transform: translateY(-1px); }
     /* Override @tailwindcss/forms focus ring/border injection on Step 7 email form inputs */
     #step-7 .auth-input {
         width: 100%;
         padding: 13px 16px !important;
         border-radius: 16px !important;
-        border: 1.5px solid #e4e7e8 !important;
+        border: 2px solid #031e13 !important;
         background: #ffffff !important;
         font-size: 15px;
         line-height: 1.4;
@@ -303,14 +385,14 @@
         appearance: none;
         -webkit-appearance: none;
         -webkit-tap-highlight-color: transparent;
-        transition: border-color .18s ease;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
     }
     #step-7 .auth-input:focus,
     #step-7 .auth-input:focus-visible {
         outline: none !important;
         outline-offset: 0 !important;
-        border-color: #012d1d !important;
-        box-shadow: none !important;
+        border-color: #031e13 !important;
+        box-shadow: 0 3px 0 #031e13 !important;
         --tw-ring-offset-shadow: 0 0 #0000 !important;
         --tw-ring-shadow: 0 0 #0000 !important;
     }
@@ -333,34 +415,77 @@
         -webkit-appearance: none;
         -webkit-tap-highlight-color: transparent;
     }
+    #north-star-input::placeholder { color: rgba(1, 45, 29, 0.48) !important; }
 
     .logo-hero { animation: fadeInUp 0.5s ease-out both; }
-    #bottom-nav-wrap #bottom-nav.bare { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; }
+    #bottom-nav-wrap #bottom-nav.bare { background: transparent !important; border-color: transparent !important; box-shadow: none !important; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; }
 
-    /* Step 1 Vibrant Mint Welcome Card Theme + Isometric Sanctuary Card Animation */
-    body.step-1-active {
+    /* Pure Mint Green Continuity Theme Across Steps 1–7 */
+    body {
         background-color: #47e393 !important;
         color: #012d1d;
     }
-    body.step-1-active #progress-bar-track {
+    #progress-bar-track {
         background-color: rgba(1, 45, 29, 0.14);
     }
-    body.step-1-active header img[alt="HabitArc"] {
-        background: rgba(255, 255, 255, 0.9);
+    header img[alt="HabitArc"] {
+        background: rgba(255, 255, 255, 0.92);
         border-radius: 7px;
         padding: 2px;
     }
-    body.step-1-active #step-indicator {
-        color: #012d1d;
-        opacity: 0.78;
+    #step-indicator,
+    .step-card > p.text-outline,
+    #guest-note {
+        color: rgba(1, 45, 29, 0.78) !important;
     }
+    #step-6 > span.inline-flex {
+        background: #ffffff;
+        border: 1.5px solid #031e13;
+        box-shadow: 0 2px 0 #031e13;
+    }
+    #mini-dashboard-preview {
+        border-width: 2px !important;
+        border-color: #031e13 !important;
+        box-shadow: 0 4px 0 #031e13;
+    }
+    #auth-tabs {
+        background: rgba(255, 255, 255, 0.78) !important;
+        border: 2px solid #031e13;
+        box-shadow: 0 2.5px 0 #031e13;
+    }
+    #guest-divider > div { background-color: rgba(1, 45, 29, 0.25) !important; }
+    #guest-divider span  { color: rgba(1, 45, 29, 0.82) !important; }
+    #guest-signin-btn {
+        background: rgba(255, 255, 255, 0.88) !important;
+        border: 2px solid #031e13 !important;
+        box-shadow: 0 3px 0 #031e13;
+        color: #012d1d !important;
+    }
+    #auth-error:not(.hidden) {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1.5px solid #991b1b;
+        border-radius: 12px;
+        padding: 8px 12px;
+    }
+    #bottom-nav:not(.bare) {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 2px solid #031e13 !important;
+        box-shadow: 0 4px 0 #031e13 !important;
+    }
+    #prev-step-btn { color: #012d1d !important; }
+    #next-step-btn,
+    #email-submit-btn {
+        background-color: #0d1612;
+        color: #ffffff;
+    }
+
+    /* Step 1 Specific Welcome CTA & Headline Contrast */
     body.step-1-active .step-1-headline,
     body.step-1-active .step-1-headline-accent {
         color: #012d1d;
     }
     body.step-1-active #next-step-btn {
-        background-color: #0d1612;
-        color: #ffffff;
         border-radius: 10px;
         box-shadow: 0 10px 24px -6px rgba(1, 45, 29, 0.28);
     }
@@ -370,6 +495,56 @@
     body.step-1-active #welcome-login-btn {
         color: #012d1d;
     }
+
+    /* Video-Inspired Staggered Card Cascade Across Steps 2–7 */
+    @keyframes cardCascade {
+        0%   { opacity: 0; transform: translateY(14px) scale(0.96); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .step-card.active:not(#step-1) > h2 { animation: cardCascade 0.36s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .step-card.active:not(#step-1) > p  { animation: cardCascade 0.36s cubic-bezier(0.22, 1, 0.36, 1) 40ms both; }
+    .step-card.active .opt,
+    .step-card.active .opt-row,
+    .step-card.active .opt-big,
+    .step-card.active .theme-btn,
+    .step-card.active .chip,
+    .step-card.active #mini-dashboard-preview,
+    .step-card.active #north-star-input,
+    .step-card.active #auth-tabs,
+    .step-card.active #google-signin-btn,
+    .step-card.active #email-toggle-btn,
+    .step-card.active #guest-signin-btn {
+        animation: cardCascade 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .step-card.active .opt:nth-child(1),
+    .step-card.active .opt-row:nth-child(1),
+    .step-card.active .opt-big:nth-child(1),
+    .step-card.active .chip:nth-child(1),
+    .step-card.active #mini-dashboard-preview,
+    .step-card.active #north-star-input,
+    .step-card.active #auth-tabs { animation-delay: 55ms; }
+    .step-card.active .opt:nth-child(2),
+    .step-card.active .opt-row:nth-child(2),
+    .step-card.active .opt-big:nth-child(2),
+    .step-card.active .chip:nth-child(2),
+    .step-card.active #google-signin-btn { animation-delay: 110ms; }
+    .step-card.active .opt:nth-child(3),
+    .step-card.active .opt-row:nth-child(3),
+    .step-card.active .chip:nth-child(3),
+    .step-card.active #email-toggle-btn { animation-delay: 165ms; }
+    .step-card.active .opt:nth-child(4),
+    .step-card.active .opt-row:nth-child(4),
+    .step-card.active #guest-signin-btn { animation-delay: 220ms; }
+    .step-card.active .opt:nth-child(5),
+    .step-card.active .opt-row:nth-child(5) { animation-delay: 275ms; }
+    .step-card.active .opt:nth-child(6)     { animation-delay: 330ms; }
+    .step-card.active .theme-btn:nth-child(1) { animation-delay: 95ms; }
+    .step-card.active .theme-btn:nth-child(2) { animation-delay: 140ms; }
+    .step-card.active .theme-btn:nth-child(3) { animation-delay: 185ms; }
+    .step-card.active .theme-btn:nth-child(4) { animation-delay: 230ms; }
+    .step-card.active .theme-btn:nth-child(5) { animation-delay: 275ms; }
+    .step-card.active .theme-btn:nth-child(6) { animation-delay: 320ms; }
+
     @keyframes heroIsoFloat {
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-6px); }
@@ -392,7 +567,22 @@
     .hero-pill-bob { animation: heroPillBob 3.4s ease-in-out infinite; }
     .hero-tile-pulse { animation: heroTilePulse 3.6s ease-in-out infinite; }
     @media (prefers-reduced-motion: reduce) {
-        .hero-iso-float, .hero-coin-bob, .hero-pill-bob, .hero-tile-pulse { animation: none !important; }
+        .hero-iso-float, .hero-coin-bob, .hero-pill-bob, .hero-tile-pulse,
+        .step-card.active:not(#step-1) > h2,
+        .step-card.active:not(#step-1) > p,
+        .step-card.active .opt,
+        .step-card.active .opt-row,
+        .step-card.active .opt-big,
+        .step-card.active .theme-btn,
+        .step-card.active .chip,
+        .step-card.active #mini-dashboard-preview,
+        .step-card.active #north-star-input,
+        .step-card.active #auth-tabs,
+        .step-card.active #google-signin-btn,
+        .step-card.active #email-toggle-btn,
+        .step-card.active #guest-signin-btn {
+            animation: none !important;
+        }
     }
 </style>
 </head>
@@ -931,10 +1121,11 @@
         if (cells) {
             const pattern = [1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1];
             cells.innerHTML = '';
-            pattern.forEach(active => {
+            pattern.forEach((active, idx) => {
                 const cell = document.createElement('div');
                 cell.className = 'h-3 rounded-[3px] transition-all duration-300';
                 cell.style.backgroundColor = active ? t.accent : t.off;
+                cell.style.animation = `cardCascade 0.32s cubic-bezier(0.22, 1, 0.36, 1) ${80 + idx * 18}ms both`;
                 cells.appendChild(cell);
             });
         }
