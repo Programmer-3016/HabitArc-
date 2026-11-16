@@ -734,40 +734,53 @@ body > nav.fixed > a[aria-current="page"]:not([href="Add_Habit.html"]) .material
 .ha-arc-buddy-eyes { fill: var(--rpg-dock-bg, #ffffff); }
 body > nav.fixed > a[aria-current="page"] .ha-arc-buddy-body { fill: var(--rpg-dock-active-fg, #121215); }
 body > nav.fixed > a[aria-current="page"] .ha-arc-buddy-eyes { fill: var(--rpg-dock-active-bg, #c4b5fd); }
-body > nav.fixed > a[href="Add_Habit.html"] {
+body > nav.fixed > a[href="Add_Habit.html"],
+body > nav.fixed > a[href="Add_Habit.html"]:is(:hover, :active, :focus, :focus-visible, .ha-nav-pending, [aria-current="page"]) {
     position: relative;
     top: 0 !important;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible !important;
-}
-body > nav.fixed > a[href="Add_Habit.html"]::after {
-    content: '';
-    position: absolute;
-    inset: -24px 0 0;
-}
-body > nav.fixed > a[href="Add_Habit.html"] > div {
-    position: relative;
-    z-index: 2;
     width: 52px !important;
     height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    margin: -28px auto 2px !important;
+    padding: 0 !important;
+    border-radius: 9999px !important;
+    display: grid !important;
+    place-items: center !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+body > nav.fixed > a[href="Add_Habit.html"] > div {
+    width: 52px !important;
+    height: 52px !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: var(--rpg-fab-bg) !important;
     color: var(--rpg-fab-fg) !important;
     border: 2px solid #121215 !important;
     border-radius: 9999px !important;
-    box-shadow: 0 3px 0 #121215, 0 0 0 5px rgb(var(--ha-background)) !important;
-    transform: translateY(-22px);
+    box-shadow: 0 3px 0 #121215 !important;
+    outline: none !important;
+    transform: none !important;
     display: grid !important;
     place-items: center !important;
     --tw-ring-color: transparent !important;
     --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+    --tw-shadow: 0 0 #0000 !important;
     transition: transform 120ms ease, box-shadow 120ms ease !important;
 }
-body > nav.fixed > a[href="Add_Habit.html"]:active > div {
-    transform: translateY(-20px) scale(0.96) !important;
-    box-shadow: 0 1px 0 #121215, 0 0 0 5px rgb(var(--ha-background)) !important;
+body > nav.fixed > a[href="Add_Habit.html"]:is(:active, .ha-nav-pending) > div {
+    transform: translateY(2px) scale(0.96) !important;
+    box-shadow: 0 1px 0 #121215 !important;
+}
+body > nav.fixed > a[href="Add_Habit.html"]:focus-visible > div {
+    outline: 2.5px solid #121215 !important;
+    outline-offset: 2px !important;
 }
 body > nav.fixed > a[href="Add_Habit.html"] .material-symbols-outlined {
     font-size: 26px !important;

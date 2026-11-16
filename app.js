@@ -2220,7 +2220,12 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
             const style = document.createElement('style');
             style.id = reducedMotionStyleId;
             style.textContent = `
-                :where(a, button, input, select, textarea, summary, [role="button"]):focus-visible {
+                :where(a:not([href="Add_Habit.html"]), button, input, select, textarea, summary, [role="button"]):focus-visible {
+                    outline: 3px solid #10b981 !important;
+                    outline-offset: 3px !important;
+                }
+                header a[href="Add_Habit.html"]:focus-visible,
+                nav.fixed > a[href="Add_Habit.html"]:focus-visible > div {
                     outline: 3px solid #10b981 !important;
                     outline-offset: 3px !important;
                 }
