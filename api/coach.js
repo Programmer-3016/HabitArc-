@@ -36,9 +36,10 @@ function getDailyLimit() {
 
 function getFirebaseServiceAccount() {
     try {
-        const encoded = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
-        if (!encoded) throw new Error('Missing server configuration.');
-        const serviceAccount = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
+        const raw = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 || '').trim();
+        if (!raw) throw new Error('Missing server configuration.');
+        const jsonText = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+        const serviceAccount = JSON.parse(jsonText);
         if (!serviceAccount.project_id || !serviceAccount.client_email || !serviceAccount.private_key) {
             throw new Error('Incomplete server configuration.');
         }
