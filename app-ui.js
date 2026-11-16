@@ -56,7 +56,7 @@
             });
         });
         if (page === 'Profile.html' || page === 'Settings.html') {
-            document.querySelectorAll(`body > header a[href="${page}"]`).forEach(link => {
+            document.querySelectorAll('body > header a[href="Profile.html"]').forEach(link => {
                 link.setAttribute('aria-current', 'page');
             });
         }

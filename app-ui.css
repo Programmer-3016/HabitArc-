@@ -441,7 +441,7 @@ p, h1, h2, h3 { overflow-wrap: anywhere; }
 }
 .ha-skip-link:focus { top: 12px; }
 
-/* ─── Top App Header (Mobile & Desktop Arcade Bar) ──────────────────────────── */
+/* ─── Top App Header (Option 3: Sharp Neo-Pixel Keycaps · Uniform 32px) ────── */
 body > header {
     background: var(--rpg-hdr-bg) !important;
     color: #ffffff !important;
@@ -449,78 +449,142 @@ body > header {
     backdrop-filter: none !important;
     box-shadow: none !important;
 }
-body > header > div:has(> nav) { max-width: 1280px; margin-inline: auto; padding-inline: 32px; }
-body > header a { min-height: 44px; }
-body > header a:has(> .material-symbols-outlined:only-child) { min-width: 44px; }
+body > header > div:has(> nav) { max-width: 1280px; margin-inline: auto; padding-inline: 28px; }
+body > header a { min-height: 32px; }
 body > header .ha-brand-link {
     display: inline-flex; align-items: center; gap: 9px;
     color: #ffffff !important;
     text-decoration: none;
+    min-height: 36px;
+}
+body > header .ha-brand-badge {
+    width: 28px; height: 28px; flex-shrink: 0;
+    background: var(--rpg-cta, #ff6b4a);
+    color: var(--rpg-cta-fg, #ffffff);
+    border: 2px solid #000000;
+    box-shadow: 2px 2px 0 #000000;
+    display: grid; place-items: center;
+}
+:root:not([data-theme]) body > header .ha-brand-badge,
+:root[data-theme="dark"] body > header .ha-brand-badge {
+    color: #121010;
 }
 body > header .ha-brand-wordmark {
-    font-family: 'Silkscreen', 'JetBrains Mono', monospace;
-    font-size: 15px;
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+    font-size: 16.5px;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: -0.025em;
     color: #ffffff !important;
     line-height: 1;
 }
+body > header nav {
+    display: inline-flex !important;
+    align-items: stretch;
+    gap: 0 !important;
+    background: var(--rpg-hdr-chip-bg);
+    border: 1.5px solid var(--rpg-hdr-chip-border);
+    box-shadow: 2px 2px 0 #000000;
+}
 body > header nav a {
     display: inline-flex; align-items: center;
+    height: 30px; min-height: 30px !important;
+    padding: 0 13px !important;
     font-family: 'Silkscreen', 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.03em;
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
     border-radius: 0px !important;
-    border: 2px solid transparent;
-    color: #a8a29e !important;
+    border: 0 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #d6d3d1 !important;
 }
+body > header nav a:last-child { border-right: 0 !important; }
 body > header nav a:hover {
     color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
 }
 body > header nav a[aria-current="page"] {
     background: #ffffff !important;
     color: #121010 !important;
-    border-color: #000000 !important;
-    box-shadow: 2px 2px 0 var(--rpg-cta);
+    font-weight: 700;
+    box-shadow: none !important;
 }
 
-/* Header Streak Chip & Action Square Controls */
+/* Header Streak Key, Profile Key & CTA Controls (Uniform 32px height) */
 body > header :is(div:has(> #header-streak-count), div:has(> #header-streak-count-web)) {
+    height: 32px;
+    padding: 0 10px !important;
+    display: inline-flex; align-items: center; gap: 5px;
     background: var(--rpg-hdr-chip-bg) !important;
     color: var(--rpg-gold) !important;
-    border: 2px solid var(--rpg-hdr-chip-border) !important;
+    border: 1.5px solid var(--rpg-hdr-chip-border) !important;
     box-shadow: 2px 2px 0 #000000;
     border-radius: 0px !important;
-    font-family: 'Silkscreen', monospace;
-    font-size: 11px !important;
-    padding: 4px 9px !important;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px !important;
+    font-weight: 700;
+    line-height: 1;
+}
+body > header :is(div:has(> #header-streak-count), div:has(> #header-streak-count-web)) .material-symbols-outlined {
+    color: var(--rpg-cta, #ff6b4a) !important;
+    font-size: 15px !important;
 }
 body > header a[href="Add_Habit.html"] {
+    height: 32px; min-height: 32px !important;
+    padding: 0 11px !important;
+    display: inline-flex; align-items: center; gap: 5px;
     background: var(--rpg-cta) !important;
     color: var(--rpg-cta-fg) !important;
-    border: 2px solid #000000 !important;
-    box-shadow: 3px 3px 0 #000000;
+    border: 1.5px solid #000000 !important;
+    box-shadow: 2px 2px 0 #000000;
     border-radius: 0px !important;
     font-family: 'Silkscreen', monospace;
-    font-size: 12px !important;
+    font-size: 10.5px !important;
+    font-weight: 700;
 }
-body > header :is(a[href="Settings.html"], a[href="Profile.html"], a[href="Habits.html"]:not(nav a)),
-body > header :is(#edit-habit-btn, #delete-btn) {
+:root:not([data-theme]) body > header a[href="Add_Habit.html"],
+:root[data-theme="dark"] body > header a[href="Add_Habit.html"] {
+    color: #121010 !important;
+}
+body > header a.ha-hdr-profile {
+    position: relative;
+    width: 32px !important; height: 32px !important;
+    min-width: 32px !important; min-height: 32px !important;
+    padding: 0 !important;
+    display: inline-grid; place-items: center;
+    background: #ffffff !important;
+    color: #121010 !important;
+    border: 2px solid #000000 !important;
+    box-shadow: 2px 2px 0 var(--rpg-cta, #ff6b4a);
+    border-radius: 0px !important;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 13.5px; line-height: 1;
+}
+body > header a.ha-hdr-profile .ha-hdr-profile-img {
+    display: block; width: 100%; height: 100%; object-fit: cover;
+}
+body > header a.ha-hdr-profile::after {
+    content: ''; position: absolute; inset: -6px;
+}
+body > header a.ha-hdr-profile[aria-current="page"] {
+    background: var(--rpg-cta, #ff6b4a) !important;
+    color: #121010 !important;
+    box-shadow: 2px 2px 0 #ffffff;
+}
+body > header :is(a[href="Habits.html"]:not(nav a), #edit-habit-btn, #delete-btn) {
+    position: relative;
+    width: 34px !important; height: 34px !important;
+    min-width: 34px !important; min-height: 34px !important;
     background: var(--rpg-hdr-chip-bg) !important;
     color: var(--rpg-hdr-chip-fg) !important;
-    border: 2px solid var(--rpg-hdr-chip-border) !important;
+    border: 1.5px solid var(--rpg-hdr-chip-border) !important;
     border-radius: 0px !important;
     box-shadow: 2px 2px 0 #000000;
 }
-body > header a[aria-current="page"]:is([href="Profile.html"], [href="Settings.html"]) {
-    background: var(--rpg-dock-active-bg) !important;
-    color: var(--rpg-dock-active-fg) !important;
-    border-color: #000000 !important;
-    box-shadow: 2px 2px 0 var(--rpg-cta);
+body > header :is(a[href="Habits.html"]:not(nav a), #edit-habit-btn, #delete-btn)::after {
+    content: ''; position: absolute; inset: -5px;
 }
 body > header #delete-btn { color: #ff7a68 !important; border-color: #7c2d12 !important; }
-body > header #habit-name-title { color: #ffffff !important; }
+body > header #habit-name-title { color: #ffffff !important; font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-weight: 700; }
 
 /* ─── Bottom Floating RPG HUD Navigation (Mobile) ───────────────────────────── */
 body > nav.fixed {
@@ -1518,7 +1582,7 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 @media (min-width: 768px) and (max-width: 1023px) {
     body > header > div:has(> nav) { padding-inline: 20px; gap: 8px; }
-    body > header nav a { padding-inline: 10px; }
+    body > header nav a { padding-inline: 10px !important; }
     body > header div:has(> #header-streak-count-web) { display: none; }
     .ha-insights-aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
     .ha-insights-spotlight { grid-column: 1 / -1; }
@@ -1559,8 +1623,8 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 @media (max-width: 399px) {
     body > header.md\:hidden { padding-inline: 12px !important; gap: 6px; }
-    body > header.md\:hidden > div { gap: 6px !important; }
-    body > header .ha-brand-wordmark { font-size: 13px; }
+    body > header.md\:hidden > div { gap: 8px !important; }
+    body > header .ha-brand-wordmark { font-size: 15px; }
 }
 @media (max-width: 359px) {
     body > main { padding-inline: 14px; }

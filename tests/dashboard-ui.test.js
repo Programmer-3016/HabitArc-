@@ -110,6 +110,7 @@ test('focused dashboard retains the five mobile navigation destinations and top-
     assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]), ['Dashboard.html', 'Habits.html', 'Add_Habit.html', 'Insights.html', 'Arc_AI.html']);
     const mobileHeader = html.match(/<header class="[^"]*md:hidden[\s\S]*?<\/header>/)[0];
     assert.ok(mobileHeader.includes('href="Profile.html"'));
-    assert.ok(mobileHeader.includes('href="Settings.html"'));
+    assert.ok(!mobileHeader.includes('href="Settings.html"'));
+    assert.ok(mobileHeader.includes('>HabitArc<'));
     assert.ok(html.indexOf('class="ha-dashboard-view-all"') > html.indexOf('id="habits-container"'));
 });

@@ -93,8 +93,10 @@ test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and locked 100dvh 
     assert.deepEqual([...mobileNav.matchAll(/href="([^"]+)"/g)].map(m => m[1]), ['Dashboard.html', 'Habits.html', 'Add_Habit.html', 'Insights.html', 'Arc_AI.html']);
     const mobileHeader = html.match(/<header class="[^"]*md:hidden[\s\S]*?<\/header>/)[0];
     assert.ok(mobileHeader.includes('href="Profile.html"'));
-    assert.ok(mobileHeader.includes('href="Settings.html"'));
+    assert.ok(!mobileHeader.includes('href="Settings.html"'));
+    assert.ok(mobileHeader.includes('>HabitArc<'));
     const deskHeader = html.match(/<header class="hidden md:block[\s\S]*?<\/header>/)[0];
+    assert.ok(!deskHeader.includes('href="Settings.html"'));
     const deskNav = deskHeader.match(/<nav[\s\S]*?<\/nav>/)[0];
     assert.deepEqual([...deskNav.matchAll(/href="([^"]+)"/g)].map(m => m[1]), ['Dashboard.html', 'Habits.html', 'Insights.html', 'Arc_AI.html']);
 

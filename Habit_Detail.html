@@ -13,7 +13,7 @@
 <script defer src="pwa-register.js"></script>
 <title>HabitArc - Habit Detail</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Geist:wght@400;500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Geist:wght@400;500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
     tailwind.config = {
@@ -109,8 +109,13 @@
         <a href="Habits.html" aria-label="Back to habits" class="w-9 h-9 rounded-full bg-surface-container-low border border-surface-container flex items-center justify-center text-on-surface hover:text-primary active:scale-95 transition-all shadow-2xs">
             <span class="material-symbols-outlined text-lg">arrow_back</span>
         </a>
-        <div class="flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="11" width="2" height="2" fill="#ffffff"/><rect x="4" y="9" width="2" height="2" fill="#ffffff"/><rect x="6" y="7" width="2" height="2" fill="#ffffff"/><rect x="8" y="9" width="2" height="2" fill="#ffffff"/><rect x="10" y="7" width="2" height="2" fill="#ffffff"/><rect x="12" y="5" width="2" height="2" fill="#ffffff"/><rect x="9" y="3" width="5" height="2" fill="#47e393"/><rect x="12" y="3" width="2" height="5" fill="#47e393"/></svg>
+        <div class="flex items-center gap-2.5">
+            <span class="ha-brand-badge" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M4 17l5.5-5.5 3.5 3.5L20 7"/>
+                    <path d="M14.5 7H20v5.5"/>
+                </svg>
+            </span>
             <h1 class="font-headline-md text-base text-on-surface font-bold" id="habit-name-title">Habit Detail</h1>
         </div>
         <div class="flex items-center gap-2">

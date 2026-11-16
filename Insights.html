@@ -15,7 +15,7 @@
 <title>HabitArc - Insights</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Geist:wght@500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Space+Grotesk:wght@600;700&amp;family=Geist:wght@500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -135,30 +135,23 @@
 <!-- Subtle Background Pattern -->
 <div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
 <!-- Top App Bar (Mobile) -->
-<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-5 py-3 md:hidden">
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
     <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
-        <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-            <rect x="2" y="11" width="2" height="2" fill="#ffffff"/>
-            <rect x="4" y="9" width="2" height="2" fill="#ffffff"/>
-            <rect x="6" y="7" width="2" height="2" fill="#ffffff"/>
-            <rect x="8" y="9" width="2" height="2" fill="#ffffff"/>
-            <rect x="10" y="7" width="2" height="2" fill="#ffffff"/>
-            <rect x="12" y="5" width="2" height="2" fill="#ffffff"/>
-            <rect x="9" y="3" width="5" height="2" fill="#47e393"/>
-            <rect x="12" y="3" width="2" height="5" fill="#47e393"/>
-        </svg>
-        <span class="ha-brand-wordmark">HABITARC</span>
+        <span class="ha-brand-badge" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
+                <path d="M4 17l5.5-5.5 3.5 3.5L20 7"/>
+                <path d="M14.5 7H20v5.5"/>
+            </svg>
+        </span>
+        <span class="ha-brand-wordmark">HabitArc</span>
     </a>
-    <div class="flex items-center gap-2.5">
+    <div class="flex items-center gap-2">
         <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
             <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
             <span id="header-streak-count">0d</span>
         </div>
-        <a class="w-8 h-8 rounded-full bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html" aria-label="Profile">
-            <span class="material-symbols-outlined text-[18px]">person</span>
-        </a>
-        <a class="w-8 h-8 rounded-full bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Settings.html" aria-label="Settings">
-            <span class="material-symbols-outlined text-[18px]">settings</span>
+        <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
+            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
         </a>
     </div>
 </header>
@@ -167,17 +160,13 @@
 <header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
     <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
         <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
-            <svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-                <rect x="2" y="11" width="2" height="2" fill="#ffffff"/>
-                <rect x="4" y="9" width="2" height="2" fill="#ffffff"/>
-                <rect x="6" y="7" width="2" height="2" fill="#ffffff"/>
-                <rect x="8" y="9" width="2" height="2" fill="#ffffff"/>
-                <rect x="10" y="7" width="2" height="2" fill="#ffffff"/>
-                <rect x="12" y="5" width="2" height="2" fill="#ffffff"/>
-                <rect x="9" y="3" width="5" height="2" fill="#47e393"/>
-                <rect x="12" y="3" width="2" height="5" fill="#47e393"/>
-            </svg>
-            <span class="ha-brand-wordmark">HABITARC</span>
+            <span class="ha-brand-badge" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M4 17l5.5-5.5 3.5 3.5L20 7"/>
+                    <path d="M14.5 7H20v5.5"/>
+                </svg>
+            </span>
+            <span class="ha-brand-wordmark">HabitArc</span>
         </a>
         <nav class="flex items-center gap-1">
             <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Dashboard.html">Dashboard</a>
@@ -185,20 +174,17 @@
             <a class="px-4 py-2 rounded-lg text-sm font-semibold text-primary bg-primary/[0.06] transition-colors" href="Insights.html">Insights</a>
             <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Arc_AI.html">ARC AI</a>
         </nav>
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2">
             <a href="Add_Habit.html" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-base">add</span>
-                New Habit
+                New
             </a>
             <div class="px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/15 text-amber-600 flex items-center gap-1.5 font-semibold text-xs geist">
                 <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
                 <span id="header-streak-count-web">0 Day Streak</span>
             </div>
-            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Profile.html">
-                <span class="material-symbols-outlined text-[20px]">person</span>
-            </a>
-            <a class="w-9 h-9 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="Settings.html">
-                <span class="material-symbols-outlined text-[20px]">settings</span>
+            <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
             </a>
         </div>
     </div>

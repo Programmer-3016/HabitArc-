@@ -2093,13 +2093,9 @@ const HabitArc = (() => {
     };
 })();
 
-// Apply theme & update header streak on load
-document.addEventListener('DOMContentLoaded', () => {
-    HabitArc.applyTheme();
-    // The scheduler itself checks opt-in and permission. Starting it here also
-    // handles preferences arriving later through cloud hydration, without prompts.
-    HabitArc.startReminderScheduler();
-    
+// Apply theme & update header streak/profile controls cleanly on load
+function _syncHeaderChrome() {
+    if (typeof document.querySelectorAll !== 'function') return;
     try {
         const streak = HabitArc.getOverallCurrentStreak() || 0;
         const mobileEl = document.getElementById('header-streak-count');
@@ -2109,7 +2105,56 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
         console.warn('Header streak calculation deferred:', e);
     }
+
+    const user = HabitArc.getAuthUser?.();
+    const settings = HabitArc.getSettings?.() || {};
+    const displayName = (user?.displayName || settings.userName || '').trim();
+    const initial = displayName ? displayName[0].toUpperCase() : '';
+    const photoUrl = typeof user?.photoURL === 'string' && /^https?:\/\//i.test(user.photoURL) ? user.photoURL : '';
+
+    document.querySelectorAll('body > header a.ha-hdr-profile').forEach(link => {
+        link.setAttribute('aria-label', displayName ? `${displayName}'s profile` : 'Profile');
+        link.innerHTML = '';
+        if (photoUrl) {
+            const img = document.createElement('img');
+            img.className = 'ha-hdr-profile-img';
+            img.src = photoUrl;
+            img.alt = '';
+            img.referrerPolicy = 'no-referrer';
+            img.addEventListener('error', () => {
+                link.textContent = initial || '';
+                if (!initial) {
+                    const fallback = document.createElement('span');
+                    fallback.className = 'material-symbols-outlined text-[18px]';
+                    fallback.setAttribute('aria-hidden', 'true');
+                    fallback.textContent = 'person';
+                    link.appendChild(fallback);
+                }
+            }, { once: true });
+            link.appendChild(img);
+        } else if (initial) {
+            link.textContent = initial;
+        } else {
+            const icon = document.createElement('span');
+            icon.className = 'material-symbols-outlined text-[18px]';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.textContent = 'person';
+            link.appendChild(icon);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    HabitArc.applyTheme();
+    // The scheduler itself checks opt-in and permission. Starting it here also
+    // handles preferences arriving later through cloud hydration, without prompts.
+    HabitArc.startReminderScheduler();
+    _syncHeaderChrome();
 });
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('habitarc:data-changed', _syncHeaderChrome);
+    window.addEventListener('habitarc-auth-state-changed', _syncHeaderChrome);
+}
 
 // Pages receive `habitarc:data-changed` when authentication or cloud hydration
 // changes their cache. Individual pages can re-render the affected UI without
