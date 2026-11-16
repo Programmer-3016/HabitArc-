@@ -604,7 +604,7 @@
                 <span>Continue as guest</span>
             </button>
         </div>
-        <p class="mt-6 text-center text-xs text-outline geist">Guest data stays on this device.</p>
+        <p id="guest-note" class="mt-6 text-center text-xs text-outline geist">Guest data stays on this device.</p>
     </div>
 
 </main>
@@ -999,6 +999,7 @@
     const emailSubmitBtn = document.getElementById('email-submit-btn');
     const googleSignInBtn = document.getElementById('google-signin-btn');
     const guestSignInBtn = document.getElementById('guest-signin-btn');
+    const guestNote = document.getElementById('guest-note');
     const nameInput = document.getElementById('acc-name-input');
     const emailInput = document.getElementById('acc-email-input');
     const passwordInput = document.getElementById('acc-password-input');
@@ -1010,7 +1011,12 @@
     function setAuthMode(mode) {
         authMode = mode;
         clearAuthError();
-        if (passwordInput) passwordInput.autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+        if (passwordInput) {
+            passwordInput.autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+            passwordInput.placeholder = mode === 'register' ? 'Password (min 6 characters)' : 'Password';
+        }
+        if (guestSignInBtn) guestSignInBtn.style.display = mode === 'register' ? 'flex' : 'none';
+        if (guestNote) guestNote.style.display = mode === 'register' ? 'block' : 'none';
         if (mode === 'register') {
             if (tabRegister) {
                 tabRegister.classList.add('bg-primary', 'text-on-primary');
