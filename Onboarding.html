@@ -248,7 +248,11 @@
         }
     }
     /* ── Minimal onboarding (v2) ── */
-    .animate-in { animation: fadeInUp 0.35s ease-out both; }
+    @keyframes stepGlideIn {
+        from { opacity: 0; transform: translate3d(0, 8px, 0); }
+        to   { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    .animate-in { animation: stepGlideIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
     .grid-cols-14 { grid-template-columns: repeat(14, minmax(0, 1fr)); }
     main { scrollbar-width: none; }
     main::-webkit-scrollbar { display: none; }
@@ -258,7 +262,7 @@
         border: 2px solid #031e13;
         box-shadow: 0 3px 0 #031e13;
         color: #012d1d;
-        transition: background-color 0.14s cubic-bezier(0.22, 1, 0.36, 1), transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), color 0.12s ease;
+        transition: background-color 0.14s ease-out, color 0.12s ease-out;
         cursor: pointer;
         text-align: left;
         touch-action: manipulation;
@@ -275,9 +279,9 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.13s ease, color 0.12s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: background-color 0.14s ease-out, color 0.12s ease-out;
     }
-    .opt-label { font-size: 15px; font-weight: 600; transition: color 0.12s ease; }
+    .opt-label { font-size: 15px; font-weight: 600; transition: color 0.12s ease-out; }
     .opt .check-badge { position: absolute; top: 10px; right: 10px; }
     .opt-row { width: 100%; border-radius: 18px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
     .opt-row .opt-label { flex: 1; }
@@ -291,7 +295,7 @@
         align-items: center;
         justify-content: center;
         font-size: 21px;
-        transition: background-color 0.13s ease, color 0.12s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: background-color 0.14s ease-out, color 0.12s ease-out;
         flex-shrink: 0;
     }
     .opt-big { position: relative; border-radius: 24px; padding: 32px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
@@ -306,13 +310,14 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.13s ease, color 0.12s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: background-color 0.14s ease-out, color 0.12s ease-out;
     }
 
-    /* Snappy 60fps tactile press & crisp invert selection */
-    .opt:active, .opt-row:active, .opt-big:active, .chip:active, .auth-btn:active {
-        transform: scale(0.97) translateY(1px);
-        transition-duration: 0.06s;
+    /* Keep option cards completely stationary on tap/tick (overrides .btn-press shift) */
+    .opt, .opt-row, .opt-big,
+    .opt:active, .opt-row:active, .opt-big:active,
+    .opt.selected, .opt-row.selected, .opt-big.selected {
+        transform: none;
     }
 
     /* Crisp #0d1612 Ink Invert Selected State across Steps 2, 3 & 5 */
@@ -321,18 +326,16 @@
         border-color: #031e13;
         box-shadow: 0 3px 0 #031e13;
         color: #ffffff;
-        transform: translateY(-2px);
     }
     .opt.selected .opt-ico,
     .opt-big.selected > .material-symbols-outlined {
         background: rgba(71, 227, 147, 0.18);
         color: #47e393;
-        transform: scale(1.06);
     }
     .opt.selected .opt-label,
     .opt-row.selected .opt-label,
     .opt-big.selected .opt-label { color: #ffffff; }
-    .opt-row.selected .opt-ico-box { background: #47e393; color: #012d1d; transform: scale(1.04); }
+    .opt-row.selected .opt-ico-box { background: #47e393; color: #012d1d; }
 
     /* Snappy springy mint check badge on selected cards */
     .check-badge {
@@ -345,8 +348,8 @@
         align-items: center;
         justify-content: center;
         opacity: 0;
-        transform: scale(0.5);
-        transition: opacity 0.12s ease-out, transform 0.16s cubic-bezier(0.34, 1.45, 0.64, 1);
+        transform: scale(0.7);
+        transition: opacity 0.12s ease-out, transform 0.15s cubic-bezier(0.34, 1.45, 0.64, 1);
     }
     .selected > .check-badge { opacity: 1; transform: scale(1); }
     .check-badge .material-symbols-outlined { font-size: 14px; font-weight: 700; }
@@ -396,10 +399,9 @@
         font-weight: 600;
         cursor: pointer;
         touch-action: manipulation;
-        transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.14s ease;
+        transition: background-color 0.14s ease, color 0.14s ease;
         -webkit-tap-highlight-color: transparent;
     }
-    .auth-btn:hover { transform: translateY(-1px); }
     /* Override @tailwindcss/forms focus ring/border injection on Step 7 email form inputs */
     #step-7 .auth-input {
         width: 100%;
@@ -448,21 +450,39 @@
     .logo-hero { animation: fadeInUp 0.5s ease-out both; }
     #bottom-nav-wrap #bottom-nav.bare { background: transparent !important; border-color: transparent !important; box-shadow: none !important; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; }
 
+    /* Option B Top Header: Bold Brand + Bento Step Pill + 7-Step Segment Bar */
+    .hdr-step-pill {
+        background: #ffffff;
+        color: #012d1d;
+        border: 2px solid #031e13;
+        box-shadow: 0 2px 0 #031e13;
+        border-radius: 9999px;
+        padding: 3px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.25;
+        transition: background-color 0.24s ease, color 0.24s ease, border-color 0.24s ease;
+    }
+    .hdr-seg {
+        height: 5px;
+        border-radius: 9999px;
+        background: rgba(1, 45, 29, 0.16);
+        transition: background-color 0.22s ease;
+    }
+    .hdr-seg.done {
+        background: #012d1d;
+    }
+
     /* Pure Mint Green Continuity Theme Across Steps 1–7 */
     body {
         background-color: #47e393 !important;
         color: #012d1d;
-        transition: background-color 0.34s cubic-bezier(0.22, 1, 0.36, 1), color 0.24s ease;
+        transition: background-color 0.28s ease-out, color 0.2s ease-out;
     }
-    #progress-bar-track {
-        background-color: rgba(1, 45, 29, 0.14);
-        transition: background-color 0.3s ease;
-    }
-    #step-indicator,
     .step-card > p.text-outline,
     #guest-note {
         color: rgba(1, 45, 29, 0.78) !important;
-        transition: color 0.24s ease;
+        transition: color 0.2s ease;
     }
     #step-6 > span.inline-flex {
         background: #ffffff;
@@ -498,14 +518,14 @@
         background: rgba(255, 255, 255, 0.95) !important;
         border: 2px solid #031e13 !important;
         box-shadow: 0 4px 0 #031e13 !important;
-        transition: background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+        transition: background-color 0.24s ease, border-color 0.24s ease;
     }
     #prev-step-btn { color: #012d1d !important; }
     #next-step-btn,
     #email-submit-btn {
         background-color: #0d1612;
         color: #ffffff;
-        transition: background-color 0.24s ease, color 0.24s ease, opacity 0.15s ease;
+        transition: background-color 0.2s ease, color 0.2s ease, opacity 0.15s ease;
     }
 
     /* Step 1 Specific Welcome CTA & Headline Contrast */
@@ -529,17 +549,22 @@
         background-color: var(--s4-bg, #f4f7f5) !important;
         color: var(--s4-text, #012d1d);
     }
-    body.step-4-theme-active #progress-bar-track {
-        background-color: var(--s4-track, rgba(1, 45, 29, 0.14));
+    body.step-4-theme-active .hdr-seg {
+        background: var(--s4-track, rgba(1, 45, 29, 0.16));
     }
-    body.step-4-theme-active #progress-bar {
-        background-color: var(--s4-accent, #012d1d) !important;
+    body.step-4-theme-active .hdr-seg.done {
+        background: var(--s4-accent, #012d1d);
+    }
+    body.step-4-theme-active .hdr-step-pill {
+        background: var(--s4-card-bg, #ffffff);
+        color: var(--s4-text, #012d1d);
+        border-color: var(--s4-card-border, #031e13);
+        box-shadow: 0 2px 0 var(--s4-card-border, #031e13);
     }
     body.step-4-theme-active header span,
     body.step-4-theme-active #step-4 > h2 {
         color: var(--s4-text, #012d1d) !important;
     }
-    body.step-4-theme-active #step-indicator,
     body.step-4-theme-active #step-4 > p.text-outline,
     body.step-4-theme-active .swatch-label {
         color: var(--s4-sub, rgba(1, 45, 29, 0.72)) !important;
@@ -569,99 +594,26 @@
         color: var(--s4-cta-text, #ffffff) !important;
     }
 
-    /* Staggered Entrance Only While Entering (clears immediately so tap transforms stay 60fps) */
-    @keyframes cardCascade {
-        0%   { opacity: 0; transform: translateY(10px) scale(0.98); }
-        100% { opacity: 1; transform: translateY(0) scale(1); }
+    @keyframes customFadePop {
+        0%   { opacity: 0; }
+        100% { opacity: 1; }
     }
-    .custom-opt-enter { animation: cardCascade 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
-    .step-card.is-entering:not(#step-1) > h2 { animation: cardCascade 0.26s cubic-bezier(0.22, 1, 0.36, 1) both; }
-    .step-card.is-entering:not(#step-1) > p  { animation: cardCascade 0.26s cubic-bezier(0.22, 1, 0.36, 1) 25ms both; }
-    .step-card.is-entering .opt,
-    .step-card.is-entering .opt-row,
-    .step-card.is-entering .opt-big,
-    .step-card.is-entering .theme-btn,
-    .step-card.is-entering .chip,
-    .step-card.is-entering #custom-intent-wrap,
-    .step-card.is-entering #custom-challenge-wrap,
-    .step-card.is-entering #mini-dashboard-preview,
-    .step-card.is-entering #north-star-input,
-    .step-card.is-entering #auth-tabs,
-    .step-card.is-entering #google-signin-btn,
-    .step-card.is-entering #email-toggle-btn,
-    .step-card.is-entering #guest-signin-btn {
-        animation: cardCascade 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-    .step-card.is-entering .opt:nth-child(1),
-    .step-card.is-entering .opt-row:nth-child(1),
-    .step-card.is-entering .opt-big:nth-child(1),
-    .step-card.is-entering .chip:nth-child(1),
-    .step-card.is-entering #mini-dashboard-preview,
-    .step-card.is-entering #north-star-input,
-    .step-card.is-entering #auth-tabs { animation-delay: 25ms; }
-    .step-card.is-entering .opt:nth-child(2),
-    .step-card.is-entering .opt-row:nth-child(2),
-    .step-card.is-entering .opt-big:nth-child(2),
-    .step-card.is-entering .chip:nth-child(2),
-    .step-card.is-entering #google-signin-btn { animation-delay: 55ms; }
-    .step-card.is-entering .opt:nth-child(3),
-    .step-card.is-entering .opt-row:nth-child(3),
-    .step-card.is-entering .chip:nth-child(3),
-    .step-card.is-entering #email-toggle-btn { animation-delay: 85ms; }
-    .step-card.is-entering .opt:nth-child(4),
-    .step-card.is-entering .opt-row:nth-child(4),
-    .step-card.is-entering #guest-signin-btn { animation-delay: 115ms; }
-    .step-card.is-entering .opt:nth-child(5),
-    .step-card.is-entering .opt-row:nth-child(5),
-    .step-card.is-entering #custom-challenge-wrap { animation-delay: 145ms; }
-    .step-card.is-entering .opt:nth-child(6),
-    .step-card.is-entering #custom-intent-wrap { animation-delay: 175ms; }
-    .step-card.is-entering .theme-btn:nth-child(1) { animation-delay: 50ms; }
-    .step-card.is-entering .theme-btn:nth-child(2) { animation-delay: 80ms; }
-    .step-card.is-entering .theme-btn:nth-child(3) { animation-delay: 110ms; }
-    .step-card.is-entering .theme-btn:nth-child(4) { animation-delay: 140ms; }
-    .step-card.is-entering .theme-btn:nth-child(5) { animation-delay: 170ms; }
-    .step-card.is-entering .theme-btn:nth-child(6) { animation-delay: 200ms; }
+    .custom-opt-enter { animation: customFadePop 0.16s ease-out both; }
 
-    @keyframes heroIsoFloat {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-6px); }
+    /* Hardware-composited GPU float on HTML card wrapper (avoids per-frame SVG rasterization) */
+    @keyframes heroCardFloat {
+        0%, 100% { transform: translate3d(0, 0px, 0); }
+        50% { transform: translate3d(0, -6px, 0); }
     }
-    @keyframes heroCoinBob {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-8px); }
+    .hero-card-float {
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+        animation: heroCardFloat 4.4s ease-in-out infinite;
     }
-    @keyframes heroPillBob {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(5px); }
-    }
-    @keyframes heroTilePulse {
-        0%, 25% { fill: #e3f1ea; }
-        50%, 80% { fill: #012d1d; }
-        100% { fill: #e3f1ea; }
-    }
-    .hero-iso-float { animation: heroIsoFloat 4.0s ease-in-out infinite; }
-    .hero-coin-bob { animation: heroCoinBob 3.0s ease-in-out infinite; }
-    .hero-pill-bob { animation: heroPillBob 3.4s ease-in-out infinite; }
-    .hero-tile-pulse { animation: heroTilePulse 3.6s ease-in-out infinite; }
     @media (prefers-reduced-motion: reduce) {
-        .hero-iso-float, .hero-coin-bob, .hero-pill-bob, .hero-tile-pulse,
-        .custom-opt-enter,
-        .step-card.is-entering:not(#step-1) > h2,
-        .step-card.is-entering:not(#step-1) > p,
-        .step-card.is-entering .opt,
-        .step-card.is-entering .opt-row,
-        .step-card.is-entering .opt-big,
-        .step-card.is-entering .theme-btn,
-        .step-card.is-entering .chip,
-        .step-card.is-entering #custom-intent-wrap,
-        .step-card.is-entering #custom-challenge-wrap,
-        .step-card.is-entering #mini-dashboard-preview,
-        .step-card.is-entering #north-star-input,
-        .step-card.is-entering #auth-tabs,
-        .step-card.is-entering #google-signin-btn,
-        .step-card.is-entering #email-toggle-btn,
-        .step-card.is-entering #guest-signin-btn {
+        .hero-card-float,
+        .animate-in,
+        .custom-opt-enter {
             animation: none !important;
         }
     }
@@ -669,15 +621,28 @@
 </head>
 <body class="bg-background text-on-background antialiased h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden relative">
 
-<!-- Thin progress line -->
-<div id="progress-bar-track" class="fixed top-0 left-0 right-0 h-[2px] bg-surface-container z-40">
-    <div id="progress-bar" class="h-full bg-primary transition-all duration-300 ease-out" style="width: 14.28%;"></div>
-</div>
-
-<!-- Header -->
-<header class="w-full max-w-md mx-auto flex items-center justify-between px-6 pt-5 pb-2 shrink-0">
-    <span class="text-base text-primary font-bold tracking-tight">HabitArc</span>
-    <span id="step-indicator" class="text-sm text-outline geist font-medium">1 / 7</span>
+<!-- Header + 7-Step Segmented Progress Bar (Option B) -->
+<header class="w-full max-w-md mx-auto flex flex-col gap-2.5 px-6 pt-5 pb-2 shrink-0">
+    <div class="flex items-center justify-between">
+        <span class="inline-flex items-center gap-2 text-[17px] text-primary font-extrabold tracking-tight">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <circle cx="10" cy="10" r="10" fill="#012d1d"/>
+                <path d="M5.5 11.8 C7.5 7.8 11.2 6.4 14.5 7" stroke="#47e393" stroke-width="2.2" stroke-linecap="round"/>
+                <circle cx="14.5" cy="7" r="1.4" fill="#47e393"/>
+            </svg>
+            <span>HabitArc</span>
+        </span>
+        <span id="step-indicator" class="hdr-step-pill geist">1 / 7</span>
+    </div>
+    <div id="step-segments" class="grid grid-cols-7 gap-1.5" aria-hidden="true">
+        <span class="hdr-seg done"></span>
+        <span class="hdr-seg"></span>
+        <span class="hdr-seg"></span>
+        <span class="hdr-seg"></span>
+        <span class="hdr-seg"></span>
+        <span class="hdr-seg"></span>
+        <span class="hdr-seg"></span>
+    </div>
 </header>
 
 <!-- Steps -->
@@ -691,88 +656,86 @@
             <span class="step-1-headline-accent text-secondary">Grow every day.</span>
         </h1>
 
-        <!-- HabitArc Bento Widget Illustration (Option A) -->
-        <div class="w-[268px] sm:w-[292px] mx-auto select-none pointer-events-none" aria-hidden="true">
+        <!-- HabitArc Bento Widget Illustration (GPU-Composited Float Wrapper) -->
+        <div class="hero-card-float w-[268px] sm:w-[292px] mx-auto select-none pointer-events-none" aria-hidden="true">
             <svg viewBox="0 0 300 246" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto overflow-visible">
                 <!-- Ambient Ink Accents -->
                 <path d="M24 72 H32 M28 68 V76" stroke="#012d1d" stroke-width="2" stroke-linecap="round"/>
                 <path d="M268 156 H276 M272 152 V160" stroke="#012d1d" stroke-width="2" stroke-linecap="round"/>
                 <circle cx="272" cy="86" r="2.6" fill="#012d1d"/>
 
-                <g class="hero-iso-float">
-                    <g transform="rotate(-3.5 150 124)">
-                        <!-- Hard Offset Cast Shadow -->
-                        <rect x="46" y="42" width="212" height="168" rx="22" fill="#031e13"/>
-                        <!-- Main Tactile Card -->
-                        <rect x="40" y="34" width="212" height="168" rx="22" fill="#ffffff" stroke="#031e13" stroke-width="2.8"/>
+                <g transform="rotate(-3.5 150 124)">
+                    <!-- Hard Offset Cast Shadow -->
+                    <rect x="46" y="42" width="212" height="168" rx="22" fill="#031e13"/>
+                    <!-- Main Tactile Card -->
+                    <rect x="40" y="34" width="212" height="168" rx="22" fill="#ffffff" stroke="#031e13" stroke-width="2.8"/>
 
-                        <!-- Card Header -->
-                        <circle cx="65" cy="58" r="8.5" fill="#012d1d"/>
-                        <path d="M60.5 60 C62.5 55.5 66 54 69.5 54.5" stroke="#47e393" stroke-width="2" stroke-linecap="round"/>
-                        <text x="78" y="61.5" fill="#012d1d" font-size="10" font-weight="800" letter-spacing="0.05em" font-family="Geist, Hanken Grotesk, sans-serif">DAILY ARC</text>
+                    <!-- Card Header -->
+                    <circle cx="65" cy="58" r="8.5" fill="#012d1d"/>
+                    <path d="M60.5 60 C62.5 55.5 66 54 69.5 54.5" stroke="#47e393" stroke-width="2" stroke-linecap="round"/>
+                    <text x="78" y="61.5" fill="#012d1d" font-size="10" font-weight="800" letter-spacing="0.05em" font-family="Geist, Hanken Grotesk, sans-serif">DAILY ARC</text>
 
-                        <rect x="148" y="48" width="48" height="19" rx="9.5" fill="#dcfce7" stroke="#0e6c4a" stroke-width="1.4"/>
-                        <text x="172" y="61" text-anchor="middle" fill="#012d1d" font-size="9.5" font-weight="800" font-family="Geist, Hanken Grotesk, sans-serif">+24% ↑</text>
+                    <rect x="148" y="48" width="48" height="19" rx="9.5" fill="#dcfce7" stroke="#0e6c4a" stroke-width="1.4"/>
+                    <text x="172" y="61" text-anchor="middle" fill="#012d1d" font-size="9.5" font-weight="800" font-family="Geist, Hanken Grotesk, sans-serif">+24% ↑</text>
 
-                        <!-- 7x4 Rising Arc Habit Matrix -->
-                        <g transform="translate(61, 80)">
-                            <!-- Row 0 (Peak Right) -->
-                            <rect x="0"   y="0" width="20" height="20" rx="5" fill="#edf4f0"/>
-                            <rect x="25"  y="0" width="20" height="20" rx="5" fill="#edf4f0"/>
-                            <rect x="50"  y="0" width="20" height="20" rx="5" fill="#d3efe0"/>
-                            <rect x="75"  y="0" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="100" y="0" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="125" y="0" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
-                            <rect class="hero-tile-pulse" x="150" y="0" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
-                            <path d="M156 10 L159 13 L164.5 7" stroke="#47e393" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- 7x4 Rising Arc Habit Matrix -->
+                    <g transform="translate(61, 80)">
+                        <!-- Row 0 (Peak Right) -->
+                        <rect x="0"   y="0" width="20" height="20" rx="5" fill="#edf4f0"/>
+                        <rect x="25"  y="0" width="20" height="20" rx="5" fill="#edf4f0"/>
+                        <rect x="50"  y="0" width="20" height="20" rx="5" fill="#d3efe0"/>
+                        <rect x="75"  y="0" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="100" y="0" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="125" y="0" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="150" y="0" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
+                        <path d="M156 10 L159 13 L164.5 7" stroke="#47e393" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 
-                            <!-- Row 1 -->
-                            <rect x="0"   y="25" width="20" height="20" rx="5" fill="#edf4f0"/>
-                            <rect x="25"  y="25" width="20" height="20" rx="5" fill="#d3efe0"/>
-                            <rect x="50"  y="25" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="75"  y="25" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="100" y="25" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="125" y="25" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="150" y="25" width="20" height="20" rx="5" fill="#0e6c4a"/>
+                        <!-- Row 1 -->
+                        <rect x="0"   y="25" width="20" height="20" rx="5" fill="#edf4f0"/>
+                        <rect x="25"  y="25" width="20" height="20" rx="5" fill="#d3efe0"/>
+                        <rect x="50"  y="25" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="75"  y="25" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="100" y="25" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="125" y="25" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="150" y="25" width="20" height="20" rx="5" fill="#0e6c4a"/>
 
-                            <!-- Row 2 -->
-                            <rect x="0"   y="50" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="25"  y="50" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="50"  y="50" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="75"  y="50" width="20" height="20" rx="5" fill="#0e6c4a"/>
-                            <rect x="100" y="50" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="125" y="50" width="20" height="20" rx="5" fill="#d3efe0"/>
-                            <rect x="150" y="50" width="20" height="20" rx="5" fill="#edf4f0"/>
+                        <!-- Row 2 -->
+                        <rect x="0"   y="50" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="25"  y="50" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="50"  y="50" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="75"  y="50" width="20" height="20" rx="5" fill="#0e6c4a"/>
+                        <rect x="100" y="50" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="125" y="50" width="20" height="20" rx="5" fill="#d3efe0"/>
+                        <rect x="150" y="50" width="20" height="20" rx="5" fill="#edf4f0"/>
 
-                            <!-- Row 3 -->
-                            <rect x="0"   y="75" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="25"  y="75" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="50"  y="75" width="20" height="20" rx="5" fill="#d3efe0"/>
-                            <rect x="75"  y="75" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
-                            <rect x="100" y="75" width="20" height="20" rx="5" fill="#edf4f0"/>
-                            <rect x="125" y="75" width="20" height="20" rx="5" fill="#d3efe0"/>
-                            <rect x="150" y="75" width="20" height="20" rx="5" fill="#edf4f0"/>
-                        </g>
-
-                        <!-- Card Footer Mini Caption -->
-                        <text x="139" y="191" fill="#415249" font-size="9" font-weight="600" font-family="Geist, Hanken Grotesk, sans-serif">28d Grid</text>
-                        <circle cx="206" cy="187.5" r="3.5" fill="#d3efe0"/>
-                        <circle cx="216" cy="187.5" r="3.5" fill="#47e393"/>
-                        <circle cx="226" cy="187.5" r="3.5" fill="#012d1d"/>
+                        <!-- Row 3 -->
+                        <rect x="0"   y="75" width="20" height="20" rx="5" fill="#012d1d" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="25"  y="75" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="50"  y="75" width="20" height="20" rx="5" fill="#d3efe0"/>
+                        <rect x="75"  y="75" width="20" height="20" rx="5" fill="#47e393" stroke="#031e13" stroke-width="1.4"/>
+                        <rect x="100" y="75" width="20" height="20" rx="5" fill="#edf4f0"/>
+                        <rect x="125" y="75" width="20" height="20" rx="5" fill="#d3efe0"/>
+                        <rect x="150" y="75" width="20" height="20" rx="5" fill="#edf4f0"/>
                     </g>
 
-                    <!-- Bottom-Left Popping Check Pill -->
-                    <g class="hero-pill-bob">
-                        <rect x="20" y="192" width="110" height="30" rx="15" fill="#031e13" transform="translate(3,4)"/>
-                        <rect x="20" y="192" width="110" height="30" rx="15" fill="#012d1d" stroke="#ffffff" stroke-width="2"/>
-                        <circle cx="36" cy="207" r="8" fill="#47e393"/>
-                        <path d="M32.5 207 L35 209.5 L40 204.5" stroke="#012d1d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <text x="50" y="210.5" fill="#ffffff" font-size="10.2" font-weight="700" font-family="Geist, Hanken Grotesk, sans-serif">Habit logged</text>
-                    </g>
+                    <!-- Card Footer Mini Caption -->
+                    <text x="139" y="191" fill="#415249" font-size="9" font-weight="600" font-family="Geist, Hanken Grotesk, sans-serif">28d Grid</text>
+                    <circle cx="206" cy="187.5" r="3.5" fill="#d3efe0"/>
+                    <circle cx="216" cy="187.5" r="3.5" fill="#47e393"/>
+                    <circle cx="226" cy="187.5" r="3.5" fill="#012d1d"/>
                 </g>
 
-                <!-- Top-Right Bobbing Amber Streak Pill -->
-                <g class="hero-coin-bob" transform="rotate(4 235 24)">
+                <!-- Bottom-Left Popping Check Pill -->
+                <g>
+                    <rect x="20" y="192" width="110" height="30" rx="15" fill="#031e13" transform="translate(3,4)"/>
+                    <rect x="20" y="192" width="110" height="30" rx="15" fill="#012d1d" stroke="#ffffff" stroke-width="2"/>
+                    <circle cx="36" cy="207" r="8" fill="#47e393"/>
+                    <path d="M32.5 207 L35 209.5 L40 204.5" stroke="#012d1d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <text x="50" y="210.5" fill="#ffffff" font-size="10.2" font-weight="700" font-family="Geist, Hanken Grotesk, sans-serif">Habit logged</text>
+                </g>
+
+                <!-- Top-Right Amber Streak Pill -->
+                <g transform="rotate(4 235 24)">
                     <rect x="184" y="10" width="99" height="31" rx="15.5" fill="#031e13" transform="translate(3,4)"/>
                     <rect x="184" y="10" width="99" height="31" rx="15.5" fill="#f59e0b" stroke="#031e13" stroke-width="2.4"/>
                     <path d="M201 18.5 C205 22 206.5 25.5 204.5 28.5 C203 30.5 199 30.5 197.5 28.5 C195.5 26 198 22 201 18.5 Z" fill="#ffffff" stroke="#031e13" stroke-width="1.3"/>
@@ -811,7 +774,7 @@
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">What's your<br/>biggest challenge?</h2>
         <p class="mt-2 text-[15px] text-outline">Select all that apply — we'll personalize your insights.</p>
         <div class="mt-5 space-y-2.5" id="challenge-options">
-            <button type="button" class="opt-row challenge-opt btn-press selected" data-val="consistency"><span class="material-symbols-outlined opt-ico-box">event_repeat</span><span class="opt-label">I lose consistency</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
+            <button type="button" class="opt-row challenge-opt btn-press" data-val="consistency"><span class="material-symbols-outlined opt-ico-box">event_repeat</span><span class="opt-label">I lose consistency</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="distracted"><span class="material-symbols-outlined opt-ico-box">center_focus_weak</span><span class="opt-label">I get distracted</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="time"><span class="material-symbols-outlined opt-ico-box">schedule</span><span class="opt-label">I don't have enough time</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="motivation"><span class="material-symbols-outlined opt-ico-box">local_fire_department</span><span class="opt-label">I lose motivation</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
@@ -1004,7 +967,7 @@
     let jumpedToLoginFromStep1 = false;
 
     let selectedIntents = [];
-    let selectedChallenges = ['consistency'];
+    let selectedChallenges = [];
     let selectedCap = '5';
     let selectedTheme = 'light';
     let selectedGridShape = 'square';
@@ -1098,38 +1061,15 @@
             notificationsEnabled = pendingGoogleRedirectDraft.notificationsEnabled;
         }
     }
-    let stepEnterTimer = null;
     function updateStep() {
-        if (stepEnterTimer) {
-            clearTimeout(stepEnterTimer);
-            stepEnterTimer = null;
-        }
-
-        let activeCardEl = null;
         document.querySelectorAll('.step-card').forEach((card, idx) => {
-            const isActive = (idx + 1 === currentStep);
-            const wasActive = card.classList.contains('active');
-            card.classList.remove('is-entering');
-            if (isActive) activeCardEl = card;
-            if (isActive && !wasActive) {
-                card.classList.remove('animate-in');
-                void card.offsetWidth;
-                card.classList.add('animate-in', 'is-entering');
-            }
-            card.classList.toggle('active', isActive);
+            card.classList.toggle('active', idx + 1 === currentStep);
         });
 
-        // Clear the stagger entrance class once done (or immediately on first pointerdown)
-        // so card tap & select CSS transform transitions never compete with a forwards animation.
-        if (activeCardEl?.classList.contains('is-entering')) {
-            const clearEnter = () => activeCardEl.classList.remove('is-entering');
-            activeCardEl.addEventListener('pointerdown', clearEnter, { once: true });
-            stepEnterTimer = setTimeout(clearEnter, 460);
-        }
-
-        const pct = Math.round((currentStep / totalSteps) * 100);
-        document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('step-indicator').textContent = `${currentStep} / ${totalSteps}`;
+        document.querySelectorAll('#step-segments .hdr-seg').forEach((seg, idx) => {
+            seg.classList.toggle('done', idx < currentStep);
+        });
         document.body.classList.toggle('step-1-active', currentStep === 1 && !pendingGoogleRedirectDraft);
         document.body.classList.toggle('step-4-theme-active', currentStep === 4 && !pendingGoogleRedirectDraft);
 
@@ -1395,7 +1335,7 @@
                 const cell = document.createElement('div');
                 cell.className = 'h-3 rounded-[3px] transition-all duration-300';
                 cell.style.backgroundColor = active ? t.accent : t.off;
-                cell.style.animation = `cardCascade 0.28s cubic-bezier(0.22, 1, 0.36, 1) ${45 + idx * 14}ms both`;
+                cell.style.animation = `customFadePop 0.18s ease-out ${20 + idx * 10}ms both`;
                 cells.appendChild(cell);
             });
         }
