@@ -191,13 +191,13 @@ The UI and `/api/coach` function are included in this repository, but the Coach 
    | Variable | Value |
    | --- | --- |
    | `HABITARC_GEMINI_API_KEY` | Dedicated Gemini API key solely for HabitArc (or fallback `GEMINI_API_KEY`, server-only) |
-   | `GEMINI_MODEL` | Optional. Defaults to `gemini-2.5-flash` |
+   | `GEMINI_MODEL` | Optional. Defaults to `gemini-3.5-flash-lite` |
    | `FIREBASE_SERVICE_ACCOUNT_BASE64` | The base64 value from Step 3 |
    | `AI_COACH_DAILY_LIMIT` | Optional, defaults to `15` |
 
 5. Redeploy, sign in with a non-guest account, wait for the cloud-sync indicator to settle, and ask a Coach question from **Insights**.
 
-`gemini-2.5-flash` is the default cost-conscious Coach model and can be changed without a code edit through `GEMINI_MODEL`. The function enforces a 1–50 request daily limit per signed-in account, an in-flight request lock and a short cooldown. Attempts count even if a provider fails, and the daily quota resets at UTC midnight. This per-user cap is not a global spending cap: configure Gemini quota/billing safeguards before a public launch. Google currently states that free-tier Gemini prompts may be used to improve its products, so the production UI must disclose this before enabling the Coach for public users.
+`gemini-3.5-flash-lite` is the default cost-conscious Coach model (with automatic fallback to current Flash aliases) and can be changed without a code edit through `GEMINI_MODEL`. The function enforces a 1–50 request daily limit per signed-in account, an in-flight request lock and a short cooldown. Attempts count even if a provider fails, and the daily quota resets at UTC midnight. This per-user cap is not a global spending cap: configure Gemini quota/billing safeguards before a public launch. Google currently states that free-tier Gemini prompts may be used to improve its products, so the production UI must disclose this before enabling the Coach for public users.
 
 Insights and Coach use the same deterministic 28-finished-local-day calculation. It excludes the in-progress day from historical rates, requires sufficient scheduled history before identifying a strongest/weakest pattern, and does not break ties arbitrarily. Today is shown separately, not treated as a missed day. The current schedule is used because schedule revisions are not yet versioned. Unmarked days do not prove a real-world failure; actual time spent, energy and obstacles are not tracked.
 

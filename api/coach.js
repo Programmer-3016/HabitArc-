@@ -7,10 +7,15 @@ import {
     normaliseCoachConversation
 } from './_coach-context.js';
 
-// Gemini 2.5 Flash is available on the Gemini Developer API free tier at the
-// time this integration was added. Keep the model server-configurable so it
-// can be changed without exposing a provider key to the browser.
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+// Gemini 3.5 Flash Lite (with automatic latest Flash fallbacks) runs on the
+// Gemini Developer API free tier without exposing a provider key to browsers.
+const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
+const FALLBACK_MODELS = [
+    'gemini-3.5-flash-lite',
+    'gemini-flash-lite-latest',
+    'gemini-3.8-flash',
+    'gemini-flash-latest'
+];
 const DEFAULT_DAILY_LIMIT = 15;
 const DEFAULT_FIREBASE_PROJECT_ID = 'habitarc-dfa40';
 // Matches the public Firebase web config in firebase-auth.js; used only with
@@ -422,31 +427,39 @@ function geminiIsConfigured() {
 async function generateWithGemini({ model, system, prompt, maxOutputTokens, abortSignal }) {
     const apiKey = getGeminiApiKey();
     if (!apiKey) throw new CoachRequestError(503, 'coach-not-configured', 'HabitArc Coach is being connected securely. Please try again after setup is complete.');
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-        method: 'POST',
-        headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: {
-                maxOutputTokens,
-                temperature: 0.35
-            }
-        }),
-        signal: abortSignal
-    });
-    if (!response.ok) {
+    const candidates = [...new Set([model, ...FALLBACK_MODELS])];
+    let lastStatus = 502;
+    for (const candidate of candidates) {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(candidate)}:generateContent`, {
+            method: 'POST',
+            headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                systemInstruction: { parts: [{ text: system }] },
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: {
+                    maxOutputTokens,
+                    temperature: 0.35
+                }
+            }),
+            signal: abortSignal
+        });
+        if (response.ok) {
+            const payload = await response.json();
+            const parts = payload?.candidates?.[0]?.content?.parts;
+            const text = Array.isArray(parts)
+                ? parts.map((part) => typeof part?.text === 'string' ? part.text : '').join('')
+                : '';
+            return { text };
+        }
+        lastStatus = response.status;
         if (response.status === 429) {
             throw new CoachRequestError(429, 'provider-rate-limit', 'HabitArc AI is briefly busy. Please wait a few seconds and try again.', 15);
         }
-        throw Object.assign(new Error('Gemini request failed.'), { status: response.status });
+        if (response.status !== 404) {
+            throw Object.assign(new Error('Gemini request failed.'), { status: response.status });
+        }
     }
-    const payload = await response.json();
-    const parts = payload?.candidates?.[0]?.content?.parts;
-    const text = Array.isArray(parts)
-        ? parts.map((part) => typeof part?.text === 'string' ? part.text : '').join('')
-        : '';
-    return { text };
+    throw Object.assign(new Error('Gemini request failed.'), { status: lastStatus });
 }
 
 function dateOffset(now, days) {
