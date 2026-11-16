@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCoachHandler } from '../api/coach.js';
+import { createSign, generateKeyPairSync } from 'node:crypto';
+import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields } from '../api/coach.js';
 
 function fixture({ anonymous = false, authCode, configured = true, limit = 15 } = {}) {
     let usage;
@@ -118,4 +119,114 @@ test('Coach returns validated suggestedAction and strips machine tags from respo
         repeat: ['mon', 'tue', 'wed', 'thu', 'fri'],
         why: ''
     });
+});
+
+test('decodeFirestoreFields decodes nested maps, arrays, ints, booleans and strings cleanly', () => {
+    const decoded = decodeFirestoreFields({
+        name: { stringValue: 'Morning Walk' },
+        goalDuration: { integerValue: '30' },
+        repeat: { arrayValue: { values: [{ stringValue: 'mon' }, { stringValue: 'wed' }] } },
+        completions: { mapValue: { fields: { '2026-11-15': { booleanValue: true } } } },
+        note: { nullValue: null }
+    });
+    assert.deepEqual(decoded, {
+        name: 'Morning Walk',
+        goalDuration: 30,
+        repeat: ['mon', 'wed'],
+        completions: { '2026-11-15': true },
+        note: null
+    });
+});
+
+test('REST Firebase backend verifies RS256 ID tokens, blocks anonymous/wrong-aud tokens, and parses Firestore REST snapshot', async () => {
+    const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+    const pubPem = publicKey.export({ type: 'spki', format: 'pem' });
+    const nowSec = Math.floor(Date.parse('2026-11-16T18:00:00Z') / 1000);
+    const makeJwt = (payload, kid = 'key-1') => {
+        const hdr = Buffer.from(JSON.stringify({ alg: 'RS256', kid })).toString('base64url');
+        const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
+        const signer = createSign('RSA-SHA256');
+        signer.update(`${hdr}.${body}`);
+        const sig = signer.sign(privateKey).toString('base64url');
+        return `${hdr}.${body}.${sig}`;
+    };
+
+    const validJwt = makeJwt({
+        aud: 'habitarc-dfa40',
+        iss: 'https://securetoken.google.com/habitarc-dfa40',
+        sub: 'user-rest-1',
+        iat: nowSec - 60,
+        auth_time: nowSec - 60,
+        exp: nowSec + 3600,
+        firebase: { sign_in_provider: 'google.com' }
+    });
+
+    const backend = createRestFirebaseBackend({
+        projectId: 'habitarc-dfa40',
+        webApiKey: 'test-web-key',
+        now: () => new Date(nowSec * 1000),
+        fetchImpl: async (url) => {
+            const target = String(url);
+            if (target.includes('securetoken@system.gserviceaccount.com')) {
+                return { ok: true, status: 200, headers: new Headers({ 'cache-control': 'max-age=3600' }), json: async () => ({ 'key-1': pubPem }) };
+            }
+            if (target.includes('accounts:lookup')) {
+                return { ok: true, status: 200, json: async () => ({ users: [{ localId: 'user-rest-1', disabled: false, providerUserInfo: [{ providerId: 'google.com' }] }] }) };
+            }
+            if (target.endsWith('/users/user-rest-1')) {
+                return { ok: true, status: 200, json: async () => ({ fields: { settings: { mapValue: { fields: { goalDuration: { integerValue: '45' } } } } } }) };
+            }
+            if (target.includes('/habits')) {
+                return {
+                    ok: true, status: 200,
+                    json: async () => ({
+                        documents: [{
+                            name: 'projects/habitarc-dfa40/databases/(default)/documents/users/user-rest-1/habits/h-rest-1',
+                            fields: {
+                                name: { stringValue: 'Deep Work' },
+                                category: { stringValue: 'Focus' },
+                                createdAt: { stringValue: '2026-11-01' },
+                                repeat: { arrayValue: { values: [{ stringValue: 'mon' }, { stringValue: 'tue' }] } }
+                            }
+                        }]
+                    })
+                };
+            }
+            if (target.includes(':runQuery')) {
+                return {
+                    ok: true, status: 200,
+                    json: async () => ([
+                        { document: { name: '.../habitCompletions/h-rest-1_2026-11-16', fields: { habitId: { stringValue: 'h-rest-1' }, date: { stringValue: '2026-11-16' }, status: { stringValue: 'completed' } } } },
+                        { readTime: '2026-11-16T18:00:00Z' }
+                    ])
+                };
+            }
+            throw new Error(`Unexpected REST URL: ${target}`);
+        }
+    });
+
+    const handler = createCoachHandler({
+        getAdmin: async () => backend,
+        configured: () => true,
+        now: () => new Date(nowSec * 1000),
+        logError() {},
+        generate: async (opts) => {
+            const parsedPrompt = JSON.parse(opts.prompt);
+            assert.equal(parsedPrompt.habitArcSnapshot.planning.goalDurationDays, 45);
+            assert.equal(parsedPrompt.habitArcSnapshot.habits[0].name, 'Deep Work');
+            return { text: 'Focus looks solid — keep your Deep Work cue consistent.' };
+        }
+    });
+
+    const res = { headers: {}, setHeader(k, v) { this.headers[k] = v; }, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: `Bearer ${validJwt}`, 'content-type': 'application/json' }, body: { question: 'How is Deep Work going?', timeZone: 'Asia/Kolkata' } }, res);
+    assert.equal(res.code, 200);
+    assert.equal(res.body.answer, 'Focus looks solid — keep your Deep Work cue consistent.');
+    assert.equal(res.body.usage.remaining, 14);
+
+    // Wrong audience must fail with 401
+    const wrongAudJwt = makeJwt({ aud: 'other-project', iss: 'https://securetoken.google.com/other-project', sub: 'user-rest-1', iat: nowSec - 60, auth_time: nowSec - 60, exp: nowSec + 3600 });
+    const badRes = { headers: {}, setHeader(k, v) { this.headers[k] = v; }, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: `Bearer ${wrongAudJwt}`, 'content-type': 'application/json' }, body: { question: 'Hello?', timeZone: 'Asia/Kolkata' } }, badRes);
+    assert.equal(badRes.code, 401);
 });

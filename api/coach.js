@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createVerify, randomUUID } from 'node:crypto';
 import {
     buildHabitCoachContext,
     extractAndValidateCoachAction,
@@ -12,6 +12,11 @@ import {
 // can be changed without exposing a provider key to the browser.
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 const DEFAULT_DAILY_LIMIT = 15;
+const DEFAULT_FIREBASE_PROJECT_ID = 'habitarc-dfa40';
+// Matches the public Firebase web config in firebase-auth.js; used only with
+// Identity Toolkit accounts:lookup when Admin service-account credentials are absent.
+const DEFAULT_FIREBASE_WEB_API_KEY = 'AIzaSyCjsz72IRvCX0sb8IxfSILCkAI0915iBi8';
+const SECURE_TOKEN_CERTS_URL = 'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
 const MAX_BODY_BYTES = 20000;
 const MAX_HISTORY_DAYS = 35;
 const MAX_HISTORY_RECORDS = 2500;
@@ -34,6 +39,10 @@ function getDailyLimit() {
     return Math.min(Math.max(requested, 1), 50);
 }
 
+function hasServiceAccountConfig() {
+    return Boolean(String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 || '').trim());
+}
+
 function getFirebaseServiceAccount() {
     try {
         const raw = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 || '').trim();
@@ -49,7 +58,281 @@ function getFirebaseServiceAccount() {
     }
 }
 
+function makeAuthError(code = 'auth/invalid-id-token') {
+    return Object.assign(new Error('Invalid Firebase authentication token.'), { code });
+}
+
+function decodeJwtSegment(segment) {
+    const padded = String(segment || '').replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+}
+
+export function decodeFirestoreValue(value) {
+    if (!value || typeof value !== 'object') return undefined;
+    if ('nullValue' in value) return null;
+    if ('booleanValue' in value) return Boolean(value.booleanValue);
+    if ('stringValue' in value) return String(value.stringValue);
+    if ('timestampValue' in value) return String(value.timestampValue);
+    if ('integerValue' in value) return Number(value.integerValue);
+    if ('doubleValue' in value) return Number(value.doubleValue);
+    if ('arrayValue' in value) {
+        const items = value.arrayValue?.values;
+        return Array.isArray(items) ? items.map(decodeFirestoreValue) : [];
+    }
+    if ('mapValue' in value) {
+        return decodeFirestoreFields(value.mapValue?.fields);
+    }
+    return undefined;
+}
+
+export function decodeFirestoreFields(fields) {
+    if (!fields || typeof fields !== 'object') return {};
+    const out = {};
+    for (const [key, rawVal] of Object.entries(fields)) {
+        const decoded = decodeFirestoreValue(rawVal);
+        if (decoded !== undefined) out[key] = decoded;
+    }
+    return out;
+}
+
+/**
+ * Fallback backend used when server-only service account credentials are not set.
+ * Cryptographically verifies Firebase Auth ID tokens against Google's public X509
+ * certs + Identity Toolkit, and queries Firestore REST using the member's own token
+ * so per-user firestore.rules isolation stays strictly enforced.
+ */
+export function createRestFirebaseBackend({
+    projectId = process.env.FIREBASE_PROJECT_ID || DEFAULT_FIREBASE_PROJECT_ID,
+    webApiKey = process.env.FIREBASE_WEB_API_KEY || DEFAULT_FIREBASE_WEB_API_KEY,
+    fetchImpl = fetch,
+    now = () => new Date()
+} = {}) {
+    let certCache = { certs: null, expiresAtMs: 0 };
+    const quotaStore = new Map();
+
+    async function getPublicCert(kid) {
+        const currentMs = now().getTime();
+        if (certCache.certs && certCache.expiresAtMs > currentMs && certCache.certs[kid]) {
+            return certCache.certs[kid];
+        }
+        const response = await fetchImpl(SECURE_TOKEN_CERTS_URL);
+        if (!response.ok) throw new Error('Could not fetch Google auth certificates.');
+        const certs = await response.json();
+        const cacheHeader = response.headers?.get?.('cache-control') || '';
+        const maxAgeMatch = /max-age=(\d+)/i.exec(cacheHeader);
+        const ttlMs = (maxAgeMatch ? Number(maxAgeMatch[1]) : 3600) * 1000;
+        certCache = { certs, expiresAtMs: currentMs + Math.max(60000, ttlMs) };
+        if (!certs || typeof certs[kid] !== 'string') throw makeAuthError('auth/invalid-id-token');
+        return certs[kid];
+    }
+
+    async function verifyIdToken(idToken) {
+        const parts = String(idToken || '').split('.');
+        if (parts.length !== 3) throw makeAuthError('auth/argument-error');
+
+        let header;
+        let payload;
+        try {
+            header = decodeJwtSegment(parts[0]);
+            payload = decodeJwtSegment(parts[1]);
+        } catch {
+            throw makeAuthError('auth/invalid-id-token');
+        }
+
+        if (header?.alg !== 'RS256' || typeof header?.kid !== 'string' || !header.kid) {
+            throw makeAuthError('auth/invalid-id-token');
+        }
+
+        const nowSec = Math.floor(now().getTime() / 1000);
+        if (
+            payload?.aud !== projectId
+            || payload?.iss !== `https://securetoken.google.com/${projectId}`
+            || typeof payload?.sub !== 'string'
+            || !payload.sub
+            || payload.sub.length > 128
+            || payload.sub.includes('/')
+        ) {
+            throw makeAuthError('auth/invalid-id-token');
+        }
+        if (Number(payload.exp) <= nowSec) throw makeAuthError('auth/id-token-expired');
+        if (Number(payload.iat) > nowSec + 300 || Number(payload.auth_time) > nowSec + 300) {
+            throw makeAuthError('auth/invalid-id-token');
+        }
+
+        const certPem = await getPublicCert(header.kid);
+        const verifier = createVerify('RSA-SHA256');
+        verifier.update(`${parts[0]}.${parts[1]}`);
+        const sigBuf = Buffer.from(parts[2].replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+        if (!verifier.verify(certPem, sigBuf)) {
+            throw makeAuthError('auth/invalid-id-token');
+        }
+
+        const lookupRes = await fetchImpl(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(webApiKey)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken })
+        });
+        const lookupData = await lookupRes.json().catch(() => ({}));
+        if (!lookupRes.ok) {
+            const msg = String(lookupData?.error?.message || '');
+            if (/EXPIRED|INVALID_ID_TOKEN|USER_NOT_FOUND|USER_DISABLED/.test(msg)) {
+                throw makeAuthError('auth/id-token-expired');
+            }
+            throw new Error('Auth verification service unavailable.');
+        }
+        const userRecord = Array.isArray(lookupData?.users) ? lookupData.users[0] : null;
+        if (!userRecord || userRecord.localId !== payload.sub || userRecord.disabled) {
+            throw makeAuthError('auth/user-disabled');
+        }
+        const signInProvider = payload?.firebase?.sign_in_provider
+            || (Array.isArray(userRecord.providerUserInfo) && userRecord.providerUserInfo.length ? userRecord.providerUserInfo[0].providerId : 'anonymous');
+        return {
+            ...payload,
+            uid: payload.sub,
+            firebase: { ...(payload.firebase || {}), sign_in_provider: signInProvider }
+        };
+    }
+
+    async function firestoreRest(url, idToken, options = {}) {
+        const res = await fetchImpl(url, {
+            ...options,
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+                ...(options.headers || {})
+            }
+        });
+        if (res.status === 401 || res.status === 403) {
+            throw makeAuthError('auth/id-token-expired');
+        }
+        return res;
+    }
+
+    async function loadSnapshot(uid, idToken, requestTime) {
+        const baseDoc = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/users/${encodeURIComponent(uid)}`;
+        const minDate = dateOffset(requestTime, -MAX_HISTORY_DAYS);
+        const maxDate = dateOffset(requestTime, 1);
+
+        const [profileRes, habitsRes, completionsRes] = await Promise.all([
+            firestoreRest(baseDoc, idToken),
+            firestoreRest(`${baseDoc}/habits?pageSize=21`, idToken),
+            firestoreRest(`${baseDoc}:runQuery`, idToken, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    structuredQuery: {
+                        from: [{ collectionId: 'habitCompletions' }],
+                        where: {
+                            compositeFilter: {
+                                op: 'AND',
+                                filters: [
+                                    { fieldFilter: { field: { fieldPath: 'date' }, op: 'GREATER_THAN_OR_EQUAL', value: { stringValue: minDate } } },
+                                    { fieldFilter: { field: { fieldPath: 'date' }, op: 'LESS_THAN_OR_EQUAL', value: { stringValue: maxDate } } }
+                                ]
+                            }
+                        },
+                        limit: MAX_HISTORY_RECORDS
+                    }
+                })
+            })
+        ]);
+
+        let settings = {};
+        if (profileRes.status !== 404) {
+            if (!profileRes.ok) throw new Error('Could not read profile snapshot.');
+            const profileDoc = await profileRes.json();
+            settings = decodeFirestoreFields(profileDoc?.fields)?.settings || {};
+        }
+
+        let habits = [];
+        if (habitsRes.status !== 404) {
+            if (!habitsRes.ok) throw new Error('Could not read habits snapshot.');
+            const habitsData = await habitsRes.json();
+            const docs = Array.isArray(habitsData?.documents) ? habitsData.documents : [];
+            habits = docs.map((doc) => ({
+                ...decodeFirestoreFields(doc?.fields),
+                id: String(doc?.name || '').split('/').pop()
+            }));
+        }
+
+        let completionHistory = [];
+        if (completionsRes.status !== 404) {
+            if (!completionsRes.ok) throw new Error('Could not read completion snapshot.');
+            const rows = await completionsRes.json();
+            completionHistory = (Array.isArray(rows) ? rows : [])
+                .filter((row) => row && row.document)
+                .map((row) => ({
+                    ...decodeFirestoreFields(row.document.fields),
+                    id: String(row.document.name || '').split('/').pop()
+                }));
+        }
+
+        return {
+            habits,
+            completionHistory,
+            settings,
+            truncated: habits.length > 20 || completionHistory.length >= MAX_HISTORY_RECORDS
+        };
+    }
+
+    async function reserveQuota(uid, requestTime, limit) {
+        const date = dateOffset(requestTime, 0);
+        const nowMs = requestTime.getTime();
+        const resetAt = dateOffset(requestTime, 1) + 'T00:00:00.000Z';
+        const leaseId = randomUUID();
+        const previous = quotaStore.get(uid) || {};
+        const count = previous.date === date ? previous.count : 0;
+
+        if (count >= limit) {
+            throw new CoachRequestError(429, 'daily-limit-reached',
+                'You have reached today\'s ' + limit + '-message Coach limit. Try again after the UTC daily reset.',
+                Math.max(1, Math.ceil((Date.parse(resetAt) - nowMs) / 1000)));
+        }
+        if (Number(previous.inFlightUntilMs) > nowMs) {
+            throw new CoachRequestError(429, 'request-in-progress', 'Your previous Coach request is still being processed. Please wait.',
+                Math.max(1, Math.ceil((previous.inFlightUntilMs - nowMs) / 1000)));
+        }
+        const elapsed = nowMs - Number(previous.lastRequestAtMs || 0);
+        if (elapsed < REQUEST_COOLDOWN_MS) {
+            throw new CoachRequestError(429, 'request-too-soon', 'Please wait a few seconds before asking another question.',
+                Math.max(1, Math.ceil((REQUEST_COOLDOWN_MS - elapsed) / 1000)));
+        }
+
+        quotaStore.set(uid, {
+            date,
+            count: count + 1,
+            lastRequestAtMs: nowMs,
+            inFlightUntilMs: nowMs + REQUEST_LEASE_MS,
+            leaseId
+        });
+        return { remaining: limit - count - 1, limit, resetAt, leaseId };
+    }
+
+    async function releaseQuota(uid, leaseId) {
+        const current = quotaStore.get(uid);
+        if (current && current.leaseId === leaseId) {
+            quotaStore.set(uid, { ...current, leaseId: null, inFlightUntilMs: 0 });
+        }
+    }
+
+    return {
+        auth: { verifyIdToken },
+        db: null,
+        loadSnapshot,
+        reserveQuota,
+        releaseQuota
+    };
+}
+
+let defaultRestBackend;
+function getRestFirebaseBackend() {
+    defaultRestBackend ||= createRestFirebaseBackend();
+    return defaultRestBackend;
+}
+
 async function getFirebaseAdmin() {
+    if (!hasServiceAccountConfig()) {
+        return getRestFirebaseBackend();
+    }
     try {
         // Loading server SDKs only after the cheap request guards means a
         // configuration issue returns a useful JSON response, not a function
@@ -152,7 +435,12 @@ async function generateWithGemini({ model, system, prompt, maxOutputTokens, abor
         }),
         signal: abortSignal
     });
-    if (!response.ok) throw new Error('Gemini request failed.');
+    if (!response.ok) {
+        if (response.status === 429) {
+            throw new CoachRequestError(429, 'provider-rate-limit', 'HabitArc AI is briefly busy. Please wait a few seconds and try again.', 15);
+        }
+        throw Object.assign(new Error('Gemini request failed.'), { status: response.status });
+    }
     const payload = await response.json();
     const parts = payload?.candidates?.[0]?.content?.parts;
     const text = Array.isArray(parts)
@@ -268,10 +556,13 @@ const INVALID_AUTH_CODES = new Set([
 
 function safeLogError(error) {
     // Provider messages can contain prompts/request details; never log them.
-    console.error('HabitArc Coach request failed.', { name: error?.name || 'Error' });
+    console.error('HabitArc Coach request failed.', {
+        name: error?.name || 'Error',
+        ...(Number.isInteger(error?.status) ? { status: error.status } : {})
+    });
 }
 
-/** Dependency injection keeps guard/quota tests offline; production uses server-only SDKs. */
+/** Dependency injection keeps guard/quota tests offline; production uses server-only SDKs or verified Firebase REST. */
 export function createCoachHandler({
     getAdmin = getFirebaseAdmin,
     generate = generateWithGemini,
@@ -309,11 +600,11 @@ export function createCoachHandler({
                 throw new CoachRequestError(503, 'coach-not-configured', 'HabitArc Coach is being connected securely. Please try again after setup is complete.');
             }
             const model = modelId();
-            const { auth, db, timestamp: adminTimestamp } = await getAdmin();
-            const requestTimestamp = timestamp || adminTimestamp || (() => new Date().toISOString());
+            const backend = await getAdmin();
+            const requestTimestamp = timestamp || backend.timestamp || (() => new Date().toISOString());
             let decodedToken;
             try {
-                decodedToken = await auth.verifyIdToken(token, true);
+                decodedToken = await backend.auth.verifyIdToken(token, true);
             } catch (error) {
                 if (INVALID_AUTH_CODES.has(error?.code)) {
                     throw new CoachRequestError(401, 'auth-expired', 'Your sign-in has expired or is no longer valid. Sign in again to use the Coach.');
@@ -327,12 +618,24 @@ export function createCoachHandler({
                 throw new CoachRequestError(403, 'account-required', 'Create or sign in to an account before using the secure HabitArc Coach.');
             }
             const requestTime = now();
-            const quota = await reserveQuota(db, decodedToken.uid, requestTime, dailyLimit(), requestTimestamp);
+            const quota = backend.reserveQuota
+                ? await backend.reserveQuota(decodedToken.uid, requestTime, dailyLimit())
+                : await reserveQuota(backend.db, decodedToken.uid, requestTime, dailyLimit(), requestTimestamp);
             let answer;
             let suggestedAction = null;
             let metrics;
             try {
-                const snapshot = await loadPrivateHabitSnapshot(db, decodedToken.uid, requestTime);
+                let snapshot;
+                try {
+                    snapshot = backend.loadSnapshot
+                        ? await backend.loadSnapshot(decodedToken.uid, token, requestTime)
+                        : await loadPrivateHabitSnapshot(backend.db, decodedToken.uid, requestTime);
+                } catch (snapshotErr) {
+                    if (INVALID_AUTH_CODES.has(snapshotErr?.code)) {
+                        throw new CoachRequestError(401, 'auth-expired', 'Your sign-in has expired or is no longer valid. Sign in again to use the Coach.');
+                    }
+                    throw snapshotErr;
+                }
                 const context = buildHabitCoachContext({
                     ...snapshot, now: requestTime,
                     // Omitted device zone is explicitly documented as UTC fallback.
@@ -352,7 +655,11 @@ export function createCoachHandler({
                 suggestedAction = parsed.suggestedAction;
                 if (!answer) throw new Error('Empty model response.');
             } finally {
-                try { await releaseQuotaLease(db, decodedToken.uid, quota.leaseId, requestTimestamp); } catch (error) {
+                try {
+                    await (backend.releaseQuota
+                        ? backend.releaseQuota(decodedToken.uid, quota.leaseId)
+                        : releaseQuotaLease(backend.db, decodedToken.uid, quota.leaseId, requestTimestamp));
+                } catch (error) {
                     // The lease expires automatically even if cleanup fails.
                     logError(error);
                 }
