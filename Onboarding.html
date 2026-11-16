@@ -261,27 +261,31 @@
         cursor: pointer;
         text-align: left;
     }
-    .opt { position: relative; border-radius: 20px; padding: 22px 12px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .opt-ico { font-size: 24px; color: #012d1d; }
+    .opt { position: relative; border-radius: 20px; padding: 24px 12px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .opt-ico { font-size: 28px; color: #012d1d; }
     .opt-label { font-size: 16px; font-weight: 600; }
     .opt .check-badge { position: absolute; top: 10px; right: 10px; }
     .opt-row { width: 100%; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; }
     .opt-row .opt-label { flex: 1; }
     .opt-ico-box { width: 40px; height: 40px; border-radius: 12px; background: #f3f4f5; color: #012d1d; display: flex; align-items: center; justify-content: center; font-size: 22px; transition: all .18s ease; flex-shrink: 0; }
-    .opt-big { border-radius: 24px; padding: 34px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
-    .opt-big .material-symbols-outlined { font-size: 38px; color: #012d1d; }
-    .opt.selected, .opt-row.selected, .opt-big.selected { background: #a0f4c8; border-color: #012d1d; }
+    .opt-big { position: relative; border-radius: 24px; padding: 34px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+    .opt-big .check-badge { position: absolute; top: 12px; right: 12px; }
+    .opt-big > .material-symbols-outlined { font-size: 38px; color: #012d1d; }
+    /* Calm selected state: soft pine tint + pine border instead of a loud mint fill. */
+    .opt.selected, .opt-row.selected, .opt-big.selected { background: #eaf5ef; border-color: #012d1d; box-shadow: 0 0 0 3px rgba(1, 45, 29, 0.06); }
     .opt-row.selected .opt-ico-box { background: #012d1d; color: #ffffff; }
-    .check-badge { width: 22px; height: 22px; border-radius: 9999px; background: #012d1d; color: #fff; display: flex; align-items: center; justify-content: center; }
+    /* Check badges only appear on selected options, so unselected cards stay clean. */
+    .check-badge { width: 22px; height: 22px; border-radius: 9999px; background: #012d1d; color: #fff; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.6); transition: opacity .18s ease, transform .18s ease; }
+    .selected > .check-badge { opacity: 1; transform: scale(1); }
     .check-badge .material-symbols-outlined { font-size: 14px; }
 
     .chip { padding: 8px 14px; border-radius: 9999px; font-size: 14px; font-weight: 500; }
     .chip:hover { border-color: #012d1d; }
 
     .theme-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; cursor: pointer; }
-    .swatch { width: 52px; height: 52px; border-radius: 9999px; border: 1.5px solid #dfe2e3; transition: box-shadow .18s ease; }
+    .swatch { width: 52px; height: 52px; border-radius: 9999px; border: 1.5px solid rgba(1, 45, 29, 0.14); transition: outline-color .18s ease, transform .18s ease; }
     .swatch-label { font-size: 12px; color: #717973; font-weight: 500; }
-    .theme-btn.selected-theme .swatch { box-shadow: 0 0 0 3px #f8f9fa, 0 0 0 5px #012d1d; }
+    .theme-btn.selected-theme .swatch { outline: 2px solid #012d1d; outline-offset: 3px; }
     .theme-btn.selected-theme .swatch-label { color: #012d1d; font-weight: 700; }
 
     .auth-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: 18px; background: #ffffff; border: 1.5px solid #e4e7e8; color: #191c1d; font-size: 15px; font-weight: 600; cursor: pointer; transition: border-color .18s ease; -webkit-tap-highlight-color: transparent; }
@@ -353,20 +357,21 @@
 <main class="flex-1 w-full max-w-md mx-auto flex flex-col px-6 overflow-y-auto pb-32">
 
     <!-- STEP 1: Welcome -->
-    <div id="step-1" class="step-card active animate-in my-auto text-center flex flex-col items-center">
+    <div id="step-1" class="step-card active animate-in my-auto pb-8 text-center flex flex-col items-center">
         <img src="logo.png" alt="HabitArc Logo" class="w-24 h-24 object-contain logo-hero"/>
-        <h1 class="mt-10 text-[34px] leading-[1.18] font-bold tracking-tight text-primary">
+        <h1 class="mt-7 text-[34px] leading-[1.16] font-bold tracking-tight text-primary">
             Build habits.<br/>
             Understand yourself.<br/>
             <span class="text-secondary">Grow every day.</span>
         </h1>
+        <p class="mt-4 text-[15px] leading-relaxed text-outline max-w-[270px]">A quiet space for daily habits, honest streaks, and steady insight.</p>
     </div>
 
     <!-- STEP 2: What brought you here? -->
-    <div id="step-2" class="step-card animate-in my-auto w-full">
+    <div id="step-2" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">What brought you<br/>here today?</h2>
         <p class="mt-2 text-[15px] text-outline">Select all that apply.</p>
-        <div class="mt-8 grid grid-cols-2 gap-3" id="intent-options">
+        <div class="mt-7 grid grid-cols-2 gap-3" id="intent-options">
             <button type="button" class="opt intent-opt btn-press" data-val="Health"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">favorite</span><span class="opt-label">Health</span></button>
             <button type="button" class="opt intent-opt btn-press" data-val="Fitness"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">fitness_center</span><span class="opt-label">Fitness</span></button>
             <button type="button" class="opt intent-opt btn-press" data-val="Study"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined opt-ico">auto_stories</span><span class="opt-label">Study</span></button>
@@ -377,10 +382,10 @@
     </div>
 
     <!-- STEP 3: Biggest challenge -->
-    <div id="step-3" class="step-card animate-in my-auto w-full">
+    <div id="step-3" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">What's your<br/>biggest challenge?</h2>
         <p class="mt-2 text-[15px] text-outline">We'll personalize your insights.</p>
-        <div class="mt-8 space-y-2.5" id="challenge-options">
+        <div class="mt-7 space-y-2.5" id="challenge-options">
             <button type="button" class="opt-row challenge-opt btn-press selected" data-val="consistency"><span class="material-symbols-outlined opt-ico-box">event_repeat</span><span class="opt-label">I lose consistency</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="distracted"><span class="material-symbols-outlined opt-ico-box">center_focus_weak</span><span class="opt-label">I get distracted</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
             <button type="button" class="opt-row challenge-opt btn-press" data-val="time"><span class="material-symbols-outlined opt-ico-box">schedule</span><span class="opt-label">I don't have enough time</span><span class="check-badge"><span class="material-symbols-outlined">check</span></span></button>
@@ -390,14 +395,14 @@
     </div>
 
     <!-- STEP 4: Make it yours -->
-    <div id="step-4" class="step-card animate-in my-auto w-full">
+    <div id="step-4" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Make it yours.</h2>
         <p class="mt-2 text-[15px] text-outline">Pick a theme. Change it anytime.</p>
 
         <div id="mini-dashboard-preview" class="mt-7 rounded-2xl p-4 border transition-all duration-300" style="background:#ffffff; color:#012d1d; border-color:#e2e8f0;">
             <div class="flex items-center justify-between">
                 <span class="text-sm font-semibold">Good morning, Alex</span>
-                <span id="mini-ring" class="w-9 h-9 rounded-full border-[3px] flex items-center justify-center text-[10px] font-bold geist" style="border-color:#10b981;">85%</span>
+                <span id="mini-ring" class="w-9 h-9 rounded-full border-[3px] flex items-center justify-center text-[10px] font-bold geist" style="border-color:#0e6c4a;">85%</span>
             </div>
             <div id="mini-grid-cells" class="mt-3 grid grid-cols-14 gap-1"></div>
         </div>
@@ -413,23 +418,23 @@
     </div>
 
     <!-- STEP 5: Notifications -->
-    <div id="step-5" class="step-card animate-in my-auto w-full text-center">
+    <div id="step-5" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Gentle reminders?</h2>
         <p class="mt-2 text-[15px] text-outline">Only when you need them.</p>
-        <div class="mt-8 grid grid-cols-2 gap-3" id="notification-options">
-            <button type="button" class="notif-opt opt-big btn-press selected" data-val="true"><span class="material-symbols-outlined">notifications_active</span><span class="opt-label">Yes, notify me</span></button>
-            <button type="button" class="notif-opt opt-big btn-press" data-val="false"><span class="material-symbols-outlined">notifications_off</span><span class="opt-label">No thanks</span></button>
+        <div class="mt-7 grid grid-cols-2 gap-3" id="notification-options">
+            <button type="button" class="notif-opt opt-big btn-press selected" data-val="true"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined">notifications_active</span><span class="opt-label">Yes, notify me</span></button>
+            <button type="button" class="notif-opt opt-big btn-press" data-val="false"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined">notifications_off</span><span class="opt-label">No thanks</span></button>
         </div>
     </div>
 
     <!-- STEP 6: North Star -->
-    <div id="step-6" class="step-card animate-in my-auto w-full">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/60 text-primary text-[11px] font-bold geist uppercase tracking-wider">
+    <div id="step-6" class="step-card animate-in pt-6 sm:pt-10 w-full">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eaf5ef] text-primary text-[11px] font-bold geist uppercase tracking-wider">
             <span class="material-symbols-outlined fill" style="font-size:14px;">star</span> North Star
         </span>
         <h2 class="mt-4 text-[30px] leading-tight font-bold tracking-tight text-primary">If you could build<br/>only one habit<br/>this year?</h2>
         <p class="mt-2 text-[15px] text-outline">Your single most important habit.</p>
-        <input id="north-star-input" type="text" value="Daily Meditation" maxlength="60" autocomplete="off" class="mt-8 w-full bg-transparent border-0 border-b-2 border-primary px-0 py-2 text-[22px] font-semibold text-primary outline-none focus:outline-none focus:ring-0 focus:shadow-none shadow-none focus:border-primary placeholder:text-outline-variant" placeholder="e.g. Read 20 pages"/>
+        <input id="north-star-input" type="text" maxlength="60" autocomplete="off" aria-label="Your single most important habit" class="mt-7 w-full bg-transparent border-0 border-b-2 border-primary px-0 py-2 text-[22px] font-semibold text-primary outline-none focus:outline-none focus:ring-0 focus:shadow-none shadow-none focus:border-primary placeholder:font-normal placeholder:text-outline/50" placeholder="e.g. Daily Meditation"/>
         <div class="mt-4 flex flex-wrap gap-2" id="north-star-chips">
             <button type="button" class="chip btn-press">Read 20 pages</button>
             <button type="button" class="chip btn-press">Workout</button>
@@ -438,13 +443,13 @@
     </div>
 
     <!-- STEP 7: Save progress -->
-    <div id="step-7" class="step-card animate-in my-auto w-full">
+    <div id="step-7" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 id="auth-mode-title" class="text-[30px] leading-tight font-bold tracking-tight text-primary">Save Your Progress</h2>
         <p id="auth-mode-sub" class="mt-2 text-[15px] text-outline">Sync across your devices.</p>
 
-        <div class="mt-6 inline-flex p-1 rounded-full bg-surface-container" id="auth-tabs">
-            <button id="tab-register" type="button" class="auth-tab-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-primary text-on-primary" data-mode="register">Create account</button>
-            <button id="tab-login" type="button" class="auth-tab-btn px-4 py-1.5 rounded-full text-sm font-semibold transition-all text-on-surface-variant" data-mode="login">Log in</button>
+        <div class="mt-6 grid grid-cols-2 p-1 rounded-2xl bg-surface-container w-full" id="auth-tabs">
+            <button id="tab-register" type="button" class="auth-tab-btn py-2 rounded-xl text-sm font-semibold transition-all bg-primary text-on-primary" data-mode="register">Create account</button>
+            <button id="tab-login" type="button" class="auth-tab-btn py-2 rounded-xl text-sm font-semibold transition-all text-on-surface-variant" data-mode="login">Log in</button>
         </div>
 
         <div class="mt-5 space-y-3">
@@ -472,12 +477,18 @@
 
             <p id="auth-error" class="hidden text-xs font-medium text-error text-center" role="alert" aria-live="polite"></p>
 
-            <button id="guest-signin-btn" type="button" class="auth-btn btn-press" style="background:#a0f4c8; border-color:#a0f4c8;">
-                <span class="material-symbols-outlined" style="font-size:20px;">phone_iphone</span>
+            <div id="guest-divider" class="flex items-center gap-3 py-1">
+                <div class="h-px flex-1 bg-[#e5e8e6]"></div>
+                <span class="text-xs text-outline geist">or</span>
+                <div class="h-px flex-1 bg-[#e5e8e6]"></div>
+            </div>
+
+            <button id="guest-signin-btn" type="button" class="auth-btn btn-press" style="background:transparent; border-color:#e4e7e8; color:#414844;">
+                <span class="material-symbols-outlined" style="font-size:19px;">phone_iphone</span>
                 <span>Continue as guest</span>
             </button>
         </div>
-        <p id="guest-note" class="mt-6 text-center text-xs text-outline geist">Guest data stays on this device.</p>
+        <p id="guest-note" class="mt-4 text-center text-xs text-outline geist">Guest data stays on this device.</p>
     </div>
 
 </main>
@@ -490,10 +501,13 @@
             <button id="welcome-login-btn" type="button" class="ml-1 font-semibold text-primary underline underline-offset-4 hover:opacity-80 transition-opacity bg-transparent border-0 p-0 cursor-pointer focus:outline-none">Log in</button>
         </p>
     </div>
-    <footer id="bottom-nav" class="w-full pointer-events-auto bg-white/95 backdrop-blur-xl border border-outline-variant/40 rounded-2xl shadow-[0_8px_28px_rgba(1,45,29,0.10)] p-2.5 flex items-center justify-between">
-        <button id="prev-step-btn" type="button" class="btn-press px-4 py-2.5 rounded-xl text-on-surface-variant text-sm font-semibold hover:bg-surface-container-low transition-all disabled:opacity-30" disabled>Back</button>
+    <footer id="bottom-nav" class="w-full pointer-events-auto bg-white/95 backdrop-blur-xl border border-outline-variant/40 rounded-2xl shadow-[0_8px_28px_rgba(1,45,29,0.10)] p-2 flex items-center justify-between gap-2">
+        <button id="prev-step-btn" type="button" class="btn-press inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-on-surface-variant text-sm font-semibold hover:bg-surface-container-low transition-all disabled:opacity-30" disabled>
+            <span class="material-symbols-outlined" style="font-size:17px;">arrow_back</span>
+            <span>Back</span>
+        </button>
         <button id="next-step-btn" type="button" class="btn-press bg-primary text-on-primary text-[15px] font-semibold px-6 py-2.5 rounded-xl hover:opacity-90 transition-all flex items-center gap-2">
-            <span>Continue</span>
+            <span id="next-step-label">Get started</span>
             <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
         </button>
     </footer>
@@ -660,19 +674,34 @@
         const pct = Math.round((currentStep / totalSteps) * 100);
         document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('step-indicator').textContent = `${currentStep} / ${totalSteps}`;
-        document.getElementById('prev-step-btn').disabled = (currentStep === 1);
+
+        const prevBtn = document.getElementById('prev-step-btn');
+        if (prevBtn) {
+            prevBtn.disabled = (currentStep === 1);
+            prevBtn.style.display = (currentStep === 1) ? 'none' : 'inline-flex';
+        }
 
         const bottomNav = document.getElementById('bottom-nav');
-        if (bottomNav) bottomNav.style.display = 'flex';
+        if (bottomNav) {
+            bottomNav.style.display = 'flex';
+            bottomNav.classList.toggle('w-full', currentStep < totalSteps);
+            bottomNav.classList.toggle('self-start', currentStep === totalSteps);
+        }
 
         const welcomeLoginBar = document.getElementById('welcome-login-bar');
         if (welcomeLoginBar) {
             welcomeLoginBar.style.display = (currentStep === 1 && !pendingGoogleRedirectDraft) ? 'block' : 'none';
         }
 
-        // The last step offers its own Google / email / guest buttons instead of "Continue".
+        // Step 1 highlights "Get started"; Step 7 delegates primary CTA to Google / email buttons.
         const nextBtn = document.getElementById('next-step-btn');
-        if (nextBtn) nextBtn.style.display = (currentStep === totalSteps) ? 'none' : 'flex';
+        const nextLabel = document.getElementById('next-step-label');
+        if (nextLabel) nextLabel.textContent = (currentStep === 1) ? 'Get started' : 'Continue';
+        if (nextBtn) {
+            nextBtn.style.display = (currentStep === totalSteps) ? 'none' : 'flex';
+            nextBtn.classList.toggle('w-full', currentStep === 1);
+            nextBtn.classList.toggle('justify-center', currentStep === 1);
+        }
 
         const main = document.querySelector('main');
         if (main) main.scrollTop = 0;
@@ -716,8 +745,8 @@
     const previewThemes = {
         purple: { bg: '#181028', text: '#f3e8ff', border: 'rgba(167,139,250,0.25)', accent: '#8b5cf6', off: 'rgba(255,255,255,0.10)' },
         dark:   { bg: '#15181e', text: '#f1f5f9', border: 'rgba(148,163,184,0.25)', accent: '#34d399', off: 'rgba(255,255,255,0.10)' },
-        light:  { bg: '#ffffff', text: '#012d1d', border: '#e2e8f0',                accent: '#10b981', off: 'rgba(0,0,0,0.07)' },
-        forest: { bg: '#0b2419', text: '#ecfdf5', border: 'rgba(110,231,183,0.25)', accent: '#10b981', off: 'rgba(255,255,255,0.10)' },
+        light:  { bg: '#ffffff', text: '#012d1d', border: '#e2e8f0',                accent: '#0e6c4a', off: 'rgba(0,0,0,0.07)' },
+        forest: { bg: '#0b2419', text: '#ecfdf5', border: 'rgba(110,231,183,0.25)', accent: '#34d399', off: 'rgba(255,255,255,0.10)' },
         ocean:  { bg: '#0f1d32', text: '#f0f9ff', border: 'rgba(125,211,252,0.25)', accent: '#3b82f6', off: 'rgba(255,255,255,0.10)' },
         sunset: { bg: '#251017', text: '#fff1f2', border: 'rgba(253,164,175,0.25)', accent: '#f43f5e', off: 'rgba(255,255,255,0.10)' }
     };
@@ -805,6 +834,7 @@
     const emailSubmitText = document.getElementById('email-submit-text');
     const emailSubmitBtn = document.getElementById('email-submit-btn');
     const googleSignInBtn = document.getElementById('google-signin-btn');
+    const guestDivider = document.getElementById('guest-divider');
     const guestSignInBtn = document.getElementById('guest-signin-btn');
     const guestNote = document.getElementById('guest-note');
     const nameInput = document.getElementById('acc-name-input');
@@ -822,6 +852,7 @@
             passwordInput.autocomplete = mode === 'register' ? 'new-password' : 'current-password';
             passwordInput.placeholder = mode === 'register' ? 'Password (min 6 characters)' : 'Password';
         }
+        if (guestDivider) guestDivider.style.display = mode === 'register' ? 'flex' : 'none';
         if (guestSignInBtn) guestSignInBtn.style.display = mode === 'register' ? 'flex' : 'none';
         if (guestNote) guestNote.style.display = mode === 'register' ? 'block' : 'none';
         if (mode === 'register') {
