@@ -289,6 +289,7 @@
 </nav>
 
 <script src="app.js"></script>
+<script src="streak-runner.js"></script>
 <script>
 (async function() {
     // Get habit ID from URL
@@ -393,7 +394,8 @@
     }
 
     document.getElementById('complete-today-btn').addEventListener('click', function() {
-        if (HabitArc.isCompletedToday(habitId)) {
+        const completedNow = !HabitArc.isCompletedToday(habitId);
+        if (!completedNow) {
             HabitArc.uncompleteHabit(habitId);
         } else {
             HabitArc.completeHabit(habitId);
@@ -405,6 +407,9 @@
         renderStats();
         renderCalendar();
         renderMonthlyBars();
+        if (completedNow) {
+            window.HabitArcStreak?.maybeCelebrate?.();
+        }
     });
 
     updateCompleteButton();

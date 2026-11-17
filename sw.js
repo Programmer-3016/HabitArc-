@@ -20,6 +20,7 @@ const SHELL_ASSETS = [
   '/app-ui.js',
   '/app.js',
   '/habit-analytics.js',
+  '/streak-runner.js',
   '/firebase-auth.js',
   '/pwa-register.js',
   '/manifest.webmanifest',

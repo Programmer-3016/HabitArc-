@@ -302,6 +302,7 @@
 </nav>
 
 <script src="app.js"></script>
+<script src="streak-runner.js"></script>
 <script>
 (function() {
     let signedInUser = HabitArc.getAuthUser();
@@ -438,7 +439,8 @@
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const id = this.dataset.id;
-                if (HabitArc.isCompletedToday(id)) {
+                const completedNow = !HabitArc.isCompletedToday(id);
+                if (!completedNow) {
                     HabitArc.uncompleteHabit(id);
                 } else {
                     HabitArc.completeHabit(id);
@@ -447,7 +449,11 @@
                 }
                 render();
                 // Rendering replaces the button; retain keyboard focus on it.
-                [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id)?.focus({ preventScroll: true });
+                const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
+                refocusedBtn?.focus({ preventScroll: true });
+                if (completedNow) {
+                    window.HabitArcStreak?.maybeCelebrate?.();
+                }
             });
         });
     }

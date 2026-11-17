@@ -67,6 +67,7 @@ const HabitArc = (() => {
         completionHistory: {},
         settings: {
             theme: 'dark', // "dark" | "light" | "forest" | "midnight"
+            companion: 'arcy', // "arcy" | "ninja" | "specops" | "astro"
             goalDuration: 30,
             startWeekOn: 'monday',
             defaultReminderTime: '09:00',
@@ -526,13 +527,19 @@ const HabitArc = (() => {
         // retained as a backwards-compatible, UI-friendly projection.
         _applyCompletionHistoryToHabits(habits, completionHistory);
 
+        const validCompanions = new Set(['arcy', 'ninja', 'specops', 'astro']);
+        const mergedSettings = {
+            ...DEFAULT_DATA.settings,
+            ..._cloneData(settings)
+        };
+        if (!validCompanions.has(mergedSettings.companion)) {
+            mergedSettings.companion = DEFAULT_DATA.settings.companion;
+        }
+
         return {
             habits,
             completionHistory,
-            settings: {
-                ...DEFAULT_DATA.settings,
-                ..._cloneData(settings)
-            },
+            settings: mergedSettings,
             // Older builds stored this flag inside settings while the root
             // default remained false. Preserve a completed onboarding flow if
             // either representation says it is complete, then keep the
@@ -1474,6 +1481,7 @@ const HabitArc = (() => {
         Object.keys(resetData.completionHistory || {}).forEach((recordId) => {
             _queueCompletionHistoryOperation(recordId, 'upsert');
         });
+        _removeStorageValue(`habitarc_streak_celebrated_${activeUserId || 'local'}`);
         _save(resetData);
     }
 
@@ -2095,6 +2103,7 @@ const HabitArc = (() => {
         today: _today
     };
 })();
+if (typeof window !== 'undefined') window.HabitArc = HabitArc;
 
 // Apply theme & update header streak/profile controls cleanly on load
 function _syncHeaderChrome() {

@@ -237,6 +237,7 @@
 </a>
 </nav>
 <script src="app.js"></script>
+<script src="streak-runner.js"></script>
 <script>
 (function() {
     let currentFilter = 'All';
@@ -307,14 +308,19 @@
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const id = this.dataset.id;
-                if (HabitArc.isCompletedToday(id)) {
+                const completedNow = !HabitArc.isCompletedToday(id);
+                if (!completedNow) {
                     HabitArc.uncompleteHabit(id);
                 } else {
                     HabitArc.completeHabit(id);
                 }
                 render();
                 // Rendering replaces the button; keep keyboard focus on the same habit.
-                [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id)?.focus();
+                const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
+                refocusedBtn?.focus();
+                if (completedNow) {
+                    window.HabitArcStreak?.maybeCelebrate?.();
+                }
             });
         });
     }
