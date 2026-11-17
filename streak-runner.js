@@ -269,451 +269,898 @@
     }
 
     // ---------------------------------------------------------------------------
-    // 2. Pixel Companions, Gear & Landmarks
+    // 2. High-Detail 32x30 3/4-Profile SNES/RPG Pixel Companions, Gear & Landmarks
     // ---------------------------------------------------------------------------
     const PAL = {
-        K: '#031E13',
-        W: '#FFFFFF',
-        G: '#47E393',
-        E: '#16A34A',
-        Y: '#FDE047',
-        O: '#F59E0B',
-        R: '#EA580C',
+        K: '#0F172A', // Deep Slate Ink Outline
+        W: '#FFFFFF', // Pure White / Eye Sclera / Glint
+        Y: '#FDE047', // Gold Highlight
+        O: '#F59E0B', // Warm Gold / Amber Midtone
+        R: '#C2410C', // Burnt Orange / Leather Accent
+        G: '#47E393', // HabitArc Mint Highlight
+        E: '#16A34A', // Emerald Midtone
+        V: '#14532D', // Deep Forest Shadow
+        H: '#F87171', // Crimson Highlight
+        C: '#DC2626', // Crimson Midtone
+        D: '#7F1D1D', // Crimson Shadow
+        1: '#FFE7CE', // Warm Skin Highlight
+        2: '#F4B886', // Warm Skin Midtone
+        3: '#C47D53', // Warm Skin Shadow
+        4: '#B45309', // Warm Chestnut / Leather
+        5: '#78350F', // Dark Brown Boots / Grip
+        Q: '#6366F1', // Bright Indigo Highlight
+        I: '#3730A3', // Indigo Shinobi Suit
+        N: '#1E1B4B', // Deep Indigo Shadow
+        X: '#84CC16', // Bright Olive Highlight
+        T: '#4D7C0F', // Tactical Olive Midtone
+        h: '#365314', // Deep Olive Shadow
+        L: '#E2E8F0', // White/Silver Alloy
+        S: '#94A3B8', // Metallic Steel
+        P: '#475569', // Gunmetal Polymer
+        U: '#1E293B', // Charcoal Armor
+        J: '#A5F3FC', // Ice Cyan Glow
+        B: '#38BDF8', // Sky Blue Visor
+        Z: '#0284C7', // Deep Cobalt Shadow
+        // Legacy keys retained for landmarks / crowns / particles
         M: '#FB7185',
-        B: '#38BDF8',
-        V: '#0284C7',
-        N: '#1E293B',
-        I: '#312E81',
-        C: '#EF4444',
-        D: '#991B1B',
-        T: '#4D7C0F',
-        H: '#365314',
         A: '#334155',
-        S: '#94A3B8',
-        L: '#CBD5E1',
-        P: '#475569',
-        U: '#0F172A',
-        Z: '#DC2626',
-        J: '#A5F3FC',
         F: '#FBBF24',
-        Q: '#4F46E5',
-        X: '#65A30D',
     };
 
+    // 32x30 3/4 Side-Facing RPG Hero Bitmaps (every row strictly 32 chars wide!)
     const RUNNERS = {
         arcy: {
-            px: 2.5,
-            run0:   ['.....EEE......','....KKKKK.....','...KYYYYYK....','..KGGGGGGGK...','.WKGWWGGWWK...','..KOOOKOKOK...','..KOOOOOOOK...','..KRRRRRRRK...','...KKKKKKK....','..KKK...KKK...','.KK.......KK..','.K.........K..'],
-            run1:   ['....EEE.......','....KKKKK.....','...KYYYYYK....','..KGGGGGGGK...','WWKGWWGGWWK...','..KOOOKOKOK...','..KOOOOOOOK...','..KRRRRRRRK...','...KKKKKKK....','....KK.KK.....','....KK..KK....','..............'],
-            run2:   ['.....EEE......','....KKKKK.....','...KYYYYYK....','..KGGGGGGGK...','.WKGWWGGWWK...','..KOOOKOKOK...','..KOOOOOOOK...','..KRRRRRRRK...','...KKKKKKK....','...KKK.KKK....','....KK..KK....','...KK....KK...'],
-            crouch: ['..............','..............','....EEE.......','...KKKKKK.....','..KYYYYYYK....','.KGGGGGGGGK...','WKGGWWGGWWGK..','.KOOOOKOKOK...','.KRRRRRRRRK...','..KKKKKKKK....','..KKK..KKK....','..............'],
-            jump:   ['.....EEE......','....KKKKK.....','..KKYYYYYKK...','.KOGGGGGGGOK..','WK.KWWGGWWK.K.','...KOOOKOKOK..','...KOOOOOOOK..','...KRRRRRRRK..','....KKKKKKK...','...KK....KK...','..KK......KK..','..............'],
-            cheer:  ['.K...EEE...K..','K.K.KKKKK.K.K.','.K.KYYYYYK.K..','..KGGGGGGGK...','..KGWWGGWWGK..','..KOOOKOKOK...','..KOOOOOMOK...','..KRRRRRRRK...','...KKKKKKK....','...KK...KK....','..KK.....KK...','..............'],
-        },
-        ninja: {
-            px: 1.9,
-            miniPx: 1.75,
+            px: 1.5,
+            miniPx: 1,
             run0: [
-                '.......KKKKKK.......',
-                '.....KKQQQQQQKK.....',
-                '....KQQIIIIIIQQK....',
-                '....KISSSYYSSSIK....',
-                '....KIUUGGUKGGUK....',
-                '....KIUUWWGKGWUK....',
-                '...KCCCCCCCCCCCCK...',
-                '.CCKCCCCCCCCCCCCK...',
-                'CCDDKIIIISSQIIIIK...',
-                '.DDDKIIKKSSQKCCCK...',
-                '....KIIIISSQKCCCK...',
-                '....KUUYYYYYYUUUK...',
-                '....KIIIIKKIIIIK....',
-                '....KIIIK..KIIIK....',
-                '...KIIIK....KIIIK...',
-                '...KCCK......KCCK...',
-                '..KCCK........KCCK..',
-                '..KUK..........KUK..',
-                '.KUUUK........KUUUK.',
-                '.KKKK..........KKKK.',
+                '..............KK..KK............',
+                '.............KGGKKGVK...........',
+                '............KGGGKEEVK...........',
+                '...........KKKKKEEEKKK..........',
+                '.........KKGGGGGGGGGGGKK........',
+                '........KGGEEEEEEEEEEEEGK.......',
+                '........KOYYYYYYYYYYYYYOK.......',
+                '........K45KKKKK11111KKOK.......',
+                '.......K454K1111111122K.........',
+                '.......K44K111KWK11KWK2K........',
+                '........KK1111KKK11KKK2K........',
+                '.........K222222222233K.........',
+                '........KKKYYYYYYYYYYKK.........',
+                '......KKVVVKRRRRRRRRK55K...KK...',
+                '.....KVVEEEKRRRR55YRK12K..KYWK..',
+                '....KVVEEEEKOOR5554RK1K...KOYK..',
+                '....KVVEEEK454KRRRRKKKKK55KKK...',
+                '....KKVVKK.K544RRRRR12KKK45K....',
+                '......KK....K555555512K.KKK.....',
+                '............KEEEEEEEEK..........',
+                '...........KEEEVKKVEEEK.........',
+                '..........KEEEVK..KEEEVK........',
+                '.........K4444K....K4444K.......',
+                '........K5555K......K5555K......',
+                '........K55KK........K5555K.....',
+                '........KKK...........KKKKK.....',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             run1: [
-                '.......KKKKKK.......',
-                '.....KKQQQQQQKK.....',
-                '....KQQIIIIIIQQK....',
-                '....KISSSYYSSSIK....',
-                '...KKIUUGGUKGGUK....',
-                '...KKIUUWWGKGWUK....',
-                'CCCCKCCCCCCCCCCCK...',
-                '.DDDKIIIIIIIIIIIK...',
-                '....KIIIISSQIIIIK...',
-                '....KIIKKSSQKCCCK...',
-                '....KIIIISSQKCCCK...',
-                '....KUUYYYYYYUUUK...',
-                '.....KIIIIKKIIIIK...',
-                '.....KIIIK..KIIIK...',
-                '.....KCCK....KCCK...',
-                '.....KCCK....KCCK...',
-                '.....KUK......KUK...',
-                '....KUUUK....KUUUK..',
-                '....KKKK......KKKK..',
-                '....................',
+                '.............KK..KK.............',
+                '............KGGKKGVK............',
+                '...........KGGGKEEVK............',
+                '..........KKKKKEEEKKK...........',
+                '........KKGGGGGGGGGGGKK.........',
+                '.......KGGEEEEEEEEEEEEGK........',
+                '.......KOYYYYYYYYYYYYYOK........',
+                '.......K45KKKKK11111KKOK........',
+                '......K454K1111111122K..........',
+                '......K44K111KWK11KWK2K.........',
+                '.......KK1111KKK11KKK2K.........',
+                '........K222222222233K..........',
+                '.......KKKYYYYYYYYYYKK..........',
+                '.....KKVVVKRRRRRRRRK55K..KK.....',
+                '....KVVEEEKRRRR55YRK12K.KYWK....',
+                '....KVVEEEKOOR5554RK1KK.KOYK....',
+                '.....KKVKK454KRRRRKKKK55KKK.....',
+                '.......KK.K544RRRRR12KK45K......',
+                '..........K5555555512K.KK.......',
+                '...........KEEEEEEEEK...........',
+                '...........KEEVKKVEEK...........',
+                '...........KEEK..KEEK...........',
+                '..........K444K..K444K..........',
+                '..........K555K..K555K..........',
+                '..........K55K....K555K.........',
+                '..........KKK......KKKK.........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             run2: [
-                '.......KKKKKK.......',
-                '.....KKQQQQQQKK.....',
-                '....KQQIIIIIIQQK....',
-                '....KISSSYYSSSIK....',
-                '....KIUUGGUKGGUK....',
-                '....KIUUWWGKGWUK....',
-                '.CCCKCCCCCCCCCCCK...',
-                'CCDDKCCCCCCCCCCCK...',
-                '.DD.KIIIISSQIIIIK...',
-                '....KIIKKSSQKCCCK...',
-                '....KIIIISSQKCCCK...',
-                '....KUUYYYYYYUUUK...',
-                '....KIIIIKKIIIIK....',
-                '.....KIIIKKIIIK.....',
-                '....KIIIK..KIIIK....',
-                '...KCCK......KCCK...',
-                '...KCCK......KCCK...',
-                '...KUK........KUK...',
-                '..KUUUK......KUUUK..',
-                '..KKKK........KKKK..',
+                '..............KK..KK............',
+                '.............KGGKKGVK...........',
+                '............KGGGKEEVK...........',
+                '...........KKKKKEEEKKK..........',
+                '.........KKGGGGGGGGGGGKK........',
+                '........KGGEEEEEEEEEEEEGK.......',
+                '........KOYYYYYYYYYYYYYOK.......',
+                '........K45KKKKK11111KKOK.......',
+                '.......K454K1111111122K.........',
+                '.......K44K111KWK11KWK2K........',
+                '........KK1111KKK11KKK2K........',
+                '.........K222222222233K.........',
+                '........KKKYYYYYYYYYYKK.........',
+                '......KKVVVKRRRRRRRRK55K....KK..',
+                '.....KVVEEEKRRRR55YRK12K...KYWK.',
+                '.....KKVEEEKOOR5554RK1K....KOYK.',
+                '.......KKK454KRRRRKKKKKK55KKK...',
+                '..........K544RRRRR12KK45KK.....',
+                '..........K5555555512K.KK.......',
+                '...........KEEEEEEEEK...........',
+                '..........KEEVK..KEEVK..........',
+                '.........KEEVK....KEEVK.........',
+                '........K444K......K444K........',
+                '.......K555K........K555K.......',
+                '.......K55K..........K555K......',
+                '.......KKK............KKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             crouch: [
-                '....................',
-                '....................',
-                '.......KKKKKK.......',
-                '.....KKQQQQQQKK.....',
-                '....KQQIIIIIIQQK....',
-                '....KISSSYYSSSIK....',
-                '....KIUUGGUKGGUK....',
-                '...KKIUUWWGKGWUK....',
-                '.CCCKCCCCCCCCCCCCK..',
-                'CCDDKIIIISSQIIIIK...',
-                '....KIIKKSSQKCCCK...',
-                '....KUUYYYYYYUUUK...',
-                '....KIIIKKKKKIIIK...',
-                '...KCCK......KCCK...',
-                '..KUUUK......KUUUK..',
-                '..KKKK........KKKK..',
+                '................................',
+                '................................',
+                '..............KK..KK............',
+                '.............KGGKKGVK...........',
+                '............KGGGKEEVK...........',
+                '...........KKKKKEEEKKK..........',
+                '.........KKGGGGGGGGGGGKK........',
+                '........KGGEEEEEEEEEEEEGK.......',
+                '........KOYYYYYYYYYYYYYOK.......',
+                '........K45KKKKK11111KKOK.......',
+                '.......K454K1111111122K.........',
+                '.......K44K111KWK11KWK2K........',
+                '........KK1111KKK11KKK2K........',
+                '.........K222222222233K.........',
+                '.......KKKYYYYYYYYYYYYKK........',
+                '.....KKVVVKRRRRRRRRRRK55K.......',
+                '....KVVEEEKOORRRRRR554RK1K......',
+                '.....KKKKK.K555555555KK12K......',
+                '...........KEEEEEEEEEKK.........',
+                '..........KEEVKKKKKEEVK.........',
+                '.........K444K....K4444K........',
+                '........K5555K....K5555K........',
+                '........KKKKKK....KKKKKK........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             jump: [
-                '.......KKKKKK.......',
-                '.....KKQQQQQQKK.....',
-                '....KQQIIIIIIQQK....',
-                '....KISSSYYSSSIK....',
-                '.CCCKIUUGGUKGGUK....',
-                'CCDDKIUUWWGKGWUK....',
-                '....KCCCCCCCCCCCCK..',
-                '....KIIIISSQIIIIK...',
-                '....KIIKKSSQKCCCK...',
-                '....KUUYYYYYYUUUK...',
-                '....KIIIIKKIIIIK....',
-                '...KIIIK....KIIIK...',
-                '..KCCK........KCCK..',
-                '..KUUUK......KUUUK..',
-                '..KKKK........KKKK..',
+                '..............KK..KK............',
+                '.............KGGKKGVK...........',
+                '............KGGGKEEVK...........',
+                '...........KKKKKEEEKKK..........',
+                '.........KKGGGGGGGGGGGKK........',
+                '........KGGEEEEEEEEEEEEGK.......',
+                '........KOYYYYYYYYYYYYYOK.......',
+                '........K45KKKKK11111KKOK.......',
+                '.......K454K1111111122K.........',
+                '.......K44K111KWK11KWK2K........',
+                '........KK1111KKK11KKK2K........',
+                '.........K222222222233K.........',
+                '......KK.KKYYYYYYYYYYKK..KK.....',
+                '.....K12KKVVVKRRRRRRRRK.K12K....',
+                '......KKKEEEEKRRRR55YRK.KKK.....',
+                '........KVVEEKORRR554RK.........',
+                '.........KKVKK5555555K..........',
+                '...........KKKEEEEEEEKK.........',
+                '...........KEEVKKKKVEEK.........',
+                '..........K444K....K444K........',
+                '.........K555K......K555K.......',
+                '.........KKKK........KKKK.......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             cheer: [
-                '.......KKKKKK.......',
-                '.....KKQQQQQQKK.....',
-                '....KQQIIIIIIQQK....',
-                '....KISSSYYSSSIK....',
-                '....KIUUGGUKGGUK....',
-                '....KIUUWWGKGWUK....',
-                '...KCCCCCCCCCCCCK...',
-                '.CCKCCCCCCCCCCCCK...',
-                'CCDDKIIIISSQIIIIK...',
-                '.DDDKIIKKSSQKCCCK...',
-                '....KIIIISSQKCCCK...',
-                '....KUUYYYYYYUUUK...',
-                '....KIIIIKKIIIIK....',
-                '....KIIIK..KIIIK....',
-                '...KIIIK....KIIIK...',
-                '...KCCK......KCCK...',
-                '..KCCK........KCCK..',
-                '..KUK..........KUK..',
-                '.KUUUK........KUUUK.',
-                '.KKKK..........KKKK.',
+                '..............KK..KK........KK..',
+                '.............KGGKKGVK......KYWK.',
+                '............KGGGKEEVK......KOYK.',
+                '...........KKKKKEEEKKK......KKK.',
+                '.........KKGGGGGGGGGGGKK....K5K.',
+                '........KGGEEEEEEEEEEEEGK...K5K.',
+                '........KOYYYYYYYYYYYYYOK...K5K.',
+                '........K45KKKKK11111KKOK..K12K.',
+                '.......K454K1111111122K....K5K..',
+                '.......K44K111KWK11KWK2K...K5K..',
+                '........KK1111KKK11KKK2K..K5K...',
+                '......KK.K222222222233K..K5K....',
+                '.....K12KKKYYYYYYYYYYKK.KKK.....',
+                '......KKVVVKRRRRRRRRK55KK.......',
+                '.....KVVEEEKRRRR55YRRRK.........',
+                '.....KKVEEEKOOR5554RRK..........',
+                '.......KKKKK555555555K..........',
+                '...........KEEEEEEEEK...........',
+                '..........KEEVKKKKVEEK..........',
+                '..........KEEK....KEEK..........',
+                '.........K444K....K444K.........',
+                '.........K555K....K555K.........',
+                '.........K555K....K555K.........',
+                '.........KKKKK....KKKKK.........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+            ],
+        },
+        ninja: {
+            px: 1.5,
+            miniPx: 1,
+            run0: [
+                '..............KKKKKKK...........',
+                '............KKQQQQQQQKK.........',
+                '...........KQQQIIIIIIINK........',
+                '..........KQQIIIIIIIIIINK.......',
+                '.....KK...KQQSSPPPPPPSSNK.......',
+                '....KYK..KQIUUU11111UUUK........',
+                '.....KUK.KQUU11KWK1KWK2K........',
+                '......KUKKQUUU1KKK1KKK2K........',
+                '..HHHHKZK.KUPPPPPPPPPPUK........',
+                '.HHCCCCCKK.KHHHHHHHHHHK......WW.',
+                'CCDDDDDDHHKCCCCCCCCCCCK....KWWK.',
+                '.DD..KKKCDKIIIISQIIIIK....KWWK..',
+                '........KKKIIKSQKIIIIK...KWLK...',
+                '..........KIUKSSQKIIK...KWLK....',
+                '..........KUUUUYYYYYYUKKWLK.....',
+                '..........KIIIKKKKIIIIKOOK......',
+                '.........KIIIIK..KIIIIKC1K......',
+                '........KIIIIK....KIIIIKK.......',
+                '.......KIIIK.......KIIIK........',
+                '.......KCCCK.......KCCCK........',
+                '......KCDCK.........KCDCK.......',
+                '......KUNUK.........KUNUK.......',
+                '.....KUNUK...........KUNUK......',
+                '.....KKKK.............KKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+            ],
+            run1: [
+                '.............KKKKKKK............',
+                '...........KKQQQQQQQKK..........',
+                '..........KQQQIIIIIIINK.........',
+                '.........KQQIIIIIIIIIINK........',
+                '....KK...KQQSSPPPPPPSSNK........',
+                '...KYK..KQIUUU11111UUUK.........',
+                '....KUK.KQUU11KWK1KWK2K.........',
+                '.....KUKKQUUU1KKK1KKK2K.........',
+                'HHHHHKZK.KUPPPPPPPPPPUK.........',
+                'CCCCDDCCKKKHHHHHHHHHHK.....WW...',
+                '.DDDDDDHHKCCCCCCCCCCCK....KWWK..',
+                '....KKKCDKIIIISQIIIIK....KWWK...',
+                '.......KKKIIKSQKIIIIK...KWLK....',
+                '.........KIUKSSQKIIK...KWLK.....',
+                '.........KUUUUYYYYYYUKKWLK......',
+                '..........KIIIKKKKIIKKOOK.......',
+                '..........KIIIK..KIIIKC1K.......',
+                '..........KIIIK..KIIIKKK........',
+                '..........KCCCK..KCCCK..........',
+                '..........KCDCK..KCDCK..........',
+                '..........KUNUK..KUNUK..........',
+                '.........KUNUK....KUNUK.........',
+                '.........KKKK......KKKK.........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+            ],
+            run2: [
+                '..............KKKKKKK...........',
+                '............KKQQQQQQQKK.........',
+                '...........KQQQIIIIIIINK........',
+                '..........KQQIIIIIIIIIINK.......',
+                '.....KK...KQQSSPPPPPPSSNK.......',
+                '....KYK..KQIUUU11111UUUK........',
+                '.....KUK.KQUU11KWK1KWK2K........',
+                '......KUKKQUUU1KKK1KKK2K........',
+                '.HHHHHKZK.KUPPPPPPPPPPUK........',
+                'CCDDDDCCKK.KHHHHHHHHHHK......WW.',
+                '.DD..KKKHHKCCCCCCCCCCCK....KWWK.',
+                '.......KCDKIIIISQIIIIK....KWWK..',
+                '........KKKIIKSQKIIIIK...KWLK...',
+                '..........KIUKSSQKIIK...KWLK....',
+                '..........KUUUUYYYYYYUKKWLK.....',
+                '..........KIIIKKKKIIIIKOOK......',
+                '..........KIIIKKKKIIIKC1K.......',
+                '.........KIIIIK..KIIIIKK........',
+                '........KIIIK......KIIIK........',
+                '.......KCCCK........KCCCK.......',
+                '.......KCDCK........KCDCK.......',
+                '......KUNUK..........KUNUK......',
+                '......KUNUK..........KUNUK......',
+                '......KKKK............KKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+            ],
+            crouch: [
+                '................................',
+                '................................',
+                '..............KKKKKKK...........',
+                '............KKQQQQQQQKK.........',
+                '...........KQQQIIIIIIINK........',
+                '..........KQQIIIIIIIIIINK.......',
+                '.....KK..KKQQSSPPPPPPSSNK.......',
+                '....KYK.KQIUUU11111UUUK.........',
+                '.....KUKKQUU11KWK1KWK2K.........',
+                '....HHHHKUPPPPPPPPPPUK..........',
+                '..HHCCCCKKHHHHHHHHHHK...........',
+                '.CCDDDDDDKCCCCCCCCCCK...WW......',
+                '.....KKKKKIIIISQIIIIK..KWWK.....',
+                '.........KUUUUYYYYYYUKKWLK......',
+                '.........KIIIKKKKIIIIKOOK.......',
+                '........KCCCCK..KCCCCKC1K.......',
+                '.......KCDDCK....KCDDCKK........',
+                '......KUNNUK......KUNNUK........',
+                '......KKKKK........KKKKK........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+            ],
+            jump: [
+                '..............KKKKKKK...........',
+                '............KKQQQQQQQKK.........',
+                '...........KQQQIIIIIIINK........',
+                '..........KQQIIIIIIIIIINK.......',
+                '.....KK...KQQSSPPPPPPSSNK.......',
+                '....KYK..KQIUUU11111UUUK........',
+                '.....KUK.KQUU11KWK1KWK2K........',
+                '..HHHHKUKKQUUU1KKK1KKK2K........',
+                '.HHCCCCCK.KUPPPPPPPPPPUK........',
+                'CCDDDDDDKK.KHHHHHHHHHHK.........',
+                '.....KKKK..KCCCCCCCCCCK.........',
+                '..........KIIIISQIIIIK..........',
+                '..........KUUUUYYYYYYUK.........',
+                '.........KIIIIKKKKIIIIK.........',
+                '........KCCCCK....KCCCCK........',
+                '.......KCDDCK......KCDDCK.......',
+                '......KUNNUK........KUNNUK......',
+                '......KKKKK..........KKKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+            ],
+            slash: [
+                '..............KKKKKKK...........',
+                '............KKQQQQQQQKK.........',
+                '...........KQQQIIIIIIINK........',
+                '..........KQQIIIIIIIIIINK.......',
+                '.....KK...KQQSSPPPPPPSSNK.......',
+                '....KYK..KQIUUU11111UUUK........',
+                '.....KUK.KQUU11KWK1KWK2K........',
+                '......KUKKQUUU1KKK1KKK2K........',
+                '..HHHHKZK.KUPPPPPPPPPPUK........',
+                '.HHCCCCCKK.KHHHHHHHHHHK.........',
+                'CCDDDDDDHHKCCCCCCCCCCCK.........',
+                '.DD..KKKCDKIIIISQIIIIK..........',
+                '........KKKIIKSQKIIIIK..........',
+                '..........KIUKSSQKIIK...........',
+                '..........KUUUUYYYYYYUK.........',
+                '..........KIIIKKKKIIIIK.........',
+                '.........KIIIIK..KIIIIK.........',
+                '........KIIIIK....KIIIIK........',
+                '.......KIIIK.......KIIIK........',
+                '.......KCCCK.......KCCCK........',
+                '......KCDCK.........KCDCK.......',
+                '......KUNUK.........KUNUK.......',
+                '.....KUNUK...........KUNUK......',
+                '.....KKKK.............KKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+            ],
+            cheer: [
+                '..............KKKKKKK........WW.',
+                '............KKQQQQQQQKK.....KWWK',
+                '...........KQQQIIIIIIINK....KWWK',
+                '..........KQQIIIIIIIIIINK..KWLK.',
+                '.....KK...KQQSSPPPPPPSSNK..KWLK.',
+                '....KYK..KQIUUU11111UUUK..KWLK..',
+                '.....KUK.KQUU11KWK1KWK2K..KWLK..',
+                '......KUKKQUUU1KKK1KKK2K.KOOK...',
+                '..HHHHKZK.KUPPPPPPPPPPUK.KC1K...',
+                '.HHCCCCCKK.KHHHHHHHHHHK.KKK.....',
+                'CCDDDDDDHHKCCCCCCCCCCCK.........',
+                '.DD..KKKCDKIIIISQIIIIK..........',
+                '........KKKIIKSQKIIIIK..........',
+                '..........KIUKSSQKIIK...........',
+                '..........KUUUUYYYYYYUK.........',
+                '..........KIIIKKKKIIIIK.........',
+                '..........KIIIK..KIIIIK.........',
+                '.........KIIIIK...KIIIIK........',
+                '........KIIIK......KIIIK........',
+                '........KCCCK......KCCCK........',
+                '.......KCDCK........KCDCK.......',
+                '.......KUNUK........KUNUK.......',
+                '......KUNUK..........KUNUK......',
+                '......KKKK............KKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
         },
         specops: {
-            px: 1.9,
-            miniPx: 1.75,
+            px: 1.5,
+            miniPx: 1,
             run0: [
-                '...G................',
-                '...S...KKKKKKKK.....',
-                '...S..KXXXXXXXXK....',
-                '...S.KXXTTTTTTTHK...',
-                '...KKPKGGJPKGGJPK...',
-                '....KUKGEEUKGEEUK...',
-                '....KUUUUUUUUUUUK...',
-                '....KTTXXXXXXXXTK...',
-                '...KKAAAPPPPPAAAK...',
-                '..KYKGGSTTTTTAAAPK..',
-                '..KWKAAYYAAYYAAAPK..',
-                '...KKTTTTTTTTTTTTK..',
-                '....KTTTTKKKKTTTTK..',
-                '...KTTTK......KTTTK.',
-                '...KTTK........KTTK.',
-                '...KAAK........KAAK.',
-                '..KHHK..........KHHK',
-                '..KUUUK........KUUUK',
-                '..KKKKK........KKKKK',
-                '....................',
+                '........KG......................',
+                '........KS..KKKKKKKKK...........',
+                '........KSKKXXXXXXXXXKK.........',
+                '........KSKXXTTTTTTTTTHK........',
+                '.......KKKSSPPPPPTTTTTHK........',
+                '.......KSPUUUGJPUUGJPPHK........',
+                '.......KSUUUUEEPUUEEPUK.........',
+                '........KUUUUUUUUUUUUK..........',
+                '........KUPPPPPPPPPPUK...KKK....',
+                '.......KKXXTTTTTTTTXXKK.KPSPK...',
+                '......KSSPPPPPSSPPPPPPKKKKKKK...',
+                '.....KTTKSP4OYSP4OYPKUUUPPSPPKKK',
+                '.....KTTKSUPPPK12KUPKUUUUSPPPPPK',
+                '......KKKTTTTTKKKKKKTPKPPKKKKKKK',
+                '.........KTTTTTTTTTTTTKPPK......',
+                '.........KTTTTKKKKTTTTK.KK......',
+                '........KTTTTK....KTTTTK........',
+                '........KSSPPK....KSSPPK........',
+                '.......KhhhK.......KhhhK........',
+                '.......KUUUK.......KUUUK........',
+                '......KUUUUK.......KUUUUK.......',
+                '......KKKKKK.......KKKKKK.......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             run1: [
-                '...G................',
-                '...S...KKKKKKKK.....',
-                '...S..KXXXXXXXXK....',
-                '...S.KXXTTTTTTTHK...',
-                '...KKPKGGJPKGGJPK...',
-                '....KUKGEEUKGEEUK...',
-                '....KUUUUUUUUUUUK...',
-                '....KTTXXXXXXXXTK...',
-                '....KAAAPPPPPAAAK...',
-                '...KYGGSTTTTTAAAPK..',
-                '...KWAAYYAAYYAAAPK..',
-                '....KTTTTTTTTTTTTK..',
-                '.....KTTTKKKKTTTK...',
-                '.....KTTTK..KTTTK...',
-                '.....KTTK....KTTK...',
-                '.....KAAK....KAAK...',
-                '.....KHHK....KHHK...',
-                '....KUUUK...KUUUK...',
-                '....KKKKK...KKKKK...',
-                '....................',
+                '........KG......................',
+                '........KS..KKKKKKKKK...........',
+                '........KSKKXXXXXXXXXKK.........',
+                '........KSKXXTTTTTTTTTHK........',
+                '.......KKKSSPPPPPTTTTTHK........',
+                '.......KSPUUUGJPUUGJPPHK........',
+                '.......KSUUUUEEPUUEEPUK.........',
+                '........KUUUUUUUUUUUUK..........',
+                '........KUPPPPPPPPPPUK..KKK.....',
+                '.......KKXXTTTTTTTTXXKKKPSPK....',
+                '.......KSPPPPPSSPPPPPPKKKKKK....',
+                '......KTTKSP4OYSP4OYPKUUUPPSPPKK',
+                '......KTTKSUPPPK12KUPKUUUUSPPPPP',
+                '.......KKKTTTTTKKKKKKTPKPPKKKKKK',
+                '.........KTTTTTTTTTTTTKPPK......',
+                '..........KTTTK..KTTTK.KK.......',
+                '..........KTTTK..KTTTK..........',
+                '..........KSSPK..KSSPK..........',
+                '..........KhhK....KhhK..........',
+                '.........KUUUK....KUUUK.........',
+                '.........KKKKK....KKKKK.........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             run2: [
-                '...G................',
-                '...S...KKKKKKKK.....',
-                '...S..KXXXXXXXXK....',
-                '...S.KXXTTTTTTTHK...',
-                '...KKPKGGJPKGGJPK...',
-                '....KUKGEEUKGEEUK...',
-                '....KUUUUUUUUUUUK...',
-                '....KTTXXXXXXXXTK...',
-                '...KKAAAPPPPPAAAK...',
-                '..KYKGGSTTTTTAAAPK..',
-                '..KWKAAYYAAYYAAAPK..',
-                '...KKTTTTTTTTTTTTK..',
-                '....KTTTTKKKKTTTTK..',
-                '....KTTTK....KTTTK..',
-                '....KTTK......KTTK..',
-                '....KAAK......KAAK..',
-                '...KHHK........KHHK.',
-                '...KUUUK......KUUUK.',
-                '...KKKKK......KKKKK.',
-                '....................',
+                '........KG......................',
+                '........KS..KKKKKKKKK...........',
+                '........KSKKXXXXXXXXXKK.........',
+                '........KSKXXTTTTTTTTTHK........',
+                '.......KKKSSPPPPPTTTTTHK........',
+                '.......KSPUUUGJPUUGJPPHK........',
+                '.......KSUUUUEEPUUEEPUK.........',
+                '........KUUUUUUUUUUUUK..........',
+                '........KUPPPPPPPPPPUK...KKK....',
+                '.......KKXXTTTTTTTTXXKK.KPSPK...',
+                '......KSSPPPPPSSPPPPPPKKKKKKK...',
+                '.....KTTKSP4OYSP4OYPKUUUPPSPPKKK',
+                '.....KTTKSUPPPK12KUPKUUUUSPPPPPK',
+                '......KKKTTTTTKKKKKKTPKPPKKKKKKK',
+                '.........KTTTTTTTTTTTTKPPK......',
+                '.........KTTTTKKKKTTTTK.KK......',
+                '.........KTTTK....KTTTK.........',
+                '........KSSPK......KSSPK........',
+                '........KhhK........KhhK........',
+                '.......KUUUK........KUUUK.......',
+                '......KUUUUK........KUUUUK......',
+                '......KKKKKK........KKKKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             crouch: [
-                '....................',
-                '....................',
-                '...G................',
-                '...S...KKKKKKKK.....',
-                '...S..KXXXXXXXXK....',
-                '...S.KXXTTTTTTTHK...',
-                '...KKPKGGJPKGGJPK...',
-                '....KUKGEEUKGEEUK...',
-                '....KUUUUUUUUUUUK...',
-                '...KKAAAPPPPPAAAKK..',
-                '..KYKGGYYAAYYAAAPK..',
-                '....KTTTTTTTTTTTTK..',
-                '...KAAKKKKKKKKKAAK..',
-                '..KHHK..........KHHK',
-                '..KUUUK........KUUUK',
-                '..KKKKK........KKKKK',
+                '................................',
+                '................................',
+                '........KG......................',
+                '........KS..KKKKKKKKK...........',
+                '........KSKKXXXXXXXXXKK.........',
+                '........KSKXXTTTTTTTTTHK........',
+                '.......KKKSSPPPPPTTTTTHK........',
+                '.......KSPUUUGJPUUGJPPHK........',
+                '.......KSUUUUEEPUUEEPUK.........',
+                '........KUUUUUUUUUUUUK..........',
+                '.......KKUPPPPPPPPPPUKK..KKK....',
+                '......KSSPPPPPSSPPPPPPKKKPSPK...',
+                '.....KTTKSP4OYSP4OYPKUUUPPSPPKKK',
+                '......KKKSUPPPKKKKUPKUUUUSPPPPPK',
+                '.........KTTTTTTTTTTTTPKPPKKKKKK',
+                '........KSSPPKKKKKKSSPPKKK......',
+                '.......KhhhK........KhhhK.......',
+                '......KUUUUUK......KUUUUUK......',
+                '......KKKKKKK......KKKKKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             jump: [
-                '...G................',
-                '...S...KKKKKKKK.....',
-                '...S..KXXXXXXXXK....',
-                '...S.KXXTTTTTTTHK...',
-                '...KKPKGGJPKGGJPK...',
-                '....KUKGEEUKGEEUK...',
-                '....KUUUUUUUUUUUK...',
-                '...KKTTXXXXXXXXTKK..',
-                '..KYKGGSTTTTTAAAPK..',
-                '..KWKAAYYAAYYAAAPK..',
-                '....KTTTTTTTTTTTTK..',
-                '...KAAKKK....KKKAAK.',
-                '..KHHK..........KHHK',
-                '..KUUUK........KUUUK',
-                '..KKKKK........KKKKK',
+                '........KG......................',
+                '........KS..KKKKKKKKK...........',
+                '........KSKKXXXXXXXXXKK.........',
+                '........KSKXXTTTTTTTTTHK........',
+                '.......KKKSSPPPPPTTTTTHK........',
+                '.......KSPUUUGJPUUGJPPHK........',
+                '.......KSUUUUEEPUUEEPUK.........',
+                '........KUUUUUUUUUUUUK..........',
+                '.......KKUPPPPPPPPPPUKK..KKK....',
+                '......KXXPPPPPSSPPPPPPKKKPSPK...',
+                '.....KTTKSP4OYSP4OYPKUUUPPSPPKKK',
+                '......KKKSUPPPK12KUPKUUUUSPPPPPK',
+                '.........KTTTTTTTTTTTTPKPPKKKKKK',
+                '........KSSPPKKKKKKSSPPK.KK.....',
+                '.......KhhhK........KhhhK.......',
+                '......KUUUUK........KUUUUK......',
+                '......KKKKKK........KKKKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             fire: [
-                '...G................',
-                '...S...KKKKKKKK.....',
-                '...S..KXXXXXXXXK....',
-                '...S.KXXTTTTTTTHK...',
-                '...KKPKGGJPKGGJPK...',
-                '....KUKGEEUKGEEUK...',
-                '....KUUUUUUUUUUUK...',
-                '....KTTXXXXXXXXTK...',
-                '...KKAAAPPPPPAAAK...',
-                '..KYKGGSTTTTTAAAPKK.',
-                '..KWKAAYYAAYYAAAPK..',
-                '...KKTTTTTTTTTTTTK..',
-                '....KTTTTKKKKTTTTK..',
-                '...KTTTK......KTTTK.',
-                '...KTTK........KTTK.',
-                '...KAAK........KAAK.',
-                '..KHHK..........KHHK',
-                '..KUUUK........KUUUK',
-                '..KKKKK........KKKKK',
-                '....................',
+                '........KG......................',
+                '........KS..KKKKKKKKK...........',
+                '........KSKKXXXXXXXXXKK.........',
+                '........KSKXXTTTTTTTTTHK........',
+                '.......KKKSSPPPPPTTTTTHK........',
+                '.......KSPUUUGJPUUGJPPHK........',
+                '.......KSUUUUEEPUUEEPUK.........',
+                '........KUUUUUUUUUUUUK..........',
+                '........KUPPPPPPPPPPUK...KKK....',
+                '.......KKXXTTTTTTTTXXKK.KPSPK...',
+                '......KSSPPPPPSSPPPPPPKKKKKKK...',
+                '.....KTTKSP4OYSP4OYPKUUUPPSPPKKK',
+                '.....KTTKSUPPPK12KUPKUUUUSPPPPPK',
+                '......KKKTTTTTKKKKKKTPKPPKKKKKKK',
+                '.........KTTTTTTTTTTTTKPPK......',
+                '.........KTTTTKKKKTTTTK.KK......',
+                '........KTTTTK....KTTTTK........',
+                '........KSSPPK....KSSPPK........',
+                '.......KhhhK.......KhhhK........',
+                '.......KUUUK.......KUUUK........',
+                '......KUUUUK.......KUUUUK.......',
+                '......KKKKKK.......KKKKKK.......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             cheer: [
-                '...G................',
-                '...S...KKKKKKKK.....',
-                '...S..KXXXXXXXXK....',
-                '...S.KXXTTTTTTTHK...',
-                '...KKPKGGJPKGGJPK...',
-                '....KUKGEEUKGEEUK...',
-                '....KUUUUUUUUUUUK...',
-                '....KTTXXXXXXXXTK...',
-                '...KKAAAPPPPPAAAK...',
-                '..KYKGGSTTTTTAAAPK..',
-                '..KWKAAYYAAYYAAAPK..',
-                '...KKTTTTTTTTTTTTK..',
-                '....KTTTTKKKKTTTTK..',
-                '...KTTTK......KTTTK.',
-                '...KTTK........KTTK.',
-                '...KAAK........KAAK.',
-                '..KHHK..........KHHK',
-                '..KUUUK........KUUUK',
-                '..KKKKK........KKKKK',
-                '....................',
+                '........KG......................',
+                '........KS..KKKKKKKKK...........',
+                '........KSKKXXXXXXXXXKK.........',
+                '........KSKXXTTTTTTTTTHK........',
+                '.......KKKSSPPPPPTTTTTHK........',
+                '.......KSPUUUGJPUUGJPPHK........',
+                '.......KSUUUUEEPUUEEPUK.........',
+                '........KUUUUUUUUUUUUK..........',
+                '........KUPPPPPPPPPPUK...KKK....',
+                '.......KKXXTTTTTTTTXXKK.KPSPK...',
+                '......KSSPPPPPSSPPPPPPKKKKKKK...',
+                '.....KTTKSP4OYSP4OYPKUUUPPSPPKKK',
+                '.....KTTKSUPPPK12KUPKUUUUSPPPPPK',
+                '......KKKTTTTTKKKKKKTPKPPKKKKKKK',
+                '.........KTTTTTTTTTTTTKPPK......',
+                '.........KTTTTKKKKTTTTK.KK......',
+                '........KTTTTK....KTTTTK........',
+                '........KSSPPK....KSSPPK........',
+                '.......KhhhK.......KhhhK........',
+                '.......KUUUK.......KUUUK........',
+                '......KUUUUK.......KUUUUK.......',
+                '......KKKKKK.......KKKKKK.......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
         },
         astro: {
-            px: 1.9,
-            miniPx: 1.75,
+            px: 1.5,
+            miniPx: 1,
             run0: [
-                '.......GGGGGG.......',
-                '.....KKKKKKKKKK.....',
-                '....KWWWWWWWWWWK....',
-                '...KWKJJBBBBBBWWK...',
-                '...KWKJBBBBYBBWWK...',
-                '...KWKBBBBVVVVWWK...',
-                '...KLLKKKKKKKKLLK...',
-                '..KSSSKWWOOOOOOWWK..',
-                '.KSAASKWWGGZYYWWWK..',
-                '.KSAASKWWWWWWWWWWK..',
-                '..KKKKKLLLLLLLLLLK..',
-                '....KWWWWOOOOOOWWK..',
-                '...KWWWWKKKKWWWWK...',
-                '...KWWWK....KWWWK...',
-                '...KLLLK....KLLLK...',
-                '..KLLK........KLLK..',
-                '..KOOK........KOOK..',
-                '.KOOOK........KOOOK.',
-                '.KAAAK........KAAAK.',
-                '.KKKKK........KKKKK.',
+                '.............KKKKKKK............',
+                '............KGGGGGGGK...........',
+                '.........KKKWWWWWWWWKKK.........',
+                '........KWWWWLLLLLLLLWWK........',
+                '.......KWWKJJBBBBBBBWLLK........',
+                '.......KWKJBBBBBBWBBBLLK........',
+                '.......KWKBBBBZZZZZZBLLK........',
+                '.......KWKLLKKKKKKKKLLLK........',
+                '......KOOOKWWWWWWWWWWWWK........',
+                '.....KSSSSKWWOOOOOOWWWWK.KKKKKK.',
+                '....KSZZSSKWWOGYCCWWWWWK.KWWJBGK',
+                '....KSSPSSKWWWWWWWWWWWWKKKLBWWGK',
+                '.....KKKKKKLLLLLLLLLLLLKKWWKKKK.',
+                '..........KWWWWOOOOOOWWK.KK.....',
+                '.........KWWWWKKKKKWWWWK........',
+                '........KWWWK.......KWWWK.......',
+                '........KLLLK.......KLLLK.......',
+                '.......KOOOK.........KOOOK......',
+                '.......KOLLK.........KOLLK......',
+                '......KUUUUK.........KUUUUK.....',
+                '......KKKKKK.........KKKKKK.....',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             run1: [
-                '.......GGGGGG.......',
-                '.....KKKKKKKKKK.....',
-                '....KWWWWWWWWWWK....',
-                '...KWKJJBBBBBBWWK...',
-                '...KWKJBBBBYBBWWK...',
-                '...KWKBBBBVVVVWWK...',
-                '...KLLKKKKKKKKLLK...',
-                '..KGGSKWWOOOOOOWWK..',
-                '.KSSASKWWGGZYYWWWK..',
-                '.KSSASKWWWWWWWWWWK..',
-                '..KKKKKLLLLLLLLLLK..',
-                '....KWWWWOOOOOOWWK..',
-                '....KWWWWKKKKWWWWK..',
-                '.....KWWWK..KWWWK...',
-                '.....KLLLK..KLLLK...',
-                '.....KLLK....KLLK...',
-                '.....KOOK....KOOK...',
-                '....KOOOK....KOOOK..',
-                '....KAAAK....KAAAK..',
-                '....KKKKK....KKKKK..',
+                '............KKKKKKK.............',
+                '...........KGGGGGGGK............',
+                '........KKKWWWWWWWWKKK..........',
+                '.......KWWWWLLLLLLLLWWK.........',
+                '......KWWKJJBBBBBBBWLLK.........',
+                '......KWKJBBBBBBWBBBLLK.........',
+                '......KWKBBBBZZZZZZBLLK.........',
+                '......KWKLLKKKKKKKKLLLK.........',
+                '.....KOOOKWWWWWWWWWWWWK.........',
+                '....KSSSSKWWOOOOOOWWWWK.KKKKKK..',
+                '...KSZZSSKWWOGYCCWWWWWK.KWWJBGK.',
+                '...KSSPSSKWWWWWWWWWWWWKKKLBWWGK.',
+                '....KKKKKKLLLLLLLLLLLLKKWWKKKK..',
+                '.........KWWWWOOOOOOWWK.KK......',
+                '..........KWWWK..KWWWK..........',
+                '..........KWWWK..KWWWK..........',
+                '..........KLLLK..KLLLK..........',
+                '..........KOOOK..KOOOK..........',
+                '.........KUUUUK..KUUUUK.........',
+                '.........KKKKKK..KKKKKK.........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             run2: [
-                '.......GGGGGG.......',
-                '.....KKKKKKKKKK.....',
-                '....KWWWWWWWWWWK....',
-                '...KWKJJBBBBBBWWK...',
-                '...KWKJBBBBYBBWWK...',
-                '...KWKBBBBVVVVWWK...',
-                '...KLLKKKKKKKKLLK...',
-                '..KSSSKWWOOOOOOWWK..',
-                '.KSAASKWWGGZYYWWWK..',
-                '.KSAASKWWWWWWWWWWK..',
-                '..KKKKKLLLLLLLLLLK..',
-                '....KWWWWOOOOOOWWK..',
-                '...KWWWWKKKKWWWWK...',
-                '....KWWWK..KWWWK....',
-                '...KLLLK....KLLLK...',
-                '..KLLK........KLLK..',
-                '..KOOK........KOOK..',
-                '..KOOOK......KOOOK..',
-                '..KAAAK......KAAAK..',
-                '..KKKKK......KKKKK..',
+                '.............KKKKKKK............',
+                '............KGGGGGGGK...........',
+                '.........KKKWWWWWWWWKKK.........',
+                '........KWWWWLLLLLLLLWWK........',
+                '.......KWWKJJBBBBBBBWLLK........',
+                '.......KWKJBBBBBBWBBBLLK........',
+                '.......KWKBBBBZZZZZZBLLK........',
+                '.......KWKLLKKKKKKKKLLLK........',
+                '......KOOOKWWWWWWWWWWWWK........',
+                '.....KSSSSKWWOOOOOOWWWWK.KKKKKK.',
+                '....KSZZSSKWWOGYCCWWWWWK.KWWJBGK',
+                '....KSSPSSKWWWWWWWWWWWWKKKLBWWGK',
+                '.....KKKKKKLLLLLLLLLLLLKKWWKKKK.',
+                '..........KWWWWOOOOOOWWK.KK.....',
+                '.........KWWWWKKKKKWWWWK........',
+                '.........KWWWK....KWWWK.........',
+                '........KLLLK......KLLLK........',
+                '........KOOOK......KOOOK........',
+                '.......KOLLK........KOLLK.......',
+                '......KUUUUK........KUUUUK......',
+                '......KKKKKK........KKKKKK......',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             crouch: [
-                '....................',
-                '....................',
-                '.......GGGGGG.......',
-                '.....KKKKKKKKKK.....',
-                '....KWWWWWWWWWWK....',
-                '...KWKJJBBBBBBWWK...',
-                '...KWKJBBBBYBBWWK...',
-                '...KLLKKKKKKKKLLK...',
-                '..KSSSKWWOOOOOOWWK..',
-                '.KSAASKWWGGZYYWWWK..',
-                '..KKKKKLLLLLLLLLLK..',
-                '....KWWWWOOOOOOWWK..',
-                '...KLLKKKKKKKKKLLK..',
-                '..KOOOK......KOOOK..',
-                '..KAAAK......KAAAK..',
-                '..KKKKK......KKKKK..',
+                '................................',
+                '................................',
+                '.............KKKKKKK............',
+                '............KGGGGGGGK...........',
+                '.........KKKWWWWWWWWKKK.........',
+                '........KWWWWLLLLLLLLWWK........',
+                '.......KWWKJJBBBBBBBWLLK........',
+                '.......KWKJBBBBBBWBBBLLK........',
+                '.......KWKBBBBZZZZZZBLLK........',
+                '.......KWKLLKKKKKKKKLLLK........',
+                '......KOOOKWWWWWWWWWWWWK........',
+                '.....KSSSSKWWOOOOOOWWWWK.KKKKKK.',
+                '....KSSPSSKWWOGYCCWWWWWK.KWWJBGK',
+                '.....KKKKKKLLLLLLLLLLLLKKKLBWWGK',
+                '.........KLLLLKKKKKKKKKKWWKKKK..',
+                '........KOOOK..........KOOOK....',
+                '.......KUUUUK..........KUUUUK...',
+                '.......KKKKKK..........KKKKKK...',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             jump: [
-                '.......GGGGGG.......',
-                '.....KKKKKKKKKK.....',
-                '....KWWWWWWWWWWK....',
-                '...KWKJJBBBBBBWWK...',
-                '...KWKJBBBBYBBWWK...',
-                '...KWKBBBBVVVVWWK...',
-                '...KLLKKKKKKKKLLK...',
-                '..KSSSKWWOOOOOOWWK..',
-                '.KSAASKWWGGZYYWWWK..',
-                '.JJJKKKWWWWWWWWWWK..',
-                '.BBJ..KLLLLLLLLLLK..',
-                '.OO...KWWWK..KWWWK..',
-                '.Y....KOOOK..KOOOK..',
-                '......KAAAK..KAAAK..',
-                '......KKKKK..KKKKK..',
+                '.............KKKKKKK............',
+                '............KGGGGGGGK...........',
+                '.........KKKWWWWWWWWKKK.........',
+                '........KWWWWLLLLLLLLWWK........',
+                '.......KWWKJJBBBBBBBWLLK........',
+                '.......KWKJBBBBBBWBBBLLK........',
+                '.......KWKBBBBZZZZZZBLLK........',
+                '.......KWKLLKKKKKKKKLLLK........',
+                '......KOOOKWWWWWWWWWWWWK........',
+                '.....KSSSSKWWOOOOOOWWWWK.KKKKKK.',
+                '....KSZZSSKWWOGYCCWWWWWK.KWWJBGK',
+                '....KJJJKKWWWWWWWWWWWWKKKLBWWGK.',
+                '.....BBB.KLLLLLLLLLLLLKKWWKKKK..',
+                '.....OO..KWWWK....KWWWK.........',
+                '......Y..KOOOK....KOOOK.........',
+                '.........KUUUUK..KUUUUK.........',
+                '.........KKKKKK..KKKKKK.........',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
+                '................................',
             ],
             cheer: [
-                '.......GGGGGG.......',
-                '.....KKKKKKKKKK.....',
-                '....KWWWWWWWWWWK....',
-                '...KWKJJBBBBBBWWK...',
-                '...KWKJBBBBYBBWWK...',
-                '...KWKBBBBVVVVWWK...',
-                '...KLLKKKKKKKKLLK...',
-                '..KSSSKWWOOOOOOWWK..',
-                '.KSAASKWWGGZYYWWWK..',
-                '.KSAASKWWWWWWWWWWK..',
-                '..KKKKKLLLLLLLLLLK..',
-                '....KWWWWOOOOOOWWK..',
-                '...KWWWWKKKKWWWWK...',
-                '...KWWWK....KWWWK...',
-                '...KLLLK....KLLLK...',
-                '..KLLK........KLLK..',
-                '..KOOK........KOOK..',
-                '.KOOOK........KOOOK.',
-                '.KAAAK........KAAAK.',
-                '.KKKKK........KKKKK.',
+                '.............KKKKKKK............',
+                '............KGGGGGGGK...........',
+                '.........KKKWWWWWWWWKKK.........',
+                '........KWWWWLLLLLLLLWWK........',
+                '.......KWWKJJBBBBBBBWLLK........',
+                '.......KWKJBBBBBBWBBBLLK........',
+                '.......KWKBBBBZZZZZZBLLK........',
+                '.......KWKLLKKKKKKKKLLLK........',
+                '......KOOOKWWWWWWWWWWWWK........',
+                '.....KSSSSKWWOOOOOOWWWWK.KKKKKK.',
+                '....KSZZSSKWWOGYCCWWWWWK.KWWJBGK',
+                '....KSSPSSKWWWWWWWWWWWWKKKLBWWGK',
+                '.....KKKKKKLLLLLLLLLLLLKKWWKKKK.',
+                '..........KWWWWOOOOOOWWK.KK.....',
+                '.........KWWWWKKKKKWWWWK........',
+                '........KWWWWK.....KWWWK........',
+                '........KLLLK.......KLLLK.......',
+                '........KLLLK.......KLLLK.......',
+                '.......KOOOK.........KOOOK......',
+                '.......KOLLK.........KOLLK......',
+                '......KUUUUK.........KUUUUK.....',
+                '......KUUUUK.........KUUUUK.....',
+                '......KKKKKK.........KKKKKK.....',
             ],
         },
     };
+
+    // Trim trailing empty rows so every sprite's boot sole rests flush on bottomY.
+    Object.values(RUNNERS).forEach((spr) => {
+        Object.keys(spr).forEach((pose) => {
+            if (!Array.isArray(spr[pose])) return;
+            while (spr[pose].length > 1 && /^\.+$/.test(spr[pose][spr[pose].length - 1])) {
+                spr[pose] = spr[pose].slice(0, -1);
+            }
+        });
+    });
 
     const GEAR_DRONE = [
         '..KKKKK..',
@@ -831,62 +1278,42 @@
     }
 
     function drawCharacterBackGear(ctx, id, phase, scale = 1, T = 0) {
-        if (!id || id === 'arcy') return;
-        const bob = phase === 'run' ? (Math.sin(T * 0.025) > 0 ? -1 : 0) * scale : 0;
-        if (id === 'ninja') {
-            drawBitmap(ctx, GEAR_SAYA, -10.5 * scale, -14.5 * scale + bob, 1.55 * scale);
-        }
+        // Integrated directly into 32x30 hero bitmaps for zero seam gaps.
+        return;
     }
 
     function drawHeldGear(ctx, id, phase, scale = 1, T = 0, showBeam = true) {
         if (!id || id === 'arcy') return;
         const cheer = phase === 'cheer';
         const fire = phase === 'fire';
-        const bob = phase === 'run' ? (Math.sin(T * 0.025) > 0 ? -1 : 0) * scale : 0;
 
-        if (id === 'ninja') {
-            if (phase === 'slash') return;
-            const gx = (cheer ? 12 : 14.5) * scale;
-            const gy = (cheer ? -11 : -6.5) * scale + bob;
-            drawBitmap(ctx, cheer ? GEAR_KATANA_CHEER : GEAR_KATANA, gx, gy, 1.58 * scale);
-            if (cheer && Math.sin(T * 0.022) > -0.2) {
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(Math.round(gx + 3 * scale), Math.round(gy - 20 * scale), Math.round(2 * scale), Math.round(2 * scale));
-                ctx.fillStyle = '#A5F3FC';
-                ctx.fillRect(Math.round(gx + 5 * scale), Math.round(gy - 18 * scale), Math.round(1.5 * scale), Math.round(1.5 * scale));
-            }
+        if (id === 'ninja' && cheer && Math.sin(T * 0.022) > -0.2) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(Math.round(21 * scale), Math.round(-35 * scale), Math.round(2.5 * scale), Math.round(2.5 * scale));
+            ctx.fillStyle = '#A5F3FC';
+            ctx.fillRect(Math.round(23 * scale), Math.round(-32 * scale), Math.round(1.8 * scale), Math.round(1.8 * scale));
             return;
         }
 
-        if (id === 'specops') {
-            ctx.save();
-            ctx.translate(10 * scale, (cheer ? -8.5 : fire ? -6.5 : -6) * scale + bob);
-            if (cheer) ctx.rotate(-0.26);
-            if (showBeam && (phase === 'run' || fire)) {
-                const beamLen = (fire ? 26 : 16) * scale;
-                ctx.fillStyle = fire ? 'rgba(239, 68, 68, 0.82)' : 'rgba(220, 38, 38, 0.52)';
-                ctx.fillRect(Math.round(13 * scale), Math.round(-8.2 * scale), Math.round(beamLen), Math.max(1, Math.round((fire ? 1.4 : 1.1) * scale)));
-                ctx.fillStyle = fire ? '#FFFFFF' : '#EF4444';
-                ctx.fillRect(Math.round(13 * scale + beamLen), Math.round(-8.8 * scale), Math.round(2.5 * scale), Math.round(2.5 * scale));
-            }
-            drawBitmap(ctx, GEAR_RIFLE, 0, 0, 1.22 * scale);
-            ctx.restore();
+        if (id === 'specops' && showBeam && (phase === 'run' || fire)) {
+            const beamLen = (fire ? 26 : 16) * scale;
+            const muzzleX = 24 * scale;
+            const muzzleY = -14.5 * scale;
+            ctx.fillStyle = fire ? 'rgba(239, 68, 68, 0.84)' : 'rgba(220, 38, 38, 0.54)';
+            ctx.fillRect(Math.round(muzzleX), Math.round(muzzleY), Math.round(beamLen), Math.max(1, Math.round((fire ? 1.5 : 1.1) * scale)));
+            ctx.fillStyle = fire ? '#FFFFFF' : '#EF4444';
+            ctx.fillRect(Math.round(muzzleX + beamLen), Math.round(muzzleY - 0.6 * scale), Math.round(2.5 * scale), Math.round(2.5 * scale));
             return;
         }
 
-        if (id === 'astro') {
-            ctx.save();
-            ctx.translate(11.5 * scale, (cheer ? -10.5 : -7.5) * scale + bob);
-            if (cheer) ctx.rotate(-0.26);
-            drawBitmap(ctx, GEAR_BLASTER, 0, 0, 1.62 * scale);
-            if (showBeam && (cheer || fire || Math.sin(T * 0.03) > 0.1)) {
-                const pulse = (Math.sin(T * 0.04) * 0.5 + 1.5) * scale;
-                ctx.fillStyle = '#47E393';
-                ctx.fillRect(Math.round(9.5 * scale), Math.round(-7.5 * scale), Math.round(pulse * 1.6), Math.round(pulse * 1.6));
-                ctx.fillStyle = '#A5F3FC';
-                ctx.fillRect(Math.round(10 * scale), Math.round(-7 * scale), Math.round(pulse), Math.round(pulse));
-            }
-            ctx.restore();
+        if (id === 'astro' && showBeam && (cheer || fire || Math.sin(T * 0.03) > 0.1)) {
+            const pulse = (Math.sin(T * 0.04) * 0.5 + 1.6) * scale;
+            const emitterX = 23 * scale;
+            const emitterY = -16.5 * scale;
+            ctx.fillStyle = '#47E393';
+            ctx.fillRect(Math.round(emitterX), Math.round(emitterY), Math.round(pulse * 1.5), Math.round(pulse * 1.5));
+            ctx.fillStyle = '#A5F3FC';
+            ctx.fillRect(Math.round(emitterX + 0.5 * scale), Math.round(emitterY + 0.5 * scale), Math.round(pulse), Math.round(pulse));
         }
     }
 
@@ -1091,8 +1518,8 @@
                 min-width: 0;
             }
             .ha-sr-card--onboarding .ha-sr-avatar {
-                width: 50px;
-                height: 50px;
+                width: 58px;
+                height: 54px;
                 border-radius: 14px;
                 background: #EAFBF2;
                 border: 1.5px solid rgba(3, 30, 19, 0.18);
@@ -1101,8 +1528,8 @@
                 flex: none;
             }
             .ha-sr-card--onboarding canvas {
-                width: 42px;
-                height: 42px;
+                width: 51px;
+                height: 48px;
                 display: block;
                 image-rendering: pixelated;
             }
@@ -1157,8 +1584,8 @@
 
             /* Settings Companion Picker Avatar Tile */
             .ha-sr-settings-avatar {
-                width: 44px;
-                height: 44px;
+                width: 56px;
+                height: 52px;
                 border-radius: 12px;
                 background: #EAFBF2;
                 border: 1.5px solid #031E13;
@@ -1167,8 +1594,8 @@
                 flex: none;
             }
             .ha-sr-settings-avatar canvas {
-                width: 38px;
-                height: 38px;
+                width: 51px;
+                height: 48px;
                 display: block;
                 image-rendering: pixelated;
             }
@@ -1539,19 +1966,10 @@
         cx.clearRect(0, 0, cv.width, cv.height);
         const frame = [spr.run0, spr.run1, spr.run2, spr.run1][st];
         const bob = reduced ? 0 : (st % 2 === 0 ? -1 : 0);
-        const mPx = spr.miniPx || ((spr.px || 2.0) <= 2.0 ? 1.75 : 2.2);
-        const gearScale = id === 'arcy' ? 1 : (mPx / (spr.px || 1.9));
-        const mCx = id === 'arcy' ? 21 : 19;
-        const mBy = id === 'arcy' ? 35 + bob : 39 + bob;
-        cx.save();
-        cx.translate(mCx, mBy - 2);
-        drawCharacterBackGear(cx, id, 'run', gearScale, now);
-        cx.restore();
+        const mPx = spr.miniPx || 1;
+        const mCx = Math.floor(cv.width / 2);
+        const mBy = (cv.height - 2) + bob;
         drawBitmap(cx, frame, mCx, mBy, mPx);
-        cx.save();
-        cx.translate(mCx, mBy - 2);
-        drawHeldGear(cx, id, 'run', gearScale, now, false);
-        cx.restore();
     }
 
     function tickPickers(now) {
@@ -1607,7 +2025,7 @@
                         <button type="button" data-companion-id="${c.id}" aria-pressed="${c.id === selected}"
                             class="btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all ${c.id === selected ? 'border-primary bg-primary/[0.06]' : 'border-outline-variant/30 bg-surface-container-low'}">
                             <span class="ha-sr-settings-avatar" aria-hidden="true">
-                                <canvas width="42" height="42" data-ha-mini="${c.id}"></canvas>
+                                <canvas width="34" height="32" data-ha-mini="${c.id}"></canvas>
                             </span>
                             <span>
                                 <strong class="block font-headline-md text-xs sm:text-sm font-bold text-on-surface">${c.name}</strong>
@@ -1629,7 +2047,7 @@
                                 </svg>
                             </span>
                             <span class="ha-sr-avatar" aria-hidden="true">
-                                <canvas width="42" height="42" data-ha-mini="${c.id}"></canvas>
+                                <canvas width="34" height="32" data-ha-mini="${c.id}"></canvas>
                             </span>
                             <span class="ha-sr-name">${c.name}</span>
                             <span class="ha-sr-sub">${c.finale}</span>
@@ -2029,8 +2447,8 @@
             }
 
             const spr = RUNNERS[runnerId] || RUNNERS.arcy;
-            const sPx = spr.px || 2.0;
-            const gearScale = runnerId === 'arcy' ? 1 : (sPx / 1.9);
+            const sPx = spr.px || 1.5;
+            const gearScale = sPx / 1.5;
             let aAng = -0.46;
             let aLift = 0;
             let aGrid = spr.run0;
@@ -2104,7 +2522,7 @@
                         bodyAlpha = dp < 0.45 ? 0.30 : 0.88;
                     } else {
                         aAng = -0.13;
-                        aGrid = spr.cheer;
+                        aGrid = spr.slash || spr.cheer;
                         phaseNow = 'slash';
                         ninjaSlashP = (fp - 0.56) / 0.44;
                         aTilt = lerp(-0.12, 0.22, easeOutCubic(ninjaSlashP));
@@ -2347,20 +2765,20 @@
                 if (specopsFireBurst < 0.45) {
                     hctx.save();
                     hctx.fillStyle = '#F59E0B';
-                    hctx.fillRect(24, -17, 10, 5);
-                    hctx.fillRect(26, -19, 5, 9);
+                    hctx.fillRect(24, -15, 10, 5);
+                    hctx.fillRect(26, -17, 5, 9);
                     hctx.fillStyle = '#FFFFFF';
-                    hctx.fillRect(25, -16, 6, 3);
+                    hctx.fillRect(25, -14, 6, 3);
                     hctx.restore();
                 }
-                const tx = Math.round(lerp(27, 54, specopsFireBurst));
+                const tx = Math.round(lerp(26, 54, specopsFireBurst));
                 hctx.fillStyle = '#F59E0B';
-                hctx.fillRect(tx - 10, -16, 11, 2.5);
+                hctx.fillRect(tx - 10, -14, 11, 2.5);
                 hctx.fillStyle = '#FFFFFF';
-                hctx.fillRect(tx - 4, -16, 5, 2.5);
-                const sx = Math.round(lerp(7, -12, specopsFireBurst));
-                const sy = Math.round(-16 - Math.sin(specopsFireBurst * Math.PI) * 14 + specopsFireBurst * 10);
-                hctx.fillStyle = '#031E13';
+                hctx.fillRect(tx - 4, -14, 5, 2.5);
+                const sx = Math.round(lerp(8, -11, specopsFireBurst));
+                const sy = Math.round(-15 - Math.sin(specopsFireBurst * Math.PI) * 14 + specopsFireBurst * 10);
+                hctx.fillStyle = '#0F172A';
                 hctx.fillRect(sx - 1, sy - 1, 5, 4);
                 hctx.fillStyle = '#FDE047';
                 hctx.fillRect(sx, sy, 3, 2);
