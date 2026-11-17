@@ -1552,13 +1552,14 @@ body .input-boxed:focus { border-color: rgb(var(--ha-primary)) !important; box-s
 
 /* Habit Detail */
 body > main.ha-detail { max-width: 760px; padding-inline: 20px; }
-.ha-detail > section + section { margin-top: 22px; }
-.ha-detail .ha-detail-summary { padding: 22px; }
+.ha-detail > section + section { margin-top: 20px; }
+.ha-detail .ha-detail-summary { padding: 20px 22px; }
+.ha-detail .ha-detail-identity { margin-bottom: 16px !important; }
 .ha-detail #habit-icon-wrap { width: 56px; height: 56px; border-radius: 14px !important; border: 2px solid rgb(var(--ha-outline-variant)); }
 .ha-detail #habit-name { font-family: 'Space Grotesk', sans-serif; font-size: clamp(22px, 3vw, 28px); line-height: 1.2; font-weight: 700; text-wrap: initial; }
 .ha-detail #complete-today-btn { width: 48px; height: 48px; border-radius: 12px !important; border: 2px solid var(--ha-toggle-idle-border) !important; }
 .ha-detail #complete-today-btn[aria-pressed="true"] { background: var(--ha-toggle-done-bg) !important; color: var(--ha-toggle-done-fg) !important; border-color: var(--ha-toggle-done-border) !important; box-shadow: 2px 2px 0 var(--rpg-shadow-ink); }
-body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 14px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.28) !important; border-radius: 12px !important; background: rgb(var(--ha-surface-container-low)) !important; box-shadow: none !important; }
+body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 13px 14px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.28) !important; border-radius: 12px !important; background: rgb(var(--ha-surface-container-low)) !important; box-shadow: none !important; }
 .ha-detail .ha-detail-stats [id^="stat-"] { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2; }
 
 /* Badge 3: 3-Stage Milestone Stepper */
@@ -1566,8 +1567,8 @@ body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 14px !import
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 14px;
-    padding-top: 12px;
+    margin-top: 13px;
+    padding-top: 11px;
     border-top: 1.5px dashed rgba(var(--ha-outline-variant) / 0.28);
 }
 .ha-step-node {
@@ -1591,16 +1592,10 @@ body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 14px !import
     border-color: #121215;
 }
 .ha-step-node.is-next {
-    background: #121215;
-    color: #facc15;
-    border-color: #121215;
-    box-shadow: 2px 2px 0 #facc15;
-}
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-step-node.is-next {
     background: var(--ha-hero-bg, #c4b5fd);
     color: var(--ha-hero-fg, #121215);
-    border-color: var(--rpg-shadow-ink, #000000);
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #000000);
+    border-color: var(--rpg-shadow-ink, #121215);
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
 }
 .ha-step-node.is-locked { opacity: 0.78; }
 .ha-step-line {
@@ -1657,15 +1652,17 @@ body main.ha-detail .ha-detail-cal-card {
 .ha-detail-cal-body { padding: 16px 20px 20px; }
 
 .ha-detail :is(#prev-month-btn, #next-month-btn) { border-radius: 10px !important; }
-.ha-detail-calendar-heading { gap: 10px; flex-wrap: wrap; }
+.ha-detail-calendar-heading { gap: 14px; flex-wrap: nowrap; align-items: center; }
+.ha-detail-calendar-heading > div:first-child { flex: 1; min-width: 0; }
 .ha-detail .ha-detail-month-nav {
-    gap: 10px;
-    padding: 4px 10px !important;
+    flex-shrink: 0;
+    gap: 8px;
+    padding: 4px 9px !important;
     border-radius: 12px !important;
     border: 2px solid rgba(var(--ha-outline-variant) / 0.28);
 }
 .ha-detail .ha-detail-month-label {
-    min-width: 78px;
+    min-width: 72px;
     text-align: center;
     letter-spacing: 0.01em;
 }
@@ -1752,8 +1749,8 @@ body main.ha-detail .ha-detail-cal-card {
     border: 1.5px solid rgb(var(--ha-outline-variant));
 }
 .ha-detail .ha-cal-cell.is-today {
-    outline: 2.5px solid #facc15;
-    outline-offset: 1px;
+    border: 2px solid var(--rpg-shadow-ink, #121215) !important;
+    box-shadow: inset 0 0 0 2px #facc15, 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
     z-index: 3;
 }
 .ha-detail .ha-cal-cell.is-today.is-completed { background-color: #0f7648; }
@@ -2243,16 +2240,23 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights-main { order: 1; }
     .ha-insights-aside { order: 2; }
 
+    body > main.ha-detail { padding-top: 14px; }
     body > main:is(.ha-habits, .ha-detail) { padding-inline: 16px; }
-    .ha-detail-cal-top { padding: 9px 14px; }
-    .ha-detail-cal-body { padding: 14px 14px 16px; }
+    .ha-detail > section + section { margin-top: 16px; }
+    .ha-detail .ha-detail-summary { padding: 16px; }
+    .ha-detail .ha-detail-identity { margin-bottom: 14px !important; }
+    body main.ha-detail .ha-detail-stats > div { padding: 10px 12px !important; }
+    .ha-detail-cal-top { padding: 8px 14px; }
+    .ha-detail-cal-body { padding: 13px 14px 16px; }
     .ha-detail #monthly-calendar-grid { --ha-cal-gap: 5px; gap: var(--ha-cal-gap) !important; }
     .ha-detail #monthly-calendar-grid > .ha-cal-empty,
-    .ha-detail .ha-cal-cell { height: 36px; }
-    .ha-detail .ha-detail-calendar-heading { gap: 8px; }
-    .ha-detail .ha-detail-month-nav { gap: 6px; padding: 3px 8px !important; }
-    .ha-detail .ha-detail-month-label { min-width: 66px; }
-    .ha-detail-stepper { gap: 5px; }
+    .ha-detail .ha-cal-cell { height: 38px; padding-block: 3px; }
+    .ha-detail .ha-cal-sub { margin-top: 3px; font-size: 7.5px; }
+    .ha-detail .ha-detail-calendar-heading { gap: 12px; }
+    .ha-detail .ha-detail-month-nav { gap: 6px; padding: 3px 7px !important; }
+    .ha-detail :is(#prev-month-btn, #next-month-btn) { width: 24px; height: 24px; }
+    .ha-detail .ha-detail-month-label { min-width: 64px; }
+    .ha-detail-stepper { gap: 6px; margin-top: 11px; padding-top: 10px; }
     .ha-step-node { padding: 4px 8px; font-size: 9.5px; }
 }
 @media (max-width: 599px) {
@@ -2281,6 +2285,7 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-dashboard-day { width: 14px; }
     .ha-detail #habit-name-title { max-width: 140px; }
     .ha-detail-stepper { flex-wrap: wrap; }
+    .ha-detail-calendar-heading { flex-wrap: wrap; }
 }
 @media (prefers-reduced-motion: reduce) {
     .ha-habit-card, .ha-progress-card, .ha-rpg-xp-seg, .ha-arc-spot, .ha-arc-sq, .ha-arc-momentum { transition: none; }
