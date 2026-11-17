@@ -1554,16 +1554,215 @@ body .input-boxed:focus { border-color: rgb(var(--ha-primary)) !important; box-s
 body > main.ha-detail { max-width: 760px; padding-inline: 20px; }
 .ha-detail > section + section { margin-top: 22px; }
 .ha-detail .ha-detail-summary { padding: 22px; }
-.ha-detail #habit-icon-wrap { width: 56px; height: 56px; border-radius: 14px !important; border: 1.5px solid rgba(var(--ha-outline-variant) / 0.25); }
+.ha-detail #habit-icon-wrap { width: 56px; height: 56px; border-radius: 14px !important; border: 2px solid rgb(var(--ha-outline-variant)); }
 .ha-detail #habit-name { font-family: 'Space Grotesk', sans-serif; font-size: clamp(22px, 3vw, 28px); line-height: 1.2; font-weight: 700; text-wrap: initial; }
 .ha-detail #complete-today-btn { width: 48px; height: 48px; border-radius: 12px !important; border: 2px solid var(--ha-toggle-idle-border) !important; }
 .ha-detail #complete-today-btn[aria-pressed="true"] { background: var(--ha-toggle-done-bg) !important; color: var(--ha-toggle-done-fg) !important; border-color: var(--ha-toggle-done-border) !important; box-shadow: 2px 2px 0 var(--rpg-shadow-ink); }
 body main.ha-detail .ha-detail-stats > div { min-width: 0; padding: 14px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.28) !important; border-radius: 12px !important; background: rgb(var(--ha-surface-container-low)) !important; box-shadow: none !important; }
 .ha-detail .ha-detail-stats [id^="stat-"] { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2; }
-.ha-detail #monthly-calendar-grid > div { min-width: 0; height: 42px; border-radius: 10px !important; }
+
+/* Badge 3: 3-Stage Milestone Stepper */
+.ha-detail-stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1.5px dashed rgba(var(--ha-outline-variant) / 0.28);
+}
+.ha-step-node {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 9999px;
+    border: 1.5px solid rgb(var(--ha-outline-variant));
+    background: rgb(var(--ha-surface-container-low));
+    color: rgb(var(--ha-on-surface-variant));
+    font-family: 'JetBrains Mono', 'Space Grotesk', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.ha-step-node.is-done {
+    background: #47e393;
+    color: #121215;
+    border-color: #121215;
+}
+.ha-step-node.is-next {
+    background: #121215;
+    color: #facc15;
+    border-color: #121215;
+    box-shadow: 2px 2px 0 #facc15;
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-step-node.is-next {
+    background: var(--ha-hero-bg, #c4b5fd);
+    color: var(--ha-hero-fg, #121215);
+    border-color: var(--rpg-shadow-ink, #000000);
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #000000);
+}
+.ha-step-node.is-locked { opacity: 0.78; }
+.ha-step-line {
+    flex: 1;
+    height: 2px;
+    min-width: 10px;
+    border-radius: 9999px;
+    background: rgba(var(--ha-outline-variant) / 0.28);
+}
+.ha-step-line.is-done { background: #15803d; }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-step-line.is-done { background: #47e393; }
+
+/* Circuit Pipeline Activity Card */
+body main.ha-detail .ha-detail-cal-card {
+    padding: 0 !important;
+    overflow: hidden;
+}
+.ha-detail-cal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 18px;
+    border-bottom: 1.5px solid rgba(var(--ha-outline-variant) / 0.22);
+    background:
+        radial-gradient(rgba(var(--ha-outline-variant) / 0.14) 1px, transparent 1px) 0 0 / 5px 5px,
+        rgb(var(--ha-surface-container-low));
+}
+.ha-detail-cal-eyebrow {
+    font-family: 'JetBrains Mono', 'Space Grotesk', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgb(var(--ha-on-surface-variant));
+}
+.ha-detail-streak-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 7px;
+    border: 1.5px solid var(--rpg-shadow-ink, #121215);
+    background: var(--ha-hero-bg, #c4b5fd);
+    color: var(--ha-hero-fg, #121215);
+    font-family: 'JetBrains Mono', 'Space Grotesk', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.ha-detail-streak-flame {
+    font-size: 14px !important;
+    color: var(--rpg-hdr-streak-flame, #f97316) !important;
+}
+.ha-detail-cal-body { padding: 16px 20px 20px; }
+
 .ha-detail :is(#prev-month-btn, #next-month-btn) { border-radius: 10px !important; }
-.ha-detail .ha-detail-month-nav { border-radius: 12px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.25); }
-.ha-detail .cal-cell, .ha-detail #calendar-done-key { width: 13px; height: 13px; border-radius: 4px !important; }
+.ha-detail-calendar-heading { gap: 10px; flex-wrap: wrap; }
+.ha-detail .ha-detail-month-nav {
+    gap: 10px;
+    padding: 4px 10px !important;
+    border-radius: 12px !important;
+    border: 2px solid rgba(var(--ha-outline-variant) / 0.28);
+}
+.ha-detail .ha-detail-month-label {
+    min-width: 78px;
+    text-align: center;
+    letter-spacing: 0.01em;
+}
+.ha-detail #monthly-calendar-grid {
+    --ha-cal-gap: 6px;
+    gap: var(--ha-cal-gap) !important;
+}
+.ha-detail #monthly-calendar-grid > .ha-cal-empty {
+    height: 44px;
+    border-radius: 7px !important;
+}
+.ha-detail .ha-cal-cell {
+    min-width: 0;
+    height: 44px;
+    border-radius: 7px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    line-height: 1;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    user-select: none;
+}
+.ha-detail .ha-cal-num { line-height: 1; }
+.ha-detail .ha-cal-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    margin-top: 2px;
+    line-height: 1;
+}
+.ha-detail .ha-cal-cell.is-completed {
+    background-color: #15803d;
+    color: #ffffff;
+    border: 1.5px solid #121215;
+    box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
+    z-index: 2;
+}
+.ha-detail .ha-cal-cell.is-completed::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 4px;
+    height: 4px;
+    background: #47e393;
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-detail .ha-cal-cell.is-completed {
+    background-color: #0e8f5b;
+    border-color: var(--rpg-shadow-ink, #000000);
+}
+.ha-detail .ha-cal-cell.is-linked-next::before {
+    content: '';
+    position: absolute;
+    right: calc(var(--ha-cal-gap) * -1 - 2px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(var(--ha-cal-gap) + 2px);
+    height: 3px;
+    background: var(--ha-detail-wire, #121215);
+    z-index: 1;
+    pointer-events: none;
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-detail .ha-cal-cell.is-linked-next::before {
+    background: #facc15;
+}
+.ha-detail .ha-cal-cell.is-missed {
+    background-color: rgb(var(--ha-error-container) / 0.72);
+    color: rgb(var(--ha-error));
+    border: 1.5px dashed rgb(var(--ha-error) / 0.75);
+}
+.ha-detail .ha-cal-cell.is-rest,
+.ha-detail .ha-cal-cell.is-future {
+    background-color: rgb(var(--ha-surface-container-low));
+    color: rgb(var(--ha-on-surface-variant) / 0.72);
+    border: 1px solid rgba(var(--ha-outline-variant) / 0.16);
+}
+.ha-detail .ha-cal-cell.is-pending {
+    background-color: rgb(var(--ha-surface-container-low));
+    color: rgb(var(--ha-on-surface));
+    border: 1.5px solid rgb(var(--ha-outline-variant));
+}
+.ha-detail .ha-cal-cell.is-today {
+    outline: 2.5px solid #facc15;
+    outline-offset: 1px;
+    z-index: 3;
+}
+.ha-detail .ha-cal-cell.is-today.is-completed { background-color: #0f7648; }
+.ha-detail .cal-cell,
+.ha-detail #calendar-done-key { width: 13px; height: 13px; border-radius: 4px !important; }
+.ha-detail #calendar-done-key { background-color: #15803d !important; border: 1px solid #121215; }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-detail #calendar-done-key { background-color: #0e8f5b !important; }
+.ha-detail .ha-cal-key-miss { background-color: rgb(var(--ha-error-container) / 0.75) !important; border: 1px dashed rgb(var(--ha-error) / 0.75) !important; }
+.ha-detail .ha-cal-key-rest { background-color: rgb(var(--ha-surface-container-low)) !important; border: 1px solid rgba(var(--ha-outline-variant) / 0.22) !important; }
 .ha-detail .cal-completed { background-color: rgb(var(--ha-primary)); }
 .ha-detail .cal-missed { background-color: rgb(var(--ha-error-container)); border: 1px solid rgb(var(--ha-error) / 0.45); }
 .ha-detail .cal-rest { background-color: rgb(var(--ha-surface-container-low)); }
@@ -2045,8 +2244,16 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights-aside { order: 2; }
 
     body > main:is(.ha-habits, .ha-detail) { padding-inline: 16px; }
-    .ha-detail #monthly-calendar-grid { gap: 4px; }
-    .ha-detail #monthly-calendar-grid > div { height: 34px; }
+    .ha-detail-cal-top { padding: 9px 14px; }
+    .ha-detail-cal-body { padding: 14px 14px 16px; }
+    .ha-detail #monthly-calendar-grid { --ha-cal-gap: 5px; gap: var(--ha-cal-gap) !important; }
+    .ha-detail #monthly-calendar-grid > .ha-cal-empty,
+    .ha-detail .ha-cal-cell { height: 36px; }
+    .ha-detail .ha-detail-calendar-heading { gap: 8px; }
+    .ha-detail .ha-detail-month-nav { gap: 6px; padding: 3px 8px !important; }
+    .ha-detail .ha-detail-month-label { min-width: 66px; }
+    .ha-detail-stepper { gap: 5px; }
+    .ha-step-node { padding: 4px 8px; font-size: 9.5px; }
 }
 @media (max-width: 599px) {
     .ha-insights #badges-grid { grid-template-columns: 1fr; }
@@ -2073,6 +2280,7 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-dashboard-week { gap: 4px; }
     .ha-dashboard-day { width: 14px; }
     .ha-detail #habit-name-title { max-width: 140px; }
+    .ha-detail-stepper { flex-wrap: wrap; }
 }
 @media (prefers-reduced-motion: reduce) {
     .ha-habit-card, .ha-progress-card, .ha-rpg-xp-seg, .ha-arc-spot, .ha-arc-sq, .ha-arc-momentum { transition: none; }

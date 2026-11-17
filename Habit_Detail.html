@@ -181,43 +181,55 @@
                 </div>
             </div>
         </div>
+        <!-- Badge 3: Compact 3-stage milestone stepper -->
+        <div id="habit-milestone-stepper" class="ha-detail-stepper" aria-label="Streak milestones"></div>
     </section>
 
-    <!-- Clean Minimalist Activity Calendar -->
+    <!-- Circuit Pipeline Activity Calendar -->
     <section class="ha-detail-calendar animate-in animate-delay-1" aria-labelledby="activity-title">
-        <div class="bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
-            <!-- Header: Title + Minimal Month Switcher -->
-            <div class="ha-detail-calendar-heading flex items-center justify-between mb-3">
-                <div>
-                    <h3 id="activity-title" class="font-headline-md text-headline-md text-on-surface">Activity</h3>
-                    <p id="month-stat-subtitle" class="font-label-sm text-label-sm text-on-surface-variant geist mt-0.5">Loading...</p>
+        <div class="ha-detail-cal-card bg-surface-container-lowest border border-surface-container rounded-xl p-card-padding">
+            <!-- Halftone Top Strip (Clean Activity Eyebrow + Non-Yellow Streak Pill) -->
+            <div class="ha-detail-cal-top">
+                <span class="ha-detail-cal-eyebrow">ACTIVITY</span>
+                <span id="activity-streak-pill" class="ha-detail-streak-pill">
+                    <span class="material-symbols-outlined fill ha-detail-streak-flame" aria-hidden="true">local_fire_department</span>
+                    <span id="activity-streak-text">0D STREAK</span>
+                </span>
+            </div>
+
+            <div class="ha-detail-cal-body">
+                <!-- Header: Title + Generous Inline Month Switcher -->
+                <div class="ha-detail-calendar-heading flex items-center justify-between mb-3">
+                    <div>
+                        <h3 id="activity-title" class="font-headline-md text-headline-md text-on-surface">Activity</h3>
+                        <p id="month-stat-subtitle" class="font-label-sm text-label-sm text-on-surface-variant geist mt-0.5">Loading...</p>
+                    </div>
+                    <div class="ha-detail-month-nav flex items-center bg-surface-container-low px-2.5 py-1 rounded-full border border-surface-container">
+                        <button id="prev-month-btn" type="button" aria-label="Show previous month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
+                            <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                        </button>
+                        <span id="current-month-title" aria-live="polite" class="ha-detail-month-label font-label-sm text-[11px] font-semibold text-on-surface geist">Loading…</span>
+                        <button id="next-month-btn" type="button" aria-label="Show next month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
+                            <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                        </button>
+                    </div>
                 </div>
-                <!-- Inline Month Switcher -->
-                <div class="ha-detail-month-nav flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-full border border-surface-container">
-                    <button id="prev-month-btn" type="button" aria-label="Show previous month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
-                        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
-                    </button>
-                    <span id="current-month-title" aria-live="polite" class="font-label-sm text-[11px] font-semibold text-on-surface px-1 geist">Loading…</span>
-                    <button id="next-month-btn" type="button" aria-label="Show next month" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-surface-container transition-all active:scale-90 text-on-surface-variant">
-                        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
-                    </button>
+
+                <!-- Legend Bar -->
+                <div class="ha-detail-legend flex items-center gap-4 text-[11px] font-label-sm text-on-surface-variant mb-4 geist border-b border-surface-container pb-3">
+                    <div class="flex items-center gap-1.5"><span id="calendar-done-key" class="w-2.5 h-2.5 rounded-sm bg-primary-container inline-block"></span><span>Done</span></div>
+                    <div class="flex items-center gap-1.5"><span class="ha-cal-key-miss w-2.5 h-2.5 rounded-sm bg-error-container border border-error/20 inline-block"></span><span>Missed</span></div>
+                    <div class="flex items-center gap-1.5"><span class="ha-cal-key-rest w-2.5 h-2.5 rounded-sm bg-surface-container inline-block"></span><span>Rest</span></div>
                 </div>
-            </div>
 
-            <!-- Legend Bar -->
-            <div class="ha-detail-legend flex items-center gap-4 text-[11px] font-label-sm text-on-surface-variant mb-4 geist border-b border-surface-container pb-3">
-                <div class="flex items-center gap-1.5"><span id="calendar-done-key" class="w-2.5 h-2.5 rounded-sm bg-primary-container inline-block"></span><span>Done</span></div>
-                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-error-container border border-error/20 inline-block"></span><span>Missed</span></div>
-                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-surface-container inline-block"></span><span>Rest</span></div>
-            </div>
+                <!-- Weekdays Header Grid -->
+                <div class="ha-detail-weekdays grid grid-cols-7 gap-1 text-center font-label-sm text-[10px] text-on-surface-variant geist mb-2 uppercase tracking-wider">
+                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                </div>
 
-            <!-- Weekdays Header Grid -->
-            <div class="ha-detail-weekdays grid grid-cols-7 gap-1 text-center font-label-sm text-[10px] text-on-surface-variant geist mb-2 uppercase tracking-wider">
-                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                <!-- Days Grid (7 Columns) -->
+                <div id="monthly-calendar-grid" class="grid grid-cols-7 gap-1.5"></div>
             </div>
-
-            <!-- Days Grid (7 Columns) -->
-            <div id="monthly-calendar-grid" class="grid grid-cols-7 gap-1.5"></div>
         </div>
     </section>
 
@@ -397,18 +409,50 @@
 
     updateCompleteButton();
 
-    // ─── Stats ──────────────────────────────────
+    // ─── Stats & Milestone Stepper (Badge 3) ─────
+    function getMilestoneTiers(streak) {
+        if (streak < 7) return [3, 7, 14];
+        if (streak < 14) return [7, 14, 30];
+        if (streak < 30) return [14, 30, 60];
+        return [30, 60, 100];
+    }
+
     function renderStats() {
-        document.getElementById('stat-current-streak').textContent = HabitArc.getCurrentStreak(habitId);
+        const currentStreak = HabitArc.getCurrentStreak(habitId);
+        document.getElementById('stat-current-streak').textContent = currentStreak;
         document.getElementById('stat-longest-streak').textContent = HabitArc.getLongestStreak(habitId);
         document.getElementById('stat-completion').textContent = HabitArc.getCompletionRate(habitId);
 
         const totalDone = Object.values(habit.completions || {}).filter(Boolean).length;
         document.getElementById('stat-total-done').textContent = totalDone;
+
+        const streakPillText = document.getElementById('activity-streak-text');
+        if (streakPillText) streakPillText.textContent = `${currentStreak}D STREAK`;
+
+        const stepper = document.getElementById('habit-milestone-stepper');
+        if (stepper) {
+            const tiers = getMilestoneTiers(currentStreak);
+            const activeIdx = tiers.findIndex(t => currentStreak < t);
+            const checkSvg = `<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M2.2 6.3L4.8 8.9L9.8 3.2"/></svg>`;
+            const shieldSvg = `<svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 1L2 2.6v3.2c0 2.5 1.7 4.6 4 5.2 2.3-.6 4-2.7 4-5.2V2.6L6 1z"/></svg>`;
+            const lockSvg = `<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V3.8a2 2 0 0 1 4 0v1.7"/></svg>`;
+
+            stepper.innerHTML = tiers.map((target, idx) => {
+                const isDone = activeIdx === -1 || idx < activeIdx;
+                const isNext = idx === activeIdx;
+                const stateClass = isDone ? 'is-done' : isNext ? 'is-next' : 'is-locked';
+                const icon = isDone ? checkSvg : isNext ? shieldSvg : lockSvg;
+                const label = isNext ? `${target}D (${currentStreak}/${target})` : `${target}D`;
+                const conn = idx < tiers.length - 1
+                    ? `<span class="ha-step-line${isDone ? ' is-done' : ''}" aria-hidden="true"></span>`
+                    : '';
+                return `<span class="ha-step-node ${stateClass}">${icon}<span>${label}</span></span>${conn}`;
+            }).join('');
+        }
     }
     renderStats();
 
-    // ─── Monthly Interactive Calendar ───────────
+    // ─── Monthly Interactive Calendar (Circuit Pipeline) ─
     let currentMonthOffset = 0; // 0 = current month, -1 = last month, etc.
 
     function renderCalendar() {
@@ -424,26 +468,17 @@
         const monthTitle = viewDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         document.getElementById('current-month-title').textContent = monthTitle;
 
-        // Calculate days in month & first day of week offset
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
         // Monday = 0, Sunday = 6
         let firstDayIndex = new Date(year, month, 1).getDay() - 1;
-        if (firstDayIndex === -1) firstDayIndex = 6; // Adjust Sunday
+        if (firstDayIndex === -1) firstDayIndex = 6;
 
         const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         const todayStr = HabitArc.today();
         let monthCompletedCount = 0;
         let monthScheduledCount = 0;
 
-        // Render empty padding cells for start of month
-        for (let i = 0; i < firstDayIndex; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'h-9 rounded-lg bg-surface-container/10 border border-transparent';
-            grid.appendChild(emptyCell);
-        }
-
-        // Render date cells (1 to daysInMonth)
+        const dayRecords = [];
         for (let dayNum = 1; dayNum <= daysInMonth; dayNum++) {
             const dateObj = new Date(year, month, dayNum);
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
@@ -469,33 +504,38 @@
                 status = 'rest';
             }
 
+            dayRecords.push({ dayNum, dateObj, isBeforeCreation, isFuture, status, isToday });
+        }
+
+        // Empty padding cells before the 1st of month
+        for (let i = 0; i < firstDayIndex; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'ha-cal-empty';
+            grid.appendChild(emptyCell);
+        }
+
+        // Render dated tiles with Circuit Pipeline bridge between consecutive completed days in each week row
+        dayRecords.forEach((rec, idx) => {
+            const { dayNum, dateObj, isBeforeCreation, isFuture, status, isToday } = rec;
+            const colIndex = (firstDayIndex + idx) % 7;
+            const nextRec = dayRecords[idx + 1];
+            const isLinkedNext = status === 'completed' && colIndex < 6 && nextRec && nextRec.status === 'completed';
+
             const cell = document.createElement('div');
-            let cellStyle = 'bg-surface-container-low text-on-surface-variant/40';
+            let stateClass = 'is-future';
+            if (status === 'completed') stateClass = 'is-completed';
+            else if (status === 'missed') stateClass = 'is-missed';
+            else if (status === 'rest') stateClass = 'is-rest';
+            else if (status === 'pending') stateClass = 'is-pending';
+            else if (isFuture) stateClass = 'is-future';
 
-            if (status === 'completed') {
-                cellStyle = 'bg-primary-container text-on-primary font-bold shadow-xs';
-            } else if (status === 'missed') {
-                cellStyle = 'bg-error-container/60 text-error font-medium border border-error/20';
-            } else if (status === 'rest') {
-                cellStyle = 'bg-surface-container/60 text-on-surface-variant/60';
-            } else if (isFuture) {
-                cellStyle = 'bg-surface-container-lowest text-on-surface-variant/25 border border-surface-container/60';
-            }
-
-            if (isToday) {
-                cellStyle += ' ring-2 ring-primary ring-offset-1';
-            }
-
-            cell.className = `h-9 rounded-lg flex items-center justify-center transition-colors duration-150 ${cellStyle}`;
+            cell.className = `ha-cal-cell ${stateClass}${isToday ? ' is-today' : ''}${isLinkedNext ? ' is-linked-next' : ''}`;
             cell.dataset.status = status;
             if (isToday) cell.setAttribute('aria-current', 'date');
-            if (status === 'completed') {
-                cell.style.backgroundColor = habitAccent;
-                cell.style.borderColor = habitAccent;
-            }
-            cell.innerHTML = `<span class="text-xs geist">${dayNum}</span>`;
 
-            // Simple native title tooltip on long-press/hover
+            const subMark = isToday ? 'NOW' : status === 'completed' ? '✓' : status === 'missed' ? '×' : '';
+            cell.innerHTML = `<span class="ha-cal-num">${dayNum}</span>${subMark ? `<span class="ha-cal-sub" aria-hidden="true">${subMark}</span>` : ''}`;
+
             const formattedText = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
             const statusLabel = status === 'completed' ? 'Completed' : status === 'missed' ? 'Missed' : status === 'rest' ? 'Rest Day' : status === 'pending' ? 'Not marked yet' : isBeforeCreation ? 'Before habit started' : 'Upcoming';
             cell.title = `${formattedText}: ${statusLabel}`;
@@ -503,7 +543,7 @@
             cell.setAttribute('aria-label', cell.title);
 
             grid.appendChild(cell);
-        }
+        });
 
         // Subtitle text
         const pct = monthScheduledCount > 0 ? Math.round((monthCompletedCount/monthScheduledCount)*100) : 0;
