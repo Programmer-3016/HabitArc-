@@ -1277,28 +1277,86 @@
         }
     }
 
+    const SPRITE_REF_H = 115;
+    const SPRITE_ANCHORS = {
+        arcy: { run0: -4, run1: -1, act: -4, cheer: -5, flip: 0 },
+        ninja: { run0: 4, run1: 1, act: -2, cheer: 7 },
+        specops: { run0: -7, run1: -7, act: -9, cheer: 6 },
+        astro: { run0: -4, run1: -6, act: -11, cheer: -7 },
+    };
+    const SPRITE_IMAGES = Object.create(null);
+
+    function getSpriteEntry(id, pose) {
+        if (typeof window === 'undefined' || typeof Image === 'undefined') return null;
+        const bank = window.HabitArcSprites;
+        const def = bank && bank[id] && bank[id][pose];
+        if (!def || !def.src) return null;
+        let cache = SPRITE_IMAGES[id];
+        if (!cache) cache = SPRITE_IMAGES[id] = Object.create(null);
+        let entry = cache[pose];
+        if (!entry) {
+            const img = new Image();
+            img.src = def.src;
+            entry = { img, w: def.w || 96, h: def.h || SPRITE_REF_H, dx: (SPRITE_ANCHORS[id] && SPRITE_ANCHORS[id][pose]) || 0 };
+            cache[pose] = entry;
+        }
+        if (!entry.img.complete || !entry.img.naturalWidth) return null;
+        return entry;
+    }
+
+    function warmSprites() {
+        if (typeof window === 'undefined' || typeof Image === 'undefined' || !window.HabitArcSprites) return;
+        const bank = window.HabitArcSprites;
+        for (const id of Object.keys(bank)) {
+            const poses = bank[id];
+            if (!poses) continue;
+            for (const pose of Object.keys(poses)) {
+                getSpriteEntry(id, pose);
+            }
+        }
+    }
+
+    function drawSpriteImage(ctx, entry, cx, bottomY, scale, opts) {
+        if (!entry || !entry.img) return;
+        const sx = (opts && opts.squashX) || 1;
+        const sy = (opts && opts.squashY) || 1;
+        const dw = entry.w * scale * sx;
+        const dh = entry.h * scale * sy;
+        const anchorShift = (entry.dx || 0) * scale * sx;
+        const dx = cx - dw / 2 - anchorShift;
+        const dy = bottomY - dh;
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(entry.img, dx, dy, dw, dh);
+        ctx.restore();
+    }
+
+    warmSprites();
+
     function drawCharacterBackGear(ctx, id, phase, scale = 1, T = 0) {
-        // Integrated directly into 32x30 hero bitmaps for zero seam gaps.
+        // Integrated directly into 32x30 hero bitmaps and PNG sprites.
         return;
     }
 
-    function drawHeldGear(ctx, id, phase, scale = 1, T = 0, showBeam = true) {
+    function drawHeldGear(ctx, id, phase, scale = 1, T = 0, showBeam = true, hasPng = false) {
         if (!id || id === 'arcy') return;
         const cheer = phase === 'cheer';
         const fire = phase === 'fire';
 
         if (id === 'ninja' && cheer && Math.sin(T * 0.022) > -0.2) {
+            const gx = hasPng ? 16 : 21;
+            const gy = hasPng ? -45 : -35;
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(Math.round(21 * scale), Math.round(-35 * scale), Math.round(2.5 * scale), Math.round(2.5 * scale));
+            ctx.fillRect(Math.round(gx * scale), Math.round(gy * scale), Math.round(2.5 * scale), Math.round(2.5 * scale));
             ctx.fillStyle = '#A5F3FC';
-            ctx.fillRect(Math.round(23 * scale), Math.round(-32 * scale), Math.round(1.8 * scale), Math.round(1.8 * scale));
+            ctx.fillRect(Math.round((gx + 2) * scale), Math.round((gy + 3) * scale), Math.round(1.8 * scale), Math.round(1.8 * scale));
             return;
         }
 
         if (id === 'specops' && showBeam && (phase === 'run' || fire)) {
             const beamLen = (fire ? 26 : 16) * scale;
-            const muzzleX = 24 * scale;
-            const muzzleY = -14.5 * scale;
+            const muzzleX = (hasPng ? (fire ? 25 : 23) : 24) * scale;
+            const muzzleY = (hasPng ? (fire ? -31.5 : -14.5) : -14.5) * scale;
             ctx.fillStyle = fire ? 'rgba(239, 68, 68, 0.84)' : 'rgba(220, 38, 38, 0.54)';
             ctx.fillRect(Math.round(muzzleX), Math.round(muzzleY), Math.round(beamLen), Math.max(1, Math.round((fire ? 1.5 : 1.1) * scale)));
             ctx.fillStyle = fire ? '#FFFFFF' : '#EF4444';
@@ -1308,8 +1366,8 @@
 
         if (id === 'astro' && showBeam && (cheer || fire || Math.sin(T * 0.03) > 0.1)) {
             const pulse = (Math.sin(T * 0.04) * 0.5 + 1.6) * scale;
-            const emitterX = 23 * scale;
-            const emitterY = -16.5 * scale;
+            const emitterX = (hasPng ? (fire ? 28 : (cheer ? 23 : 22)) : 23) * scale;
+            const emitterY = (hasPng ? (fire ? -32 : (cheer ? -44 : -25)) : -16.5) * scale;
             ctx.fillStyle = '#47E393';
             ctx.fillRect(Math.round(emitterX), Math.round(emitterY), Math.round(pulse * 1.5), Math.round(pulse * 1.5));
             ctx.fillStyle = '#A5F3FC';
@@ -1961,14 +2019,30 @@
         if (!cx) return;
         const reduced = typeof window.matchMedia === 'function'
             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const st = reduced ? 0 : Math.floor(now / 95) % 4;
         cx.imageSmoothingEnabled = false;
         cx.clearRect(0, 0, cv.width, cv.height);
+        const phase = reduced ? 0 : (now / 145) % 2;
+        const step = Math.floor(phase) % 2;
+        const pngPose = step === 0 ? 'run0' : 'run1';
+        const pngEntry = getSpriteEntry(id, pngPose);
+        if (pngEntry) {
+            const bob = reduced ? 0 : Math.round(Math.abs(Math.sin(phase * Math.PI)) * (cv.height * 0.04));
+            const targetH = cv.height * 0.84;
+            const scale = targetH / SPRITE_REF_H;
+            const strideSq = reduced ? 0 : Math.sin(phase * Math.PI);
+            drawSpriteImage(cx, pngEntry, Math.floor(cv.width / 2), (cv.height - 4) - bob, scale, {
+                squashX: 1 - strideSq * 0.03,
+                squashY: 1 + strideSq * 0.03,
+            });
+            return;
+        }
+        const st = reduced ? 0 : Math.floor(now / 95) % 4;
         const frame = [spr.run0, spr.run1, spr.run2, spr.run1][st];
-        const bob = reduced ? 0 : (st % 2 === 0 ? -1 : 0);
-        const mPx = spr.miniPx || 1;
+        const ratio = Math.max(1, cv.height / 32);
+        const bob = reduced ? 0 : (st % 2 === 0 ? -ratio : 0);
+        const mPx = (spr.miniPx || 1) * ratio;
         const mCx = Math.floor(cv.width / 2);
-        const mBy = (cv.height - 2) + bob;
+        const mBy = (cv.height - 2 * ratio) + bob;
         drawBitmap(cx, frame, mCx, mBy, mPx);
     }
 
@@ -2012,6 +2086,7 @@
     function mountPicker(container, options = {}) {
         if (!container || typeof document === 'undefined') return null;
         ensureStyles();
+        warmSprites();
 
         const variant = options.variant === 'settings' ? 'settings' : 'onboarding';
         let selected = normalizeCompanionId(options.selected);
@@ -2025,7 +2100,7 @@
                         <button type="button" data-companion-id="${c.id}" aria-pressed="${c.id === selected}"
                             class="btn-press p-3.5 rounded-2xl border-2 text-center flex flex-col items-center gap-2 cursor-pointer transition-all ${c.id === selected ? 'border-primary bg-primary/[0.06]' : 'border-outline-variant/30 bg-surface-container-low'}">
                             <span class="ha-sr-settings-avatar" aria-hidden="true">
-                                <canvas width="34" height="32" data-ha-mini="${c.id}"></canvas>
+                                <canvas width="102" height="96" data-ha-mini="${c.id}"></canvas>
                             </span>
                             <span>
                                 <strong class="block font-headline-md text-xs sm:text-sm font-bold text-on-surface">${c.name}</strong>
@@ -2047,7 +2122,7 @@
                                 </svg>
                             </span>
                             <span class="ha-sr-avatar" aria-hidden="true">
-                                <canvas width="34" height="32" data-ha-mini="${c.id}"></canvas>
+                                <canvas width="102" height="96" data-ha-mini="${c.id}"></canvas>
                             </span>
                             <span class="ha-sr-name">${c.name}</span>
                             <span class="ha-sr-sub">${c.finale}</span>
@@ -2213,6 +2288,7 @@
 
     function celebrate(options = {}) {
         if (typeof document === 'undefined' || !document.body) return null;
+        warmSprites();
         ensureStyles();
         if (activeOverlay) closeActiveCelebration();
 
@@ -2449,6 +2525,11 @@
             const spr = RUNNERS[runnerId] || RUNNERS.arcy;
             const sPx = spr.px || 1.5;
             const gearScale = sPx / 1.5;
+            const hasPng = !!getSpriteEntry(runnerId, 'run0');
+            const pngScale = 52 / SPRITE_REF_H;
+            let poseName = 'run0';
+            let squashX = 1;
+            let squashY = 1;
             let aAng = -0.46;
             let aLift = 0;
             let aGrid = spr.run0;
@@ -2469,23 +2550,53 @@
 
             if (T < T_RUN_START) {
                 aAng = -0.46;
-                aLift = Math.abs(Math.sin(T * 0.015)) * 2;
+                aLift = Math.abs(Math.sin(T * 0.015)) * 2.5;
+                poseName = 'run0';
             } else if (T < T_CROUCH) {
                 aAng = lerp(-0.46, -0.18, easeInOutCubic(runFrac));
-                const cadence = runnerId === 'specops' ? 105 : (runnerId === 'ninja' ? 58 : 74);
-                const st = Math.floor((T - T_RUN_START) / cadence) % 4;
-                aGrid = [spr.run0, spr.run1, spr.run2, spr.run1][st];
-                if (runnerId === 'ninja') {
-                    aTilt = 0.16;
-                    aLift = st % 2 === 0 ? 1.5 : 0;
-                } else if (runnerId === 'astro') {
-                    const bound = Math.abs(Math.sin(runFrac * Math.PI * (N <= 2 ? 3 : 5)));
-                    aLift = bound * 12;
-                    showJet = bound > 0.35;
-                } else if (runnerId === 'specops') {
-                    aLift = st % 2 === 0 ? 3 : 0;
+                if (hasPng) {
+                    const cadence = runnerId === 'ninja' ? 82 : (runnerId === 'specops' ? 104 : (runnerId === 'astro' ? 115 : 94));
+                    const rawStep = (T - T_RUN_START) / cadence;
+                    const stepIdx = Math.floor(rawStep) % 2;
+                    const strideArc = Math.sin((rawStep % 1) * Math.PI);
+                    poseName = stepIdx === 0 ? 'run0' : 'run1';
+                    aGrid = stepIdx === 0 ? spr.run0 : spr.run1;
+                    if (runnerId === 'ninja') {
+                        aTilt = 0.16 + 0.04 * strideArc;
+                        aLift = strideArc * 3.8;
+                    } else if (runnerId === 'astro') {
+                        const bound = Math.abs(Math.sin(runFrac * Math.PI * (N <= 2 ? 3 : 5)));
+                        aLift = bound * 12;
+                        aTilt = 0.08;
+                        showJet = bound > 0.35;
+                        poseName = bound > 0.42 ? 'run1' : 'run0';
+                    } else if (runnerId === 'specops') {
+                        aTilt = 0.09 + 0.05 * strideArc;
+                        aLift = strideArc * 4.5;
+                        squashX = strideArc < 0.2 ? 1.04 : 0.98;
+                        squashY = strideArc < 0.2 ? 0.96 : 1.02;
+                    } else {
+                        aTilt = 0.08 + 0.04 * strideArc;
+                        aLift = strideArc * 4.2;
+                        squashX = strideArc < 0.2 ? 1.04 : 0.98;
+                        squashY = strideArc < 0.2 ? 0.96 : 1.02;
+                    }
                 } else {
-                    aLift = st % 2 === 0 ? 2 : 0;
+                    const cadence = runnerId === 'specops' ? 105 : (runnerId === 'ninja' ? 58 : 74);
+                    const st = Math.floor((T - T_RUN_START) / cadence) % 4;
+                    aGrid = [spr.run0, spr.run1, spr.run2, spr.run1][st];
+                    if (runnerId === 'ninja') {
+                        aTilt = 0.16;
+                        aLift = st % 2 === 0 ? 1.5 : 0;
+                    } else if (runnerId === 'astro') {
+                        const bound = Math.abs(Math.sin(runFrac * Math.PI * (N <= 2 ? 3 : 5)));
+                        aLift = bound * 12;
+                        showJet = bound > 0.35;
+                    } else if (runnerId === 'specops') {
+                        aLift = st % 2 === 0 ? 3 : 0;
+                    } else {
+                        aLift = st % 2 === 0 ? 2 : 0;
+                    }
                 }
             } else if (T < T_IMPACT) {
                 const fp = (T - T_CROUCH) / Math.max(1, T_IMPACT - T_CROUCH);
@@ -2493,11 +2604,16 @@
                 if (runnerId === 'arcy') {
                     if (T < T_LEAP_START) {
                         aAng = -0.18;
+                        poseName = 'run0';
                         aGrid = spr.crouch;
                         phaseNow = 'jump';
+                        squashX = 1.12;
+                        squashY = 0.84;
+                        aTilt = -0.09;
                     } else {
                         const jp = (T - T_LEAP_START) / Math.max(1, T_IMPACT - T_LEAP_START);
                         aAng = lerp(-0.18, -0.13, jp);
+                        poseName = jp < 0.78 ? 'act' : 'cheer';
                         aGrid = spr.jump;
                         phaseNow = 'jump';
                         aLift = (tier ? 48 : 38) * Math.sin(jp * Math.PI);
@@ -2507,6 +2623,7 @@
                     aLift = 0;
                     if (fp < 0.28) {
                         aAng = -0.20;
+                        poseName = 'run0';
                         aGrid = spr.run0;
                         phaseNow = 'run';
                         ninjaShurikenP = fp / 0.28;
@@ -2516,20 +2633,23 @@
                         ninjaBlink = true;
                         ninjaSmokeP = dp;
                         aAng = lerp(-0.20, -0.14, easeInOutCubic(dp));
+                        poseName = 'run1';
                         aGrid = spr.run2;
                         phaseNow = 'run';
                         aTilt = 0.28;
                         bodyAlpha = dp < 0.45 ? 0.30 : 0.88;
                     } else {
                         aAng = -0.13;
+                        poseName = 'act';
                         aGrid = spr.slash || spr.cheer;
                         phaseNow = 'slash';
                         ninjaSlashP = (fp - 0.56) / 0.44;
-                        aTilt = lerp(-0.12, 0.22, easeOutCubic(ninjaSlashP));
+                        aTilt = lerp(-0.10, 0.22, easeOutCubic(ninjaSlashP));
                     }
                 } else if (runnerId === 'specops') {
                     aLift = 0;
                     aAng = lerp(-0.20, -0.13, easeOutCubic(fp));
+                    poseName = 'act';
                     aGrid = spr.fire || spr.run0;
                     phaseNow = 'fire';
                     for (const [bStart, bEnd] of [[0.10, 0.32], [0.38, 0.60], [0.66, 0.88]]) {
@@ -2541,16 +2661,18 @@
                     }
                 } else {
                     aAng = lerp(-0.18, -0.13, fp);
+                    poseName = hasPng ? 'act' : 'cheer';
                     aGrid = spr.cheer;
                     phaseNow = 'fire';
                     aLift = 8 + Math.sin(fp * Math.PI) * 8;
-                    showJet = true;
+                    showJet = !hasPng;
                     superJet = fp > 0.35;
                     showDrone = true;
                     if (fp > 0.28) astroBeamP = (fp - 0.28) / 0.72;
                 }
             } else {
                 aAng = -0.13;
+                poseName = 'cheer';
                 aGrid = spr.cheer;
                 phaseNow = 'cheer';
                 const post = T - T_IMPACT;
@@ -2565,6 +2687,11 @@
                 } else if (runnerId === 'specops') {
                     aLift = 0;
                 } else {
+                    if (post < 120) {
+                        const lp = post / 120;
+                        squashX = 1 + 0.09 * Math.sin(lp * Math.PI);
+                        squashY = 1 - 0.09 * Math.sin(lp * Math.PI);
+                    }
                     const hp = (post % 1300) / 1300;
                     aLift = hp < 0.25 ? (tier ? 12 : 8) * Math.sin((hp / 0.25) * Math.PI) : 0;
                 }
@@ -2653,6 +2780,8 @@
                 drawFireworkBurst(hctx, fx.specialVolleyR, 74, 210, T, T_IMPACT + 480, 1100);
             }
 
+            const activePng = hasPng ? getSpriteEntry(runnerId, poseName) : null;
+
             if (runnerId === 'ninja' && ((T >= T_RUN_START && T < T_CROUCH) || ninjaBlink)) {
                 const lags = ninjaBlink ? [[-0.05, 0.42], [-0.11, 0.28], [-0.17, 0.14]] : [[-0.075, 0.28], [-0.15, 0.14]];
                 for (const [lagAng, alpha] of lags) {
@@ -2660,9 +2789,13 @@
                     hctx.globalAlpha = alpha;
                     hctx.translate(GX + Math.sin(aAng + lagAng) * (GR + aLift), GY - Math.cos(aAng + lagAng) * (GR + aLift));
                     hctx.rotate(aAng + lagAng + aTilt);
-                    drawCharacterBackGear(hctx, runnerId, 'run', gearScale, T);
-                    drawBitmap(hctx, aGrid, 0, 2, sPx);
-                    drawHeldGear(hctx, runnerId, 'run', gearScale, T, false);
+                    if (activePng) {
+                        drawSpriteImage(hctx, activePng, 0, 2, pngScale, { squashX, squashY });
+                    } else {
+                        drawCharacterBackGear(hctx, runnerId, 'run', gearScale, T);
+                        drawBitmap(hctx, aGrid, 0, 2, sPx);
+                        drawHeldGear(hctx, runnerId, 'run', gearScale, T, false);
+                    }
                     hctx.restore();
                 }
             }
@@ -2680,7 +2813,8 @@
                 }
             }
 
-            const crownY = -(aGrid.length * sPx) - 2;
+            const sprRenderedH = activePng ? (activePng.h * pngScale) : (aGrid.length * sPx);
+            const crownY = -sprRenderedH - 2;
             hctx.save();
             hctx.translate(GX + Math.sin(aAng) * (GR + aLift), GY - Math.cos(aAng) * (GR + aLift));
             hctx.rotate(aAng);
@@ -2729,23 +2863,27 @@
                 const isSwinging = ninjaSlashP < 1;
                 const swingAng = lerp(-2.15, 0.45, easeOutCubic(sp));
                 const trailStart = Math.max(-2.35, swingAng - 1.35);
+                const slashX = activePng ? 10 : 7;
+                const slashY = activePng ? -25 : -14;
+                const outerR = activePng ? 36 : 31;
+                const innerR = activePng ? 21 : 17;
                 hctx.save();
-                hctx.translate(7, -14);
+                hctx.translate(slashX, slashY);
                 hctx.save();
                 hctx.globalAlpha = isSwinging ? 0.78 : Math.max(0, 0.6 * (1 - (T - T_IMPACT) / 260));
                 hctx.fillStyle = '#A5F3FC';
                 hctx.beginPath();
-                hctx.arc(0, 0, 31, trailStart, swingAng, false);
-                hctx.arc(0, 0, 17, swingAng, trailStart, true);
+                hctx.arc(0, 0, outerR, trailStart, swingAng, false);
+                hctx.arc(0, 0, innerR, swingAng, trailStart, true);
                 hctx.closePath();
                 hctx.fill();
                 hctx.strokeStyle = '#FFFFFF';
                 hctx.lineWidth = 3;
                 hctx.beginPath();
-                hctx.arc(0, 0, 30, Math.max(trailStart, swingAng - 0.9), swingAng);
+                hctx.arc(0, 0, outerR - 1, Math.max(trailStart, swingAng - 0.9), swingAng);
                 hctx.stroke();
                 hctx.restore();
-                if (isSwinging) {
+                if (isSwinging && !activePng) {
                     hctx.save();
                     hctx.rotate(swingAng);
                     drawBitmap(hctx, GEAR_KATANA_FLAT, 15, 3, 1.48);
@@ -2762,22 +2900,24 @@
             }
 
             if (runnerId === 'specops' && specopsFireBurst >= 0) {
+                const fxX = activePng ? 25 : 24;
+                const fxY = activePng ? -31 : -15;
                 if (specopsFireBurst < 0.45) {
                     hctx.save();
                     hctx.fillStyle = '#F59E0B';
-                    hctx.fillRect(24, -15, 10, 5);
-                    hctx.fillRect(26, -17, 5, 9);
+                    hctx.fillRect(fxX, fxY - 3, 10, 6);
+                    hctx.fillRect(fxX + 2, fxY - 5, 5, 10);
                     hctx.fillStyle = '#FFFFFF';
-                    hctx.fillRect(25, -14, 6, 3);
+                    hctx.fillRect(fxX + 1, fxY - 1.5, 6, 3);
                     hctx.restore();
                 }
-                const tx = Math.round(lerp(26, 54, specopsFireBurst));
+                const tx = Math.round(lerp(fxX + 3, fxX + 33, specopsFireBurst));
                 hctx.fillStyle = '#F59E0B';
-                hctx.fillRect(tx - 10, -14, 11, 2.5);
+                hctx.fillRect(tx - 10, fxY - 1, 11, 2.5);
                 hctx.fillStyle = '#FFFFFF';
-                hctx.fillRect(tx - 4, -14, 5, 2.5);
-                const sx = Math.round(lerp(8, -11, specopsFireBurst));
-                const sy = Math.round(-15 - Math.sin(specopsFireBurst * Math.PI) * 14 + specopsFireBurst * 10);
+                hctx.fillRect(tx - 4, fxY - 1, 5, 2.5);
+                const sx = Math.round(lerp(activePng ? 2 : 8, activePng ? -14 : -11, specopsFireBurst));
+                const sy = Math.round((activePng ? -26 : -15) - Math.sin(specopsFireBurst * Math.PI) * 14 + specopsFireBurst * 10);
                 hctx.fillStyle = '#0F172A';
                 hctx.fillRect(sx - 1, sy - 1, 5, 4);
                 hctx.fillStyle = '#FDE047';
@@ -2785,8 +2925,8 @@
             }
 
             if (runnerId === 'astro' && showDrone) {
-                const dx = -24 + Math.cos(T * 0.005) * 3;
-                const dy = -26 + Math.sin(T * 0.008) * 3;
+                const dx = (activePng ? -28 : -24) + Math.cos(T * 0.005) * 3;
+                const dy = (activePng ? -36 : -26) + Math.sin(T * 0.008) * 3;
                 drawBitmap(hctx, GEAR_DRONE, dx, dy, 1.5);
             }
 
@@ -2795,21 +2935,24 @@
             if (recoilX) hctx.translate(recoilX, 0);
             if (aTilt) hctx.rotate(aTilt);
             if (aSpin) {
-                hctx.translate(0, -14);
+                const spinCy = activePng ? -Math.round(sprRenderedH * 0.48) : -14;
+                hctx.translate(0, spinCy);
                 hctx.rotate(aSpin);
-                hctx.translate(0, 14);
+                hctx.translate(0, -spinCy);
             }
             if (showJet) {
                 const fl = (superJet ? 9 : 5) + (Math.sin(T * 0.08) > 0 ? 4 : 1);
                 if (runnerId === 'astro') {
+                    const jx = activePng ? -16 : -16;
+                    const jy = activePng ? -16 : -6;
                     hctx.fillStyle = '#031E13';
-                    hctx.fillRect(-16, -6, 8, fl + 6);
+                    hctx.fillRect(jx, jy, 8, fl + 6);
                     hctx.fillStyle = '#38BDF8';
-                    hctx.fillRect(-15, -5, 6, fl + 4);
+                    hctx.fillRect(jx + 1, jy + 1, 6, fl + 4);
                     hctx.fillStyle = '#A5F3FC';
-                    hctx.fillRect(-14, -5, 4, fl + 1);
+                    hctx.fillRect(jx + 2, jy + 1, 4, fl + 1);
                     hctx.fillStyle = '#FFFFFF';
-                    hctx.fillRect(-13, -5, 2, fl - 2);
+                    hctx.fillRect(jx + 3, jy + 1, 2, fl - 2);
                 } else {
                     hctx.fillStyle = '#031E13';
                     hctx.fillRect(-15, -6, 7, fl + 4);
@@ -2819,9 +2962,14 @@
                     hctx.fillRect(-13, -5, 3, fl);
                 }
             }
-            drawCharacterBackGear(hctx, runnerId, phaseNow, gearScale, T);
-            drawBitmap(hctx, aGrid, 0, 2, sPx);
-            drawHeldGear(hctx, runnerId, phaseNow, gearScale, T, true);
+            if (activePng) {
+                drawSpriteImage(hctx, activePng, 0, 2, pngScale, { squashX, squashY });
+                drawHeldGear(hctx, runnerId, phaseNow, gearScale, T, true, true);
+            } else {
+                drawCharacterBackGear(hctx, runnerId, phaseNow, gearScale, T);
+                drawBitmap(hctx, aGrid, 0, 2, sPx);
+                drawHeldGear(hctx, runnerId, phaseNow, gearScale, T, true, false);
+            }
             hctx.restore();
 
             if (T >= T_IMPACT) {
@@ -2829,7 +2977,7 @@
                     drawBitmap(hctx, CROWN_SPR, 0, crownY, 2.1);
                 } else if (tier === 100) {
                     drawBitmap(hctx, CROWN_SPR, 0, crownY, 2.1);
-                    drawBitmap(hctx, TROPHY_SPR, -29, -4, 2.1);
+                    drawBitmap(hctx, TROPHY_SPR, activePng ? -34 : -29, -4, 2.1);
                 }
             }
             hctx.restore();
