@@ -1485,6 +1485,398 @@
         }
     }
 
+    // ---------------------------------------------------------------------------
+    // 2b. Per-hero mini scenes + enemy encounters (drawn around the globe)
+    // ---------------------------------------------------------------------------
+    const ENEMY_PAL = {
+        K: '#0F172A', w: '#FFFFFF', y: '#FDE047',
+        R: '#DC2626', d: '#7F1D1D', r: '#EF4444',
+        g: '#CBD5E1', s: '#64748B',
+        l: '#A3E635', L: '#4D7C0F',
+        p: '#C4B5FD', P: '#8B5CF6', D: '#5B21B6',
+    };
+    // 11x10 chibi grunts, one family per hero (K = outline, '.' = transparent).
+    const ENEMY_ART = {
+        oni: [
+            '..K.....K..',
+            '.KwK...KwK.',
+            '.KRKKKKKRK.',
+            'KRRRRRRRRRK',
+            'KRyKRRRKyRK',
+            'KRRRRKRRRRK',
+            'KRKwKKKwKRK',
+            '.KRRRRRRRK.',
+            '..KdRRRdK..',
+            '..KK...KK..',
+        ],
+        bot: [
+            '....K.K....',
+            '..KKKKKKK..',
+            '.KgggggggK.',
+            '.KgKKKKKgK.',
+            '.KgKrrrKgK.',
+            '.KgKKKKKgK.',
+            '..KgggggK..',
+            '.KKsssssKK.',
+            '.KgKsssKgK.',
+            '..KK...KK..',
+        ],
+        alien: [
+            '...KKKKK...',
+            '..KllllllK.',
+            '.KlllllllK.',
+            'KlllKKKlllK',
+            'KllKwwwKllK',
+            'KllKwKwKllK',
+            'KlllKKKlllK',
+            '.KlLLLLLlK.',
+            '..KlKKKlK..',
+            '..KK...KK..',
+        ],
+        slime: [
+            '....KKK....',
+            '..KKpppKK..',
+            '.KpppppppK.',
+            '.KpwKpwKpK.',
+            'KpppppppppK',
+            'KpppKKKpppK',
+            'KPpppppppPK',
+            'KPPPPPPPPPK',
+            '.KDDDDDDDK.',
+            '..KKKKKKK..',
+        ],
+    };
+    const ENEMY_META = {
+        ninja: { art: 'oni', gap: 0.20, melee: true, burst: ['#EF4444', '#FFFFFF', '#A5F3FC'] },
+        specops: { art: 'bot', gap: 0.56, melee: false, burst: ['#FDE047', '#94A3B8', '#FFFFFF'] },
+        astro: { art: 'alien', gap: 0.50, melee: false, burst: ['#38BDF8', '#A5F3FC', '#FFFFFF'] },
+        arcy: { art: 'slime', gap: 0.50, melee: false, burst: ['#FDE047', '#16A34A', '#FFFFFF'] },
+    };
+    const ENEMY_CLOSING_SPEED = 0.00075; // rad/ms the globe carries enemies towards the hero
+    const ENEMY_VISIBLE_ANGLE = 1.3;
+    const ENEMY_POP_MS = 300;
+
+    /** Deterministic kill schedule: 3 enemies on short streaks, 4 on long ones, all inside the sprint window. */
+    function planEncounters(n, runnerId) {
+        const meta = ENEMY_META[runnerId];
+        if (!meta) return [];
+        const tl = getTimeline(n);
+        const runDur = tl.T_CROUCH - tl.T_RUN_START;
+        const count = runDur < 2600 ? 3 : 4;
+        const first = tl.T_RUN_START + runDur * 0.30;
+        const last = tl.T_CROUCH - Math.max(110, runDur * 0.07);
+        const out = [];
+        for (let i = 0; i < count; i++) {
+            out.push({
+                i,
+                tKill: Math.round(first + ((last - first) * i) / (count - 1)),
+                gap: meta.gap,
+                melee: meta.melee,
+            });
+        }
+        return out;
+    }
+
+    function drawPalGrid(ctx, rows, cx, bottomY, px, opts) {
+        const h = rows.length;
+        const w = rows[0].length;
+        const ox = cx - (w * px) / 2;
+        const oy = bottomY - h * px;
+        const flash = !!(opts && opts.flash);
+        const rFrom = (opts && opts.rowFrom) || 0;
+        const rTo = opts && opts.rowTo != null ? opts.rowTo : h;
+        for (let r = rFrom; r < rTo; r++) {
+            for (let c = 0; c < w; c++) {
+                const ch = rows[r][c];
+                if (ch === '.') continue;
+                ctx.fillStyle = flash ? '#FFFFFF' : (ENEMY_PAL[ch] || '#FF00FF');
+                ctx.fillRect(Math.round(ox + c * px), Math.round(oy + r * px), Math.ceil(px), Math.ceil(px));
+            }
+        }
+    }
+
+    /**
+     * Draws the encounters in the hero's local frame (origin = hero feet, +y down, rotated with the globe).
+     * `o.muzzle` is the weapon tip in that frame (null when the hero has no ranged weapon sprite).
+     */
+    function drawEncounters(ctx, o) {
+        const meta = ENEMY_META[o.runnerId];
+        if (!meta) return;
+        const rows = ENEMY_ART[meta.art];
+        const px = 2;
+        const eh = rows.length * px;
+        for (const e of o.encounters) {
+            const age = o.T - e.tKill;
+            if (age > ENEMY_POP_MS + 120) continue;
+            const delta = e.gap + (e.tKill - o.T) * ENEMY_CLOSING_SPEED;
+            if (delta > ENEMY_VISIBLE_ANGLE || delta < -0.5) continue;
+            const fadeIn = clamp((ENEMY_VISIBLE_ANGLE - delta) / 0.16, 0, 1);
+            const fx = o.GR * Math.sin(delta);
+            const fy = o.GR * (1 - Math.cos(delta)) + o.aLift;
+            const up = [Math.sin(delta), -Math.cos(delta)];
+            const centre = [fx + up[0] * eh * 0.5, fy + up[1] * eh * 0.5];
+
+            ctx.save();
+            ctx.translate(fx, fy);
+            ctx.rotate(delta);
+            if (age < 0) {
+                const bob = Math.round(Math.sin((o.T + e.i * 90) * 0.02) * 1);
+                ctx.globalAlpha = fadeIn;
+                drawPalGrid(ctx, rows, 0, 2 + bob, px);
+            } else if (meta.melee) {
+                // clean diagonal cut: the two halves slide apart and fade
+                const p = clamp(age / ENEMY_POP_MS, 0, 1);
+                ctx.globalAlpha = 1 - p;
+                const mid = rows.length >> 1;
+                ctx.save();
+                ctx.translate(-p * 7, -p * 4);
+                drawPalGrid(ctx, rows, 0, 2, px, { rowTo: mid, flash: age < 70 });
+                ctx.restore();
+                ctx.save();
+                ctx.translate(p * 6, p * 5);
+                drawPalGrid(ctx, rows, 0, 2, px, { rowFrom: mid, flash: age < 70 });
+                ctx.restore();
+            } else {
+                const p = clamp((age - 60) / (ENEMY_POP_MS - 60), 0, 1);
+                ctx.globalAlpha = 1 - p;
+                ctx.translate(Math.min(6, age * 0.05), 0); // hit knock-back
+                ctx.scale(1 - p * 0.45, 1 - p * 0.45);
+                drawPalGrid(ctx, rows, 0, 2, px, { flash: age < 60 });
+            }
+            ctx.restore();
+
+            if (age >= 0 && age < ENEMY_POP_MS + 120) {
+                const a = clamp(1 - age / (ENEMY_POP_MS + 120), 0, 1);
+                ctx.save();
+                ctx.globalAlpha = a;
+                if (meta.melee && age < 150) {
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(centre[0] - 13, centre[1] + 11);
+                    ctx.lineTo(centre[0] + 13, centre[1] - 11);
+                    ctx.stroke();
+                }
+                for (let k = 0; k < 6; k++) {
+                    const ang = (k / 6) * Math.PI * 2 + e.i * 0.9;
+                    const dist = 4 + age * 0.055;
+                    ctx.fillStyle = meta.burst[k % meta.burst.length];
+                    ctx.fillRect(Math.round(centre[0] + Math.cos(ang) * dist - 1.5), Math.round(centre[1] + Math.sin(ang) * dist - 1.5), 3, 3);
+                }
+                ctx.fillStyle = '#031E13';
+                ctx.font = "700 9px 'Silkscreen', 'Press Start 2P', monospace";
+                ctx.textAlign = 'center';
+                ctx.fillText('+1', Math.round(centre[0]), Math.round(centre[1] - eh * 0.6 - age * 0.04));
+                ctx.restore();
+            }
+
+            // hero-side attack visuals (ranged heroes only)
+            if (!o.muzzle || meta.melee) continue;
+            const m = o.muzzle;
+            const tx = centre[0];
+            const ty = centre[1];
+            if (o.runnerId === 'specops') {
+                const flashAge = o.T - (e.tKill - 190);
+                if (flashAge >= 0 && flashAge < 80) {
+                    ctx.fillStyle = '#F59E0B';
+                    ctx.fillRect(Math.round(m[0]) + 1, Math.round(m[1]) - 3, 7, 6);
+                    ctx.fillRect(Math.round(m[0]) + 3, Math.round(m[1]) - 5, 3, 10);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(Math.round(m[0]) + 2, Math.round(m[1]) - 1, 4, 2);
+                }
+                const p = (o.T - (e.tKill - 150)) / 150;
+                if (p >= 0 && p <= 1) {
+                    const hx = lerp(m[0], tx, p);
+                    const hy = lerp(m[1], ty, p);
+                    const tail = Math.max(0, p - 0.35);
+                    ctx.strokeStyle = '#FDE047';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(lerp(m[0], tx, tail), lerp(m[1], ty, tail));
+                    ctx.lineTo(hx, hy);
+                    ctx.stroke();
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(Math.round(hx) - 1, Math.round(hy) - 1, 3, 3);
+                }
+            } else if (o.runnerId === 'astro') {
+                const p = (o.T - (e.tKill - 160)) / 160;
+                if (p >= 0 && p <= 1.15) {
+                    ctx.save();
+                    ctx.globalAlpha = p > 1 ? 1 - (p - 1) / 0.15 : 1;
+                    ctx.strokeStyle = '#38BDF8';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(m[0], m[1]);
+                    ctx.lineTo(lerp(m[0], tx, Math.min(1, p * 1.3)), lerp(m[1], ty, Math.min(1, p * 1.3)));
+                    ctx.stroke();
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 1.6;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            } else if (o.runnerId === 'arcy') {
+                const p = (o.T - (e.tKill - 260)) / 260;
+                if (p >= 0 && p <= 1) {
+                    const bx = lerp(m[0], tx, p);
+                    const by = lerp(m[1], ty, p) - Math.sin(p * Math.PI) * 8;
+                    ctx.fillStyle = '#031E13';
+                    ctx.fillRect(Math.round(bx) - 3, Math.round(by) - 3, 7, 7);
+                    ctx.fillStyle = '#FDE047';
+                    ctx.fillRect(Math.round(bx) - 2, Math.round(by) - 2, 5, 5);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(Math.round(bx) - 1, Math.round(by) - 1, 2, 2);
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillStyle = '#FDE047';
+                    ctx.fillRect(Math.round(lerp(m[0], tx, Math.max(0, p - 0.12))) - 1, Math.round(lerp(m[1], ty, Math.max(0, p - 0.12)) - Math.sin(Math.max(0, p - 0.12) * Math.PI) * 8) - 1, 3, 3);
+                    ctx.globalAlpha = 1;
+                }
+            }
+        }
+    }
+
+    function pxCircle(ctx, cx, cy, r, step = 2) {
+        for (let dy = -r; dy <= r; dy += step) {
+            const hw = Math.floor(Math.sqrt(Math.max(0, r * r - dy * dy)));
+            ctx.fillRect(Math.round(cx - hw), Math.round(cy + dy), hw * 2, step);
+        }
+    }
+
+    let sceneCache = null;
+    function getSceneData() {
+        if (sceneCache) return sceneCache;
+        const r = makeRng(7421);
+        const stars = Array.from({ length: 30 }, () => ({
+            x: Math.floor(r() * 346), y: Math.floor(r() * 190), s: r() > 0.7 ? 3 : 2,
+            p: r() * 6, c: r() > 0.5 ? '#FFFFFF' : '#A5F3FC',
+        }));
+        const buildings = [];
+        let bx = -6;
+        while (bx < 346) {
+            const w = 22 + Math.floor(r() * 18);
+            buildings.push({ x: bx, w, h: 54 + Math.floor(r() * 70), seed: Math.floor(r() * 1000) });
+            bx += w + 2;
+        }
+        sceneCache = { stars, buildings };
+        return sceneCache;
+    }
+
+    /** Hero-specific backdrop around the globe: bamboo/moon, night city, deep space, or forest. */
+    function drawScene(ctx, id, T, W, H) {
+        const dark = 'rgba(3, 70, 40, 0.30)';
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        if (id === 'ninja') {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+            pxCircle(ctx, 272, 52, 17);
+            ctx.fillStyle = 'rgba(71, 227, 147, 0.5)';
+            ctx.fillRect(264, 46, 5, 5);
+            ctx.fillRect(276, 57, 6, 6);
+            ctx.fillRect(271, 40, 3, 3);
+            const stalks = [[10, 236], [27, 186], [45, 262], [304, 214], [321, 264], [338, 176]];
+            for (const [sx, sh] of stalks) {
+                const sway = Math.sin(T * 0.0012 + sx) * 2;
+                for (let y = H; y > H - sh; y -= 22) {
+                    const k = (H - y) / sh;
+                    const x = Math.round(sx + sway * k);
+                    ctx.fillStyle = dark;
+                    ctx.fillRect(x, y - 20, 5, 20);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+                    ctx.fillRect(x - 1, y - 21, 7, 2);
+                }
+                const topX = Math.round(sx + sway);
+                ctx.fillStyle = dark;
+                ctx.fillRect(topX + 5, H - sh - 6, 9, 3);
+                ctx.fillRect(topX - 9, H - sh + 6, 9, 3);
+                ctx.fillRect(topX + 5, H - sh + 18, 8, 3);
+            }
+            for (let i = 0; i < 5; i++) {
+                const x = (i * 71 + T * (0.012 + i * 0.004)) % W;
+                const y = (i * 53 + T * (0.03 + i * 0.006)) % H;
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.75)';
+                ctx.fillRect(Math.round(x), Math.round(y), 4, 3);
+            }
+        } else if (id === 'specops') {
+            const { buildings } = getSceneData();
+            for (let k = 0; k < 2; k++) {
+                const ox = k === 0 ? 30 : 316;
+                const ang = -Math.PI / 2 + Math.sin(T * 0.0011 + k * 2.2) * 0.5;
+                const spread = 0.085;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+                ctx.beginPath();
+                ctx.moveTo(ox, H);
+                ctx.lineTo(ox + Math.cos(ang - spread) * 320, H + Math.sin(ang - spread) * 320);
+                ctx.lineTo(ox + Math.cos(ang + spread) * 320, H + Math.sin(ang + spread) * 320);
+                ctx.closePath();
+                ctx.fill();
+            }
+            for (const b of buildings) {
+                ctx.fillStyle = dark;
+                ctx.fillRect(b.x, H - b.h, b.w, b.h);
+                for (let wy = H - b.h + 6; wy < H - 6; wy += 9) {
+                    for (let wx = b.x + 4; wx < b.x + b.w - 5; wx += 7) {
+                        const lit = ((wx * 7 + wy * 13 + b.seed + Math.floor(T / 700)) % 5) === 0;
+                        if (lit) {
+                            ctx.fillStyle = 'rgba(253, 224, 71, 0.6)';
+                            ctx.fillRect(wx, wy, 3, 3);
+                        }
+                    }
+                }
+            }
+        } else if (id === 'astro') {
+            const { stars } = getSceneData();
+            for (const s of stars) {
+                const a = 0.35 + 0.55 * (0.5 + 0.5 * Math.sin(T * 0.004 + s.p));
+                ctx.globalAlpha = a;
+                ctx.fillStyle = s.c;
+                ctx.fillRect(s.x, s.y, s.s, s.s);
+            }
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.62)';
+            pxCircle(ctx, 54, 66, 14);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.fillRect(46, 58, 6, 4);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(54, 66, 25, 7, -0.35, 0, Math.PI * 2);
+            ctx.stroke();
+            const ax = 292 + Math.sin(T * 0.0007) * 6;
+            const ay = 92 + Math.cos(T * 0.0009) * 4;
+            ctx.fillStyle = dark;
+            pxCircle(ctx, ax, ay, 9);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.fillRect(Math.round(ax) - 4, Math.round(ay) - 3, 4, 3);
+            ctx.fillStyle = dark;
+            pxCircle(ctx, 318 - Math.sin(T * 0.001) * 4, 150, 5);
+        } else if (id === 'arcy') {
+            for (const side of [0, 1]) {
+                const tx = side === 0 ? 26 : W - 26;
+                ctx.fillStyle = dark;
+                ctx.fillRect(tx - 5, H - 112, 10, 112);
+                pxCircle(ctx, tx, H - 124, 28);
+                pxCircle(ctx, tx + (side === 0 ? -18 : 18), H - 100, 20);
+                pxCircle(ctx, tx + (side === 0 ? 20 : -20), H - 104, 20);
+            }
+            for (let i = 0; i < 8; i++) {
+                const fx = 22 + ((i * 47) % 300) + Math.sin(T * 0.0009 + i) * 8;
+                const fy = 40 + ((i * 37) % 170) + Math.cos(T * 0.0011 + i * 2) * 6;
+                const blink = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(T * 0.005 + i * 1.7));
+                ctx.globalAlpha = blink;
+                ctx.fillStyle = '#FDE047';
+                ctx.fillRect(Math.round(fx), Math.round(fy), 3, 3);
+            }
+            ctx.globalAlpha = 1;
+            for (let i = 0; i < 4; i++) {
+                const lx = (i * 97 + T * (0.014 + i * 0.003)) % W;
+                const ly = (i * 61 + T * (0.022 + i * 0.005)) % H;
+                ctx.fillStyle = 'rgba(22, 163, 74, 0.7)';
+                ctx.fillRect(Math.round(lx), Math.round(ly), 5, 3);
+                ctx.fillRect(Math.round(lx) + 1, Math.round(ly) - 1, 3, 1);
+            }
+        }
+        ctx.restore();
+    }
+
     function buildEffects(N, runnerId) {
         const r = makeRng(N * 131 + 29);
         const tl = getTimeline(N);
@@ -2310,6 +2702,7 @@
         const tier = milestoneTier(N);
         const tl = getTimeline(N);
         const fx = buildEffects(N, runnerId);
+        const encounters = planEncounters(N, runnerId);
         const weekDoneMask = Array.isArray(options.weekDoneMask) && options.weekDoneMask.length === 7
             ? options.weekDoneMask
             : computeWeekDoneMask(N);
@@ -2462,6 +2855,7 @@
             const GX = CW / 2;
             const GY = 180;
             const GR = 84;
+            drawScene(hctx, runnerId, T, CW, CH);
             const runDur = Math.max(1, T_CROUCH - T_RUN_START);
             const runFrac = clamp((T - T_RUN_START) / runDur, 0, 1);
             const totalRunFrac = clamp((T - T_RUN_START) / Math.max(1, T_IMPACT - T_RUN_START), 0, 1);
@@ -2537,7 +2931,8 @@
             const sPx = spr.px || 1.5;
             const gearScale = sPx / 1.5;
             const hasPng = !!getSpriteEntry(runnerId, 'run0');
-            const pngScale = hasPng ? getSpriteScale(runnerId, 52) : 0;
+            const pngScale = hasPng ? getSpriteScale(runnerId, 36) : 0;
+            const encOn = hasPng && !reducedMotion && encounters.length > 0;
             let poseName = 'run0';
             let squashX = 1;
             let squashY = 1;
@@ -2791,6 +3186,20 @@
                 drawFireworkBurst(hctx, fx.specialVolleyR, 74, 210, T, T_IMPACT + 480, 1100);
             }
 
+            // Combat windows: melee / ranged heroes drop into their action pose while an enemy is in reach.
+            if (encOn && T >= T_RUN_START && T < T_CROUCH && runnerId !== 'arcy') {
+                const pre = runnerId === 'ninja' ? 170 : (runnerId === 'specops' ? 230 : 210);
+                const post = runnerId === 'ninja' ? 130 : (runnerId === 'specops' ? 90 : 110);
+                if (encounters.some((e) => T >= e.tKill - pre && T <= e.tKill + post)) {
+                    poseName = 'act';
+                    phaseNow = 'act';
+                    showJet = false;
+                    aTilt = runnerId === 'ninja' ? 0.14 : (runnerId === 'astro' ? 0.05 : 0.03);
+                    squashX = 1;
+                    squashY = 1;
+                }
+            }
+
             const activePng = hasPng ? getSpriteEntry(runnerId, poseName) : null;
             const actPng = hasPng ? getSpriteEntry(runnerId, 'act') : null;
             const gearTips = activePng ? {
@@ -2947,6 +3356,16 @@
                 drawBitmap(hctx, GEAR_DRONE, dx, dy, 1.5);
             }
 
+            if (encOn) {
+                let muzzle = null;
+                if (gearTips) {
+                    const tc = Math.cos(aTilt);
+                    const ts = Math.sin(aTilt);
+                    muzzle = [gearTips.rt[0] * tc - gearTips.rt[1] * ts, gearTips.rt[0] * ts + gearTips.rt[1] * tc];
+                }
+                drawEncounters(hctx, { runnerId, encounters, T, GR, aLift, muzzle });
+            }
+
             hctx.save();
             hctx.globalAlpha = bodyAlpha;
             if (recoilX) hctx.translate(recoilX, 0);
@@ -2990,11 +3409,12 @@
             hctx.restore();
 
             if (T >= T_IMPACT) {
+                const crownPx = activePng ? 1.7 : 2.1;
                 if (tier === 50) {
-                    drawBitmap(hctx, CROWN_SPR, 0, crownY, 2.1);
+                    drawBitmap(hctx, CROWN_SPR, 0, crownY, crownPx);
                 } else if (tier === 100) {
-                    drawBitmap(hctx, CROWN_SPR, 0, crownY, 2.1);
-                    drawBitmap(hctx, TROPHY_SPR, activePng ? -38 : -29, -4, 2.1);
+                    drawBitmap(hctx, CROWN_SPR, 0, crownY, crownPx);
+                    drawBitmap(hctx, TROPHY_SPR, activePng ? -27 : -29, -4, crownPx);
                 }
             }
             hctx.restore();
@@ -3131,6 +3551,9 @@
         normalizeCompanionId,
         milestoneTier,
         getTimeline,
+        planEncounters,
+        ENEMY_ART,
+        ENEMY_PAL,
         mountPicker,
         stopPickers,
         celebrate,

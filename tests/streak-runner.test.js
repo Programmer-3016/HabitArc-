@@ -133,3 +133,34 @@ test('app shell and onboarding/settings integrate streak-runner and companion sp
     }
     assert.ok(bank.arcy.flip && bank.arcy.flip.src.startsWith('data:image/png;base64,'));
 });
+
+test('hero encounters are deterministic, ordered, and fit inside the sprint window', () => {
+    const streak = createStreakContext();
+    for (const id of ['arcy', 'ninja', 'specops', 'astro']) {
+        for (const day of [1, 3, 7, 30, 50, 100]) {
+            const tl = streak.getTimeline(day);
+            const plan = streak.planEncounters(day, id);
+            assert.ok(plan.length === 3 || plan.length === 4, `${id} day ${day} enemy count`);
+            assert.equal(JSON.stringify(plan), JSON.stringify(streak.planEncounters(day, id)));
+            for (let i = 0; i < plan.length; i += 1) {
+                assert.ok(plan[i].tKill > tl.T_RUN_START && plan[i].tKill < tl.T_CROUCH, `${id} day ${day} kill ${i} inside sprint`);
+                if (i > 0) assert.ok(plan[i].tKill - plan[i - 1].tKill >= 250, `${id} day ${day} kills spaced for readable combat`);
+            }
+        }
+    }
+    assert.equal(streak.planEncounters(7, 'nobody').length, 0);
+    assert.equal(streak.planEncounters(7, 'ninja')[0].melee, true);
+    assert.equal(streak.planEncounters(7, 'specops')[0].melee, false);
+});
+
+test('enemy pixel art is rectangular and only uses palette keys', () => {
+    const streak = createStreakContext();
+    const keys = new Set(Object.keys(streak.ENEMY_PAL));
+    for (const [name, rows] of Object.entries(streak.ENEMY_ART)) {
+        assert.ok(rows.length >= 8, `${name} has enough rows`);
+        for (const row of rows) {
+            assert.equal(row.length, rows[0].length, `${name} rows share one width`);
+            for (const ch of row) assert.ok(ch === '.' || keys.has(ch), `${name} uses unknown palette key ${ch}`);
+        }
+    }
+});
