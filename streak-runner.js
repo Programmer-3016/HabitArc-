@@ -1277,13 +1277,9 @@
         }
     }
 
-    const SPRITE_REF_H = 115;
-    const SPRITE_ANCHORS = {
-        arcy: { run0: -4, run1: -1, act: -4, cheer: -5, flip: 0 },
-        ninja: { run0: 4, run1: 1, act: -2, cheer: 7 },
-        specops: { run0: -7, run1: -7, act: -9, cheer: 6 },
-        astro: { run0: -4, run1: -6, act: -11, cheer: -7 },
-    };
+    const SPRITE_REF_H = 105;
+    // Approximate head-top height (sprite px above the feet) in each hero's CHEER frame; used to seat the milestone crown.
+    const SPRITE_HEAD_TOP = { arcy: 112, ninja: 94, specops: 100, astro: 102 };
     const SPRITE_IMAGES = Object.create(null);
 
     function getSpriteEntry(id, pose) {
@@ -1297,11 +1293,25 @@
         if (!entry) {
             const img = new Image();
             img.src = def.src;
-            entry = { img, w: def.w || 96, h: def.h || SPRITE_REF_H, dx: (SPRITE_ANCHORS[id] && SPRITE_ANCHORS[id][pose]) || 0 };
+            entry = {
+                img,
+                w: def.w || 96,
+                h: def.h || SPRITE_REF_H,
+                dx: def.ax || 0,
+                rt: Array.isArray(def.rt) ? def.rt : [0, 0],
+                tp: Array.isArray(def.tp) ? def.tp : [0, 0],
+            };
             cache[pose] = entry;
         }
         if (!entry.img.complete || !entry.img.naturalWidth) return null;
         return entry;
+    }
+
+    // Uniform per-hero scale: every hero's RUN frame is drawn the same on-screen height.
+    function getSpriteScale(id, targetH) {
+        const bank = typeof window !== 'undefined' ? window.HabitArcSprites : null;
+        const ref = bank && bank[id] && bank[id].run0 && bank[id].run0.h;
+        return targetH / (ref || SPRITE_REF_H);
     }
 
     function warmSprites() {
@@ -1338,25 +1348,26 @@
         return;
     }
 
-    function drawHeldGear(ctx, id, phase, scale = 1, T = 0, showBeam = true, hasPng = false) {
+    // `tips` (PNG sprites only) holds the measured weapon tip points in draw px: { rt: [x, y], tp: [x, y] }.
+    function drawHeldGear(ctx, id, phase, scale = 1, T = 0, showBeam = true, tips = null) {
         if (!id || id === 'arcy') return;
         const cheer = phase === 'cheer';
         const fire = phase === 'fire';
 
         if (id === 'ninja' && cheer && Math.sin(T * 0.022) > -0.2) {
-            const gx = hasPng ? 16 : 21;
-            const gy = hasPng ? -45 : -35;
+            const gx = tips ? tips.tp[0] - 1 : 21 * scale;
+            const gy = tips ? tips.tp[1] - 2 : -35 * scale;
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(Math.round(gx * scale), Math.round(gy * scale), Math.round(2.5 * scale), Math.round(2.5 * scale));
+            ctx.fillRect(Math.round(gx), Math.round(gy), Math.round(2.5 * scale), Math.round(2.5 * scale));
             ctx.fillStyle = '#A5F3FC';
-            ctx.fillRect(Math.round((gx + 2) * scale), Math.round((gy + 3) * scale), Math.round(1.8 * scale), Math.round(1.8 * scale));
+            ctx.fillRect(Math.round(gx + 2 * scale), Math.round(gy + 3 * scale), Math.round(1.8 * scale), Math.round(1.8 * scale));
             return;
         }
 
         if (id === 'specops' && showBeam && (phase === 'run' || fire)) {
             const beamLen = (fire ? 26 : 16) * scale;
-            const muzzleX = (hasPng ? (fire ? 25 : 23) : 24) * scale;
-            const muzzleY = (hasPng ? (fire ? -31.5 : -14.5) : -14.5) * scale;
+            const muzzleX = tips ? tips.rt[0] + 1 : 24 * scale;
+            const muzzleY = tips ? tips.rt[1] : -14.5 * scale;
             ctx.fillStyle = fire ? 'rgba(239, 68, 68, 0.84)' : 'rgba(220, 38, 38, 0.54)';
             ctx.fillRect(Math.round(muzzleX), Math.round(muzzleY), Math.round(beamLen), Math.max(1, Math.round((fire ? 1.5 : 1.1) * scale)));
             ctx.fillStyle = fire ? '#FFFFFF' : '#EF4444';
@@ -1366,8 +1377,8 @@
 
         if (id === 'astro' && showBeam && (cheer || fire || Math.sin(T * 0.03) > 0.1)) {
             const pulse = (Math.sin(T * 0.04) * 0.5 + 1.6) * scale;
-            const emitterX = (hasPng ? (fire ? 28 : (cheer ? 23 : 22)) : 23) * scale;
-            const emitterY = (hasPng ? (fire ? -32 : (cheer ? -44 : -25)) : -16.5) * scale;
+            const emitterX = tips ? (cheer ? tips.tp[0] : tips.rt[0]) : 23 * scale;
+            const emitterY = tips ? (cheer ? tips.tp[1] : tips.rt[1]) : -16.5 * scale;
             ctx.fillStyle = '#47E393';
             ctx.fillRect(Math.round(emitterX), Math.round(emitterY), Math.round(pulse * 1.5), Math.round(pulse * 1.5));
             ctx.fillStyle = '#A5F3FC';
@@ -2028,7 +2039,7 @@
         if (pngEntry) {
             const bob = reduced ? 0 : Math.round(Math.abs(Math.sin(phase * Math.PI)) * (cv.height * 0.04));
             const targetH = cv.height * 0.84;
-            const scale = targetH / SPRITE_REF_H;
+            const scale = getSpriteScale(id, targetH);
             const strideSq = reduced ? 0 : Math.sin(phase * Math.PI);
             drawSpriteImage(cx, pngEntry, Math.floor(cv.width / 2), (cv.height - 4) - bob, scale, {
                 squashX: 1 - strideSq * 0.03,
@@ -2526,7 +2537,7 @@
             const sPx = spr.px || 1.5;
             const gearScale = sPx / 1.5;
             const hasPng = !!getSpriteEntry(runnerId, 'run0');
-            const pngScale = 52 / SPRITE_REF_H;
+            const pngScale = hasPng ? getSpriteScale(runnerId, 52) : 0;
             let poseName = 'run0';
             let squashX = 1;
             let squashY = 1;
@@ -2613,7 +2624,7 @@
                     } else {
                         const jp = (T - T_LEAP_START) / Math.max(1, T_IMPACT - T_LEAP_START);
                         aAng = lerp(-0.18, -0.13, jp);
-                        poseName = jp < 0.78 ? 'act' : 'cheer';
+                        poseName = 'flip';
                         aGrid = spr.jump;
                         phaseNow = 'jump';
                         aLift = (tier ? 48 : 38) * Math.sin(jp * Math.PI);
@@ -2781,6 +2792,12 @@
             }
 
             const activePng = hasPng ? getSpriteEntry(runnerId, poseName) : null;
+            const actPng = hasPng ? getSpriteEntry(runnerId, 'act') : null;
+            const gearTips = activePng ? {
+                rt: [activePng.rt[0] * pngScale, activePng.rt[1] * pngScale + 2],
+                tp: [activePng.tp[0] * pngScale, activePng.tp[1] * pngScale + 2],
+            } : null;
+            const actTip = actPng ? [actPng.rt[0] * pngScale, actPng.rt[1] * pngScale + 2] : null;
 
             if (runnerId === 'ninja' && ((T >= T_RUN_START && T < T_CROUCH) || ninjaBlink)) {
                 const lags = ninjaBlink ? [[-0.05, 0.42], [-0.11, 0.28], [-0.17, 0.14]] : [[-0.075, 0.28], [-0.15, 0.14]];
@@ -2813,7 +2830,7 @@
                 }
             }
 
-            const sprRenderedH = activePng ? (activePng.h * pngScale) : (aGrid.length * sPx);
+            const sprRenderedH = activePng ? ((SPRITE_HEAD_TOP[runnerId] || SPRITE_REF_H) * pngScale) : (aGrid.length * sPx);
             const crownY = -sprRenderedH - 2;
             hctx.save();
             hctx.translate(GX + Math.sin(aAng) * (GR + aLift), GY - Math.cos(aAng) * (GR + aLift));
@@ -2863,10 +2880,10 @@
                 const isSwinging = ninjaSlashP < 1;
                 const swingAng = lerp(-2.15, 0.45, easeOutCubic(sp));
                 const trailStart = Math.max(-2.35, swingAng - 1.35);
-                const slashX = activePng ? 10 : 7;
-                const slashY = activePng ? -25 : -14;
-                const outerR = activePng ? 36 : 31;
-                const innerR = activePng ? 21 : 17;
+                const slashX = actTip ? actTip[0] - 24 * pngScale : 7;
+                const slashY = actTip ? actTip[1] + 30 * pngScale : -14;
+                const outerR = activePng ? 62 * pngScale : 31;
+                const innerR = activePng ? 36 * pngScale : 17;
                 hctx.save();
                 hctx.translate(slashX, slashY);
                 hctx.save();
@@ -2900,8 +2917,8 @@
             }
 
             if (runnerId === 'specops' && specopsFireBurst >= 0) {
-                const fxX = activePng ? 25 : 24;
-                const fxY = activePng ? -31 : -15;
+                const fxX = actTip ? actTip[0] + 1 : 24;
+                const fxY = actTip ? actTip[1] : -15;
                 if (specopsFireBurst < 0.45) {
                     hctx.save();
                     hctx.fillStyle = '#F59E0B';
@@ -2916,8 +2933,8 @@
                 hctx.fillRect(tx - 10, fxY - 1, 11, 2.5);
                 hctx.fillStyle = '#FFFFFF';
                 hctx.fillRect(tx - 4, fxY - 1, 5, 2.5);
-                const sx = Math.round(lerp(activePng ? 2 : 8, activePng ? -14 : -11, specopsFireBurst));
-                const sy = Math.round((activePng ? -26 : -15) - Math.sin(specopsFireBurst * Math.PI) * 14 + specopsFireBurst * 10);
+                const sx = Math.round(lerp(actTip ? fxX - 22 : 8, actTip ? fxX - 38 : -11, specopsFireBurst));
+                const sy = Math.round((actTip ? fxY + 4 : -15) - Math.sin(specopsFireBurst * Math.PI) * 14 + specopsFireBurst * 10);
                 hctx.fillStyle = '#0F172A';
                 hctx.fillRect(sx - 1, sy - 1, 5, 4);
                 hctx.fillStyle = '#FDE047';
@@ -2925,8 +2942,8 @@
             }
 
             if (runnerId === 'astro' && showDrone) {
-                const dx = (activePng ? -28 : -24) + Math.cos(T * 0.005) * 3;
-                const dy = (activePng ? -36 : -26) + Math.sin(T * 0.008) * 3;
+                const dx = (activePng ? -(activePng.w * 0.5 + 10) * pngScale : -24) + Math.cos(T * 0.005) * 3;
+                const dy = (activePng ? -(activePng.h * 0.72) * pngScale : -26) + Math.sin(T * 0.008) * 3;
                 drawBitmap(hctx, GEAR_DRONE, dx, dy, 1.5);
             }
 
@@ -2943,8 +2960,8 @@
             if (showJet) {
                 const fl = (superJet ? 9 : 5) + (Math.sin(T * 0.08) > 0 ? 4 : 1);
                 if (runnerId === 'astro') {
-                    const jx = activePng ? -16 : -16;
-                    const jy = activePng ? -16 : -6;
+                    const jx = activePng ? (-activePng.w / 2 - activePng.dx) * pngScale + 4 : -16;
+                    const jy = activePng ? -(activePng.h * 0.38) * pngScale + 2 : -6;
                     hctx.fillStyle = '#031E13';
                     hctx.fillRect(jx, jy, 8, fl + 6);
                     hctx.fillStyle = '#38BDF8';
@@ -2964,7 +2981,7 @@
             }
             if (activePng) {
                 drawSpriteImage(hctx, activePng, 0, 2, pngScale, { squashX, squashY });
-                drawHeldGear(hctx, runnerId, phaseNow, gearScale, T, true, true);
+                drawHeldGear(hctx, runnerId, phaseNow, gearScale, T, true, gearTips);
             } else {
                 drawCharacterBackGear(hctx, runnerId, phaseNow, gearScale, T);
                 drawBitmap(hctx, aGrid, 0, 2, sPx);
@@ -2977,7 +2994,7 @@
                     drawBitmap(hctx, CROWN_SPR, 0, crownY, 2.1);
                 } else if (tier === 100) {
                     drawBitmap(hctx, CROWN_SPR, 0, crownY, 2.1);
-                    drawBitmap(hctx, TROPHY_SPR, activePng ? -34 : -29, -4, 2.1);
+                    drawBitmap(hctx, TROPHY_SPR, activePng ? -38 : -29, -4, 2.1);
                 }
             }
             hctx.restore();
