@@ -278,7 +278,43 @@
         // Instant in-place shell router: pre-caches app pages in memory and swaps
         // <header>/<main> without full browser page reloads or top loading bars.
         const pageCache = new Map();
+        const inFlightPages = new Map();
         let analyticsModulePromise = null;
+        let notesModulePromise = null;
+        let notesStylesPromise = null;
+
+        function ensureNotesStyles() {
+            if (document.querySelector('link[href="notes-studio.css"]')) return Promise.resolve();
+            if (notesStylesPromise) return notesStylesPromise;
+            notesStylesPromise = new Promise((resolve, reject) => {
+                const sheet = document.createElement('link');
+                sheet.rel = 'stylesheet';
+                sheet.href = 'notes-studio.css';
+                sheet.addEventListener('load', resolve, {once:true});
+                sheet.addEventListener('error', () => {
+                    sheet.remove();
+                    notesStylesPromise = null;
+                    reject(new Error('Notes stylesheet could not load'));
+                }, {once:true});
+                document.head.appendChild(sheet);
+            });
+            return notesStylesPromise;
+        }
+
+        function removeNotesStyles() {
+            document.querySelector('link[href="notes-studio.css"]')?.remove();
+            notesStylesPromise = null;
+        }
+
+        function ensureNotesModule() {
+            if (!notesModulePromise) {
+                notesModulePromise = import('./notes-studio.js').catch(error => {
+                    notesModulePromise = null;
+                    throw error;
+                });
+            }
+            return notesModulePromise;
+        }
         let navSequence = 0;
 
         function ensureAnalyticsModule() {
@@ -295,15 +331,19 @@
 
         function fetchPageHtml(pathname) {
             if (pageCache.has(pathname)) return Promise.resolve(pageCache.get(pathname));
+            if (inFlightPages.has(pathname)) return inFlightPages.get(pathname);
             if (typeof fetch !== 'function') return Promise.resolve(null);
             const url = new URL(pathname, location.origin).href;
-            return fetch(url, { credentials: 'same-origin' })
+            const request = fetch(url, { credentials: 'same-origin' })
                 .then(res => res.ok ? res.text() : null)
                 .then(html => {
                     if (html && html.includes('<main')) pageCache.set(pathname, html);
                     return html;
                 })
-                .catch(() => null);
+                .catch(() => null)
+                .finally(() => inFlightPages.delete(pathname));
+            inFlightPages.set(pathname, request);
+            return request;
         }
 
         function navigationLink(event) {
@@ -346,6 +386,15 @@
                     location.href = targetUrl.href;
                     return;
                 }
+                if (targetPage === 'Notes.html') {
+                    try {
+                        await ensureNotesStyles();
+                        if (seq !== navSequence) return;
+                    } catch {
+                        location.href = targetUrl.href;
+                        return;
+                    }
+                }
                 try {
                     const nextDoc = new DOMParser().parseFromString(html, 'text/html');
                     const nextMain = nextDoc.querySelector('body > main');
@@ -353,6 +402,8 @@
                         location.href = targetUrl.href;
                         return;
                     }
+                    const leavingNotes = document.querySelector('main.notes-shell') && targetPage !== 'Notes.html';
+                    if (leavingNotes) window.HabitArcNotesStudio?.unmount?.();
                     pageAbortController?.abort();
                     pageAbortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
 
@@ -371,6 +422,7 @@
                     nextHeaders.forEach(h => document.body.insertBefore(h, currentMain));
 
                     currentMain.replaceWith(nextMain.cloneNode(true));
+                    if (leavingNotes) removeNotesStyles();
 
                     if (!document.querySelector('body > nav.fixed')) {
                         const nextNav = nextDoc.querySelector('body > nav.fixed');
@@ -380,6 +432,11 @@
                     window.scrollTo(0, 0);
                     window.HabitArc?.applyTheme?.();
                     syncPageChrome();
+                    if (targetPage === 'Notes.html') {
+                        await ensureNotesModule();
+                        if (seq === navSequence) window.HabitArcNotesStudio?.mount?.();
+                        return;
+                    }
 
                     const inlineScript = [...nextDoc.querySelectorAll('body script:not([src])')].at(-1);
                     if (inlineScript?.textContent) {
@@ -415,8 +472,10 @@
             if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             const target = navigationLink(event);
             if (!target) return;
-            // Notes Studio has its own external page script; load it normally.
-            if (target.targetPage === 'Notes.html' || location.pathname.endsWith('/Notes.html')) return;
+            // Direct Notes deep links lack the Tailwind shell needed by other
+            // pages. Only that cold entry uses one normal navigation.
+            if (location.pathname.endsWith('/Notes.html')
+                && !window.tailwind?.config?.theme?.extend?.colors) return;
             event.preventDefault();
             if (target.url.pathname === location.pathname && target.url.search === location.search) return;
             void navigateInPlace(target.url, { pushState: true });
@@ -431,18 +490,7 @@
             document.querySelectorAll('.ha-nav-pending').forEach(link => link.classList.remove('ha-nav-pending'));
         });
 
-        const warmAllShellPages = () => {
-            void ensureAnalyticsModule();
-            for (const name of appPages) {
-                if (name !== (location.pathname.split('/').pop() || '')) {
-                    void fetchPageHtml(`/${name}`);
-                }
-            }
-        };
-        if (typeof requestIdleCallback === 'function') {
-            requestIdleCallback(warmAllShellPages, { timeout: 1200 });
-        } else if (typeof setTimeout === 'function') {
-            setTimeout(warmAllShellPages, 150);
-        }
+        // Preload on tap/hover/focus only. Fetching every page on startup
+        // saturates mobile connections and delays the first tab switch.
     });
 })();
