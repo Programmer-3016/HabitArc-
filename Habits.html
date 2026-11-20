@@ -123,6 +123,7 @@
         }
     </style>
 <link rel="stylesheet" href="app-ui.css"/>
+<link rel="stylesheet" href="plan-tasks.css"/>
 <script src="app-ui.js"></script>
 </head>
 <body class="bg-background text-on-background antialiased min-h-screen pb-24 relative overflow-x-hidden">
@@ -184,6 +185,21 @@
     </div>
 </header>
 <main class="ha-habits w-full max-w-7xl mx-auto px-container-padding pt-6 pb-32 md:pb-8 flex flex-col gap-section-margin">
+<section class="ha-plan-overview" id="ha-plan-overview" aria-labelledby="ha-plan-title">
+  <p class="ha-plan-kicker">YOUR PRODUCTIVITY SPACE <span aria-hidden="true">✦</span></p>
+  <div class="ha-plan-overview-row">
+    <div>
+      <h1 id="ha-plan-title">My Planner<span aria-hidden="true">.</span></h1>
+      <p>Build routines. Finish what matters.</p>
+    </div>
+    <span class="ha-plan-badge material-symbols-outlined" aria-hidden="true">calendar_month</span>
+  </div>
+  <div class="ha-plan-modes" role="tablist" aria-label="Planner sections">
+    <button type="button" role="tab" id="ha-plan-habits-tab" aria-controls="ha-plan-habits" data-plan-mode="habits" aria-selected="true"><span class="material-symbols-outlined" aria-hidden="true">repeat</span> My Habits</button>
+    <button type="button" role="tab" id="ha-plan-tasks-tab" aria-controls="ha-plan-tasks" data-plan-mode="tasks" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">checklist</span> Tasks</button>
+  </div>
+</section>
+<div id="ha-plan-habits" role="tabpanel" aria-labelledby="ha-plan-habits-tab">
 <!-- Page Header & Filters -->
 <section class="ha-library-heading flex flex-col gap-stack-gap">
 <div class="ha-habits-heading-top">
@@ -206,6 +222,41 @@
 <div id="habits-list" class="flex flex-col gap-stack-gap">
 <!-- Rendered dynamically -->
 </div>
+
+</div>
+<section id="ha-plan-tasks" class="ha-plan-tasks" role="tabpanel" aria-labelledby="ha-plan-tasks-tab" hidden>
+  <div class="ha-tasks-toolbar">
+    <div><p class="ha-plan-kicker">YOUR DAILY ACTIONS</p><h2>My Tasks</h2><p id="ha-task-status" class="ha-task-status" role="status" aria-live="polite">Saved on this device</p></div>
+    <button id="ha-task-new" class="ha-task-new" type="button"><span class="material-symbols-outlined" aria-hidden="true">add</span> New task</button>
+  </div>
+  <div class="ha-tasks-hero">
+    <div><span class="ha-tasks-hero-kicker">TODAY'S FOCUS</span><p id="ha-task-focus-count">0 / 0</p><span id="ha-task-focus-caption">Start with one small task.</span></div>
+    <div class="ha-tasks-progress-ring" id="ha-task-progress-ring" role="progressbar" aria-label="Today's task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ha-task-focus-pct">0%</span></div>
+  </div>
+  <div class="ha-task-view-switch" role="tablist" aria-label="Task views">
+    <button id="ha-task-all-tab" type="button" data-task-view="all" role="tab" aria-selected="true" aria-controls="ha-task-feed"><span class="material-symbols-outlined" aria-hidden="true">list_alt</span> All Tasks</button>
+    <button id="ha-task-timeline-tab" type="button" data-task-view="timeline" role="tab" aria-selected="false" aria-controls="ha-task-feed"><span class="material-symbols-outlined" aria-hidden="true">timeline</span> Timeline</button>
+  </div>
+  <div id="ha-task-feed" class="ha-task-feed" aria-live="polite"></div>
+</section>
+<dialog id="ha-task-dialog" class="ha-task-dialog" aria-labelledby="ha-task-dialog-title">
+  <form id="ha-task-form">
+    <div class="ha-task-dialog-head"><h2 id="ha-task-dialog-title">New task</h2><button id="ha-task-close" type="button" aria-label="Close task editor"><span class="material-symbols-outlined">close</span></button></div>
+    <label class="ha-task-field">Task title<input id="ha-task-title" type="text" maxlength="160" placeholder="e.g. Complete Arrays chapter" required autocomplete="off"></label>
+    <label class="ha-task-field">Description <span>(optional)</span><textarea id="ha-task-description" rows="2" maxlength="1500" placeholder="Add any useful details..."></textarea></label>
+    <div class="ha-task-field-pair">
+      <label class="ha-task-field">Due date<input id="ha-task-date" type="date"></label>
+      <label class="ha-task-field">Priority<select id="ha-task-priority"><option value="none">No priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+    </div>
+    <label class="ha-task-field">Subtasks <span>(one per line)</span><textarea id="ha-task-subtasks" rows="3" maxlength="5000" placeholder="Research topic&#10;Write outline&#10;Review work"></textarea></label>
+    <div class="ha-task-field-pair">
+      <label class="ha-task-field">Link to habit <span>(optional)</span><select id="ha-task-habit"><option value="">None</option></select></label>
+      <label class="ha-task-field">Link to note <span>(on this device)</span><select id="ha-task-note"><option value="">None</option></select></label>
+    </div>
+    <p id="ha-task-form-error" class="ha-task-form-error" role="alert" hidden></p>
+    <div class="ha-task-dialog-actions"><button id="ha-task-delete" type="button" class="ha-task-delete" hidden>Delete task</button><button id="ha-task-save" class="ha-task-save" type="submit"><span class="material-symbols-outlined" aria-hidden="true">check</span> Save task</button></div>
+  </form>
+</dialog>
 </main>
 <!-- Floating Glassmorphism Bottom Nav Bar (Mobile Only) -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
@@ -350,5 +401,11 @@
         }
     });
 })();
+import('./plan-tasks.js').then(module => module.mount()).catch(error => {
+    console.error('HabitArc Planner could not start:', error);
+    const status = document.getElementById('ha-task-status');
+    if(status) status.textContent = 'Tasks are temporarily unavailable.';
+});
+
 </script>
 </body></html>
