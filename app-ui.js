@@ -169,6 +169,24 @@
                 if (leagueShortcut && page === 'Leaderboard.html') leagueShortcut.setAttribute('aria-current', 'page');
                 else leagueShortcut?.removeAttribute('aria-current');
             }
+            // Notes belongs to the same app navigation, not a detached dashboard card.
+            document.querySelectorAll('body > header nav').forEach(nav => {
+                if (nav.querySelector('a[href="Notes.html"]')) return;
+                const link = document.createElement('a');
+                link.href = 'Notes.html';
+                link.textContent = 'Notes';
+                link.className = 'px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors';
+                nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
+            });
+            document.querySelectorAll('body > nav.fixed').forEach(nav => {
+                if (nav.querySelector('a[href="Notes.html"]')) return;
+                const link = document.createElement('a');
+                link.href = 'Notes.html';
+                link.className = 'col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all';
+                link.innerHTML = '<span class="material-symbols-outlined text-[22px] leading-none">description</span><span class="text-[10px] tracking-tight mt-1 leading-none geist">Notes</span>';
+                nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
+                nav.style.gridTemplateColumns = 'repeat(6, minmax(0, 1fr))';
+            });
             if (main) {
                 main.id ||= 'main-content';
                 main.tabIndex = -1;
@@ -397,6 +415,8 @@
             if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             const target = navigationLink(event);
             if (!target) return;
+            // Notes Studio has its own external page script; load it normally.
+            if (target.targetPage === 'Notes.html' || location.pathname.endsWith('/Notes.html')) return;
             event.preventDefault();
             if (target.url.pathname === location.pathname && target.url.search === location.search) return;
             void navigateInPlace(target.url, { pushState: true });
