@@ -295,6 +295,25 @@
         let analyticsModulePromise = null;
         let notesModulePromise = null;
         let notesStylesPromise = null;
+        let plannerStylesPromise = null;
+        function ensurePlannerStyles() {
+            if (document.querySelector('link[href="plan-tasks.css"]')) return Promise.resolve();
+            if (plannerStylesPromise) return plannerStylesPromise;
+            plannerStylesPromise = new Promise((resolve, reject) => {
+                const sheet = document.createElement('link');
+                sheet.rel = 'stylesheet';
+                sheet.href = 'plan-tasks.css';
+                sheet.addEventListener('load', resolve, { once: true });
+                sheet.addEventListener('error', () => {
+                    sheet.remove();
+                    plannerStylesPromise = null;
+                    reject(new Error('Planner styles failed to load'));
+                }, { once: true });
+                document.head.appendChild(sheet);
+            });
+            return plannerStylesPromise;
+        }
+
 
         function ensureNotesStyles() {
             if (document.querySelector('link[href="notes-studio.css"]')) return Promise.resolve();
@@ -399,9 +418,10 @@
                     location.href = targetUrl.href;
                     return;
                 }
-                if (targetPage === 'Notes.html') {
+                if (targetPage === 'Notes.html' || targetPage === 'Habits.html') {
                     try {
-                        await ensureNotesStyles();
+                        if (targetPage === 'Notes.html') await ensureNotesStyles();
+                        else await ensurePlannerStyles();
                         if (seq !== navSequence) return;
                     } catch {
                         location.href = targetUrl.href;
