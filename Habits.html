@@ -401,11 +401,13 @@
         }
     });
 })();
-import('./plan-tasks.js').then(module => module.mount()).catch(error => {
-    console.error('HabitArc Planner could not start:', error);
-    const status = document.getElementById('ha-task-status');
-    if(status) status.textContent = 'Tasks are temporarily unavailable.';
-});
+if (window.HabitArc?.getHabits && document.getElementById('ha-plan-overview')) {
+    import('./plan-tasks.js').then(module => module.mount()).catch(error => {
+        console.error('HabitArc Planner could not start:', error);
+        const status = document.getElementById('ha-task-status');
+        if(status) status.textContent = 'Tasks are temporarily unavailable.';
+    });
+}
 
 </script>
 </body></html>
