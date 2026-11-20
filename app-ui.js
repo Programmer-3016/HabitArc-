@@ -36,7 +36,7 @@
         };
     }
 
-    const appPages = new Set(['Dashboard.html', 'Habits.html', 'Insights.html', 'Leaderboard.html', 'Arc_AI.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html']);
+    const appPages = new Set(['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Leaderboard.html', 'Arc_AI.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html']);
     let pageAbortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
     let capturingPageListeners = false;
 
