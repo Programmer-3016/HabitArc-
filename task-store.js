@@ -224,7 +224,7 @@ function makeStore() {
 
   function activate(scope) {
     const target = scope || 'local';
-    if (target === owner && started) return;
+    if (target === owner && started && (target === 'local' || unsubscribeCloud)) return;
     unsubscribeCloud?.(); unsubscribeCloud = null;
     owner = target; readLocal(owner);
     lastError = '';
