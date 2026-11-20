@@ -110,6 +110,44 @@ window.HabitArcAuthReady = (async () => {
             return collection(userDocument(user), 'habitCompletions');
         }
 
+        function tasksCollection(user) {
+            return collection(userDocument(user), 'tasks');
+        }
+
+        function stripCloudTask(task, fallbackId) {
+            const { _updatedAt, ...plain } = task || {};
+            return { ...cloneData(plain), id: plain.id || fallbackId };
+        }
+
+        async function saveTask(task, user = currentUser) {
+            if (!user) throw new Error('Sign in to sync tasks.');
+            if (!task || typeof task.id !== 'string' || !task.id) {
+                throw new Error('A task ID is required.');
+            }
+            const batch = writeBatch(firestore);
+            batch.set(doc(tasksCollection(user), task.id), {
+                ...stripCloudTask(task, task.id),
+                _updatedAt: serverTimestamp()
+            });
+            await batch.commit();
+        }
+
+        async function deleteTask(taskId, user = currentUser) {
+            if (!user) throw new Error('Sign in to sync tasks.');
+            if (!taskId || typeof taskId !== 'string') throw new Error('A task ID is required.');
+            const batch = writeBatch(firestore);
+            batch.delete(doc(tasksCollection(user), taskId));
+            await batch.commit();
+        }
+
+        function subscribeTasks(onChange, onError, user = currentUser) {
+            if (!user) return () => {};
+            return onSnapshot(tasksCollection(user), (snapshot) => {
+                const tasks = snapshot.docs.map((entry) => stripCloudTask(entry.data(), entry.id));
+                onChange(tasks, { fromCache: snapshot.metadata.fromCache });
+            }, onError);
+        }
+
         function stripCloudMetadata(habit, fallbackId) {
             const { _updatedAt, ...plainHabit } = habit || {};
             return {
@@ -411,7 +449,10 @@ window.HabitArcAuthReady = (async () => {
             loadUserData,
             saveUserData,
             saveCompletionHistory,
-            subscribeToUserData
+            subscribeToUserData,
+            saveTask,
+            deleteTask,
+            subscribeTasks
         });
 
         window.HabitArcAuth = authClient;
