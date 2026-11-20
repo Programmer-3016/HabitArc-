@@ -1,7 +1,7 @@
 // Offline-capable app-shell service worker for HabitArc PWA.
 // Network-first keeps online HTML, scripts, and authenticated state fresh;
 // only static UI runtime CDNs and same-origin app shell assets fall back offline.
-const CACHE_NAME = 'habitarc-shell-v14';
+const CACHE_NAME = 'habitarc-shell-v15';
 const CDN_CACHE_NAME = 'habitarc-cdn-v1';
 const OFFLINE_URL = '/offline.html';
 const SHELL_ASSETS = [
@@ -100,6 +100,34 @@ async function cacheClone(cachePromise, key, response) {
   await cache.put(key, copy);
 }
 
+
+// Serve pre-cached app-shell files immediately; update them in the background.
+// Only public static shell assets take this route (never API/Firebase/user data).
+async function respondFromShellCache(request, key, event, { navigation = false } = {}) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(key);
+  const refreshing = fetch(request)
+    .then(async (response) => {
+      if (isCacheableResponse(response)) {
+        await cacheClone(Promise.resolve(cache), key, response);
+      }
+      return response;
+    })
+    .catch(() => null);
+  if (cached) {
+    event.waitUntil(refreshing);
+    return cached;
+  }
+  const fresh = await refreshing;
+  if (fresh) return fresh;
+  if (navigation) {
+    return (await cache.match(OFFLINE_URL)) || new Response('You are offline.', {
+      status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
+  }
+  return new Response('', { status: 503 });
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -132,50 +160,30 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Same-origin page navigation: always network-first, falling back cleanly
-  // to the cached page pathname (stripping query params like ?id=...), then offline.html.
+  // Known static PWA pages are already pre-cached on installation. Return
+  // them without an extra network round-trip when switching tabs.
   if (request.mode === 'navigate') {
     const pageKey = url.pathname === '/' ? '/index.html' : url.pathname;
+    if (SHELL_ASSET_SET.has(pageKey) && !url.search) {
+      event.respondWith(respondFromShellCache(request, pageKey, event, { navigation: true }));
+      return;
+    }
+    // Dynamic/query navigation stays network-first (OAuth, detail links, etc.).
     event.respondWith(
-      fetch(request)
-        .then(async (response) => {
-          if (isCacheableResponse(response) && SHELL_ASSET_SET.has(pageKey)) {
-            await cacheClone(caches.open(CACHE_NAME), pageKey, response);
-          }
-          return response;
-        })
-        .catch(async () => {
-          const cache = await caches.open(CACHE_NAME);
-          const cachedPage = await cache.match(pageKey);
-          if (cachedPage) return cachedPage;
-          const fallback = await cache.match(OFFLINE_URL);
-          return fallback || new Response('You are offline. Reconnect and try again.', {
-            status: 503,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-          });
-        }),
+      fetch(request).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(pageKey);
+        return cached || (await cache.match(OFFLINE_URL))
+          || new Response('You are offline.', { status: 503 });
+      }),
     );
     return;
   }
 
-  // Same-origin static assets & scripts: network-first with cache fallback when
-  // pathname matches the app shell without cache-busting search parameters.
+  // The SPA router fetches same-origin HTML with normal fetch(), not navigate
+  // mode. Those responses must be cache-first too for instant tab changes.
   if (SHELL_ASSET_SET.has(url.pathname) && !url.search) {
-    event.respondWith(
-      fetch(request)
-        .then(async (response) => {
-          if (isCacheableResponse(response)) {
-            await cacheClone(caches.open(CACHE_NAME), url.pathname, response);
-          }
-          return response;
-        })
-        .catch(async () => {
-          const cache = await caches.open(CACHE_NAME);
-          const cached = await cache.match(url.pathname);
-          if (cached) return cached;
-          return new Response('', { status: 503 });
-        }),
-    );
+    event.respondWith(respondFromShellCache(request, url.pathname, event));
   }
 });
 
