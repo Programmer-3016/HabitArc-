@@ -178,6 +178,8 @@
                 link.className = 'px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors';
                 nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
             });
+            // Keep the same Plan destination and label across cached app pages.
+            document.querySelectorAll('body > header nav a[href="Habits.html"]').forEach(link => { link.textContent = 'Plan'; });
             document.querySelectorAll('body > nav.fixed').forEach(nav => {
                 // Normalize an older cached dock as well as fresh pages to
                 // the same five tabs, avoiding six-item layout regressions.
@@ -190,6 +192,8 @@
                     link.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">description</span><span class="ha-bottom-nav-label">Notes</span>';
                     nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
                 }
+                const planLabel = nav.querySelector('a[href="Habits.html"] .ha-bottom-nav-label');
+                if (planLabel) planLabel.textContent = 'Plan';
                 nav.querySelectorAll('a').forEach(link => {
                     link.classList.add('ha-bottom-nav-link');
                     const label = link.querySelector('span:last-child');
@@ -410,6 +414,9 @@
                     if (!nextMain) {
                         location.href = targetUrl.href;
                         return;
+                    }
+                    if (document.querySelector('#ha-plan-overview') && targetPage !== 'Habits.html') {
+                        window.HabitArcPlanner?.unmount?.();
                     }
                     const leavingNotes = document.querySelector('main.notes-shell') && targetPage !== 'Notes.html';
                     if (leavingNotes) window.HabitArcNotesStudio?.unmount?.();
