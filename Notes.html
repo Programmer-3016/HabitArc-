@@ -46,37 +46,35 @@
   <section id="notes-grid" class="notes-grid" aria-live="polite"></section>
 <dialog id="note-dialog" class="notes-dialog"><form id="note-form" method="dialog"><div class="notes-dialog-head"><h2 id="dialog-title">Create a note</h2><button type="button" id="close-note" aria-label="Close"><span class="material-symbols-outlined">close</span></button></div><label class="notes-field">Title<input id="note-title" maxlength="100" placeholder="Give your note a title..." required></label><label class="notes-field">Your thoughts<textarea id="note-body" rows="6" maxlength="10000" placeholder="What's on your mind?"></textarea></label><div class="notes-attachments"><label class="notes-attach"><span class="material-symbols-outlined">add_photo_alternate</span> Add photo<input id="note-image" type="file" accept="image/*" hidden></label><button id="record-audio" class="notes-attach" type="button"><span class="material-symbols-outlined">mic</span><span id="record-label">Record voice</span></button></div><div id="attachment-status" role="status" aria-live="polite"></div><div class="notes-dialog-actions"><button type="button" id="delete-note" class="notes-danger" hidden>Delete</button><button type="submit" class="notes-primary">Save note</button></div></form></dialog>
 </main>
-<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-3xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] px-2 py-2 grid grid-cols-5 items-center">
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Dashboard.html">
-<span class="material-symbols-outlined text-[22px] leading-none">home</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant transition-all duration-200" href="Habits.html">
-<span class="material-symbols-outlined text-[22px] leading-none fill">format_list_bulleted</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
-</a>
-<a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
-<div class="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background dark:ring-surface-container active:scale-90 hover:scale-105 transition-all">
-<span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
-</div>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl" href="Notes.html" aria-current="page"><span class="material-symbols-outlined text-[22px] leading-none">description</span><span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Notes</span></a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Insights.html">
-<span class="material-symbols-outlined text-[22px] leading-none">insights</span>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
-</a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Arc_AI.html">
-<svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-<rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
-<rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
-<rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-<rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-<rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
-<rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-<rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-</svg>
-<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">ARC AI</span>
-</a>
+<nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
+  <a class="ha-bottom-nav-link" href="Dashboard.html">
+    <span class="material-symbols-outlined" aria-hidden="true">home</span>
+    <span class="ha-bottom-nav-label">Dashboard</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Habits.html">
+    <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+    <span class="ha-bottom-nav-label">Habits</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Notes.html" aria-current="page">
+    <span class="material-symbols-outlined" aria-hidden="true">description</span>
+    <span class="ha-bottom-nav-label">Notes</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Insights.html">
+    <span class="material-symbols-outlined" aria-hidden="true">insights</span>
+    <span class="ha-bottom-nav-label">Insights</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Arc_AI.html">
+    <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
+            <rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
+            <rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
+            <rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
+            <rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
+            <rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
+            <rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
+        </svg>
+    <span class="ha-bottom-nav-label">ARC AI</span>
+  </a>
 </nav>
 
 <script src="app.js"></script>
