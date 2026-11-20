@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f4ef">
+<title>Notes Studio · HabitArc</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
+<script src="app-ui.js"></script>
+<link rel="stylesheet" href="notes-studio.css">
+</head>
+<body>
+<header class="notes-topbar">
+  <a class="notes-brand" href="Dashboard.html"><span class="notes-logo material-symbols-outlined">trending_up</span>HabitArc</a>
+  <nav class="notes-desktop-nav" aria-label="Main navigation"><a href="Dashboard.html">Dashboard</a><a href="Habits.html">Habits</a><a class="active" href="Notes.html" aria-current="page">Notes</a><a href="Insights.html">Insights</a><a href="Arc_AI.html">ARC AI</a></nav>
+  <a class="notes-back" href="Dashboard.html"><span class="material-symbols-outlined">arrow_back</span><span>Dashboard</span></a>
+</header>
+<main class="notes-shell">
+  <div class="notes-heading"><div><span class="notes-kicker">YOUR PERSONAL SPACE <span aria-hidden="true">✦</span></span><h1>Notes Studio<span class="notes-dot">.</span></h1><p>Capture thoughts, save moments, keep growing.</p></div><button id="new-note" class="notes-primary"><span class="material-symbols-outlined">add</span> New note</button></div>
+  <section class="notes-feature" aria-label="Quick capture"><div><span class="notes-feature-label">QUICK CAPTURE</span><h2>Big ideas start small.</h2><p>Write it down, speak your mind, or save a moment — all in one place.</p></div><div class="notes-feature-icons" aria-hidden="true"><span class="material-symbols-outlined">edit_note</span><span class="material-symbols-outlined">mic</span><span class="material-symbols-outlined">image</span></div></section>
+  <div class="notes-toolbar"><label class="notes-search"><span class="material-symbols-outlined">search</span><input id="notes-search" type="search" placeholder="Search your notes..." autocomplete="off" aria-label="Search notes"></label><div class="notes-filters" role="group" aria-label="Filter notes"><button data-filter="all" class="selected">All</button><button data-filter="text">Text</button><button data-filter="image">Images</button><button data-filter="audio">Audio</button></div></div>
+  <div class="notes-section-head"><h2>My collection <span id="notes-count">0</span></h2><span id="notes-storage-label">Private to this device</span></div>
+  <section id="notes-grid" class="notes-grid" aria-live="polite"></section>
+</main>
+<nav class="notes-mobile-nav" aria-label="Bottom navigation"><a href="Dashboard.html"><span class="material-symbols-outlined">home</span>Home</a><a href="Habits.html"><span class="material-symbols-outlined">checklist</span>Habits</a><a href="Notes.html" class="active" aria-current="page"><span class="material-symbols-outlined">description</span>Notes</a><a href="Insights.html"><span class="material-symbols-outlined">insights</span>Insights</a><a href="Arc_AI.html"><span class="material-symbols-outlined">smart_toy</span>ARC AI</a></nav>
+<dialog id="note-dialog" class="notes-dialog"><form id="note-form" method="dialog"><div class="notes-dialog-head"><h2 id="dialog-title">Create a note</h2><button type="button" id="close-note" aria-label="Close"><span class="material-symbols-outlined">close</span></button></div><label class="notes-field">Title<input id="note-title" maxlength="100" placeholder="Give your note a title..." required></label><label class="notes-field">Your thoughts<textarea id="note-body" rows="6" maxlength="10000" placeholder="What's on your mind?"></textarea></label><div class="notes-attachments"><label class="notes-attach"><span class="material-symbols-outlined">add_photo_alternate</span> Add photo<input id="note-image" type="file" accept="image/*" hidden></label><button id="record-audio" class="notes-attach" type="button"><span class="material-symbols-outlined">mic</span><span id="record-label">Record voice</span></button></div><div id="attachment-status" role="status" aria-live="polite"></div><div class="notes-dialog-actions"><button type="button" id="delete-note" class="notes-danger" hidden>Delete</button><button type="submit" class="notes-primary">Save note</button></div></form></dialog>
+<script src="notes-studio.js"></script>
+</body></html>
