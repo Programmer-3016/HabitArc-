@@ -281,7 +281,7 @@ function makeStore() {
     notify();
     window.addEventListener('online', () => { if (state !== 'local') { state = 'syncing'; notify(); } void flush(); });
     window.addEventListener('offline', () => { if (owner !== 'local') { state = 'offline'; notify(); } });
-    Promise.resolve(window.HabitArcAuthReady).then((client) => {
+    Promise.resolve(window.HabitArc?.whenAuthReady?.()).then(() => window.HabitArcAuthReady).then((client) => {
       if (!client) return;
       cloud = client;
       unsubscribeAuth?.();
