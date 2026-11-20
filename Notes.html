@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="notes-studio.css">
 </head>
 <body>
-<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
+<header class="notes-mobile-header w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
     <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
         <span class="ha-brand-badge" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
@@ -77,5 +77,6 @@
 </a>
 </nav>
 <dialog id="note-dialog" class="notes-dialog"><form id="note-form" method="dialog"><div class="notes-dialog-head"><h2 id="dialog-title">Create a note</h2><button type="button" id="close-note" aria-label="Close"><span class="material-symbols-outlined">close</span></button></div><label class="notes-field">Title<input id="note-title" maxlength="100" placeholder="Give your note a title..." required></label><label class="notes-field">Your thoughts<textarea id="note-body" rows="6" maxlength="10000" placeholder="What's on your mind?"></textarea></label><div class="notes-attachments"><label class="notes-attach"><span class="material-symbols-outlined">add_photo_alternate</span> Add photo<input id="note-image" type="file" accept="image/*" hidden></label><button id="record-audio" class="notes-attach" type="button"><span class="material-symbols-outlined">mic</span><span id="record-label">Record voice</span></button></div><div id="attachment-status" role="status" aria-live="polite"></div><div class="notes-dialog-actions"><button type="button" id="delete-note" class="notes-danger" hidden>Delete</button><button type="submit" class="notes-primary">Save note</button></div></form></dialog>
+<script src="app.js"></script>
 <script src="notes-studio.js"></script>
 </body></html>
