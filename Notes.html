@@ -13,6 +13,26 @@
 <link rel="stylesheet" href="notes-studio.css">
 </head>
 <body>
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
+    <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+        <span class="ha-brand-badge" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
+                <path d="M4 17l5.5-5.5 3.5 3.5L20 7"/>
+                <path d="M14.5 7H20v5.5"/>
+            </svg>
+        </span>
+        <span class="ha-brand-wordmark">HabitArc</span>
+    </a>
+    <div class="flex items-center gap-2">
+        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
+            <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+            <span id="header-streak-count">0d</span>
+        </div>
+        <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
+            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
+        </a>
+    </div>
+</header>
 <header class="notes-topbar">
   <a class="notes-brand" href="Dashboard.html"><span class="notes-logo material-symbols-outlined">trending_up</span>HabitArc</a>
   <nav class="notes-desktop-nav" aria-label="Main navigation"><a href="Dashboard.html">Dashboard</a><a href="Habits.html">Habits</a><a class="active" href="Notes.html" aria-current="page">Notes</a><a href="Insights.html">Insights</a><a href="Arc_AI.html">ARC AI</a></nav>
@@ -30,7 +50,7 @@
 <span class="material-symbols-outlined text-[22px] leading-none">home</span>
 <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
 </a>
-<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary/[0.08] text-primary font-semibold shadow-sm transition-all duration-200" href="Habits.html">
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant transition-all duration-200" href="Habits.html">
 <span class="material-symbols-outlined text-[22px] leading-none fill">format_list_bulleted</span>
 <span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
 </a>
