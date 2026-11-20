@@ -179,7 +179,7 @@
                 nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
             });
             document.querySelectorAll('body > nav.fixed').forEach(nav => {
-                if (nav.querySelector('a[href="Notes.html"]')) return;
+                if (nav.querySelector('a[href="Notes.html"]')) { nav.style.gridTemplateColumns = 'repeat(6, minmax(0, 1fr))'; return; }
                 const link = document.createElement('a');
                 link.href = 'Notes.html';
                 link.className = 'col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all';

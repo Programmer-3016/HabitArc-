@@ -2597,3 +2597,23 @@ body.ha-arc-body > main.ha-arc-ai {
     animation-duration: 100ms !important;
     animation-delay: 0ms !important;
 }
+
+/* Mobile PWA navigation: six destinations with an anchored centre action. */
+@media (max-width:767px){
+  body:has(> nav.fixed) {padding-bottom:calc(112px + env(safe-area-inset-bottom, 0px));}
+  body > nav.fixed {
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+    gap:0 !important;
+    padding:9px 5px !important;
+    bottom:max(10px,env(safe-area-inset-bottom,0px)) !important;
+    width:calc(100% - 20px) !important;
+    max-width:460px !important;
+    margin-inline:auto !important;
+    left:10px !important;right:10px !important;
+  }
+  body > nav.fixed > a {min-width:0 !important;padding-left:1px !important;padding-right:1px !important;text-align:center;}
+  body > nav.fixed > a > span:last-child {font-size:clamp(8px,2.3vw,10px) !important;white-space:nowrap;letter-spacing:-.2px;}
+  body > nav.fixed > a[href="Add_Habit.html"] {top:-14px !important;}
+  body > nav.fixed > a[href="Add_Habit.html"] > div {width:48px !important;height:48px !important;}
+  body > nav.fixed > a[href="Notes.html"][aria-current="page"] {background:rgb(var(--ha-primary)/.12);color:rgb(var(--ha-primary));font-weight:700;}
+}
