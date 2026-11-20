@@ -2598,68 +2598,56 @@ body.ha-arc-body > main.ha-arc-ai {
     animation-delay: 0ms !important;
 }
 
-/* Mobile PWA navigation: six destinations with an anchored centre action. */
-@media (max-width:767px){
-  body:has(> nav.fixed) {padding-bottom:calc(112px + env(safe-area-inset-bottom, 0px));}
-  body > nav.fixed {
-    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
-    gap:0 !important;
-    padding:9px 5px !important;
-    bottom:max(10px,env(safe-area-inset-bottom,0px)) !important;
-    width:calc(100% - 20px) !important;
-    max-width:460px !important;
-    margin-inline:auto !important;
-    left:10px !important;right:10px !important;
-  }
-  body > nav.fixed > a {min-width:0 !important;padding-left:1px !important;padding-right:1px !important;text-align:center;}
-  body > nav.fixed > a > span:last-child {font-size:clamp(8px,2.3vw,10px) !important;white-space:nowrap;letter-spacing:-.2px;}
-  body > nav.fixed > a[href="Add_Habit.html"] {top:-14px !important;}
-  body > nav.fixed > a[href="Add_Habit.html"] > div {width:48px !important;height:48px !important;}
-  body > nav.fixed > a[href="Notes.html"][aria-current="page"] {background:rgb(var(--ha-primary)/.12);color:rgb(var(--ha-primary));font-weight:700;}
-}
 
-/* Keep the six-item navigation on a single baseline; prevent the Add action
-   from covering habit cards or floating above the navigation container. */
-@media (max-width:767px){
-  body > nav.fixed {
-    display:grid !important;
+/* Single source of truth for the six-tab mobile PWA dock.
+   The old raised-action ::before notch is intentionally removed. */
+@media(max-width:767px){
+  body:has(> nav.fixed){padding-bottom:calc(106px + env(safe-area-inset-bottom,0px));}
+  body > nav.fixed{
+    position:fixed !important; display:grid !important;
     grid-template-columns:repeat(6,minmax(0,1fr)) !important;
-    align-items:center !important;
-    min-height:70px !important;
-    padding:8px 6px !important;
-    overflow:visible;
+    align-items:center !important; gap:0 !important;
+    width:calc(100% - 24px) !important; max-width:460px !important;
+    left:12px !important;right:12px !important;
+    margin:0 auto !important;
+    bottom:calc(10px + env(safe-area-inset-bottom,0px)) !important;
+    padding:7px 6px !important; min-height:70px !important;
   }
-  body > nav.fixed > a {
-    position:relative;
-    top:auto !important;
-    transform:none !important;
-    align-self:center !important;
-    min-height:50px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:3px;
+  body > nav.fixed > a:not([href="Add_Habit.html"]){
+    display:flex !important;flex-direction:column !important;
+    align-items:center !important;justify-content:center !important;
+    gap:3px !important;min-width:0 !important;min-height:52px !important;
+    padding:5px 1px !important;
+    text-align:center;
   }
-  body > nav.fixed > a[href="Add_Habit.html"] {
-    top:0 !important;
-    margin:0 !important;
-    min-height:50px;
+  body > nav.fixed > a > span:last-child{
+    font-size:clamp(8px,2.35vw,10px) !important;
+    white-space:nowrap;line-height:1.15 !important;
+    letter-spacing:-.2px !important;
   }
-  body > nav.fixed > a[href="Add_Habit.html"] > div {
-    width:42px !important;
-    height:42px !important;
-    min-width:42px !important;
-    border:2px solid rgb(var(--ha-outline-variant)) !important;
-    box-shadow:2px 2px 0 rgb(var(--ha-outline-variant)) !important;
+  body > nav.fixed > a[href="Add_Habit.html"],
+  body > nav.fixed > a[href="Add_Habit.html"]:is(:hover,:active,:focus,:focus-visible,.ha-nav-pending,[aria-current="page"]){
+    position:relative !important;top:0 !important;
+    align-self:center !important;justify-self:center !important;
+    display:grid !important;place-items:center !important;
+    margin:0 !important;padding:0 !important;
+    width:100% !important;min-width:0 !important;
+    height:52px !important;min-height:52px !important;
+    background:transparent !important;border:0 !important;
+    box-shadow:none !important;
+  }
+  body > nav.fixed > a[href="Add_Habit.html"]::before,
+  body > nav.fixed > a[href="Add_Habit.html"]::after{
+    content:none !important;display:none !important;
+  }
+  body > nav.fixed > a[href="Add_Habit.html"] > div{
+    position:relative;z-index:1;
+    width:43px !important;height:43px !important;min-width:43px !important;
+    border:2px solid var(--rpg-dock-border,#121215) !important;
+    box-shadow:0 2px 0 var(--rpg-dock-border,#121215) !important;
+    border-radius:9999px !important;
     --tw-ring-shadow:0 0 #0000 !important;
-    transform:none !important;
-  }
-  body > nav.fixed > a[href="Add_Habit.html"] .material-symbols-outlined {
-    font-size:24px !important;
-  }
-  body > nav.fixed > a > span:last-child {
-    font-size:clamp(8px,2.2vw,10px) !important;
-    line-height:1.15 !important;
+    --tw-ring-offset-shadow:0 0 #0000 !important;
+    --tw-shadow:0 0 #0000 !important;
   }
 }
