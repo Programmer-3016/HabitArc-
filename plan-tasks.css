@@ -1,0 +1,253 @@
+/* HabitArc Planner: shared cream/lavender neo-brutalist design language. */
+#ha-plan-habits[hidden],
+#ha-plan-tasks[hidden],
+#ha-task-form-error[hidden],
+#ha-task-delete[hidden] { display: none !important; }
+
+.ha-plan-overview {
+  display: grid;
+  gap: 18px;
+  padding: 0 0 6px;
+  color: rgb(var(--ha-on-surface,18 18 21));
+}
+.ha-plan-kicker {
+  margin: 0;
+  font: 800 11px/1.45 'Geist','Hanken Grotesk',sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: rgb(var(--ha-primary,124 58 237));
+}
+.ha-plan-overview-row { display:flex; align-items:center; justify-content:space-between; gap:15px; }
+.ha-plan-overview h1 {
+  font: 800 clamp(32px,6vw,48px)/1.07 'Hanken Grotesk',sans-serif;
+  letter-spacing: -.055em;
+  margin: 0 0 8px;
+}
+.ha-plan-overview h1 span { color: rgb(var(--ha-primary,124 58 237)); }
+.ha-plan-overview-row p {
+  color:rgb(var(--ha-on-surface-variant,82 82 91));
+  font: 500 14px/1.5 'Hanken Grotesk',sans-serif;
+  margin:0;
+}
+.ha-plan-badge {
+  background:rgb(var(--ha-primary-container,196 181 253));
+  border:2px solid rgb(var(--ha-outline-variant,18 18 21));
+  box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215);
+  padding:13px;
+  border-radius:16px;
+  font-size:28px !important;
+}
+.ha-plan-modes {
+  width:min(100%,470px);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  padding:5px;
+  gap:5px;
+  background:rgb(var(--ha-surface-container-low,244 242 239));
+  border:2px solid rgb(var(--ha-outline-variant,18 18 21));
+  border-radius:16px;
+}
+.ha-plan-modes button,
+.ha-task-view-switch button {
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:1.5px solid transparent;
+  border-radius:11px;
+  color:rgb(var(--ha-on-surface-variant,82 82 91));
+  background:transparent;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+}
+.ha-plan-modes button .material-symbols-outlined,
+.ha-task-view-switch button .material-symbols-outlined { font-size:20px; }
+.ha-plan-modes button[aria-selected="true"],
+.ha-task-view-switch button[aria-selected="true"] {
+  background:rgb(var(--ha-primary-container,196 181 253));
+  border-color:rgb(var(--ha-outline-variant,18 18 21));
+  color:rgb(var(--ha-on-surface,18 18 21));
+  box-shadow:2px 2px 0 var(--rpg-shadow-ink,#121215);
+}
+.ha-plan-modes button:focus-visible,
+.ha-task-view-switch button:focus-visible,
+.ha-task-feed button:focus-visible {outline:2px solid rgb(var(--ha-primary,124 58 237));outline-offset:2px;}
+.ha-plan-tasks { max-width:100%; color:rgb(var(--ha-on-surface,18 18 21)); }
+.ha-tasks-toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:21px;
+}
+.ha-tasks-toolbar h2 {font:800 26px/1.2 'Hanken Grotesk',sans-serif;letter-spacing:-.04em;margin:6px 0 3px;}
+.ha-task-status {
+  font-size:11px;
+  color:rgb(var(--ha-on-surface-variant,82 82 91));
+  line-height:1.5;
+}
+.ha-task-status[data-sync-state="error"] {color:#b45309;}
+.ha-task-new,
+.ha-task-save,
+.ha-task-empty button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  background:rgb(var(--ha-on-surface,18 18 21));
+  color:rgb(var(--ha-surface,255 255 255));
+  border:2px solid rgb(var(--ha-outline-variant,18 18 21));
+  border-radius:12px;
+  padding:10px 15px;
+  font:800 13px 'Hanken Grotesk',sans-serif;
+  box-shadow:3px 3px 0 rgb(var(--ha-primary,124 58 237));
+  cursor:pointer;
+  white-space:nowrap;
+}
+.ha-task-new .material-symbols-outlined,.ha-task-save .material-symbols-outlined {font-size:19px;}
+.ha-tasks-hero {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:23px 25px;
+  background:rgb(var(--ha-primary-container,196 181 253));
+  color:rgb(var(--ha-on-surface,18 18 21));
+  border:2px solid rgb(var(--ha-outline-variant,18 18 21));
+  border-radius:20px;
+  box-shadow:4px 4px 0 var(--rpg-shadow-ink,#121215);
+  margin-bottom:26px;
+}
+.ha-tasks-hero-kicker {font:800 11px 'Geist',sans-serif;letter-spacing:.12em;}
+#ha-task-focus-count {font-size:clamp(30px,5vw,43px);font-weight:800;letter-spacing:-.05em;margin:9px 0 2px;line-height:1;}
+#ha-task-focus-caption {font-size:13px;font-weight:600;}
+.ha-tasks-progress-ring {
+  --ha-tasks-percent:0%;
+  width:88px;
+  height:88px;
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:conic-gradient(rgb(var(--ha-on-surface,18 18 21)) var(--ha-tasks-percent),rgb(var(--ha-surface,255 255 255) / .45) 0);
+  position:relative;
+}
+.ha-tasks-progress-ring::before {content:'';position:absolute;inset:11px;border-radius:50%;background:rgb(var(--ha-primary-container,196 181 253));}
+.ha-tasks-progress-ring span {position:relative;font-size:19px;font-weight:800;}
+.ha-task-view-switch {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:22px;
+  padding-bottom:13px;
+  border-bottom:1.5px solid rgb(var(--ha-outline-variant,18 18 21) / .35);
+}
+.ha-task-group {margin:0 0 25px;}
+.ha-task-group-head {display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+.ha-task-group-head h3 {margin:0;display:flex;align-items:center;gap:8px;font-size:17px;font-weight:800;letter-spacing:-.03em;}
+.ha-task-group-head .material-symbols-outlined{font-size:20px;color:rgb(var(--ha-primary,124 58 237));}
+.ha-task-group-head>span{font-size:12px;color:rgb(var(--ha-on-surface-variant,82 82 91));font-weight:700;}
+.ha-task-card-stack {display:grid;gap:12px;}
+.ha-task-card {
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) 28px;
+  align-items:start;
+  gap:9px;
+  border:2px solid rgb(var(--ha-outline-variant,18 18 21));
+  border-radius:17px;
+  background:rgb(var(--ha-surface-container-lowest,255 255 255));
+  box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215);
+  padding:17px 16px;
+  min-width:0;
+}
+.ha-task-card.is-complete {opacity:.72;}
+.ha-task-card-body {min-width:0;}
+.ha-task-card-body h3 {font-size:16px;line-height:1.35;font-weight:800;letter-spacing:-.025em;margin:3px 0 7px;overflow-wrap:anywhere;}
+.ha-task-card.is-complete h3{text-decoration:line-through;text-decoration-thickness:1.5px;}
+.ha-task-description {font-size:12px;line-height:1.55;color:rgb(var(--ha-on-surface-variant,82 82 91));white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 9px;}
+.ha-task-toggle,.ha-task-edit {padding:0;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:rgb(var(--ha-on-surface,18 18 21));}
+.ha-task-toggle {height:34px;width:34px;}
+.ha-task-toggle .material-symbols-outlined {font-size:31px;}
+.ha-task-card.is-complete .ha-task-toggle {color:rgb(var(--ha-primary,124 58 237));}
+.ha-task-edit {height:32px;width:28px;color:rgb(var(--ha-on-surface-variant,82 82 91));}
+.ha-task-card-meta {display:flex;flex-wrap:wrap;align-items:center;gap:7px 14px;margin:9px 0 7px;}
+.ha-task-card-meta > span,.ha-task-linked {
+  display:inline-flex;align-items:center;gap:4px;
+  font:600 11px/1.4 'Hanken Grotesk',sans-serif;
+  color:rgb(var(--ha-on-surface-variant,82 82 91));text-decoration:none;
+}
+.ha-task-card-meta .material-symbols-outlined {font-size:14px;}
+.ha-task-priority-high {color:#c2410c !important;}
+.ha-task-priority-medium {color:#a16207 !important;}
+.ha-task-priority-low {color:rgb(var(--ha-primary,124 58 237)) !important;}
+.ha-task-linked {text-decoration:underline;text-underline-offset:2px;}
+.ha-task-steps {display:grid;gap:8px;margin:12px 0 6px;padding:11px;background:rgb(var(--ha-surface-container-low,244 242 239));border-radius:10px;}
+.ha-task-step {display:flex;align-items:flex-start;gap:9px;font:500 12px/1.5 'Hanken Grotesk',sans-serif;cursor:pointer;}
+.ha-task-step input {appearance:auto;margin-top:2px;flex:0 0 auto;accent-color:#7c3aed;width:16px;height:16px;}
+.ha-task-step.is-done span{text-decoration:line-through;color:rgb(var(--ha-on-surface-variant,82 82 91));}
+.ha-task-step-summary{font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91));}
+.ha-task-empty {
+  border:2px dashed rgb(var(--ha-outline-variant,18 18 21));
+  border-radius:18px;
+  min-height:240px;
+  padding:35px 22px;
+  text-align:center;
+  display:grid;justify-items:center;align-content:center;gap:10px;
+}
+.ha-task-empty>.material-symbols-outlined {font-size:42px;color:rgb(var(--ha-primary,124 58 237));}
+.ha-task-empty h3{margin:0;font-size:20px;font-weight:800;}
+.ha-task-empty p{margin:0 0 8px;max-width:320px;font-size:13px;line-height:1.5;color:rgb(var(--ha-on-surface-variant,82 82 91));}
+.ha-task-empty button {font-size:12px;}
+.ha-task-timeline {border-left:2px solid rgb(var(--ha-outline-variant,18 18 21) / .27);margin:8px 0 0 15px;padding:0 0 0 22px;}
+.ha-task-day {position:relative;margin:0 0 28px;}
+.ha-task-day-dot {position:absolute;left:-31px;top:5px;width:15px;height:15px;background:rgb(var(--ha-surface,255 255 255));border:3px solid rgb(var(--ha-primary,124 58 237));border-radius:50%;}
+.ha-task-day.is-today .ha-task-day-dot{background:rgb(var(--ha-primary,124 58 237));box-shadow:0 0 0 5px rgb(var(--ha-primary,124 58 237) / .14);}
+.ha-task-day-head {display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+.ha-task-day-head h3 {font-size:17px;font-weight:800;margin:0;}
+.ha-task-today-label {background:rgb(var(--ha-primary-container,196 181 253));border-radius:7px;padding:4px 6px;font-size:9px;font-weight:800;}
+.ha-task-day-progress {margin-left:auto;font-size:12px;font-weight:700;color:rgb(var(--ha-on-surface-variant,82 82 91));}
+.ha-task-day-empty {padding:13px 0;font-size:13px;color:rgb(var(--ha-on-surface-variant,82 82 91));display:flex;gap:12px;align-items:center;}
+.ha-task-day-empty button{border:0;background:transparent;color:rgb(var(--ha-primary,124 58 237));font-size:12px;font-weight:800;cursor:pointer;}
+.ha-task-dialog {background:rgb(var(--ha-surface-container-lowest,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));border:2px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:18px;box-shadow:5px 5px 0 var(--rpg-shadow-ink,#121215);width:min(calc(100% - 28px),560px);max-height:min(90dvh,780px);overflow:auto;padding:23px;}
+.ha-task-dialog::backdrop{background:rgb(17 17 20 / .6);backdrop-filter:blur(3px);}
+.ha-task-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:20px;}
+.ha-task-dialog-head h2 {font-size:23px;font-weight:800;letter-spacing:-.04em;margin:0;}
+.ha-task-dialog-head button {border:0;background:none;color:inherit;padding:4px;cursor:pointer;}
+.ha-task-dialog form {display:grid;gap:13px;}
+.ha-task-field{display:block;font-size:12px;font-weight:800;}
+.ha-task-field>span {font-weight:500;color:rgb(var(--ha-on-surface-variant,82 82 91));}
+.ha-task-field input,.ha-task-field select,.ha-task-field textarea {
+  width:100%;display:block;min-height:42px;margin-top:7px;padding:10px 11px;
+  background:rgb(var(--ha-surface,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));
+  border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));
+  border-radius:10px;
+  outline-color:rgb(var(--ha-primary,124 58 237));
+  font:500 13px/1.5 'Hanken Grotesk',sans-serif;
+}
+.ha-task-field textarea {resize:vertical;}
+.ha-task-field-pair {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ha-task-form-error{color:#b91c1c;font-size:12px;}
+.ha-task-dialog-actions {display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:8px;}
+.ha-task-delete {background:transparent;border:0;color:#be123c;font-weight:800;font-size:13px;text-decoration:underline;cursor:pointer;}
+.ha-task-save{margin-left:auto;}
+@media (max-width:767px) {
+  .ha-plan-overview {gap:15px;}
+  .ha-plan-modes{width:100%;}
+  .ha-plan-badge {font-size:22px !important;padding:10px;}
+  .ha-tasks-toolbar{align-items:flex-start;}
+  .ha-tasks-toolbar h2{font-size:22px;}
+  .ha-tasks-hero{padding:20px 18px;border-radius:18px;}
+  .ha-tasks-progress-ring{width:76px;height:76px;}
+  .ha-tasks-progress-ring::before{inset:9px;}
+  .ha-task-card{padding:13px 11px;grid-template-columns:30px minmax(0,1fr) 25px;gap:8px;}
+  .ha-task-toggle {height:30px;width:30px;}
+  .ha-task-toggle .material-symbols-outlined{font-size:28px;}
+  .ha-task-card-body h3{font-size:15px;}
+}
+@media(max-width:400px){
+  .ha-task-field-pair{grid-template-columns:1fr;}
+  .ha-tasks-toolbar .ha-task-new{padding:9px 10px;font-size:12px;}
+  .ha-plan-overview h1{font-size:34px;}
+}
