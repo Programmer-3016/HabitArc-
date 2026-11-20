@@ -179,13 +179,22 @@
                 nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
             });
             document.querySelectorAll('body > nav.fixed').forEach(nav => {
-                if (nav.querySelector('a[href="Notes.html"]')) { nav.style.gridTemplateColumns = 'repeat(6, minmax(0, 1fr))'; return; }
-                const link = document.createElement('a');
-                link.href = 'Notes.html';
-                link.className = 'col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all';
-                link.innerHTML = '<span class="material-symbols-outlined text-[22px] leading-none">description</span><span class="text-[10px] tracking-tight mt-1 leading-none geist">Notes</span>';
-                nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
-                nav.style.gridTemplateColumns = 'repeat(6, minmax(0, 1fr))';
+                // Normalize an older cached dock as well as fresh pages to
+                // the same five tabs, avoiding six-item layout regressions.
+                nav.classList.add('ha-bottom-nav');
+                nav.style.removeProperty('grid-template-columns');
+                nav.querySelector('a[href="Add_Habit.html"]')?.remove();
+                if (!nav.querySelector('a[href="Notes.html"]')) {
+                    const link = document.createElement('a');
+                    link.href = 'Notes.html';
+                    link.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">description</span><span class="ha-bottom-nav-label">Notes</span>';
+                    nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
+                }
+                nav.querySelectorAll('a').forEach(link => {
+                    link.classList.add('ha-bottom-nav-link');
+                    const label = link.querySelector('span:last-child');
+                    if (label) label.classList.add('ha-bottom-nav-label');
+                });
             });
             if (main) {
                 main.id ||= 'main-content';
@@ -200,7 +209,7 @@
                 skip.href = `#${main.id}`;
             }
             if (appPages.has(page)) document.documentElement.classList.add('ha-app-navigation');
-            const activePage = page === 'Habit_Detail.html' ? 'Habits.html'
+            const activePage = (page === 'Habit_Detail.html' || page === 'Add_Habit.html') ? 'Habits.html'
                 : page === 'Settings.html' ? 'Profile.html' : page;
             document.querySelectorAll('nav').forEach(nav => {
                 nav.setAttribute('aria-label', nav.classList.contains('fixed') ? 'Mobile navigation' : 'Main navigation');
