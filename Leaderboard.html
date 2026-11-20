@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#141212" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<script defer src="pwa-register.js"></script>
+<title>Leaderboard · HabitArc</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Space+Grotesk:wght@600;700&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed": "#002113",
+                        "on-surface": "#191c1d",
+                        "on-background": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "tertiary-fixed": "#ffdad8",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2e3132",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-primary-fixed": "#002114",
+                        "surface-container-low": "#f3f4f5",
+                        "primary": "#012d1d",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#85d7ad",
+                        "secondary-container": "#a0f4c8",
+                        "tertiary-fixed-dim": "#f5b7b4",
+                        "on-tertiary-container": "#d29895",
+                        "on-tertiary-fixed": "#331111",
+                        "on-surface-variant": "#414844",
+                        "primary-fixed": "#c1ecd4",
+                        "secondary": "#0e6c4a",
+                        "outline-variant": "#c1c8c2",
+                        "outline": "#717973",
+                        "surface-variant": "#e1e3e4",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "surface-container": "#edeeef",
+                        "surface": "#f8f9fa",
+                        "surface-tint": "#3f6653",
+                        "inverse-primary": "#a5d0b9",
+                        "on-secondary-container": "#19724f",
+                        "on-tertiary-fixed-variant": "#673a39",
+                        "on-primary-container": "#86af99",
+                        "background": "#f8f9fa",
+                        "tertiary-container": "#5a302f",
+                        "primary-container": "#1b4332",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "tertiary": "#401b1b",
+                        "secondary-fixed": "#a0f4c8",
+                        "on-tertiary": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "container-padding": "20px",
+                        "element-gap": "12px",
+                        "stack-gap": "16px",
+                        "card-padding": "20px",
+                        "section-margin": "32px"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Geist"]
+                    },
+                    fontSize: {
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+
+<link rel="stylesheet" href="app-ui.css"/>
+<link rel="stylesheet" href="leaderboard.css"/>
+<script src="app-ui.js"></script>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen pb-24 relative overflow-x-hidden">
+<!-- Subtle Background Pattern -->
+<div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
+<!-- Top App Bar (Mobile) -->
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
+    <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+        <span class="ha-brand-badge" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
+                <path d="M4 17l5.5-5.5 3.5 3.5L20 7"/>
+                <path d="M14.5 7H20v5.5"/>
+            </svg>
+        </span>
+        <span class="ha-brand-wordmark">HabitArc</span>
+    </a>
+    <div class="flex items-center gap-2">
+        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
+            <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+            <span id="header-streak-count">0d</span>
+        </div>
+        <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
+            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
+        </a>
+    </div>
+</header>
+
+<!-- Desktop Top Bar (Full-width, clean, minimal) -->
+<header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
+    <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
+        <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+            <span class="ha-brand-badge" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M4 17l5.5-5.5 3.5 3.5L20 7"/>
+                    <path d="M14.5 7H20v5.5"/>
+                </svg>
+            </span>
+            <span class="ha-brand-wordmark">HabitArc</span>
+        </a>
+        <nav class="flex items-center gap-1">
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Dashboard.html">Dashboard</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-semibold text-primary transition-colors" href="Habits.html">Habits</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Insights.html">Insights</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Arc_AI.html">ARC AI</a>
+        </nav>
+        <div class="flex items-center gap-2">
+            <a href="Add_Habit.html" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">add</span>
+                New
+            </a>
+            <div class="px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/15 text-amber-600 flex items-center gap-1.5 font-semibold text-xs geist">
+                <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+                <span id="header-streak-count-web">0 Day Streak</span>
+            </div>
+            <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
+            </a>
+        </div>
+    </div>
+</header>
+<main id="board" class="ha-leaderboard lb-main w-full mx-auto">
+  <div class="lb-intro"><div><p class="ha-insights-eyebrow">Arc League · Demo</p><h1>Leaderboard</h1><p class="ha-insights-intro">See how your runner stacks up against the league.</p></div>
+    <div class="lb-filters" role="group" aria-label="Ranking period"><button type="button" data-period="weekly" aria-pressed="true">This week</button><button type="button" data-period="allTime" aria-pressed="false">All time</button></div>
+  </div>
+  <div class="lb-grid">
+    <div class="lb-feature">
+      <section class="lb-stage" aria-label="Top three runners"><div class="lb-stage-head"><div><p class="lb-terminal">Podium</p><h2>Front runners</h2></div><svg class="lb-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg></div>
+        <div class="lb-scene" aria-hidden="true"><div class="lb-orbit"></div><div class="lb-hills"></div></div>
+        <div id="podium" class="lb-podium"></div>
+      </section>
+      <section class="lb-personal" aria-label="Your sample standing"><div class="lb-self-rank" id="self-rank">—</div><div><h2>Your position</h2><p id="self-gap"></p></div><button type="button" id="find-me" aria-label="Find your row in the standings" title="Find your row">↓</button></section>
+    </div>
+    <section class="lb-standings" aria-labelledby="standings-title"><div class="lb-table-head"><div class="lb-terminal">League rankings</div><div class="lb-table-title"><h2 id="standings-title">Standings</h2><span id="roster"></span></div></div>
+      <table><thead><tr><th scope="col">Rank</th><th scope="col">Runner</th><th scope="col">Points</th></tr></thead><tbody id="entries"></tbody></table>
+    </section>
+  </div>
+  <footer class="lb-foot"><span>●</span> Demo league · Sample runners and points, not live account data.</footer>
+  <p class="lb-sr" id="announcement" role="status" aria-live="polite"></p>
+  <noscript>Enable JavaScript to display sample standings.</noscript>
+</main>
+<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-surface/95 dark:bg-surface-container/95 backdrop-blur-xl border border-outline-variant/30 dark:border-outline/30 rounded-3xl shadow-[0_12px_32px_rgba(0,0,0,0.12)] px-2 py-2 grid grid-cols-5 items-center">
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Dashboard.html">
+<span class="material-symbols-outlined text-[22px] leading-none">home</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Dashboard</span>
+</a>
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl bg-primary/[0.08] text-primary font-semibold shadow-sm transition-all duration-200" href="Habits.html">
+<span class="material-symbols-outlined text-[22px] leading-none fill">format_list_bulleted</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Habits</span>
+</a>
+<a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
+<div class="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(1,45,29,0.4)] ring-4 ring-background dark:ring-surface-container active:scale-90 hover:scale-105 transition-all">
+<span class="material-symbols-outlined text-[28px] leading-none flex items-center justify-center">add</span>
+</div>
+</a>
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Insights.html">
+<span class="material-symbols-outlined text-[22px] leading-none">insights</span>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">Insights</span>
+</a>
+<a class="col-span-1 flex flex-col items-center justify-center py-1 px-1 rounded-2xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all duration-200" href="Arc_AI.html">
+<svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
+<rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
+<rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
+<rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
+<rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
+<rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
+<rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
+</svg>
+<span class="font-label-sm text-[10px] tracking-tight mt-1 leading-none">ARC AI</span>
+</a>
+</nav>
+<script src="app.js"></script>
+<script src="companion-sprites.js"></script>
+<script src="streak-runner.js"></script>
+</body>
+</html>

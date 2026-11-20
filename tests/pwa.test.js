@@ -116,6 +116,9 @@ test('PWA precaches complete HabitArc app shell and square/maskable icons', asyn
     '/index.html',
     '/Dashboard.html',
     '/Habits.html',
+    '/Leaderboard.html',
+    '/leaderboard.js',
+    '/leaderboard.css',
     '/Arc_AI.html',
     '/app.js',
     '/app-ui.css',
@@ -132,7 +135,7 @@ test('PWA precaches complete HabitArc app shell and square/maskable icons', asyn
 test('PWA removes obsolete HabitArc caches without removing active CDN or foreign caches', async () => {
   const app = worker();
   await app.lifecycle('activate');
-  assert.deepEqual(app.removed, ['habitarc-offline-v2', 'habitarc-shell-v7']);
+  assert.deepEqual(app.removed, ['habitarc-offline-v2', 'habitarc-shell-v7', 'habitarc-shell-v8']);
   assert.equal(app.claimed, true);
 });
 

@@ -36,7 +36,7 @@
         };
     }
 
-    const appPages = new Set(['Dashboard.html', 'Habits.html', 'Insights.html', 'Arc_AI.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html']);
+    const appPages = new Set(['Dashboard.html', 'Habits.html', 'Insights.html', 'Leaderboard.html', 'Arc_AI.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html']);
     let pageAbortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
     let capturingPageListeners = false;
 
@@ -148,6 +148,27 @@
         function syncPageChrome() {
             const page = location.pathname.split('/').pop() || 'Dashboard.html';
             const main = document.querySelector('main');
+            if (appPages.has(page)) {
+                document.querySelectorAll('body > header nav').forEach(nav => {
+                    if (nav.querySelector('a[href="Leaderboard.html"]')) return;
+                    const tab = document.createElement('a');
+                    tab.href = 'Leaderboard.html';
+                    tab.textContent = 'Leaderboard';
+                    nav.insertBefore(tab, nav.querySelector('a[href="Arc_AI.html"]'));
+                });
+                const profile = document.querySelector('body > header.md\\:hidden a[href="Profile.html"]');
+                if (profile && !profile.parentNode.querySelector('a[href="Leaderboard.html"]')) {
+                    const trophy = document.createElement('a');
+                    trophy.href = 'Leaderboard.html';
+                    trophy.className = 'ha-hdr-profile';
+                    trophy.setAttribute('aria-label', 'Leaderboard');
+                    trophy.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg>';
+                    profile.before(trophy);
+                }
+                const leagueShortcut = profile?.parentNode.querySelector('a[href="Leaderboard.html"]');
+                if (leagueShortcut && page === 'Leaderboard.html') leagueShortcut.setAttribute('aria-current', 'page');
+                else leagueShortcut?.removeAttribute('aria-current');
+            }
             if (main) {
                 main.id ||= 'main-content';
                 main.tabIndex = -1;
@@ -207,6 +228,17 @@
             }
             renderInstallBanner();
             if (typeof _syncHeaderChrome === 'function') _syncHeaderChrome();
+            if (page === 'Leaderboard.html' && main?.classList.contains('ha-leaderboard')) {
+                if (!document.head.querySelector('link[href="leaderboard.css"]')) {
+                    const sheet = document.createElement('link');
+                    sheet.rel = 'stylesheet';
+                    sheet.href = 'leaderboard.css';
+                    document.head.append(sheet);
+                }
+                import('./leaderboard.js').then(m => m.mountLeaderboard(main)).catch(() => {
+                    if (main.isConnected) main.querySelector('#announcement').textContent = 'Could not load standings. Please refresh to retry.';
+                });
+            }
         }
 
         syncPageChrome();
@@ -276,6 +308,14 @@
         }
 
         async function navigateInPlace(targetUrl, { pushState = true } = {}) {
+            // A direct visit to the sample league does not require an account.
+            // When leaving it without a session, let the destination run its normal entry checks.
+            if (document.querySelector('main.ha-leaderboard') && !window.HabitArc?.getAuthUser?.()
+                && !targetUrl.pathname.endsWith('/Leaderboard.html')) {
+                if (pushState) location.assign(targetUrl.href);
+                else location.replace(targetUrl.href);
+                return;
+            }
             if (typeof DOMParser !== 'undefined') {
                 const seq = ++navSequence;
                 const targetPage = targetUrl.pathname.split('/').pop();

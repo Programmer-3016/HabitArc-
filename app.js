@@ -1772,7 +1772,7 @@ const HabitArc = (() => {
 
     function _isProtectedAppPage() {
         const pageName = window.location.pathname.split('/').pop()?.toLowerCase() || '';
-        return !['', 'index.html', 'onboarding.html'].includes(pageName);
+        return !['', 'index.html', 'onboarding.html', 'leaderboard.html'].includes(pageName);
     }
 
     function _handleSignedOutState() {
@@ -2124,7 +2124,7 @@ function _syncHeaderChrome() {
     const initial = displayName ? displayName[0].toUpperCase() : '';
     const photoUrl = typeof user?.photoURL === 'string' && /^https?:\/\//i.test(user.photoURL) ? user.photoURL : '';
 
-    document.querySelectorAll('body > header a.ha-hdr-profile').forEach(link => {
+    document.querySelectorAll('body > header a.ha-hdr-profile[href="Profile.html"]').forEach(link => {
         link.setAttribute('aria-label', displayName ? `${displayName}'s profile` : 'Profile');
         link.innerHTML = '';
         if (photoUrl) {
