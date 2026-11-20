@@ -2589,55 +2589,105 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 
 
-/* Single source of truth for the six-tab mobile PWA dock.
-   The old raised-action ::before notch is intentionally removed. */
+/* Shared five-tab mobile dock — Dashboard, Habits, Notes, Insights, ARC AI.
+   No raised action or cut-out; every tab has equal space and a proper touch target. */
 @media(max-width:767px){
-  body:has(> nav.fixed){padding-bottom:calc(106px + env(safe-area-inset-bottom,0px));}
-  body > nav.fixed{
-    position:fixed !important; display:grid !important;
-    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
-    align-items:center !important; gap:0 !important;
-    width:calc(100% - 24px) !important; max-width:460px !important;
-    left:12px !important;right:12px !important;
-    margin:0 auto !important;
-    bottom:calc(10px + env(safe-area-inset-bottom,0px)) !important;
-    padding:7px 6px !important; min-height:70px !important;
+  body:has(> nav.ha-bottom-nav) {
+    padding-bottom:calc(105px + env(safe-area-inset-bottom,0px));
   }
-  body > nav.fixed > a:not([href="Add_Habit.html"]){
-    display:flex !important;flex-direction:column !important;
-    align-items:center !important;justify-content:center !important;
-    gap:3px !important;min-width:0 !important;min-height:52px !important;
-    padding:5px 1px !important;
-    text-align:center;
+  body > nav.ha-bottom-nav {
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:4px !important;
+    align-items:stretch !important;
+    position:fixed !important;
+    width:min(calc(100% - 28px),460px) !important;
+    max-width:460px !important;
+    height:auto !important;
+    min-height:76px !important;
+    left:50% !important;
+    right:auto !important;
+    transform:translateX(-50%) !important;
+    margin:0 !important;
+    padding:7px !important;
+    bottom:calc(11px + env(safe-area-inset-bottom,0px)) !important;
+    z-index:50 !important;
+    background:var(--rpg-dock-bg,#ffffff) !important;
+    border:2px solid var(--rpg-dock-border,#121215) !important;
+    border-radius:23px !important;
+    box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215) !important;
   }
-  body > nav.fixed > a > span:last-child{
-    font-size:clamp(8px,2.35vw,10px) !important;
-    white-space:nowrap;line-height:1.15 !important;
-    letter-spacing:-.2px !important;
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link {
+    min-width:0 !important;
+    min-height:58px !important;
+    padding:6px 1px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:4px !important;
+    position:static !important;
+    margin:0 !important;
+    text-align:center !important;
+    border:1.5px solid transparent !important;
+    border-radius:16px !important;
+    color:rgb(var(--ha-on-surface-variant,82 82 91)) !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
   }
-  body > nav.fixed > a[href="Add_Habit.html"],
-  body > nav.fixed > a[href="Add_Habit.html"]:is(:hover,:active,:focus,:focus-visible,.ha-nav-pending,[aria-current="page"]){
-    position:relative !important;top:0 !important;
-    align-self:center !important;justify-self:center !important;
-    display:grid !important;place-items:center !important;
-    margin:0 !important;padding:0 !important;
-    width:100% !important;min-width:0 !important;
-    height:52px !important;min-height:52px !important;
-    background:transparent !important;border:0 !important;
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link > .material-symbols-outlined {
+    font-size:22px !important;
+    line-height:1 !important;
+  }
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link > .ha-arc-nav-icon {
+    width:22px; height:22px; margin:0 !important;
+  }
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link > .ha-bottom-nav-label {
+    font-family:'Hanken Grotesk','Space Grotesk',sans-serif !important;
+    font-size:clamp(9px,2.5vw,11px) !important;
+    font-weight:700 !important;
+    line-height:1.15 !important;
+    white-space:nowrap !important;
+    letter-spacing:-0.025em !important;
+  }
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link[aria-current="page"] {
+    color:var(--rpg-dock-active-fg,#121215) !important;
+    background:var(--rpg-dock-active-bg,#c4b5fd) !important;
+    border:1.5px solid var(--rpg-dock-active-border,#121215) !important;
     box-shadow:none !important;
   }
-  body > nav.fixed > a[href="Add_Habit.html"]::before,
-  body > nav.fixed > a[href="Add_Habit.html"]::after{
-    content:none !important;display:none !important;
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link:focus-visible {
+    outline:2px solid rgb(var(--ha-primary,124 58 237)) !important;
+    outline-offset:2px;
   }
-  body > nav.fixed > a[href="Add_Habit.html"] > div{
-    position:relative;z-index:1;
-    width:43px !important;height:43px !important;min-width:43px !important;
-    border:2px solid var(--rpg-dock-border,#121215) !important;
-    box-shadow:0 2px 0 var(--rpg-dock-border,#121215) !important;
-    border-radius:9999px !important;
-    --tw-ring-shadow:0 0 #0000 !important;
-    --tw-ring-offset-shadow:0 0 #0000 !important;
-    --tw-shadow:0 0 #0000 !important;
+  .ha-habits-heading-top {
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
   }
+  .ha-habits-create-btn {
+    display:inline-flex;
+    flex:0 0 auto;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:9px 11px;
+    background:var(--rpg-dock-active-bg,#c4b5fd);
+    color:var(--rpg-dock-active-fg,#121215);
+    border:2px solid var(--rpg-dock-border,#121215);
+    border-radius:12px;
+    box-shadow:2px 2px 0 var(--rpg-shadow-ink,#121215);
+    font-size:12px;
+    font-weight:800;
+    text-decoration:none;
+  }
+  .ha-habits-create-btn .material-symbols-outlined {font-size:19px;line-height:1;}
+}
+@media(min-width:768px){
+  body > nav.ha-bottom-nav {display:none !important;}
+  .ha-habits-create-btn {display:none !important;}
 }
