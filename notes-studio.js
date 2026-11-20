@@ -31,6 +31,14 @@ function cleanup(){
 }
 active={grid,cleanup};
 void render();
+const linkedId = new URLSearchParams(location.search).get('note');
+if(linkedId) {
+  void query('list').then(notes => {
+    if(disposed || !grid.isConnected) return;
+    const matching = notes.find(note => note.id === linkedId && note.owner === owner());
+    if(matching) open(matching);
+  }).catch(() => {});
+}
 }
 window.HabitArcNotesStudio={
   mount,
