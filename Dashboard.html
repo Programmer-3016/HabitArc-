@@ -270,26 +270,25 @@
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- BOTTOM NAV — Mobile -->
 <!-- ═══════════════════════════════════════════════════════ -->
-<nav class="md:hidden fixed bottom-3 left-3 right-3 z-50 max-w-md mx-auto bg-white/90 backdrop-blur-xl border border-outline-variant/25 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] px-2 py-2 grid grid-cols-5 items-center">
-    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl bg-primary/[0.08] text-primary font-semibold transition-all" href="Dashboard.html">
-        <span class="material-symbols-outlined text-[22px] leading-none fill">home</span>
-        <span class="text-[10px] tracking-tight mt-1 leading-none geist font-semibold">Dashboard</span>
-    </a>
-    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all" href="Habits.html">
-        <span class="material-symbols-outlined text-[22px] leading-none">format_list_bulleted</span>
-        <span class="text-[10px] tracking-tight mt-1 leading-none geist">Habits</span>
-    </a>
-    <a class="col-span-1 flex items-center justify-center relative -top-4" href="Add_Habit.html">
-        <div class="w-[52px] h-[52px] rounded-full bg-primary text-on-primary flex items-center justify-center shadow-[0_6px_20px_rgba(1,45,29,0.35)] ring-4 ring-background active:scale-90 hover:scale-105 transition-all">
-            <span class="material-symbols-outlined text-[28px] leading-none">add</span>
-        </div>
-    </a>
-    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all" href="Insights.html">
-        <span class="material-symbols-outlined text-[22px] leading-none">insights</span>
-        <span class="text-[10px] tracking-tight mt-1 leading-none geist">Insights</span>
-    </a>
-    <a class="col-span-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl text-on-surface-variant hover:text-primary transition-all" href="Arc_AI.html">
-        <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+<nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
+  <a class="ha-bottom-nav-link" href="Dashboard.html" aria-current="page">
+    <span class="material-symbols-outlined" aria-hidden="true">home</span>
+    <span class="ha-bottom-nav-label">Dashboard</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Habits.html">
+    <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+    <span class="ha-bottom-nav-label">Habits</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Notes.html">
+    <span class="material-symbols-outlined" aria-hidden="true">description</span>
+    <span class="ha-bottom-nav-label">Notes</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Insights.html">
+    <span class="material-symbols-outlined" aria-hidden="true">insights</span>
+    <span class="ha-bottom-nav-label">Insights</span>
+  </a>
+  <a class="ha-bottom-nav-link" href="Arc_AI.html">
+    <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
             <rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
             <rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
             <rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
@@ -298,8 +297,8 @@
             <rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
             <rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
         </svg>
-        <span class="text-[10px] tracking-tight mt-1 leading-none geist">ARC AI</span>
-    </a>
+    <span class="ha-bottom-nav-label">ARC AI</span>
+  </a>
 </nav>
 
 <script src="app.js"></script>
