@@ -505,6 +505,7 @@
                     window.scrollTo(0, 0);
                     window.HabitArc?.applyTheme?.();
                     syncPageChrome();
+                    window.HabitArcCommandHub?.mount?.();
                     if (targetPage === 'Notes.html') {
                         await ensureNotesModule();
                         if (seq === navSequence) window.HabitArcNotesStudio?.mount?.();
@@ -566,4 +567,21 @@
         // Preload on tap/hover/focus only. Fetching every page on startup
         // saturates mobile connections and delays the first tab switch.
     });
+})();
+
+
+// Shared command center loads once; nav swaps only reattach its small header trigger.
+(() => {
+    function loadCommandHub(){
+        if (!document.body) return;
+        if (!document.querySelector('link[href="productivity-hub.css"]')) {
+            const css=document.createElement('link');
+            css.rel='stylesheet';css.href='productivity-hub.css';
+            document.head.append(css);
+        }
+        import('./productivity-hub.js').then(mod=>mod.mountCommandHub())
+            .catch(error=>console.warn('HabitArc Command Center unavailable:',error));
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadCommandHub,{once:true});
+    else loadCommandHub();
 })();
