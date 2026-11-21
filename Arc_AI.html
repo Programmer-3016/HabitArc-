@@ -932,8 +932,21 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
     restoreSavedThread();
     // ARC Rescue prepares a suggestion only; the user reviews and sends it.
     // Nothing is uploaded to the Coach unless they explicitly press Send.
-    const rescuePrompt = (typeof location !== 'undefined' && typeof URLSearchParams !== 'undefined')
-        ? new URLSearchParams(location.search).get('rescuePrompt') : null;
+    const isRescueHandoff = typeof location !== 'undefined'
+        && typeof URLSearchParams !== 'undefined'
+        && new URLSearchParams(location.search).get('rescuePrompt') === '1';
+    let rescuePrompt = '';
+    if (isRescueHandoff && typeof sessionStorage !== 'undefined') {
+        try {
+            const saved = JSON.parse(sessionStorage.getItem('habitarc_arc_rescue_prompt') || 'null');
+            sessionStorage.removeItem('habitarc_arc_rescue_prompt');
+            const activeUid = HabitArc.getAuthUser?.()?.uid
+                || (typeof localStorage !== 'undefined' ? localStorage.getItem('habitarc_active_uid') : '') || 'local';
+            if (saved?.owner === activeUid && Date.now() - saved.savedAt < 10 * 60 * 1000) {
+                rescuePrompt = String(saved.prompt || '');
+            }
+        } catch { /* Private prompt may be unavailable. */ }
+    }
     if (rescuePrompt && questionInput) {
         questionInput.value = rescuePrompt.slice(0, 600);
         resizeTextarea();
