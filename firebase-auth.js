@@ -157,7 +157,7 @@ window.HabitArcAuthReady = (async () => {
             let mediaError = null;
             let hasPhoto = Boolean(note.cloudHasPhoto);
             let hasAudio = Boolean(note.cloudHasAudio);
-            if (note.photo) {
+            if (note.photo && !note.cloudHasPhoto) {
                 if (note.photo.size > 5 * 1024 * 1024 || !note.photo.type.startsWith('image/')) throw new Error('Photo must be an image under 5 MB.');
                 try {
                     const { api, target } = await noteMediaRef(user, note.id, 'photo');
@@ -165,7 +165,7 @@ window.HabitArcAuthReady = (async () => {
                     hasPhoto = true;
                 } catch (error) { mediaError = error; }
             }
-            if (note.audio) {
+            if (note.audio && !note.cloudHasAudio) {
                 if (note.audio.size > 8 * 1024 * 1024 || !note.audio.type.startsWith('audio/')) throw new Error('Audio must be under 8 MB.');
                 try {
                     const { api, target } = await noteMediaRef(user, note.id, 'audio');
