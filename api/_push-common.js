@@ -13,10 +13,14 @@ export function validPushSubscription(value){
    /^[A-Za-z0-9_-]{8,256}$/.test(value.keys[key]));
 }
 export function isoInZone(now=new Date(),timeZone='Asia/Kolkata'){
+ let parts;
  try{
-  return new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'})
-   .format(now).replace(/(\d{4})-(\d{2})-(\d{2})/,'$1-$2-$3');
- }catch{return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);}
+  parts=new Intl.DateTimeFormat('en-US',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+ }catch{
+  parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+ }
+ const values=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+ return [values.year,values.month,values.day].join('-');
 }
 export function describeDueTasks(tasks,today){
  let due=0,overdue=0;
