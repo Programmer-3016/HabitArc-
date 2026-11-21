@@ -187,6 +187,8 @@ export function buildHabitCoachContext({ habits = [], completionHistory = [], se
         ? { id: lowest.id, name: lowest.name, rate: lowest.rate } : null;
     const metrics = {
         habitCount: safeHabits.length,
+        totalScheduled: total.scheduled,
+        totalLogged: total.completed,
         fourWeekRate: total.rate,
         latestWeekRate: latestWeek.rate,
         priorWeekRate: priorWeek.rate,
@@ -436,16 +438,67 @@ function arcDeckCodeBlocks(markup) {
         '<button type="button" data-arc-copy-code aria-label="Copy code block">COPY CODE</button></div>'+
         '<pre class="ha-md-pre"><code>'+code+'</code></pre></div>');
 }
-export function renderArcSignalDeck(markdown, escapeHTML = defaultEscapeHtml) {
+
+/* Presentation sanitizer. Internal record IDs are not user-friendly; preserve
+   fenced code and keep original history unchanged in the local conversation. */
+export function cleanArcDisplayText(text) {
+    const source=String(text??'').replace(/\r\n?/g,'\n').slice(0,12000);
+    return source.split(/((?:^|\n)\x60{3}[^\n]*\n[\s\S]*?(?:^|\n)\x60{3})/gm).map(part=>{
+        if(/^\s*\x60{3}/.test(part))return part;
+        return part
+          .replace(/\(\s*including\s+(?:habit\s+)?(?:record\s+)?ids?[^)]*\bh_[a-z0-9_-]{6,}[^)]*\)/gi,'')
+          .replace(/\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*,\s*/gi,'(')
+          .replace(/\s*\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*\)/gi,'')
+          .replace(/\x60?h_[a-z0-9_-]{6,}\x60?/gi,'')
+          .replace(/\(\s*,/g,'(').replace(/,\s*,/g,', ').replace(/\s+\)/g,')');
+    }).join('').replace(/ {2,}/g,' ');
+}
+function arcDeckResponsiveTables(markup,esc) {
+    return markup.replace(
+      /<div class="ha-md-table-wrap"><table class="ha-md-table"><thead><tr>([\s\S]*?)<\/tr><\/thead>(<tbody>([\s\S]*?)<\/tbody>)?<\/table><\/div>/g,
+      (all,head,body,rows)=>{
+        if(!rows)return all;
+        const labels=[...head.matchAll(/<th>([\s\S]*?)<\/th>/g)]
+            .map(x=>x[1].replace(/<[^>]*>/g,'').slice(0,80));
+        const newRows=rows.replace(/<tr>([\s\S]*?)<\/tr>/g,(_,inner)=>{
+            let i=0;
+            return '<tr>'+inner.replace(/<td>([\s\S]*?)<\/td>/g,(_,value)=>
+              '<td data-label="'+esc(labels[i++]||'Detail')+'">'+value+'</td>')+'</tr>';
+        });
+        return '<div class="ha-md-table-wrap ha-arc-responsive-table"><table class="ha-md-table">'+
+          '<thead><tr>'+head+'</tr></thead><tbody>'+newRows+'</tbody></table></div>';
+      });
+}
+function arcDeckVerifiedMetrics(snapshot,esc) {
+    if(!snapshot||typeof snapshot!=='object')return '';
+    const metrics=[
+      {value:snapshot.habitCount,label:'ACTIVE HABITS'},
+      {value:snapshot.totalScheduled,label:'SCHEDULED / 28D'},
+      {value:snapshot.totalLogged,label:'LOGGED / 28D'}
+    ];
+    if(metrics.some(m=>!Number.isSafeInteger(m.value)||m.value<0||m.value>100000))return '';
+    if(snapshot.totalLogged>snapshot.totalScheduled)return '';
+    return '<section class="ha-arc-verified-metrics" aria-label="Verified 28-day habit statistics">'+
+      '<div class="ha-arc-verified-top"><span>YOUR DATA / LAST 28 FINISHED DAYS</span><span>SYNCED RECORDS</span></div>'+
+      '<div class="ha-arc-metric-grid">'+metrics.map((m,i)=>
+        '<div class="ha-arc-metric-card"><span class="ha-arc-metric-name">'+esc(m.label)+'</span>'+
+        '<strong class="ha-arc-metric-value">'+esc(m.value.toLocaleString('en-IN'))+'</strong>'+
+        '<span class="ha-arc-metric-index">0'+(i+1)+'</span></div>').join('')+'</div>'+
+      (snapshot.totalLogged===0?'<p class="ha-arc-verified-caveat">No completions were logged. That does not mean the activities were not performed.</p>':'')+
+      '</section>';
+}
+
+export function renderArcSignalDeck(markdown, escapeHTML = defaultEscapeHtml, verifiedSnapshot = null) {
     const esc=typeof escapeHTML==='function'?escapeHTML:defaultEscapeHtml;
-    const {source,lead,sections}=splitArcAnswer(markdown);
+    const {source,lead,sections}=splitArcAnswer(cleanArcDisplayText(markdown));
     if(!source)return '';
-    const original=arcDeckCodeBlocks(renderCoachMarkdown(source,esc));
+    const renderBlocks=text=>arcDeckResponsiveTables(arcDeckCodeBlocks(renderCoachMarkdown(text,esc)),esc);
+    const original=renderBlocks(source);
     const summary=lead
-      ? '<div class="ha-arc-signal-copy ha-md-prose">'+renderCoachMarkdown(lead,esc)+'</div>'
+      ? '<div class="ha-arc-signal-copy ha-md-prose">'+renderBlocks(lead)+'</div>'
       : '<p class="ha-arc-signal-empty">Explore ARC’s response in the readouts below.</p>';
     const sectionHtml=sections.map((item,index)=>{
-        const content=item.body?arcDeckCodeBlocks(renderCoachMarkdown(item.body,esc)):'';
+        const content=item.body?renderBlocks(item.body):'';
         const title=esc(item.title.replace(/[*\x60_~]/g,''));
         const number=String(index+1).padStart(2,'0');
         return '<section class="ha-arc-deck-panel" data-arc-panel="'+index+'">'+
@@ -468,9 +521,9 @@ export function renderArcSignalDeck(markdown, escapeHTML = defaultEscapeHtml) {
       '<div class="ha-arc-signal-hero"><div class="ha-arc-signal-top"><span>01 / THE SIGNAL</span>'+
       '<span class="ha-arc-signal-glyph" aria-hidden="true">✳ ··· ◼</span></div>'+summary+
       '<div class="ha-arc-signal-foot"><span>THE QUICK READ</span><span>ARC // HABIT INTELLIGENCE</span></div></div>'+
-      pills+(sections.length?'<div class="ha-arc-deck-sections">'+sectionHtml+'</div>':'')+
+      arcDeckVerifiedMetrics(verifiedSnapshot,esc)+pills+(sections.length?'<div class="ha-arc-deck-sections">'+sectionHtml+'</div>':'')+
       '</div>'+
-      '<div class="ha-arc-deck-read-view" hidden><div class="ha-arc-deck-read-label">ORIGINAL RESPONSE / UNABRIDGED</div>'+
+      '<div class="ha-arc-deck-read-view" hidden><div class="ha-arc-deck-read-label">FULL RESPONSE / CLEAR READING</div>'+
       '<div class="ha-arc-deck-original ha-md-prose">'+original+'</div></div>'+
-      '<div class="ha-arc-deck-bottom"><span>FORMAT / SIGNAL DECK</span><span>Original answer preserved in READ</span></div></div>';
+      '<div class="ha-arc-deck-bottom"><span>FORMAT / SIGNAL DECK</span><span>Full answer in READ · record IDs hidden</span></div></div>';
 }
