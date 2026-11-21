@@ -62,13 +62,15 @@ export async function dispatchDailyPush({db,FieldPath,FieldValue,webpush,at=new 
     sent++;
    }catch(error){
     failed++;
-    if(error?.statusCode===404||error?.statusCode===410){
+    const gone=error?.statusCode===404||error?.statusCode===410;
+    if(gone){
      try{await user.ref.update(new FieldPath('pushDevices',deviceId),FieldValue.delete());}
      catch{ /* Client can also disable and remove its device. */ }
      expired++;
+    }else{
+     // A transient failure can be retried manually after clearing the lease.
+     try{await user.ref.update(new FieldPath('pushDevices',deviceId,'leaseDay'),'');}catch{}
     }
-    // A failed push may be retried manually after removing its lease.
-    try{await user.ref.update(new FieldPath('pushDevices',deviceId,'leaseDay'),'');}catch{}
    }
   }
  }
