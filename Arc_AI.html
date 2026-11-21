@@ -352,7 +352,7 @@
 
 <script src="app.js"></script>
 <script type="module">
-import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from './habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, cleanArcDisplayText } from './habit-analytics.js';
 (function initArcAI() {
     if (typeof HabitArc === 'undefined') return;
 
@@ -417,6 +417,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
     let activeAction = null;
     let activeActionApplied = false;
     let lastEvidence = '';
+    let lastVerifiedSnapshot = null;
 
     function shorten(text, max) {
         const value = String(text || '').trim();
@@ -534,6 +535,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
     }
 
     function showThreadView(show) {
+        document.body?.classList?.toggle?.('is-arc-thread-active',Boolean(show));
         const wasZenHome = zenHome && !zenHome.classList.contains('hidden');
         if (zenHome) zenHome.classList.toggle('hidden', show);
         if (threadView) threadView.classList.toggle('hidden', !show);
@@ -587,6 +589,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
             localStorage.setItem(`${THREAD_STORAGE_PREFIX}${uid}`, JSON.stringify({
                 turns: conversation.slice(-6),
                 lastEvidence,
+                lastVerifiedSnapshot,
                 lastAction: activeAction,
                 lastActionApplied: activeActionApplied,
                 updatedAt: Date.now()
@@ -691,7 +694,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
         renderHistoryList(prior);
         if (askedEl) askedEl.textContent = latest.question;
         askedWrap?.classList.remove('hidden');
-        if (answerEl) answerEl.innerHTML = renderArcSignalDeck(latest.answer, HabitArc.escapeHTML);
+        if (answerEl) answerEl.innerHTML = renderArcSignalDeck(latest.answer, HabitArc.escapeHTML, lastVerifiedSnapshot);
         if (copyAnswerButton) copyAnswerButton.textContent = 'COPY';
         if (evidenceEl) evidenceEl.textContent = lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.';
         renderSuggestedAction(activeAction, { applied: activeActionApplied });
@@ -712,6 +715,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
             owner = uid;
             conversation = validTurns.slice(-6);
             lastEvidence = typeof parsed.lastEvidence === 'string' ? parsed.lastEvidence : '';
+            lastVerifiedSnapshot = parsed.lastVerifiedSnapshot || null;
             activeAction = parsed.lastAction || null;
             activeActionApplied = Boolean(parsed.lastActionApplied);
             renderThreadFromState();
@@ -725,6 +729,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
         conversation = [];
         owner = null;
         lastEvidence = '';
+        lastVerifiedSnapshot = null;
         activeAction = null;
         activeActionApplied = false;
         if (clearStored && previousUid && typeof localStorage !== 'undefined') {
@@ -823,6 +828,10 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
             const safeAnswer = String(payload.answer).slice(0, 12000);
             conversation = [...conversation.slice(-5), { question, answer: safeAnswer.slice(0, 4000) }];
             const source = payload.snapshot;
+            lastVerifiedSnapshot = source && [source.habitCount,source.totalScheduled,source.totalLogged]
+                .every(Number.isSafeInteger)
+                ? {habitCount:source.habitCount,totalScheduled:source.totalScheduled,totalLogged:source.totalLogged}
+                : null;
             lastEvidence = source?.dateWindow
                 ? `Based on ${source.habitCount} synced habits · ${source.dateWindow.start} – ${source.dateWindow.end} · ${source.timeZone}. ` +
                   (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
@@ -920,7 +929,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from
         const latestAnswer = conversation.at(-1)?.answer;
         if (!latestAnswer || typeof navigator === 'undefined' || !navigator.clipboard?.writeText) return;
         try {
-            await navigator.clipboard.writeText(latestAnswer);
+            await navigator.clipboard.writeText(cleanArcDisplayText(latestAnswer));
             copyAnswerButton.textContent = 'COPIED ✓';
             setTimeout(() => { copyAnswerButton.textContent = 'COPY'; }, 1600);
         } catch { /* Clipboard permission optional */ }
