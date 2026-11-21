@@ -530,8 +530,16 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
     }
 
     function showThreadView(show) {
+        const wasZenHome = zenHome && !zenHome.classList.contains('hidden');
         if (zenHome) zenHome.classList.toggle('hidden', show);
         if (threadView) threadView.classList.toggle('hidden', !show);
+        // On phones, Zen uses normal document scrolling while the conversation
+        // uses its own bounded scrollport. Reset the old document position when
+        // switching modes so the sticky header and thread header are not clipped.
+        if (show && wasZenHome && typeof window.scrollTo === 'function') {
+            window.scrollTo(0, 0);
+        }
+        if (!show && scrollArea) scrollArea.scrollTop = 0;
     }
 
     function setStatus(message, tone = 'muted') {
