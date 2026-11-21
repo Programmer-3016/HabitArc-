@@ -59,6 +59,16 @@ export function mountRescueMode({
     ];
     $('#ha-rescue-overview').innerHTML =
       '<strong>'+plan.backlogCount+' tasks to consider</strong><span>'+escapeHTML(desc.join(' · '))+'</span>';
+    const focusTitles = plan.focus.map(item => item.title).slice(0,3);
+    const moved = plan.changes.filter(item=>item.proposedDate!==plan.today).slice(0,3);
+    const prompt = [
+      'Help me make a compassionate, realistic recovery plan. These are my HabitArc task details:',
+      plan.overdueCount+' overdue; '+plan.backlogCount+' tasks due today or earlier.',
+      focusTitles.length ? 'Suggested priorities: '+focusTitles.join('; ')+'.' : '',
+      moved.length ? 'Suggested postponements: '+moved.map(item=>item.title+' to '+item.proposedDate).join('; ')+'.' : '',
+      'Suggest a 25-minute focus block and what to do first. Do not assume I approved date changes.'
+    ].filter(Boolean).join(' ').slice(0,590);
+    $('#ha-rescue-ask-ai').href='Arc_AI.html?rescuePrompt='+encodeURIComponent(prompt);
 
     if (plan.focus.length) {
       focusList.innerHTML = plan.focus.map((item, index) =>
