@@ -30,6 +30,7 @@ export function mountRescueMode({
   const capControl = $('#ha-rescue-cap');
   const approvalButton = $('#ha-rescue-apply');
   let plan = null;
+  let aiPrompt = '';
   let planOwner = '';
   let applied = false;
   let mounted = true;
@@ -61,14 +62,15 @@ export function mountRescueMode({
       '<strong>'+plan.backlogCount+' tasks to consider</strong><span>'+escapeHTML(desc.join(' · '))+'</span>';
     const focusTitles = plan.focus.map(item => item.title).slice(0,3);
     const moved = plan.changes.filter(item=>item.proposedDate!==plan.today).slice(0,3);
-    const prompt = [
-      'Help me make a compassionate, realistic recovery plan. These are my HabitArc task details:',
+    aiPrompt = [
+      'Help me make a compassionate, realistic recovery plan. These are my HabitArc task details:'
       plan.overdueCount+' overdue; '+plan.backlogCount+' tasks due today or earlier.',
       focusTitles.length ? 'Suggested priorities: '+focusTitles.join('; ')+'.' : '',
       moved.length ? 'Suggested postponements: '+moved.map(item=>item.title+' to '+item.proposedDate).join('; ')+'.' : '',
       'Suggest a 25-minute focus block and what to do first. Do not assume I approved date changes.'
     ].filter(Boolean).join(' ').slice(0,590);
-    $('#ha-rescue-ask-ai').href='Arc_AI.html?rescuePrompt='+encodeURIComponent(prompt);
+    // Keep private task names out of browser URLs and server request logs.
+    $('#ha-rescue-ask-ai').href='Arc_AI.html?rescuePrompt=1';
 
     if (plan.focus.length) {
       focusList.innerHTML = plan.focus.map((item, index) =>
@@ -191,6 +193,16 @@ export function mountRescueMode({
     }
   });
   launcher.addEventListener('click', open, {signal});
+  $('#ha-rescue-ask-ai').addEventListener('click', event => {
+    try {
+      sessionStorage.setItem('habitarc_arc_rescue_prompt', JSON.stringify({
+        owner:planOwner, prompt:aiPrompt, savedAt:Date.now()
+      }));
+    } catch {
+      event.preventDefault();
+      setFeedback('Private prompt storage is unavailable. Review this plan here instead.', 'error');
+    }
+  }, {signal});
   $('#ha-rescue-close').addEventListener('click', close, {signal});
   $('#ha-rescue-cancel').addEventListener('click', close, {signal});
   $('#ha-rescue-refresh').addEventListener('click', draw, {signal});
