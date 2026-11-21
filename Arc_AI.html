@@ -932,7 +932,8 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
     restoreSavedThread();
     // ARC Rescue prepares a suggestion only; the user reviews and sends it.
     // Nothing is uploaded to the Coach unless they explicitly press Send.
-    const rescuePrompt = new URLSearchParams(location.search).get('rescuePrompt');
+    const rescuePrompt = (typeof location !== 'undefined' && typeof URLSearchParams !== 'undefined')
+        ? new URLSearchParams(location.search).get('rescuePrompt') : null;
     if (rescuePrompt && questionInput) {
         questionInput.value = rescuePrompt.slice(0, 600);
         resizeTextarea();
