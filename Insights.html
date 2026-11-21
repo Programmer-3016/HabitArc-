@@ -130,6 +130,7 @@
     </style>
 <link rel="stylesheet" href="app-ui.css"/>
 <script src="app-ui.js"></script>
+<link rel="stylesheet" href="consistency-shield.css"/>
 </head>
 <body class="bg-background text-on-background font-body-lg antialiased min-h-screen flex flex-col pb-24 md:pb-8 relative overflow-x-hidden">
 
@@ -198,6 +199,13 @@
 <h1 id="hero-title">Your Journey</h1>
 <p class="ha-insights-intro">A look at your mindful progress over time.</p>
 </header>
+<section id="ha-shield" class="ha-shield-panel" aria-labelledby="ha-shield-title">
+ <header class="ha-shield-header"><span class="ha-shield-badge material-symbols-outlined" aria-hidden="true">shield</span>
+  <div><span class="ha-shield-kicker">ARC · CONSISTENCY SHIELD</span><h2 id="ha-shield-title">Protect your momentum.</h2><p>Patterns from your last 14 finished days, not AI predictions.</p></div>
+ </header>
+ <div id="ha-shield-results" class="ha-shield-results"><p>Checking your routine history…</p></div>
+ <p id="ha-shield-status" class="ha-shield-status" role="status" aria-live="polite"></p>
+</section>
 <!-- One focused overview, using the existing Dashboard hero palette. -->
 <section class="ha-insights-overview" aria-label="Progress overview">
 <div class="ha-insights-metric ha-insights-metric-primary">
@@ -606,6 +614,9 @@ import { buildHabitCoachContext } from './habit-analytics.js';
     window.addEventListener('pageshow', renderInsights);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) renderInsights(); });
 })();
+if(window.HabitArc?.getHabits && document.getElementById('ha-shield')) {
+ import('./consistency-shield.js').then(mod=>mod.mountConsistencyShield()).catch(error=>console.warn('Shield unavailable:',error));
+}
 </script>
 </body>
 </html>

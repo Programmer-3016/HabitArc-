@@ -2770,3 +2770,12 @@ body.ha-arc-body > main.ha-arc-ai {
     padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));
   }
 }
+
+
+/* Settings: Android/PWA capability audit. Diagnostic statuses are not certifications. */
+.ha-device-results{display:grid;gap:7px}
+.ha-device-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid rgb(var(--ha-outline-variant,18 18 21)/.22);background:rgb(var(--ha-surface-container-low,246 244 239));border-radius:9px;font-size:12px}
+.ha-device-row span{flex:1;min-width:0}
+.ha-device-row strong{flex:0 1 50%;font-size:11px;text-align:right;overflow-wrap:anywhere}
+.ha-device-row strong[data-ready="true"]{color:rgb(var(--ha-primary,124 58 237))}
+@media(max-width:359px){.ha-device-row{flex-wrap:wrap}.ha-device-row strong{flex:1 1 100%;text-align:left}}

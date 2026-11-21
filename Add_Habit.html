@@ -524,6 +524,19 @@
         return 'custom';
     }
 
+    // Same-session Quick Capture draft: never place private text in URLs.
+    if (!editingHabit && new URLSearchParams(location.search).get('capture') === '1') {
+        try {
+            const uid=HabitArc.getAuthUser?.()?.uid || localStorage.getItem('habitarc_active_uid') || 'local';
+            const key='habitarc_command_capture:'+uid;
+            const draft=JSON.parse(sessionStorage.getItem(key)||'null');
+            sessionStorage.removeItem(key);
+            if (draft?.owner===uid && Date.now()-draft.savedAt<5*60000) {
+                document.getElementById('habit-name-input').value=String(draft.title||'').slice(0,160);
+            }
+        } catch {}
+    }
+
     if (editingHabit) {
         document.getElementById('habit-form-title').textContent = 'Edit Habit';
         document.getElementById('habit-form-description').textContent = 'Fine-tune the routine you are building.';

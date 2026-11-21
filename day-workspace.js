@@ -1,6 +1,7 @@
 /* Day workspace composes existing account-scoped Habits, Tasks and browser Notes. */
 import { taskStore, localDay, updateTask } from './task-store.js';
 import { getFocusState, startFocus, pauseFocus, resumeFocus, cancelFocus, minutesOn, startFocusCloudSync, getFocusSyncStatus } from './focus-store.js';
+import { buildMonthCells, addMonths } from './month-calendar.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=(selector,root=document)=>root.querySelector(selector);
@@ -112,6 +113,7 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
  unmountDay();
  const controller=new AbortController(),signal=controller.signal;
  let live=true,chosen=getSavedDate(),notes=[],token=0,lastTaskOpts='';
+ let calendarMonth=chosen.slice(0,7);
  const dateInput=$('#ha-day-date',root);
  const focusTask=$('#ha-focus-task',root);
  const focusLength=$('#ha-focus-length',root);
@@ -119,6 +121,23 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
  function render(){
   if(!live||!root.isConnected)return;
   dateInput.value=chosen;
+  const calendar=$('#ha-month-calendar',root);
+  if(calendar&&!calendar.hidden) {
+    const monthDate=new Date(calendarMonth+'-01T12:00:00');
+    $('#ha-month-title',root).textContent=monthDate.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+    const history=window.HabitArc?.getCompletionHistory?.()||[];
+    const cells=buildMonthCells(calendarMonth,taskStore.getTasks(),window.HabitArc?.getHabits?.()||[],history);
+    $('#ha-month-days',root).innerHTML=cells.map(cell=>!cell?'<span class="ha-month-spacer"></span>':
+      '<button type="button" data-day-action="calendar-day" data-date="'+cell.date+'"'+
+      ' aria-label="'+cell.date+', '+cell.taskCount+' tasks, '+cell.habitCount+' habits"'+
+      ' aria-pressed="'+(cell.date===chosen)+'" class="ha-month-cell'+(cell.date===localDay()?' is-today':'')+
+      (cell.date===chosen?' is-selected':'')+'">'+
+      '<span class="ha-month-number">'+cell.day+'</span><span class="ha-month-indicators">'+
+      (cell.taskCount?'<i class="ha-month-taskdot"></i>':'')+
+      (cell.habitCount?'<i class="ha-month-habitdot"></i>':'')+'</span></button>'
+    ).join('');
+  }
+
   const all=taskStore.getTasks(),day=daySummary(chosen,notes,all),week=weeklySummary(chosen,notes,all);
   $('#ha-day-metrics',root).innerHTML=
    '<div><span class="material-symbols-outlined">repeat</span><strong>'+count(day.habitsDone,day.habits.length)+'</strong><small>Habits</small></div>'+
@@ -149,7 +168,7 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
  }
  function setDay(next){
   if(!validDay(next))return;
-  chosen=next;saveDate(chosen);render();
+  chosen=next;calendarMonth=next.slice(0,7);saveDate(chosen);render();
  }
  async function loadNotes(){
   const call=++token;
@@ -164,6 +183,15 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
   if(action==='prev')setDay(shifted(chosen,-1));
   if(action==='next')setDay(shifted(chosen,1));
   if(action==='today')setDay(localDay());
+  if(action==='calendar-toggle'){
+    const panel=$('#ha-month-calendar',root);
+    panel.hidden=!panel.hidden;
+    $('#ha-calendar-toggle',root).setAttribute('aria-expanded',String(!panel.hidden));
+    render();
+  }
+  if(action==='month-prev'){calendarMonth=addMonths(calendarMonth,-1);render();}
+  if(action==='month-next'){calendarMonth=addMonths(calendarMonth,1);render();}
+  if(action==='calendar-day')setDay(element.dataset.date);
   if(action==='start-focus'){startFocus(Number(focusLength.value),focusTask.value);render();}
   if(action==='pause-focus'){pauseFocus();renderFocus(root);}
   if(action==='resume-focus'){resumeFocus();renderFocus(root);}

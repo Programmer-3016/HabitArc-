@@ -1217,6 +1217,8 @@ const HabitArc = (() => {
         return {
             dailyReminder: Boolean(settings.dailyReminder),
             weeklySummary: Boolean(settings.weeklySummary),
+            taskAlerts: Boolean(settings.taskAlerts),
+            morningPlan: Boolean(settings.morningPlan),
             supported,
             permission,
             delivery: supported && permission === 'granted' ? 'while-open' : 'permission-required'
@@ -1231,7 +1233,11 @@ const HabitArc = (() => {
                 : current.dailyReminder,
             weeklySummary: typeof updates.weeklySummary === 'boolean'
                 ? updates.weeklySummary
-                : current.weeklySummary
+                : current.weeklySummary,
+            taskAlerts: typeof updates.taskAlerts === 'boolean'
+                ? updates.taskAlerts : current.taskAlerts,
+            morningPlan: typeof updates.morningPlan === 'boolean'
+                ? updates.morningPlan : current.morningPlan
         };
 
         updateSettings(next);
@@ -1324,7 +1330,8 @@ const HabitArc = (() => {
 
         const preferences = getReminderPreferences();
         if (!preferences.supported || preferences.permission !== 'granted') return;
-        if (!preferences.dailyReminder && !preferences.weeklySummary) return;
+        if (!preferences.dailyReminder && !preferences.weeklySummary &&
+            !preferences.taskAlerts && !preferences.morningPlan) return;
 
         reminderCheckRunning = true;
         try {
@@ -1353,6 +1360,44 @@ const HabitArc = (() => {
                         tag: `habit-${habit.id}-${today}`,
                         renotify: false,
                         data: { url: '/Dashboard.html' }
+                    });
+                }
+            }
+
+            // Local task reminders. Tasks have a due DATE, not a due time:
+            // show a daily digest instead of falsely claiming timed deadline alerts.
+            // Browser/PWA must be running; background pushes need a server.
+            if (preferences.taskAlerts || preferences.morningPlan) {
+                let tasks = [];
+                try {
+                    const module = await import('./task-store.js');
+                    module.taskStore.start();
+                    if (module.taskStore.getStatus().owner === (activeUserId || 'local')) {
+                        tasks = module.taskStore.getTasks().filter(task => !task.completed);
+                    }
+                } catch (error) {
+                    console.warn('HabitArc: task reminder unavailable', error);
+                }
+                const overdue = tasks.filter(task => task.dueDate && task.dueDate < today).length;
+                const dueToday = tasks.filter(task => task.dueDate === today).length;
+                const tomorrow = new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+                const tomorrowKey = [tomorrow.getFullYear(),String(tomorrow.getMonth()+1).padStart(2,'0'),String(tomorrow.getDate()).padStart(2,'0')].join('-');
+                const dueTomorrow = tasks.filter(task => task.dueDate === tomorrowKey).length;
+                if (preferences.morningPlan && nowMinutes >= 8*60
+                    && !_hasReminderReceipt('planner','morning',today)) {
+                    const habitsToday = getTodayHabits();
+                    await _deliverReminder('planner','morning',today,'Your HabitArc daily plan', {
+                        body: habitsToday.length+' habits scheduled · '+dueToday+' tasks due today.',
+                        icon:'/logo.png',badge:'/logo.png',tag:'daily-plan-'+today,
+                        renotify:false,data:{url:'/Habits.html'}
+                    });
+                }
+                if (preferences.taskAlerts && nowMinutes >= 9*60 &&
+                    (dueToday || overdue || dueTomorrow) && !_hasReminderReceipt('tasks','digest',today)) {
+                    await _deliverReminder('tasks','digest',today,'Tasks need your attention', {
+                        body:dueToday+' due today · '+overdue+' overdue · '+dueTomorrow+' due tomorrow. Open Plan.',
+                        icon:'/logo.png',badge:'/logo.png',tag:'task-digest-'+today,
+                        renotify:false,data:{url:'/Habits.html'}
                     });
                 }
             }
@@ -1483,6 +1528,44 @@ const HabitArc = (() => {
         });
         _removeStorageValue(`habitarc_streak_celebrated_${activeUserId || 'local'}`);
         _save(resetData);
+    }
+
+    // ─── Restore (merge-only; never replace the local account) ──────
+    function restoreArchiveHabits(snapshot, { includeSettings = false } = {}) {
+        if (!snapshot || !Array.isArray(snapshot.habits) || typeof snapshot !== 'object') {
+            throw new Error('Backup habit records are invalid.');
+        }
+        const data = _getData();
+        const incoming = snapshot.habits.filter(h =>
+            h && typeof h.id === 'string' && h.id.length <= 90 &&
+            typeof h.name === 'string' && h.name.length <= 160
+        );
+        if (incoming.length !== snapshot.habits.length) throw new Error('Invalid habit fields in backup.');
+        const known = new Set(data.habits.map(h => h.id));
+        const toAdd = incoming.filter(h => !known.has(h.id));
+        if (data.habits.length + toAdd.length > 20) throw new Error('Restore would exceed the 20-habit limit. Remove duplicates from the source backup first.');
+        const records = snapshot.completionHistory && typeof snapshot.completionHistory === 'object'
+            && !Array.isArray(snapshot.completionHistory) ? snapshot.completionHistory : {};
+        let addedRecords = 0;
+        for (const [id, record] of Object.entries(records)) {
+            if (id.length > 180 || !record || typeof record !== 'object') continue;
+            if (typeof record.habitId !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(record.date || '')) continue;
+            if (!['completed','not_completed'].includes(record.status)) continue;
+            if (data.completionHistory[id]) continue;
+            data.completionHistory[id] = {
+                id, habitId:record.habitId, date:record.date, status:record.status,
+                completedAt:record.completedAt || null, updatedAt:record.updatedAt || new Date().toISOString()
+            };
+            _queueCompletionHistoryOperation(id,'upsert');
+            addedRecords++;
+        }
+        data.habits.push(...toAdd.map(h => _cloneData(h)));
+        if (includeSettings && snapshot.settings && typeof snapshot.settings === 'object') {
+            const allowed = ['theme','goalDuration','startWeekOn','defaultReminderTime','userName','userBio','dailyReminder','weeklySummary'];
+            for (const key of allowed) if (Object.hasOwn(snapshot.settings,key)) data.settings[key] = snapshot.settings[key];
+        }
+        _save(data);
+        return { habits:toAdd.length, completions:addedRecords };
     }
 
     // ─── Greeting ───────────────────────────────────
@@ -2091,6 +2174,7 @@ const HabitArc = (() => {
         playCompletionSound,
 
         // Export / Reset
+        restoreArchiveHabits,
         exportCSV,
         resetAllData,
 

@@ -61,14 +61,27 @@ void import('./notes-cloud.js').then(({createNotesSync})=>{
  void sync.start();
 }).catch(error=>{console.warn('HabitArc: cloud Notes module unavailable:',error);});
 void render();
+const captureRequested = new URLSearchParams(location.search).get('capture') === '1';
+let capturedTitle = '';
+if(captureRequested){
+ try {
+  const uid=owner(),key='habitarc_command_capture:'+uid;
+  const draft=JSON.parse(sessionStorage.getItem(key)||'null');
+  sessionStorage.removeItem(key);
+  if(draft?.owner===uid&&Date.now()-draft.savedAt<5*60000) capturedTitle=String(draft.title||'').slice(0,100);
+ }catch{}
+}
+if(captureRequested && capturedTitle){
+  open();$('#note-title').value=capturedTitle;
+}
 const linkedId = new URLSearchParams(location.search).get('note');
-if(linkedId) {
+if(!capturedTitle && linkedId) {
   void query('list').then(notes => {
     if(disposed || !grid.isConnected) return;
     const matching = notes.find(note => note.id === linkedId && note.owner === owner());
     if(matching) open(matching);
   }).catch(() => {});
-}else if(new URLSearchParams(location.search).has('date'))open();
+}else if(!capturedTitle && new URLSearchParams(location.search).has('date'))open();
 }
 window.HabitArcNotesStudio={
   mount,

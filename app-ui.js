@@ -311,6 +311,19 @@
             });
             return workspaceStylesPromise;
         }
+        let shieldStylesPromise=null;
+        function ensureShieldStyles() {
+            if(document.querySelector('link[href="consistency-shield.css"]'))return Promise.resolve();
+            if(shieldStylesPromise)return shieldStylesPromise;
+            shieldStylesPromise=new Promise((resolve,reject)=>{
+                const link=document.createElement('link');
+                link.rel='stylesheet';link.href='consistency-shield.css';
+                link.addEventListener('load',resolve,{once:true});
+                link.addEventListener('error',()=>{link.remove();shieldStylesPromise=null;reject(new Error('Shield CSS unavailable'));},{once:true});
+                document.head.appendChild(link);
+            });
+            return shieldStylesPromise;
+        }
         let rescueStylesPromise = null;
         function ensureRescueStyles() {
             if (document.querySelector('link[href="rescue-mode.css"]')) return Promise.resolve();
@@ -453,12 +466,13 @@
                     location.href = targetUrl.href;
                     return;
                 }
-                if (targetPage === 'Notes.html' || targetPage === 'Habits.html' || targetPage === 'Dashboard.html' || targetPage === 'Arc_AI.html') {
+                if (targetPage === 'Notes.html' || targetPage === 'Habits.html' || targetPage === 'Dashboard.html' || targetPage === 'Arc_AI.html' || targetPage === 'Insights.html') {
                     try {
                         if (targetPage === 'Notes.html') await ensureNotesStyles();
                         if (targetPage === 'Habits.html') await Promise.all([ensurePlannerStyles(),ensureWorkspaceStyles(),ensureRescueStyles()]);
                         if (targetPage === 'Dashboard.html') await ensureWorkspaceStyles();
                         if (targetPage === 'Arc_AI.html') await ensureRescueStyles();
+                        if (targetPage === 'Insights.html') await ensureShieldStyles();
                         if (seq !== navSequence) return;
                     } catch {
                         location.href = targetUrl.href;
@@ -477,6 +491,7 @@
                     }
                     const leavingNotes = document.querySelector('main.notes-shell') && targetPage !== 'Notes.html';
                     if (leavingNotes) window.HabitArcNotesStudio?.unmount?.();
+                    if (document.getElementById('ha-shield') && targetPage !== 'Insights.html') window.HabitArcConsistencyShield?.unmount?.();
                     pageAbortController?.abort();
                     pageAbortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
 
@@ -505,6 +520,7 @@
                     window.scrollTo(0, 0);
                     window.HabitArc?.applyTheme?.();
                     syncPageChrome();
+                    window.HabitArcCommandHub?.mount?.();
                     if (targetPage === 'Notes.html') {
                         await ensureNotesModule();
                         if (seq === navSequence) window.HabitArcNotesStudio?.mount?.();
@@ -566,4 +582,21 @@
         // Preload on tap/hover/focus only. Fetching every page on startup
         // saturates mobile connections and delays the first tab switch.
     });
+})();
+
+
+// Shared command center loads once; nav swaps only reattach its small header trigger.
+(() => {
+    function loadCommandHub(){
+        if (!document.body) return;
+        if (!document.querySelector('link[href="productivity-hub.css"]')) {
+            const css=document.createElement('link');
+            css.rel='stylesheet';css.href='productivity-hub.css';
+            document.head.append(css);
+        }
+        import('./productivity-hub.js').then(mod=>mod.mountCommandHub())
+            .catch(error=>console.warn('HabitArc Command Center unavailable:',error));
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadCommandHub,{once:true});
+    else loadCommandHub();
 })();

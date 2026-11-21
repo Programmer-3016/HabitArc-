@@ -1,0 +1,18 @@
+/* HabitArc Consistency Shield — calm, explicit, not a predictive risk score. */
+.ha-shield-panel{grid-column:1/-1;padding:20px;border:2px solid rgb(var(--ha-outline-variant,18 18 21));background:rgb(var(--ha-primary-container,196 181 253)/.32);border-radius:18px;box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215);min-width:0}
+.ha-shield-header{display:flex;align-items:center;gap:13px}
+.ha-shield-badge{flex:0 0 45px;height:45px;display:grid;place-items:center;border:2px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:13px;background:rgb(var(--ha-surface-container-lowest,255 255 255));font-size:26px}
+.ha-shield-kicker{font-size:10px;letter-spacing:.11em;color:rgb(var(--ha-primary,124 58 237));font-weight:800}
+.ha-shield-header h2{font-size:clamp(18px,3.4vw,24px);letter-spacing:-.035em;font-weight:800;margin:5px 0}
+.ha-shield-header p{font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91));margin:0;line-height:1.5}
+.ha-shield-results{display:grid;gap:9px;margin-top:16px}
+.ha-shield-item{display:flex;align-items:center;flex-wrap:wrap;gap:10px;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));background:rgb(var(--ha-surface-container-lowest,255 255 255));padding:12px;border-radius:12px}
+.ha-shield-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:rgb(var(--ha-primary-container,196 181 253));flex-shrink:0}
+.ha-shield-item-content{flex:1;min-width:170px;display:grid;gap:4px}
+.ha-shield-item-content strong{font-size:14px;font-weight:800;overflow-wrap:anywhere}
+.ha-shield-item-content span,.ha-shield-item-content p{font-size:11px;margin:0;color:rgb(var(--ha-on-surface-variant,82 82 91));line-height:1.5}
+.ha-shield-item button{border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:10px;padding:10px 12px;background:rgb(var(--ha-on-surface,18 18 21));color:rgb(var(--ha-surface,255 255 255));font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.ha-shield-item button:disabled{opacity:.5;cursor:default}
+.ha-shield-ok{display:flex;align-items:center;gap:9px;font-size:12px;line-height:1.5;color:rgb(var(--ha-on-surface-variant,82 82 91));margin:0}
+.ha-shield-status{min-height:0;font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91));margin:7px 0 0}
+@media(max-width:390px){.ha-shield-panel{padding:14px}.ha-shield-header{gap:9px}.ha-shield-badge{width:38px;height:38px;flex-basis:38px}.ha-shield-item button{width:100%}}
