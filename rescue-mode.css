@@ -1,0 +1,125 @@
+/* ARC Rescue Mode — cream/lavender, high-contrast rounded panels */
+.ha-rescue-launch {
+  display:flex; align-items:center; gap:13px; flex-wrap:wrap;
+  padding:17px 18px; margin:1px 0 23px;
+  border:2px solid var(--rpg-shadow-ink,#121215);
+  border-radius:18px; background:#e7ddff; color:#17131e;
+  box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215);
+}
+.ha-rescue-launch-icon {
+  width:45px;height:45px;flex:0 0 auto;display:grid;place-items:center;
+  border:2px solid #17131e;border-radius:13px;background:#fff;
+}
+.ha-rescue-launch-icon .material-symbols-outlined{font-size:25px}
+.ha-rescue-launch-copy{flex:1;min-width:160px}
+.ha-rescue-kicker {
+  display:block;font:800 10px/1.4 'Geist','Hanken Grotesk',sans-serif;
+  letter-spacing:.13em;text-transform:uppercase;color:#6044b6;
+}
+.ha-rescue-launch-copy h3{font:800 17px/1.26 'Hanken Grotesk',sans-serif;letter-spacing:-.03em;margin:4px 0}
+.ha-rescue-launch-copy p{margin:0;font:500 12px/1.45 'Hanken Grotesk',sans-serif;color:#555164}
+.ha-rescue-launch-button {
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 13px;background:#17131e;color:white;border:2px solid #17131e;
+  border-radius:12px;font:800 12px 'Hanken Grotesk',sans-serif;
+  cursor:pointer;white-space:nowrap
+}
+.ha-rescue-launch-button .material-symbols-outlined{font-size:18px}
+.ha-rescue-dialog {
+  background:#f8f6f2;color:#17131e;border:2px solid #17131e;
+  border-radius:20px;box-shadow:5px 5px 0 #17131e;
+  width:min(calc(100% - 22px),720px);max-height:min(90dvh,820px);
+  padding:0;overflow-y:auto;overscroll-behavior:contain;
+  margin:auto;
+}
+.ha-rescue-dialog::backdrop{background:rgba(15,14,24,.66);backdrop-filter:blur(3px)}
+.ha-rescue-dialog-inner{padding:clamp(17px,3vw,29px)}
+.ha-rescue-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.ha-rescue-dialog-header h2 {
+  font:800 clamp(24px,4vw,32px)/1.16 'Hanken Grotesk',sans-serif;
+  letter-spacing:-.045em;margin:6px 0 9px;
+}
+.ha-rescue-dialog-header h2 span{color:#8663d8}
+.ha-rescue-dialog-header p{font:500 12px/1.55 'Hanken Grotesk',sans-serif;color:#585264;margin:0}
+.ha-rescue-x{flex:0 0 auto;border:0;background:#efebf5;color:#17131e;
+  border-radius:9px;padding:6px;cursor:pointer}
+.ha-rescue-options{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0}
+.ha-rescue-options label{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:800}
+.ha-rescue-options select {
+  border:1.5px solid #17131e;background:white;border-radius:9px;
+  padding:8px 10px;font-size:12px;max-width:135px;color:#17131e
+}
+.ha-rescue-options button {
+  border:1.5px solid #17131e;background:#fff;border-radius:9px;
+  padding:8px 10px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:4px;cursor:pointer
+}
+.ha-rescue-options button .material-symbols-outlined{font-size:17px}
+.ha-rescue-overview {
+  display:flex;flex-wrap:wrap;gap:3px 12px;align-items:center;
+  background:#e9e0ff;border:1.5px solid #17131e;border-radius:13px;padding:13px 14px;
+}
+.ha-rescue-overview strong{font:800 17px 'Hanken Grotesk',sans-serif;letter-spacing:-.02em}
+.ha-rescue-overview span{font:600 11px 'Hanken Grotesk',sans-serif;color:#585166}
+.ha-rescue-section{margin-top:23px}
+.ha-rescue-section-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.ha-rescue-section-heading h3{display:flex;align-items:center;gap:7px;margin:0;font:800 16px 'Hanken Grotesk',sans-serif;letter-spacing:-.03em}
+.ha-rescue-section-heading h3 .material-symbols-outlined{font-size:20px;color:#7350c2}
+.ha-rescue-section-heading>span{font:700 10px 'Geist',sans-serif;color:#787082;white-space:nowrap}
+.ha-rescue-focus-list,.ha-rescue-moves{display:grid;gap:9px}
+.ha-rescue-focus-item,.ha-rescue-move{
+  background:white;border:1.5px solid #282332;border-radius:13px;padding:12px 13px;min-width:0;
+}
+.ha-rescue-focus-item{display:flex;gap:11px;align-items:flex-start}
+.ha-rescue-number{
+  background:#c4b5fd;border:1.5px solid #17131e;display:grid;place-items:center;
+  border-radius:9px;width:31px;height:31px;flex:0 0 auto;font-size:13px;font-weight:800
+}
+.ha-rescue-focus-item strong,.ha-rescue-move-copy strong{display:block;font-size:14px;line-height:1.3;font-weight:800;overflow-wrap:anywhere}
+.ha-rescue-focus-item small,.ha-rescue-move-copy small{display:block;font-size:11px;color:#6c6475;margin-top:4px}
+.ha-rescue-focus-item p{margin:7px 0 0;font-size:12px;color:#585264;line-height:1.45}
+.ha-rescue-move{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ha-rescue-move-check{display:flex;gap:10px;align-items:center;min-width:0;flex:1;cursor:pointer}
+.ha-rescue-move-check input{accent-color:#7957c9;width:18px;height:18px;flex:0 0 auto}
+.ha-rescue-move-copy{min-width:0}
+.ha-rescue-move-date{display:grid;gap:4px;font-size:10px;font-weight:800;color:#544e61}
+.ha-rescue-move-date input{padding:7px 6px;background:#f8f6f2;border:1px solid #b0a4bd;border-radius:8px;
+  color:#17131e;font-size:11px;max-width:145px}
+.ha-rescue-empty,.ha-rescue-overflow{margin:0;border:1.5px dashed #b0a4bd;border-radius:11px;padding:13px 12px;font-size:12px;color:#6a5e70;line-height:1.5}
+.ha-rescue-overflow{border-color:#d29f5c;background:#fffbeb;color:#92400e}
+.ha-rescue-disclosure{display:flex;gap:8px;margin:20px 0 0;font-size:11px;line-height:1.5;color:#6a6272}
+.ha-rescue-disclosure .material-symbols-outlined{font-size:17px;flex:0 0 auto}
+.ha-rescue-feedback{min-height:22px;color:#5d5269;font-size:12px;line-height:1.5;margin:13px 0}
+.ha-rescue-feedback[data-status="success"]{color:#166534}
+.ha-rescue-feedback[data-status="error"]{color:#b91c1c}
+.ha-rescue-feedback[data-status="warning"]{color:#92400e}
+.ha-rescue-actions{display:flex;justify-content:flex-end;gap:10px;align-items:center;padding-top:11px;border-top:1px solid #d5cddc}
+.ha-rescue-actions button{padding:12px 16px;border-radius:11px;font-size:12px;font-weight:800;cursor:pointer}
+#ha-rescue-cancel{border:1.5px solid #17131e;background:white;color:#17131e}
+.ha-rescue-approve{background:#17131e;color:#fff;border:1.5px solid #17131e;display:flex;align-items:center;gap:6px}
+.ha-rescue-approve:disabled{opacity:.5;cursor:not-allowed}
+.ha-rescue-approve .material-symbols-outlined{font-size:18px}
+.ha-rescue-launch :focus-visible,.ha-rescue-dialog :focus-visible{outline:3px solid #7957c9;outline-offset:2px}
+.ha-arc-rescue-shortcut{
+  display:flex;align-items:center;gap:15px;text-decoration:none;color:#17131e;
+  padding:16px 18px;margin-top:4px;background:#e7ddff;border:2px solid #17131e;border-radius:17px;
+  box-shadow:4px 4px 0 #17131e;
+}
+.ha-arc-rescue-shortcut-icon{display:grid;place-items:center;width:43px;height:43px;border:1.5px solid #17131e;background:#fff;border-radius:12px;flex-shrink:0}
+.ha-arc-rescue-shortcut-copy{min-width:0;flex:1}
+.ha-arc-rescue-shortcut-copy strong{display:block;font-weight:800;font-size:15px;line-height:1.3}
+.ha-arc-rescue-shortcut-copy small{display:block;font-size:11px;color:#555164;margin-top:5px;line-height:1.4}
+.ha-arc-rescue-shortcut>.material-symbols-outlined{font-size:22px}
+@media(max-width:480px){
+  .ha-rescue-launch{padding:14px;gap:10px}
+  .ha-rescue-launch-copy{min-width:0}
+  .ha-rescue-launch-button{width:100%}
+  .ha-rescue-move{align-items:flex-start;flex-direction:column}
+  .ha-rescue-move-date{width:100%;margin-left:27px}
+  .ha-rescue-move-date input{max-width:100%;width:min(100%,220px)}
+  .ha-rescue-actions button{padding:10px 11px}
+  .ha-rescue-actions{gap:7px}
+  .ha-rescue-approve{font-size:11px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .ha-rescue-dialog,.ha-rescue-launch{scroll-behavior:auto}
+}
