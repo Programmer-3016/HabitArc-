@@ -183,9 +183,9 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
  taskStore.start();
  const clock=setInterval(()=>{
    if(!live||!root.isConnected)return;
-   const state=getFocusState();
+   // Only update the timer clock each second, not the entire day UI.
+   // When a session completes, focus-store emits an update event.
    renderFocus(root);
-   if(!state.active)render();
  },1000);
  active={root,render,cleanup(){live=false;controller.abort();unsubscribe();clearInterval(clock);}};
  void loadNotes();
