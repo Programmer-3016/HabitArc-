@@ -40,7 +40,7 @@
 .ha-plan-modes {
   width:min(100%,470px);
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(2,minmax(0,1fr));
   padding:5px;
   gap:5px;
   background:rgb(var(--ha-surface-container-low,244 242 239));
@@ -49,6 +49,7 @@
 }
 .ha-plan-modes button,
 .ha-task-view-switch button {
+  min-width:0;
   min-height:44px;
   display:flex;
   align-items:center;
@@ -79,9 +80,11 @@
   display:flex;
   justify-content:space-between;
   align-items:center;
+  flex-wrap:wrap;
   gap:16px;
   margin-bottom:21px;
 }
+.ha-tasks-toolbar > div { min-width:0; }
 .ha-tasks-toolbar h2 {font:800 26px/1.2 'Hanken Grotesk',sans-serif;letter-spacing:-.04em;margin:6px 0 3px;}
 .ha-task-status {
   font-size:11px;
@@ -138,7 +141,7 @@
 .ha-tasks-progress-ring span {position:relative;font-size:19px;font-weight:800;}
 .ha-task-view-switch {
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
   margin-bottom:22px;
   padding-bottom:13px;
@@ -216,10 +219,10 @@
 .ha-task-dialog-head h2 {font-size:23px;font-weight:800;letter-spacing:-.04em;margin:0;}
 .ha-task-dialog-head button {border:0;background:none;color:inherit;padding:4px;cursor:pointer;}
 .ha-task-dialog form {display:grid;gap:13px;}
-.ha-task-field{display:block;font-size:12px;font-weight:800;}
+.ha-task-field{display:block;font-size:12px;font-weight:800;min-width:0;}
 .ha-task-field>span {font-weight:500;color:rgb(var(--ha-on-surface-variant,82 82 91));}
 .ha-task-field input,.ha-task-field select,.ha-task-field textarea {
-  width:100%;display:block;min-height:42px;margin-top:7px;padding:10px 11px;
+  width:100%;max-width:100%;min-width:0;display:block;min-height:42px;margin-top:7px;padding:10px 11px;
   background:rgb(var(--ha-surface,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));
   border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));
   border-radius:10px;
@@ -227,9 +230,9 @@
   font:500 13px/1.5 'Hanken Grotesk',sans-serif;
 }
 .ha-task-field textarea {resize:vertical;}
-.ha-task-field-pair {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ha-task-field-pair {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 .ha-task-form-error{color:#b91c1c;font-size:12px;}
-.ha-task-dialog-actions {display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:8px;}
+.ha-task-dialog-actions {display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:8px;}
 .ha-task-delete {background:transparent;border:0;color:#be123c;font-weight:800;font-size:13px;text-decoration:underline;cursor:pointer;}
 .ha-task-save{margin-left:auto;}
 @media (max-width:767px) {

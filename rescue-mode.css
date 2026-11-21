@@ -11,7 +11,7 @@
   border:2px solid #17131e;border-radius:13px;background:#fff;
 }
 .ha-rescue-launch-icon .material-symbols-outlined{font-size:25px}
-.ha-rescue-launch-copy{flex:1;min-width:160px}
+.ha-rescue-launch-copy{flex:1;min-width:min(160px,100%)}
 .ha-rescue-kicker {
   display:block;font:800 10px/1.4 'Geist','Hanken Grotesk',sans-serif;
   letter-spacing:.13em;text-transform:uppercase;color:#6044b6;
@@ -149,7 +149,7 @@
 @media (max-width:767px) {
   .ha-rescue-dialog {
     width:min(calc(100vw - 16px),640px);
-    max-width:calc(100dvh - 22px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+    max-width:calc(100vw - 16px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));
     max-height:calc(100dvh - 22px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
     overscroll-behavior:contain;
     scroll-padding-bottom:100px;

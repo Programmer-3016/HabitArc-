@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="HabitArc" name="application-name"/>
 <meta content="#141212" name="theme-color"/>
 <meta content="yes" name="mobile-web-app-capable"/>
@@ -613,6 +613,20 @@
         .custom-opt-enter {
             animation: none !important;
         }
+    }
+    @media (max-width: 359px) {
+        header, main { padding-inline: 16px !important; }
+        #step-1 .step-1-headline { font-size: 28px; }
+        .hero-card-float { width: 224px; }
+        .opt { padding: 14px 8px 12px; }
+        .opt-label { font-size: 13.5px; }
+        #bottom-nav button { padding-inline: 14px; font-size: 13.5px; }
+    }
+    @media (max-height: 680px) {
+        #step-1 { gap: 14px; padding-bottom: 12px; }
+        #step-1 .step-1-headline { font-size: 29px; }
+        .hero-card-float { width: 215px; }
+        .step-card { padding-top: 12px !important; }
     }
 </style>
 </head>

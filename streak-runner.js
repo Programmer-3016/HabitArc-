@@ -2029,7 +2029,9 @@
                 border-radius: 34px;
                 border: 3px solid #031E13;
                 box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
-                overflow: hidden;
+                overflow-x: hidden;
+                overflow-y: auto;
+                overscroll-behavior: contain;
                 background: #47E393;
                 color: #012D1D;
                 isolation: isolate;
@@ -2318,6 +2320,35 @@
                 box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 0 #031E13;
             }
 
+            @media (max-height: 740px) {
+                .ha-sr-shell {
+                    height: auto;
+                    min-height: 100%;
+                    padding: 14px 16px 16px;
+                }
+                .ha-sr-canvas-wrap {
+                    width: min(270px, 36dvh, 100%);
+                    margin-top: 4px;
+                }
+                .ha-sr-counter-num-wrap {
+                    height: 58px;
+                }
+                .ha-sr-counter-num {
+                    font-size: clamp(46px, 11vw, 64px);
+                    line-height: 58px;
+                }
+                .ha-sr-counter-label {
+                    font-size: 18px;
+                }
+                .ha-sr-cap {
+                    height: 48px;
+                    padding: 6px 0;
+                }
+                .ha-sr-cta {
+                    height: 48px;
+                    margin-top: 10px;
+                }
+            }
             @media (max-width: 520px) {
                 .ha-sr-overlay {
                     padding: 0;
@@ -2337,6 +2368,27 @@
                     margin: 0 auto;
                     padding: max(18px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
                     justify-content: space-between;
+                }
+            }
+            @media (max-width: 359px) {
+                .ha-sr-shell {
+                    padding-inline: 12px;
+                }
+                .ha-sr-brand {
+                    font-size: 16px;
+                }
+                .ha-sr-streak-pill {
+                    padding: 6px 9px;
+                    font-size: 11px;
+                }
+                .ha-sr-bento {
+                    padding: 11px 10px 12px;
+                }
+                .ha-sr-cap-grid {
+                    gap: 4px;
+                }
+                .ha-sr-cap-day {
+                    font-size: 9.5px;
                 }
             }
             @media (prefers-reduced-motion: reduce) {

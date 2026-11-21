@@ -892,7 +892,9 @@ body > header :is(a[href="Habits.html"]:not(nav a), #edit-habit-btn, #delete-btn
     content: ''; position: absolute; inset: -5px;
 }
 body > header #delete-btn { color: #dc2626 !important; border-color: #991b1b !important; }
-body > header #habit-name-title { color: var(--rpg-hdr-fg, #121215) !important; font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-weight: 700; }
+body > header:has(#habit-name-title) > div { min-width: 0; gap: 8px; }
+body > header:has(#habit-name-title) > div > div:has(#habit-name-title) { min-width: 0; }
+body > header #habit-name-title { color: var(--rpg-hdr-fg, #121215) !important; font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: min(46vw, 320px); }
 
 /* ─── Bottom Floating Dock Navigation (Mobile) ─────────────────────────────── */
 body > nav.fixed {
@@ -1454,7 +1456,7 @@ body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) {
 
 /* 365-Day Contribution Heatmap */
 .ha-insights .ha-insights-legend { font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 600; color: rgb(var(--ha-on-surface-variant)); }
-.ha-insights-calendar-scroll { margin-top: 18px; padding-block: 4px 10px; scrollbar-width: thin; scrollbar-color: rgb(var(--ha-outline-variant)) transparent; }
+.ha-insights-calendar-scroll { max-width: 100%; -webkit-overflow-scrolling: touch; margin-top: 18px; padding-block: 4px 10px; scrollbar-width: thin; scrollbar-color: rgb(var(--ha-outline-variant)) transparent; }
 .ha-insights #heatmap-grid-365, .ha-insights-months { display: grid; width: max-content; min-width: 100%; grid-template-columns: repeat(var(--heatmap-columns, 53), 12px); column-gap: 4px; }
 .ha-insights #heatmap-grid-365 { grid-template-rows: repeat(7, 12px); row-gap: 4px; }
 .ha-insights #heatmap-grid-365 > div { width: 12px; height: 12px; border-radius: 4px !important; }
@@ -1482,7 +1484,9 @@ body main.ha-insights .ha-insights-spotlight-row {
 }
 .ha-insights .ha-insights-spotlight-row:last-child { padding-bottom: 0; border-top: 1.5px solid rgba(var(--ha-outline-variant) / 0.14) !important; }
 .ha-insights-spotlight-row > div:first-child { width: 40px; height: 40px; border-radius: 12px !important; border: 1.5px solid rgba(var(--ha-outline-variant) / 0.22); }
-.ha-insights :is(#strongest-name, #opportunity-name) { font-size: 15px; line-height: 1.45; font-weight: 700; color: rgb(var(--ha-on-surface)) !important; text-wrap: initial; }
+.ha-insights-spotlight-row > div:nth-child(2) { min-width: 0; }
+.ha-insights-spotlight-row > div:last-child { flex-shrink: 0; }
+.ha-insights :is(#strongest-name, #opportunity-name) { font-size: 15px; line-height: 1.45; font-weight: 700; color: rgb(var(--ha-on-surface)) !important; text-wrap: initial; overflow-wrap: anywhere; }
 .ha-insights :is(#strongest-streak, #opportunity-streak) { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; color: var(--rpg-streak-ink) !important; }
 
 /* ─── Add Habit, Detail, Profile, Settings Clean Controls ───────────────────── */
@@ -1758,6 +1762,23 @@ body main.ha-detail .ha-detail-cal-card {
 
 /* Profile & Settings */
 body > main .text-primary-container { color: rgb(var(--ha-primary)) !important; }
+body > main.ha-profile .flex.justify-between { flex-wrap: wrap; gap: 8px; }
+body > main.ha-profile .flex.justify-between > :first-child { min-width: 0; }
+.theme-select-btn { min-width: 0; }
+body > main:has(#theme-selector-grid) div:has(> .toggle-checkbox) { flex-shrink: 0; }
+body > main:has(#theme-selector-grid) div:has(> div > .toggle-checkbox) { gap: 12px; }
+body > main:has(#theme-selector-grid) div:has(> div > .toggle-checkbox) > div:first-child { min-width: 0; flex: 1; }
+body > main:has(#theme-selector-grid) #restore-backup-file { max-width: 100%; overflow: hidden; }
+body > main:has(#theme-selector-grid) .flex.items-center.justify-between:has(#preview-companion-btn) { flex-wrap: wrap; }
+#add-habit-form :is(input, select, textarea) { min-width: 0; max-width: 100%; }
+@media (min-width: 768px) {
+    body > main.ha-profile { padding-top: 28px !important; padding-bottom: 56px !important; }
+}
+@media (max-width: 479px) {
+    #add-habit-form > div:last-child { flex-wrap: wrap; gap: 10px; }
+    #add-habit-form #habit-form-cancel { margin-right: 0; }
+    #add-habit-form #habit-form-submit { flex: 1 1 auto; justify-content: center; padding-inline: 20px; }
+}
 .ha-profile section:first-child h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; line-height: 1.3; margin-top: 4px; }
 .ha-profile .w-24.h-24 { border-radius: 9999px !important; border: 3px solid rgb(var(--ha-outline-variant)) !important; box-shadow: 3px 3px 0 var(--rpg-shadow-ink); padding: 2px; }
 .ha-profile #profile-avatar { border-radius: 9999px !important; }
@@ -2199,10 +2220,18 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights-main { grid-column: 1 / span 8; grid-row: 3; }
     .ha-insights-aside { grid-column: 9 / -1; grid-row: 3; align-self: start; }
 }
-@media (min-width: 768px) and (max-width: 1023px) {
-    body > header > div:has(> nav) { padding-inline: 20px; gap: 8px; }
-    body > header nav a { padding-inline: 10px !important; }
+@media (min-width: 768px) and (max-width: 1140px) {
+    body > header > div:has(> nav) { padding-inline: clamp(14px, 2vw, 24px); gap: 10px; min-width: 0; }
+    body > header .ha-brand-link { flex: 0 0 auto; white-space: nowrap; }
+    body > header nav { min-width: 0; flex: 1 1 auto; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-inline: contain; }
+    body > header nav::-webkit-scrollbar { display: none; }
+    body > header nav a { flex: 0 0 auto; white-space: nowrap; padding-inline: 10px !important; font-size: 12.5px; }
+    body > header > div:has(> nav) > div:last-child { flex: 0 0 auto; gap: 6px; }
+}
+@media (min-width: 768px) and (max-width: 1050px) {
     body > header div:has(> #header-streak-count-web) { display: none; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
     .ha-insights-aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
     .ha-insights-spotlight { grid-column: 1 / -1; }
 }
@@ -2217,7 +2246,7 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-dashboard-count { font-size: 21px; }
     .ha-dashboard #habits-container { padding-inline: 14px; }
     body main.ha-dashboard .ha-dashboard-habit { padding-block: 14px; }
-    .ha-dashboard-history { margin-left: 0; }
+    .ha-dashboard-history { margin-left: 0; flex-wrap: wrap; row-gap: 6px; }
 
     body > main.ha-insights { padding-inline: 16px; gap: 18px; }
     .ha-insights-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 8px 14px; }
@@ -2254,12 +2283,20 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights .ha-insights-badge { padding-inline: 0; }
 }
 @media (max-width: 399px) {
-    body > header.md\:hidden { padding-inline: 12px !important; gap: 6px; }
-    body > header.md\:hidden > div { gap: 8px !important; }
+    body > header.md\:hidden { min-width: 0; padding-inline: 10px !important; gap: 6px !important; }
+    body > header.md\:hidden .ha-brand-link { min-width: 0; gap: 6px; white-space: nowrap; }
+    body > header.md\:hidden > div { flex: 0 0 auto; gap: 5px !important; }
+    body > header.md\:hidden div:has(> #header-streak-count) { height: 30px; padding: 0 8px !important; gap: 3px; }
+    body > header.md\:hidden #header-streak-count { font-size: 11px !important; }
+    body > header.md\:hidden a.ha-hdr-profile { width: 31px !important; height: 31px !important; min-width: 31px !important; min-height: 31px !important; }
+    body > header.md\:hidden a.ha-hdr-profile::after { inset: -4px; }
     body > header .ha-brand-wordmark { font-size: 15px; }
+    .ha-pwa-banner { flex-wrap: wrap; }
+    .ha-pwa-banner-actions { margin-left: auto; }
 }
 @media (max-width: 359px) {
     body > main { padding-inline: 14px; }
+    body > header.md\:hidden .ha-brand-badge svg { width: 18px; height: 18px; }
     .ha-arc-mascot-sq { width: 38px; height: 38px; margin-bottom: 7px; }
     .ha-arc-zen-q { font-size: 19px; }
     .ha-arc-spot-body { padding: 10px 11px; gap: 8px; }
@@ -2271,9 +2308,10 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-dashboard .ha-dashboard-greeting #greeting { font-size: 14px; }
     .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 72px; gap: 8px; }
     .ha-dashboard-ring { width: 72px; height: 72px; }
+    .ha-dashboard-history { gap: 8px; }
     .ha-dashboard-week { gap: 4px; }
     .ha-dashboard-day { width: 14px; }
-    .ha-detail #habit-name-title { max-width: 140px; }
+    .ha-detail #habit-name-title { max-width: 120px; }
     .ha-detail-stepper { flex-wrap: wrap; }
     .ha-detail-calendar-heading { flex-wrap: wrap; }
 }
@@ -2382,6 +2420,7 @@ body.ha-arc-body > main.ha-arc-ai {
     position: fixed;
     top: 66px;
     right: 16px;
+    max-width: calc(100vw - 24px);
     z-index: 60;
     display: flex;
     align-items: center;
@@ -2402,6 +2441,9 @@ body.ha-arc-body > main.ha-arc-ai {
     border: 1.5px solid #000000;
     font-weight: 800;
     cursor: pointer;
+}
+@media (max-width: 399px) {
+    .ha-sw-update-toast { right: 12px; left: 12px; justify-content: space-between; }
 }
 
 .ha-arc-action-card {

@@ -819,6 +819,7 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 10px;
     padding-top: 11px;
     border-top: 1.5px dashed rgb(var(--ha-outline-variant) / 0.28);
@@ -1055,6 +1056,7 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
 
 .lb-standings table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     text-align: left;
     font-variant-numeric: tabular-nums;
@@ -1499,6 +1501,13 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
   .lb-view-switch button { font-size:.8rem; padding-inline:4px; }
   .lb-controls .lb-filters button { padding-inline:4px; font-size:.78rem; }
   .lb-chest-art svg { width:min(59vw,184px); }
+  .lb-table-title, .lb-stage-head, .lb-personal-top { flex-wrap:wrap; }
+  .lb-standings :is(th, td) { padding:9px 6px; }
+  .lb-standings :is(th, td):first-child { padding-left:10px; width:52px; }
+  .lb-standings :is(th, td):last-child { padding-right:10px; width:76px; }
+  .lb-pts-bar { width:48px; }
+  .lb-reveal-copy { top:calc(50% + var(--loot-size) * .62); }
+  .lb-reveal-done { top:calc(50% + var(--loot-size) * .62 + 4.75rem); }
 }
 @media (prefers-reduced-motion:reduce) {
   .lb-chest-art svg { transition:none; }

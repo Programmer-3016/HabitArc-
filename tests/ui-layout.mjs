@@ -45,9 +45,9 @@ try {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     const base = `http://127.0.0.1:${server.address().port}`;
-    const pages = ['Dashboard', 'Habits', 'Notes', 'Insights', 'Arc_AI', 'Add_Habit', 'Habit_Detail', 'Profile', 'Settings'];
+    const pages = ['Dashboard', 'Habits', 'Notes', 'Insights', 'Leaderboard', 'Arc_AI', 'Add_Habit', 'Habit_Detail', 'Profile', 'Settings'];
     if (output) await mkdir(output, { recursive: true });
-    for (const width of [320, 390, 768, 1366]) {
+    for (const width of [320, 390, 768, 1024, 1366]) {
         await page.setViewportSize({ width, height: 900 });
         for (const name of pages) {
             await page.goto(`${base}/${name}.html${name === 'Habit_Detail' ? '?id=ui-0' : ''}`, { waitUntil: 'networkidle' });
