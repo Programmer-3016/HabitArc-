@@ -74,11 +74,15 @@ test('Both top tab groups remain operable at 320px and 480px',()=>{
   assert.match(css,/\.lb-desktop-topbar nav\s*\{[^}]*overflow-x:auto/);
   assert.match(css,/\.lb-mobile-topbar\s*\{[^}]*padding-inline:10px/);
 });
-test('Treasure scope and PWA refresh stay isolated',()=>{
- const html=read('Leaderboard.html'),worker=read('sw.js'),css=read('leaderboard.css');
+test('Treasure scope, all-tier previews, and PWA refresh stay isolated',()=>{
+ const html=read('Leaderboard.html'),worker=read('sw.js'),css=read('leaderboard.css'),js=read('leaderboard.js');
  assert.equal((html.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
  for(const asset of ['/Leaderboard.html','/leaderboard.css','/leaderboard.js','/treasure-art.js'])
    assert.ok(worker.includes("'"+asset+"'"),asset);
+ for(const id of ['treasure-clears','treasure-opened-count','treasure-power-label'])
+   assert.ok(html.includes(`id="${id}"`),`missing #${id}`);
+ assert.doesNotMatch(js,/opened \|\| c\.id === 'wood'/);
+ assert.match(js,/lb-chest-stage-btn/);
  assert.doesNotMatch(css,/\nbody\s*\{/);
  assert.doesNotMatch(css,/\ntable\s*\{/);
 });

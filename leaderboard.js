@@ -252,7 +252,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
     if (!current.writable || current.scope !== scope || current.hero !== hero) return false;
     const updated = changeTreasure(current.settings.treasureRoom, chest.id, action, current.count, hero);
     if (!updated) return false;
-    store().updateSettings({ treasureRoom:updated, leagueCompanion:hero });
+    store().updateSettings({ treasureRoom: updated, leagueCompanion: hero });
     render();
     return true;
   }
@@ -263,7 +263,8 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const scope = sync?.userId || 'local';
     const accountMatches = (!sync?.signedIn && !sync?.userId) || (sync?.signedIn && scope === app.getAuthUser()?.uid);
     const ready = Boolean(accountMatches && app?.isOnboardingComplete?.());
-    const writable = ready && (!sync?.signedIn || sync.connected);
+    // Allow local unlocks/equips even while cloud sync is reconnecting; app.js queues writes cleanly.
+    const writable = ready;
     const settings = ready ? app.getSettings() : {};
     const count = ready ? clearedDays(app.getHabits(), app.getCompletionHistory(), app.today()).length : 0;
     return { ready, writable, scope, settings, count, bag: inventory(settings.treasureRoom), hero: leagueRunner(settings) };
@@ -276,56 +277,126 @@ function mountTreasureRoom(root, find, redrawLeague) {
     lastRenderKey = key;
     const focusNode = root.contains(document.activeElement) && document.activeElement;
     const focused = focusNode?.dataset?.chest, focusedCard = focusNode?.dataset?.tier;
+
+    const equippedChest = CHESTS.find(c => c.id === bag.equipped);
     find('treasure-avatar').dataset.power = bag.equipped || '';
     find('treasure-avatar').replaceChildren(sprite(hero, bag.equipped ? 'cheer' : 'run0'));
     find('treasure-runner').textContent = ready ? COMPANION_META[hero].label : 'Your companion';
-    find('treasure-xp').textContent = bag.xp + ' treasure XP';
+    find('treasure-xp').textContent = String(bag.xp);
+    const clearsEl = find('treasure-clears');
+    if (clearsEl) clearsEl.textContent = String(count);
+    const openedCountEl = find('treasure-opened-count');
+    if (openedCountEl) openedCountEl.textContent = `${bag.opened.length} / ${CHESTS.length}`;
+    const powerLabelEl = find('treasure-power-label');
+    if (powerLabelEl) {
+      powerLabelEl.textContent = equippedChest ? `★ ${equippedChest.power} active` : 'No power equipped';
+      powerLabelEl.dataset.equipped = bag.equipped || '';
+    }
+
     const next = CHESTS.find(c => !bag.opened.includes(c.id));
-    find('treasure-summary').textContent = !ready ? 'Finish onboarding to start your collection.' :
-      !writable ? 'Waiting for your account to sync before changing your collection.' :
-      !next ? 'Collection complete. Equip any of your three powers below.' :
-      count >= next.days ? next.name + ' ready to open.' :
-      (next.days - count) + ' more clear ' + (next.days - count === 1 ? 'day' : 'days') + ' to your ' + next.name.toLowerCase() + '.';
+    find('treasure-summary').textContent = !ready
+      ? 'Finish onboarding to track clear days and unlock chests — tap any chest below to preview its animation.'
+      : !next
+        ? 'Vault complete! All 3 chests unlocked. Equip any relic power below.'
+        : count >= next.days
+          ? `${next.name} is unlocked and ready to open! Tap it to claim +${next.xp} XP.`
+          : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name} unlocks.`;
+
+    const tierLabels = { wood: 'Tier I · 1d', iron: 'Tier II · 7d', gold: 'Tier III · 14d' };
     const cards = CHESTS.map(c => {
-      const opened = bag.opened.includes(c.id), equipped = bag.equipped === c.id;
+      const opened = bag.opened.includes(c.id);
+      const equipped = bag.equipped === c.id;
+      const canOpen = writable && !opened && count >= c.days;
+      const state = equipped ? 'equipped' : opened ? 'collected' : canOpen ? 'ready' : 'locked';
+
       const card = el('article', 'lb-chest');
       card.dataset.tier = c.id;
+      card.dataset.state = state;
+
       const heading = el('div', 'lb-chest-kicker');
-      heading.append(el('h3', null, c.name), el('span', 'lb-chest-stamp', opened ? 'Collected' : count >= c.days ? 'Ready' : 'Locked'));
-      const art = chestArt(c, opened);
+      const titleWrap = el('div', 'lb-chest-title-wrap');
+      titleWrap.append(
+        el('span', 'lb-chest-tier-tag', tierLabels[c.id] || ''),
+        el('h3', null, c.name)
+      );
+      const stampText = equipped ? 'Equipped' : opened ? 'Collected' : canOpen ? 'Ready!' : 'Locked';
+      heading.append(titleWrap, el('span', 'lb-chest-stamp', stampText));
+
+      const stageBtn = el('button', 'lb-chest-stage-btn');
+      stageBtn.type = 'button';
+      stageBtn.setAttribute(
+        'aria-label',
+        canOpen
+          ? `Open ${c.name}`
+          : opened
+            ? `Replay ${c.name} opening`
+            : `Preview ${c.name} opening`
+      );
+      stageBtn.append(chestArt(c, opened));
+      stageBtn.addEventListener('click', () => reveal(c, !canOpen, stageBtn));
+
+      const pct = opened ? 100 : Math.min(100, Math.round((count / c.days) * 100));
       const progress = el('progress');
-      progress.max = c.days; progress.value = opened ? c.days : Math.min(count, c.days);
-      progress.setAttribute('aria-label', c.name + ' clear days');
-      const daysLabel = c.days === 1 ? '1 clear day' : c.days + ' clear days';
-      const button = el('button', 'lb-chest-action', equipped ? 'Equipped' : opened ? 'Equip ' + c.power : count >= c.days ? 'Open chest' : 'Unlock at ' + daysLabel);
-      button.type = 'button'; button.dataset.chest = c.id;
+      progress.max = c.days;
+      progress.value = opened ? c.days : Math.min(count, c.days);
+      progress.setAttribute('aria-label', `${c.name} clear days`);
+
+      const daysLabel = c.days === 1 ? '1 clear day' : `${c.days} clear days`;
+      const progressMeta = el('div', 'lb-chest-progress-meta');
+      progressMeta.append(
+        el('small', null, opened ? 'Milestone earned' : `${Math.min(count, c.days)} / ${daysLabel}`),
+        el('span', null, `${pct}%`)
+      );
+
+      const button = el(
+        'button',
+        'lb-chest-action',
+        equipped
+          ? '★ Equipped'
+          : opened
+            ? `Equip ${c.power}`
+            : canOpen
+              ? `Open chest (+${c.xp} XP)`
+              : `Unlock at ${daysLabel}`
+      );
+      button.type = 'button';
+      button.dataset.chest = c.id;
       button.disabled = !writable || equipped || (!opened && count < c.days);
-      button.setAttribute('aria-label', c.name + ': ' + button.textContent);
+      button.setAttribute('aria-label', `${c.name}: ${button.textContent}`);
       button.addEventListener('click', () => {
         if (!opened) { reveal(c, false, button); return; }
-        if (!applyTreasure(c,'equip',scope,hero)) { render(); return; }
-        find('announcement').textContent = 'Equipped ' + c.power + '.';
-        const card = find('treasure-cards').querySelector('[data-tier="' + c.id + '"]');
-        card.tabIndex = -1; card.focus({preventScroll:true});
+        if (!applyTreasure(c, 'equip', scope, hero)) { render(); return; }
+        find('announcement').textContent = `Equipped ${c.power}.`;
+        const currentCard = find('treasure-cards').querySelector('[data-tier="' + c.id + '"]');
+        currentCard.tabIndex = -1;
+        currentCard.focus({ preventScroll: true });
       });
-      const actions = el('div','lb-chest-actions');
-      actions.append(button);
-      card.append(heading, art, el('strong', 'lb-power-name', c.power + ' · +' + c.xp + ' XP'),
-        el('p', null, c.description), progress, el('small', null, opened ? 'Milestone earned' : Math.min(count, c.days) + ' / ' + daysLabel), actions);
-      if (opened || c.id === 'wood') {
-        const preview = el('button', 'lb-chest-preview', opened ? 'Replay opening' : 'Preview opening');
-        preview.type = 'button';
-        preview.setAttribute('aria-label', preview.textContent + ': ' + c.name + ' (no XP awarded)');
-        preview.addEventListener('click', () => reveal(c, true, preview));
-        actions.append(preview);
-      }
+
+      const preview = el('button', 'lb-chest-preview', opened ? 'Replay opening' : 'Preview chest');
+      preview.type = 'button';
+      preview.setAttribute('aria-label', `${preview.textContent}: ${c.name} (no XP awarded)`);
+      preview.addEventListener('click', () => reveal(c, true, preview));
+
+      const actions = el('div', 'lb-chest-actions');
+      actions.append(button, preview);
+
+      card.append(
+        heading,
+        stageBtn,
+        el('strong', 'lb-power-name', `${c.power} · +${c.xp} XP`),
+        el('p', null, c.description),
+        progress,
+        progressMeta,
+        actions
+      );
       return card;
     });
+
     find('treasure-cards').replaceChildren(...cards);
-    if (focused) find('treasure-cards').querySelector('[data-chest="' + focused + '"]:not(:disabled)')?.focus({ preventScroll:true });
+    if (focused) find('treasure-cards').querySelector('[data-chest="' + focused + '"]:not(:disabled)')?.focus({ preventScroll: true });
     if (focusedCard) {
       const card = find('treasure-cards').querySelector('[data-tier="' + focusedCard + '"]');
-      if (card) { card.tabIndex = -1; card.focus({preventScroll:true}); }
+      if (card) { card.tabIndex = -1; card.focus({ preventScroll: true }); }
     }
   }
   function switchView(treasure) {

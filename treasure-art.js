@@ -1,191 +1,335 @@
-// HabitArc original, front-facing 16-bit-style treasure sprites.
-// Visual layer only: preserve the existing tier IDs, unlock flow, modal
-// animation hooks and reward relics. No canvas, external assets or new rewards.
+// HabitArc original, front-facing 16-bit pixel-game treasure chests.
+// Integer-aligned SVG rects in an 88x78 canvas with layered open-chest rim,
+// overflowing loot pile, and pixelated relic emblems (Ember Trail, Orbit Shield, Star Crown).
 const NS = 'http://www.w3.org/2000/svg';
+
 function node(parent, tag, attrs = {}) {
   const item = document.createElementNS(NS, tag);
   for (const [name, value] of Object.entries(attrs)) item.setAttribute(name, value);
   parent.append(item);
   return item;
 }
+
 const group = (parent, cls) => node(parent, 'g', { class: cls });
 const rect = (parent, fill, x, y, width, height) =>
   node(parent, 'rect', { x, y, width, height, fill });
 const path = (parent, fill, d) => node(parent, 'path', { fill, d });
 
-// All visible corners snap to an even-pixel grid in an 88×78 SVG.
-// Hardware, highlights and keyholes are deliberately chunky, never smoothed.
+// Distinct 16-bit palettes per chest tier on an 88x78 integer pixel grid.
 const PALETTES = Object.freeze({
   wood: {
-    ink:'#211716', dark:'#56321d', shade:'#834b26',
-    face:'#ad6730', lit:'#cc8740', highlight:'#f4b660',
-    metal:'#b98b52', trim:'#e9b876', shine:'#fff0aa',
-    inside:'#2b1a27', seam:'#6a3926', spark:'#e59a3a',gem:'#3d291c'
+    ink: '#1f1312', dark: '#4f2b19', shade: '#7a4221',
+    face: '#a85f2b', lit: '#cc7f3a', highlight: '#f0ab57',
+    metal: '#858d99', trim: '#c4cdd9', shine: '#f1f5f9',
+    strapDark: '#475569',
+    goldDark: '#b45309', goldMid: '#f59e0b', goldLit: '#fef08a',
+    inside: '#24141e', seam: '#3d1f12', spark: '#fb923c', gem: '#fbbf24'
   },
   iron: {
-    ink:'#1d2638', dark:'#263b57', shade:'#385376',
-    face:'#5e81ab', lit:'#87a8d0', highlight:'#aecde7',
-    metal:'#91b3c8', trim:'#c9e1ed', shine:'#edfcff',
-    inside:'#172b42', seam:'#324b6c', spark:'#96a2ff',gem:'#70dbe8'
+    ink: '#131d2e', dark: '#22354f', shade: '#334e70',
+    face: '#4c6d94', lit: '#7297be', highlight: '#a5c8e8',
+    metal: '#94b8d0', trim: '#cfe8f5', shine: '#f2fcff',
+    strapDark: '#29435c',
+    goldDark: '#0369a1', goldMid: '#38bdf8', goldLit: '#e0f2fe',
+    inside: '#102033', seam: '#1d2f45', spark: '#38bdf8', gem: '#67e8f9'
   },
   gold: {
-    ink:'#2d1930', dark:'#5d2545', shade:'#8c345c',
-    face:'#b04466', lit:'#d65a7c', highlight:'#fa9190',
-    metal:'#d28a20', trim:'#ffca4b', shine:'#fff19b',
-    inside:'#361737', seam:'#742746', spark:'#c66aff',gem:'#ab4ce0'
+    ink: '#29121e', dark: '#611d38', shade: '#8a294d',
+    face: '#b0365e', lit: '#d45279', highlight: '#f78ca7',
+    metal: '#cc8214', trim: '#fbbf24', shine: '#fef9c3',
+    strapDark: '#854d0e',
+    goldDark: '#b45309', goldMid: '#facc15', goldLit: '#fef9c3',
+    inside: '#2b1024', seam: '#4c162b', spark: '#fde047', gem: '#c084fc'
   }
 });
 
-function studs(parent, tint, positions) {
-  for (const [x, y] of positions) rect(parent,tint,x,y,2,2);
+function rivets(parent, highlight, shadow, positions) {
+  for (const [x, y] of positions) {
+    rect(parent, shadow, x, y + 1, 2, 2);
+    rect(parent, highlight, x, y, 2, 2);
+  }
 }
-function sparkle(parent, color, x, y, size = 2) {
-  // Four-point retro sparkle built out of integer-aligned square pixels.
-  rect(parent,color,x,y-size,size,size);
-  rect(parent,color,x-size,y,size,size);
-  rect(parent,color,x,y,size,size);
-  rect(parent,color,x+size,y,size,size);
-  rect(parent,color,x,y+size,size,size);
+
+function sparkle(parent, color, coreColor, x, y, size = 2) {
+  rect(parent, color, x, y - size, size, size);
+  rect(parent, color, x - size, y, size, size);
+  rect(parent, coreColor, x, y, size, size);
+  rect(parent, color, x + size, y, size, size);
+  rect(parent, color, x, y + size, size, size);
 }
-function drawShadow(parent, c) {
-  rect(parent,'var(--case-shadow)',14,65,60,3);
-  rect(parent,'var(--case-shadow)',21,68,46,2);
-  rect(parent,'var(--case-shadow)',27,70,34,2);
+
+function drawShadow(parent) {
+  rect(parent, 'var(--case-shadow)', 14, 66, 60, 2);
+  rect(parent, 'var(--case-shadow)', 18, 68, 52, 2);
+  rect(parent, 'var(--case-shadow)', 24, 70, 40, 2);
 }
+
 function drawChestBody(parent, c, id) {
-  // Solid squared chest profile, dark pixel outline and side-wall depth.
-  rect(parent,c.ink,12,35,64,29);
-  rect(parent,c.ink,10,40,68,20);
-  rect(parent,c.dark,14,39,60,22);
-  rect(parent,c.shade,16,40,56,21);
-  rect(parent,c.face,19,43,49,15);
-  rect(parent,c.lit,20,44,42,3);
-  rect(parent,c.dark,68,42,5,17);
-  rect(parent,c.seam,25,49,37,2);
-  rect(parent,c.shade,25,51,39,3);
-  rect(parent,c.highlight,27,44,20,2);
-  // Lower bevel and brass/silver/champagne binding strip.
-  rect(parent,c.ink,12,58,64,7);
-  rect(parent,c.metal,14,58,60,5);
-  rect(parent,c.trim,16,58,54,2);
-  rect(parent,c.shade,17,62,52,2);
-  rect(parent,c.ink,14,64,61,2);
-  // Two thick vertical pixelated metal straps.
-  for (const x of [18,62]) {
-    rect(parent,c.ink,x-2,38,10,26);
-    rect(parent,c.metal,x,39,6,23);
-    rect(parent,c.trim,x,39,4,20);
-    rect(parent,c.shine,x+1,41,2,6);
-    rect(parent,c.dark,x+5,42,2,17);
+  // Stepped RPG coffer base with notched bottom feet & 2.5D right-wall bevel.
+  rect(parent, c.ink, 12, 36, 64, 28);
+  rect(parent, c.ink, 10, 40, 68, 22);
+  rect(parent, c.ink, 12, 62, 14, 5);
+  rect(parent, c.ink, 62, 62, 14, 5);
+
+  // Side ring handles (pixel iron rings sticking cleanly from left/right walls).
+  rect(parent, c.ink, 8, 45, 4, 8);
+  rect(parent, c.metal, 9, 46, 2, 6);
+  rect(parent, c.shine, 9, 46, 2, 2);
+  rect(parent, c.ink, 76, 45, 4, 8);
+  rect(parent, c.dark, 77, 46, 2, 6);
+  rect(parent, c.metal, 77, 46, 2, 2);
+
+  // Inner wood / plate wall + horizontal plank courses + grain seams.
+  rect(parent, c.dark, 14, 38, 60, 24);
+  rect(parent, c.shade, 16, 40, 56, 20);
+  rect(parent, c.face, 18, 40, 46, 17);
+  rect(parent, c.lit, 18, 41, 40, 3);
+  rect(parent, c.lit, 18, 48, 34, 2);
+  rect(parent, c.lit, 18, 55, 28, 2);
+
+  // Plank horizontal shadows for layered tactile pixel boards.
+  rect(parent, c.seam, 16, 46, 56, 2);
+  rect(parent, c.seam, 16, 53, 56, 2);
+  // Offset vertical wood/plate joints.
+  rect(parent, c.seam, 34, 40, 2, 6);
+  rect(parent, c.seam, 54, 48, 2, 5);
+  rect(parent, c.highlight, 28, 42, 10, 1);
+  rect(parent, c.highlight, 41, 49, 11, 1);
+
+  // Bottom binding rail + corner feet bevels.
+  rect(parent, c.ink, 12, 58, 64, 6);
+  rect(parent, c.metal, 14, 59, 60, 4);
+  rect(parent, c.trim, 16, 59, 50, 2);
+  rect(parent, c.strapDark, 14, 62, 60, 2);
+  // Corner chest legs.
+  rect(parent, c.metal, 14, 62, 10, 3);
+  rect(parent, c.trim, 14, 62, 7, 2);
+  rect(parent, c.metal, 64, 62, 10, 3);
+  rect(parent, c.strapDark, 68, 62, 6, 3);
+
+  // Two chunky vertical metal corner straps with 3D specular highlight.
+  for (const x of [17, 63]) {
+    rect(parent, c.ink, x - 2, 37, 10, 27);
+    rect(parent, c.strapDark, x, 38, 8, 24);
+    rect(parent, c.metal, x, 38, 6, 23);
+    rect(parent, c.trim, x + 1, 39, 4, 18);
+    rect(parent, c.shine, x + 1, 40, 2, 7);
+    rect(parent, c.strapDark, x + 6, 40, 2, 20);
   }
-  studs(parent,c.shine,[[20,49],[64,49],[20,58],[64,58]]);
-  // Front-facing plank/rune marks distinguish tiers without adding items.
-  if(id==='wood'){
-    rect(parent,c.seam,30,54,13,2);
-    rect(parent,c.highlight,47,47,11,2);
-    rect(parent,c.dark,52,54,4,2);
-  } else if(id==='iron'){
-    rect(parent,c.metal,31,51,25,3);
-    rect(parent,c.shine,34,52,8,2);
-    rect(parent,c.seam,43,55,14,2);
+  rivets(parent, c.shine, c.ink, [[19, 43], [19, 51], [19, 59], [65, 43], [65, 51], [65, 59]]);
+
+  // Tier-specific front ornament details.
+  if (id === 'wood') {
+    rect(parent, c.highlight, 25, 41, 7, 2);
+    rect(parent, c.highlight, 48, 55, 9, 2);
+    rect(parent, c.dark, 68, 42, 4, 16);
+  } else if (id === 'iron') {
+    // Mid-chest armor belt & cyan runic pips.
+    rect(parent, c.ink, 26, 48, 36, 7);
+    rect(parent, c.metal, 27, 49, 34, 5);
+    rect(parent, c.trim, 28, 49, 30, 2);
+    rect(parent, c.gem, 31, 50, 4, 3);
+    rect(parent, c.gem, 53, 50, 4, 3);
+    rivets(parent, c.shine, c.strapDark, [[28, 42], [58, 42]]);
   } else {
-    rect(parent,c.trim,31,51,25,2);
-    rect(parent,c.shine,36,51,10,2);
-    rect(parent,c.metal,34,55,20,2);
-    studs(parent,c.shine,[[31,45],[58,45]]);
+    // Royal hammered-gold belly filigree + twin amethyst accents.
+    rect(parent, c.ink, 27, 49, 34, 6);
+    rect(parent, c.trim, 28, 50, 32, 4);
+    rect(parent, c.shine, 30, 50, 22, 2);
+    rect(parent, c.ink, 31, 43, 6, 5);
+    rect(parent, c.gem, 32, 44, 4, 3);
+    rect(parent, '#f5d0fe', 33, 44, 2, 1);
+    rect(parent, c.ink, 51, 43, 6, 5);
+    rect(parent, c.gem, 52, 44, 4, 3);
+    rect(parent, '#f5d0fe', 53, 44, 2, 1);
   }
 }
-function drawInnerWell(parent, c) {
-  // Under the independent lid; visible after the existing opening animation.
-  rect(parent,c.ink,14,32,60,14);
-  rect(parent,c.inside,17,34,54,10);
-  rect(parent,c.dark,20,37,48,6);
-  rect(parent,c.trim,15,33,58,2);
-  rect(parent,c.highlight,19,35,47,2);
+
+function drawInnerWell(parent, c, id) {
+  // Hinged flipped-open lid silhouette peeking behind + deep inner cavity.
+  rect(parent, c.ink, 14, 18, 60, 17);
+  rect(parent, c.dark, 16, 20, 56, 13);
+  rect(parent, c.inside, 18, 22, 52, 10);
+  // Top metal rim of the swung-back lid.
+  rect(parent, c.ink, 16, 17, 56, 4);
+  rect(parent, c.metal, 18, 18, 52, 2);
+  rect(parent, c.trim, 20, 18, 36, 2);
+  if (id === 'gold') {
+    rect(parent, c.trim, 38, 15, 12, 3);
+    rect(parent, c.gem, 42, 15, 4, 3);
+  }
+
+  // Lower coffer opening cavity & beveled wooden/metal front lip.
+  rect(parent, c.ink, 14, 32, 60, 12);
+  rect(parent, c.inside, 17, 34, 54, 8);
+  rect(parent, c.trim, 14, 38, 60, 3);
+  rect(parent, c.shine, 16, 38, 44, 2);
+  rect(parent, c.dark, 16, 41, 56, 2);
 }
+
 function drawLining(parent, c) {
-  // Glittering loot inside the chest appears only once the lid lifts.
-  rect(parent,c.trim,24,36,40,6);
-  rect(parent,c.shine,30,37,27,3);
-  rect(parent,c.metal,20,41,47,3);
-  studs(parent,c.highlight,[[26,34],[45,32],[59,35]]);
+  // Stepped mound of pixel gold coins + shimmering loot inside the cavity.
+  rect(parent, c.goldDark, 21, 35, 46, 5);
+  rect(parent, c.goldMid, 24, 32, 40, 7);
+  rect(parent, c.goldMid, 29, 29, 30, 8);
+  rect(parent, c.goldLit, 32, 30, 14, 3);
+  rect(parent, c.goldLit, 47, 32, 8, 2);
+  rect(parent, c.goldLit, 25, 35, 10, 2);
+  // Highlighted individual coin rims & gems tucked in loot pile.
+  rect(parent, c.shine, 35, 31, 4, 2);
+  rect(parent, c.shine, 50, 35, 4, 2);
+  rect(parent, c.gem, 28, 35, 4, 3);
+  rect(parent, c.gem, 54, 33, 4, 3);
+  rect(parent, '#ffffff', 42, 30, 2, 2);
 }
+
 function drawChestLid(parent, c, id) {
-  // Stepped roof silhouette (no vector curves): classic pixel-game coffer.
-  rect(parent,c.ink,10,29,68,12);
-  rect(parent,c.ink,12,23,64,17);
-  rect(parent,c.ink,16,19,56,21);
-  rect(parent,c.ink,20,17,48,23);
-  rect(parent,c.ink,24,15,40,25);
-  rect(parent,c.dark,14,27,60,10);
-  rect(parent,c.shade,16,23,56,14);
-  rect(parent,c.face,20,21,48,16);
-  rect(parent,c.lit,23,19,42,12);
-  rect(parent,c.highlight,26,18,33,4);
-  rect(parent,c.shine,28,18,19,2);
-  rect(parent,c.shade,21,29,47,4);
-  rect(parent,c.seam,26,23,33,2);
-  rect(parent,c.face,27,26,27,3);
-  // Stepped side rim, matching the hand-drawn reference chest silhouette.
-  rect(parent,c.metal,12,29,64,10);
-  rect(parent,c.trim,14,31,60,6);
-  rect(parent,c.shine,16,31,48,2);
-  rect(parent,c.dark,15,37,59,4);
-  // Distinct top-cover straps that follow the roof.
-  for (const x of [19,61]) {
-    rect(parent,c.ink,x-2,19,10,22);
-    rect(parent,c.metal,x,21,6,18);
-    rect(parent,c.trim,x,21,4,15);
-    rect(parent,c.shine,x+1,22,2,6);
+  // Classic barrel-arched stepped RPG pixel lid with 2px side overhang over body.
+  rect(parent, c.ink, 24, 13, 40, 25);
+  rect(parent, c.ink, 18, 16, 52, 22);
+  rect(parent, c.ink, 13, 20, 62, 18);
+  rect(parent, c.ink, 9, 27, 70, 13);
+
+  // Curved top shading courses.
+  rect(parent, c.dark, 11, 28, 66, 9);
+  rect(parent, c.shade, 15, 22, 58, 15);
+  rect(parent, c.face, 19, 18, 48, 15);
+  rect(parent, c.lit, 24, 15, 36, 9);
+  rect(parent, c.highlight, 27, 15, 24, 3);
+  rect(parent, c.shine, 30, 15, 12, 2);
+
+  // Lid plank / steel rib seams.
+  rect(parent, c.seam, 17, 24, 52, 2);
+  rect(parent, c.seam, 15, 29, 58, 2);
+  rect(parent, c.lit, 25, 26, 26, 2);
+
+  // Heavy overhanging lid lip band (`y = 31..38`).
+  rect(parent, c.ink, 10, 31, 68, 8);
+  rect(parent, c.metal, 12, 32, 64, 5);
+  rect(parent, c.trim, 14, 32, 52, 3);
+  rect(parent, c.shine, 16, 32, 24, 2);
+  rect(parent, c.strapDark, 12, 36, 64, 2);
+
+  // Two continuous vertical roof straps aligned directly above body straps.
+  for (const x of [17, 63]) {
+    rect(parent, c.ink, x - 2, 17, 10, 21);
+    rect(parent, c.strapDark, x, 18, 8, 19);
+    rect(parent, c.metal, x, 18, 6, 18);
+    rect(parent, c.trim, x + 1, 19, 4, 15);
+    rect(parent, c.shine, x + 1, 19, 2, 6);
+    rect(parent, c.strapDark, x + 6, 19, 2, 17);
   }
-  studs(parent,c.shine,[[20,32],[64,32]]);
-  if(id==='gold'){
-    // Tiny royal inlay, separate from the lock emblem.
-    rect(parent,c.trim,37,20,14,3);
-    rect(parent,c.gem,41,18,6,5);
-    rect(parent,c.shine,43,19,2,2);
-  } else if(id==='iron'){
-    rect(parent,c.highlight,34,20,20,2);
+  rivets(parent, c.shine, c.ink, [[19, 22], [19, 32], [65, 22], [65, 32]]);
+
+  // Tier-distinct lid top crown / crest hardware.
+  if (id === 'gold') {
+    // Stepped royal pixel crown crest atop lid arch!
+    rect(parent, c.ink, 33, 9, 22, 8);
+    rect(parent, c.ink, 35, 7, 4, 3);
+    rect(parent, c.ink, 42, 6, 4, 4);
+    rect(parent, c.ink, 49, 7, 4, 3);
+    rect(parent, c.trim, 35, 10, 18, 6);
+    rect(parent, c.shine, 36, 8, 2, 5);
+    rect(parent, c.shine, 43, 7, 2, 6);
+    rect(parent, c.shine, 50, 8, 2, 5);
+    rect(parent, c.gem, 41, 11, 6, 4);
+    rect(parent, '#f5d0fe', 42, 11, 2, 2);
+  } else if (id === 'iron') {
+    // Reinforced central steel spine ridge with twin cyan studs.
+    rect(parent, c.ink, 34, 12, 20, 6);
+    rect(parent, c.metal, 36, 13, 16, 4);
+    rect(parent, c.trim, 37, 13, 12, 2);
+    rect(parent, c.gem, 42, 14, 4, 2);
   } else {
-    rect(parent,c.shine,33,20,12,2);
+    // Oak plank metal center reinforcement tab.
+    rect(parent, c.ink, 38, 14, 12, 4);
+    rect(parent, c.trim, 39, 15, 10, 2);
+    rect(parent, c.shine, 40, 15, 4, 2);
   }
 }
+
 function drawClasp(parent, c, id) {
-  // The clasp belongs to the lid so it disappears naturally when opened.
-  rect(parent,c.ink,37,34,16,16);
-  rect(parent,c.metal,39,35,12,13);
-  rect(parent,c.trim,40,35,10,11);
-  rect(parent,c.shine,41,36,5,2);
-  if(id==='gold'){
-    // Faceted purple gem in the grand chest lock.
-    rect(parent,c.ink,42,38,6,8);
-    rect(parent,c.gem,42,39,6,5);
-    rect(parent,'#e7adfa',44,39,2,3);
-    rect(parent,c.dark,44,44,2,2);
-  }else{
-    rect(parent,c.ink,43,39,4,5);
-    rect(parent,c.ink,42,43,6,3);
-    if(id==='iron')rect(parent,c.gem,44,40,2,2);
+  // Heavy chunky front latch overlapping lid lip & chest body.
+  rect(parent, c.ink, 35, 31, 18, 18);
+  rect(parent, c.ink, 37, 48, 14, 3);
+  rect(parent, c.strapDark, 37, 32, 14, 16);
+  rect(parent, c.metal, 37, 32, 12, 15);
+  rect(parent, c.trim, 38, 33, 10, 12);
+  rect(parent, c.shine, 39, 34, 6, 2);
+
+  if (id === 'gold') {
+    // Jeweled royal amethyst lock with facet highlight.
+    rect(parent, c.ink, 40, 36, 8, 9);
+    rect(parent, c.gem, 41, 37, 6, 7);
+    rect(parent, '#f3e8ff', 42, 38, 2, 3);
+    rect(parent, '#7e22ce', 44, 41, 3, 3);
+  } else if (id === 'iron') {
+    // Forged steel padlock with glowing cyan core + key recess.
+    rect(parent, c.ink, 40, 36, 8, 9);
+    rect(parent, c.gem, 41, 37, 6, 5);
+    rect(parent, '#ecfeff', 42, 37, 2, 3);
+    rect(parent, c.dark, 43, 42, 2, 3);
+  } else {
+    // Classic golden-rimmed keyhole escutcheon.
+    rect(parent, c.ink, 41, 36, 6, 5);
+    rect(parent, c.ink, 42, 40, 4, 5);
+    rect(parent, c.goldMid, 42, 37, 4, 3);
+    rect(parent, c.ink, 43, 38, 2, 4);
   }
-  studs(parent,c.shine,[[40,45],[49,45]]);
+  rivets(parent, c.shine, c.ink, [[38, 44], [48, 44]]);
 }
-function drawRelic(parent,id) {
-  // Existing chest rewards are unchanged: Ember Trail, Orbit Shield, Crown.
-  if(id==='wood'){
-    path(parent,'#6b2730','M43 5H47V10H50V14H52V20H50V24H46V26H41V23H38V20H36V16H39V12H42Z');
-    path(parent,'#ff9b36','M44 9H46V14H49V17H50V20H48V23H41V21H39V18H42V15H44Z');
-    rect(parent,'#fff4a7',43,16,3,5);
-  }else if(id==='iron'){
-    path(parent,'#162735','M42 6H47V8H52V16H50V20H48V23H43V21H40V19H38V16H36V9H42Z');
-    path(parent,'#34b9cf','M43 9H46V10H50V17H48V20H45V21H42V18H39V10H43Z');
-    rect(parent,'#dcffff',42,11,3,5);
-    rect(parent,'#167caa',45,15,3,4);
-  }else{
-    path(parent,'#95521d','M42 5H46V10H49V12H54V16H50V19H48V24H45V21H42V24H39V20H38V18H35V12H40V10H42Z');
-    path(parent,'#ffe76c','M43 8H45V12H48V14H51V16H48V18H46V21H44V19H42V21H41V17H38V14H42V12H43Z');
-    rect(parent,'#fff9c7',43,12,3,5);
+
+function drawRelic(parent, id) {
+  // 16-bit integer-grid relics hovering proudly above the opened chest.
+  if (id === 'wood') {
+    // Ember Flame icon: dark ember outline + orange flame + yellow/white hot core.
+    rect(parent, '#451218', 42, 4, 4, 4);
+    rect(parent, '#451218', 38, 8, 12, 6);
+    rect(parent, '#451218', 35, 13, 18, 10);
+    rect(parent, '#451218', 37, 22, 14, 4);
+    rect(parent, '#ea580c', 43, 6, 3, 4);
+    rect(parent, '#ea580c', 39, 10, 10, 12);
+    rect(parent, '#ea580c', 37, 15, 14, 7);
+    rect(parent, '#fb923c', 41, 11, 6, 11);
+    rect(parent, '#fde047', 41, 15, 6, 7);
+    rect(parent, '#ffffff', 43, 18, 3, 3);
+    // Floating ember pixels.
+    rect(parent, '#fb923c', 34, 8, 2, 2);
+    rect(parent, '#fde047', 52, 6, 2, 2);
+  } else if (id === 'iron') {
+    // Orbit Shield icon: classic pixel heater shield with frosty cyan glint.
+    rect(parent, '#0f1e2e', 35, 7, 18, 12);
+    rect(parent, '#0f1e2e', 37, 19, 14, 4);
+    rect(parent, '#0f1e2e', 40, 23, 8, 3);
+    rect(parent, '#0f1e2e', 42, 26, 4, 2);
+    rect(parent, '#cbd5e1', 37, 9, 14, 10);
+    rect(parent, '#cbd5e1', 39, 19, 10, 3);
+    rect(parent, '#cbd5e1', 41, 22, 6, 3);
+    rect(parent, '#0284c7', 39, 11, 10, 8);
+    rect(parent, '#0284c7', 41, 19, 6, 3);
+    rect(parent, '#38bdf8', 39, 11, 5, 7);
+    rect(parent, '#e0f2fe', 40, 12, 3, 3);
+    rect(parent, '#ffffff', 41, 12, 2, 2);
+  } else {
+    // Royal 3-spired Gold Pixel Crown with jewel accents.
+    rect(parent, '#451a03', 33, 9, 22, 15);
+    rect(parent, '#451a03', 34, 6, 4, 4);
+    rect(parent, '#451a03', 42, 4, 4, 6);
+    rect(parent, '#451a03', 50, 6, 4, 4);
+    rect(parent, '#f59e0b', 35, 11, 18, 11);
+    rect(parent, '#facc15', 35, 8, 2, 12);
+    rect(parent, '#facc15', 43, 6, 2, 14);
+    rect(parent, '#facc15', 51, 8, 2, 12);
+    rect(parent, '#facc15', 36, 13, 16, 7);
+    rect(parent, '#fef08a', 37, 13, 10, 3);
+    rect(parent, '#fef9c3', 43, 7, 2, 4);
+    rect(parent, '#b45309', 36, 20, 16, 2);
+    rect(parent, '#c084fc', 43, 16, 2, 3);
+    rect(parent, '#f43f5e', 37, 16, 2, 2);
+    rect(parent, '#38bdf8', 49, 16, 2, 2);
   }
 }
+
 export function chestArt(chest, opened) {
   const id = PALETTES[chest?.id] ? chest.id : 'wood';
   const c = PALETTES[id];
@@ -193,35 +337,46 @@ export function chestArt(chest, opened) {
   stage.className = 'lb-chest-art';
   stage.dataset.open = String(Boolean(opened));
   stage.dataset.style = 'pixel-game';
-  stage.setAttribute('aria-hidden','true');
+  stage.setAttribute('aria-hidden', 'true');
 
-  const svg = node(stage,'svg',{
-    viewBox:'0 0 88 78',
-    'shape-rendering':'crispEdges',
-    focusable:'false'
+  const svg = node(stage, 'svg', {
+    viewBox: '0 0 88 78',
+    'shape-rendering': 'crispEdges',
+    focusable: 'false'
   });
-  const glow = group(svg,'lb-chest-light');
-  path(glow,c.spark,'M43 10L29 36H5L27 42L14 58L40 48L44 72L49 48L74 58L60 42L83 36H55Z');
-  const ambient = group(svg,'lb-chest-ambient');
-  for(const [x,y,size] of id==='gold' ? [[10,17,2],[76,13,2],[7,44,2],[79,51,2],[34,8,1]]:
-    id==='iron' ? [[10,21,2],[79,28,2],[68,10,1]]:
-    [[9,25,2],[78,30,1]]) sparkle(ambient,c.spark,x,y,size);
-  const shell=group(group(svg,'lb-chest-entry'),'lb-chest-object');
-  drawShadow(shell,c);
-  const body=group(shell,'lb-chest-body');
-  drawChestBody(body,c,id);
-  const well=group(shell,'lb-chest-well');
-  drawInnerWell(well,c);
-  const lining=group(shell,'lb-chest-lining');
-  drawLining(lining,c);
-  const lid=group(shell,'lb-chest-lid');
-  drawChestLid(lid,c,id);
-  drawClasp(group(lid,'lb-chest-clasp'),c,id);
-  const relic=group(svg,'lb-chest-relic');
-  drawRelic(relic,id);
-  const sparks=group(svg,'lb-loot-sparks');
-  for(const [x,y] of [[18,14],[68,9],[28,7],[63,22],[37,4],[53,8]]){
-    sparkle(sparks,c.spark,x,y,2);
+
+  const glow = group(svg, 'lb-chest-light');
+  path(glow, c.spark, 'M44 8L31 35H7L27 42L14 58L40 48L44 72L48 48L74 58L61 42L81 35H57Z');
+
+  const ambient = group(svg, 'lb-chest-ambient');
+  const ambientSpots = id === 'gold'
+    ? [[9, 16, 2], [77, 12, 2], [7, 43, 2], [79, 50, 2], [44, 4, 1]]
+    : id === 'iron'
+      ? [[10, 20, 2], [78, 26, 2], [69, 9, 1]]
+      : [[9, 24, 2], [77, 29, 1]];
+  for (const [x, y, size] of ambientSpots) {
+    sparkle(ambient, c.spark, c.shine, x, y, size);
   }
+
+  const shell = group(group(svg, 'lb-chest-entry'), 'lb-chest-object');
+  drawShadow(shell);
+  const body = group(shell, 'lb-chest-body');
+  drawChestBody(body, c, id);
+  const well = group(shell, 'lb-chest-well');
+  drawInnerWell(well, c, id);
+  const lining = group(shell, 'lb-chest-lining');
+  drawLining(lining, c);
+  const lid = group(shell, 'lb-chest-lid');
+  drawChestLid(lid, c, id);
+  drawClasp(group(lid, 'lb-chest-clasp'), c, id);
+
+  const relic = group(svg, 'lb-chest-relic');
+  drawRelic(relic, id);
+
+  const sparks = group(svg, 'lb-loot-sparks');
+  for (const [x, y] of [[18, 13], [69, 10], [27, 6], [64, 21], [36, 4], [54, 7]]) {
+    sparkle(sparks, c.spark, c.shine, x, y, 2);
+  }
+
   return stage;
 }

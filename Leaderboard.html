@@ -244,14 +244,23 @@
 
   <section id="treasures" class="lb-treasures" aria-labelledby="treasures-title" hidden>
     <div class="lb-vault-head">
-      <div>
-        <p class="lb-terminal">Personal collection</p>
-        <h2 id="treasures-title">The treasure room</h2>
-        <p>Clear your scheduled habits to unlock keepsakes for your runner. Rest days never set you back.</p>
+      <div class="lb-vault-copy">
+        <p class="lb-terminal">Treasure vault · Relic room</p>
+        <h2 id="treasures-title">Pixel loot &amp; runner powers</h2>
+        <p>Clear every scheduled habit on a day to forge a clear day. Unlock wooden, iron, and golden chests to equip pixel powers on your companion.</p>
+        <div class="lb-vault-stats" aria-label="Treasure room stats">
+          <span class="lb-vault-stat"><strong id="treasure-clears">0</strong> clear days</span>
+          <span class="lb-vault-stat"><strong id="treasure-opened-count">0 / 3</strong> chests</span>
+          <span class="lb-vault-stat"><strong id="treasure-xp">0</strong> XP</span>
+        </div>
       </div>
       <div class="lb-runner-plaque">
         <div id="treasure-avatar" class="lb-power-avatar" aria-hidden="true"></div>
-        <div><small>Your runner</small><strong id="treasure-runner">—</strong><span id="treasure-xp">0 treasure XP</span></div>
+        <div class="lb-runner-meta">
+          <small>Your runner</small>
+          <strong id="treasure-runner">—</strong>
+          <span id="treasure-power-label" class="lb-power-badge">No power equipped</span>
+        </div>
       </div>
     </div>
     <p id="treasure-summary" class="lb-vault-summary"></p>
