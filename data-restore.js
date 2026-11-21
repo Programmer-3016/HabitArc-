@@ -9,7 +9,7 @@ const validId=id=>typeof id==='string'&&id.length>0&&id.length<=90&&!id.includes
 const getJson=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||'null')??fallback}catch{return fallback}};
 const countUnique=(items)=>new Set(items.map(item=>item.id)).size;
 const validDate=date=>typeof date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(date);
-function validateArchive(archive,uid) {
+export function validateArchive(archive,uid) {
  if(!archive||archive.type!=='habitarc-personal-archive'||archive.version!==1)
    throw new Error('Not a supported HabitArc backup (version 1 required).');
  if(!uid||archive.owner!==uid)
