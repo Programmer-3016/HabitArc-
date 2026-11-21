@@ -117,7 +117,7 @@ test('Server-backed metric tiles appear only for consistent verified snapshot co
  assert.match(accurate,/11<\/strong>/);
  assert.match(accurate,/216<\/strong>/);
  assert.match(accurate,/LOGGED \/ 28D/);
- assert.match(accurate,/does not mean the activities were not performed/);
+ assert.match(accurate,/does not prove the activities were not performed/);
  assert.match(accurate,/SYNCED RECORDS/);
  assert.doesNotMatch(renderArcSignalDeck(answer),/ha-arc-metric-card/);
  assert.doesNotMatch(renderArcSignalDeck(answer,undefined,{
@@ -145,7 +145,7 @@ test('Legacy habit identifiers are hidden from the reading layout but code fence
  ].join('\n');
  const cleaned=cleanArcDisplayText(response);
  assert.doesNotMatch(cleaned,/h_mv1|h_mwq/);
- assert.match(cleaned,/several record entries/);
+ assert.match(cleaned,/multiple matching habit entries/);
  assert.match(cleaned,/Hydrate/);
  assert.match(cleaned,/0%/);
  assert.match(cleaned,/  const spaced =  3;/);
