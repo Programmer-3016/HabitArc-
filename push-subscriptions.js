@@ -78,12 +78,14 @@ export async function enableBackgroundPush(){
 }
 export async function disableBackgroundPush(){
  const uid=publicUid(),registered=localStorage.getItem(OWNER_KEY);
- if(uid&&uid===registered){
-  try{await removeServerDoc(uid,getId());}
-  catch(error){console.warn('Push removal will be retried after the subscription expires.',error);}
- }
+ // Unsubscribe locally FIRST so even a failed Firestore request cannot
+ // continue delivering this account's notifications on a shared phone.
  try{const sub=await getSubscription();await sub?.unsubscribe();}catch{}
  localStorage.removeItem(OWNER_KEY);
+ if(uid&&uid===registered){
+  try{await removeServerDoc(uid,getId());}
+  catch(error){console.warn('Push record cleanup deferred; expired device will be removed by cron.',error);}
+ }
  return {enabled:false};
 }
 export async function sanitizePushAccount(){
