@@ -36,7 +36,7 @@ test('Retains five-tab mobile navigation and refreshes installed app styles',()=
   const nav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
   assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(x=>x[1]),
     ['Dashboard.html','Habits.html','Notes.html','Insights.html','Arc_AI.html']);
-  assert.match(read('sw.js'),/habitarc-shell-v21/);
+  assert.match(read('sw.js'), /'\/app-ui\.css'/);
   assert.match(read('tests/ui-layout.mjs'),/Android 320\/360\/390px/);
   assert.match(read('tests/ui-layout.mjs'),/\[320,360,390\]/);
 });

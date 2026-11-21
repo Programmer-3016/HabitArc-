@@ -13,6 +13,7 @@ function worker({
   cachedCdnUrls = [],
   clients = [],
   opaqueCdn = false,
+  failCacheWrites = false,
 } = {}) {
   const listeners = {};
   const added = [];
@@ -20,6 +21,8 @@ function worker({
   const removed = [];
   const openedWindows = [];
   const matched = [];
+  const openedCaches = [];
+  const background = [];
   const store = new Map();
   for (const route of cachedRoutes) {
     store.set(route, new Response(`Cached:${route}`, { status: 200 }));
@@ -31,6 +34,7 @@ function worker({
   const cache = {
     addAll: async (urls) => added.push(...urls),
     put: async (key, response) => {
+      if (failCacheWrites) throw new Error('Cache quota exceeded');
       const k = typeof key === 'string' ? key : key.url;
       puts.push(k);
       store.set(k, response);
@@ -38,7 +42,7 @@ function worker({
     match: async (key) => {
       const k = typeof key === 'string' ? key : key.url;
       matched.push(k);
-      return store.get(k);
+      return store.get(k)?.clone();
     },
   };
 
@@ -57,7 +61,7 @@ function worker({
       return new Response(`Network:${target}`, { status: 200 });
     },
     caches: {
-      open: async () => cache,
+      open: async (name) => { openedCaches.push(name); return cache; },
       keys: async () => ['habitarc-offline-v2', 'habitarc-shell-v7', 'habitarc-shell-v8', 'habitarc-cdn-v1', 'another-app-cache'],
       delete: async (key) => removed.push(key),
     },
@@ -78,6 +82,8 @@ function worker({
     puts,
     removed,
     openedWindows,
+    openedCaches,
+    async settle() { await Promise.all(background.splice(0)); },
     matched,
     get claimed() { return claimed; },
     get skippedWaiting() { return skippedWaiting; },
@@ -92,6 +98,7 @@ function worker({
       listeners.fetch({
         request: { url: href, method, mode },
         respondWith: (promise) => { response = promise; },
+        waitUntil: (promise) => { background.push(promise); },
       });
       return response;
     },
@@ -111,6 +118,8 @@ function worker({
 test('PWA precaches complete HabitArc app shell and square/maskable icons', async () => {
   const app = worker();
   await app.lifecycle('install');
+  assert.ok(Number(app.openedCaches[0]?.match(/^habitarc-shell-v(\d+)$/)?.[1]) >= 30,
+    'install must open the current or a newer app-shell cache');
   for (const required of [
     '/offline.html',
     '/index.html',
@@ -159,11 +168,32 @@ test('PWA never intercepts auth helpers, APIs, mutations, or Firebase/OAuth orig
   assert.equal(app.fetch('/app.js?version=2'), undefined);
 });
 
-test('online navigation returns network-fresh HTML and updates app-shell cache under canonical pathname', async () => {
+test('query navigation returns fresh HTML without overwriting the shared habit detail page', async () => {
   const app = worker();
   const response = await app.fetch('/Habit_Detail.html?id=h-123', { mode: 'navigate' });
-  assert.match(await response.text(), /^Network:https:\/\/habit-arc\.vercel\.app\/Habit_Detail\.html\?id=h-123/);
-  assert.ok(app.puts.includes('/Habit_Detail.html'));
+  assert.equal(await response.text(), 'Network:' + origin + '/Habit_Detail.html?id=h-123');
+  await app.settle();
+  assert.deepEqual(app.puts, []);
+  const canonical = await app.fetch('/Habit_Detail.html', { mode: 'navigate' });
+  assert.equal(await canonical.text(), 'Cached:/Habit_Detail.html');
+  await app.settle();
+});
+
+test('normal tab navigation serves the shell and makes the background refresh available next time', async () => {
+  const app = worker();
+  const navigate = () => app.fetch('/Habits.html', { mode: 'navigate' });
+  assert.equal(await (await navigate()).text(), 'Cached:/Habits.html');
+  await app.settle();
+  assert.deepEqual(app.puts, ['/Habits.html']);
+  assert.equal(await (await navigate()).text(), 'Network:' + origin + '/Habits.html');
+  await app.settle();
+});
+
+test('cache write failures do not discard fresh shell or CDN responses', async () => {
+  const app = worker({ cachedRoutes: [], failCacheWrites: true });
+  const path = '/Dashboard.html', cdn = 'https://cdn.tailwindcss.com/';
+  assert.equal(await (await app.fetch(path, { mode: 'navigate' })).text(), 'Network:' + origin + path);
+  assert.equal(await (await app.fetch(cdn)).text(), 'Network:' + cdn);
 });
 
 test('offline navigation serves cached app page first and falls back to offline.html when uncached', async () => {
@@ -185,6 +215,10 @@ test('offline navigation serves cached app page first and falls back to offline.
   const errorResp = await missingAll.fetch('/Dashboard.html', { mode: 'navigate' });
   assert.equal(errorResp.status, 503);
   assert.match(await errorResp.text(), /Reconnect/);
+  const missingQuery = await missingAll.fetch('/Habit_Detail.html?id=h-123', { mode: 'navigate' });
+  assert.equal(missingQuery.status, 503);
+  assert.match(await missingQuery.text(), /Reconnect/);
+  await app.settle();
 });
 
 test('allowlisted static UI CDNs cache safely (including opaque responses) for offline styling', async () => {

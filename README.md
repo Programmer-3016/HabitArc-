@@ -54,7 +54,7 @@ Access the deployed application on Vercel:
 
 ### 6. 📲 PWA App Shell & Reminders
 - **Installable PWA**: `manifest.webmanifest` with square `192×192`, `512×512`, `maskable`, and `180×180` Apple touch icons (`icons/`), app shortcuts, and install banners/controls across Dashboard, Profile, and Settings.
-- **Offline App-Shell**: `sw.js` (`habitarc-shell-v3`) precaches the core static app shell with network-first updates online and cached offline navigation/habit logging backed by local storage (auto-syncing when back online), while keeping `/__*`, `/api/*`, OAuth, and Firebase backends uncached.
+- **Offline app shell**: The service worker serves precached pages and scripts immediately, then refreshes them in the background. Links with query parameters go to the network first; offline, they fall back to the cached page without storing a query-specific response. Firebase Auth helpers, API calls, and Firebase backends bypass this cache.
 - **Local Reminder Delivery**: Daily habit reminders and the weekly check-in can use browser notifications while HabitArc is open, after an explicit permission choice.
 - **Honest delivery boundary**: Closed-browser background push needs Firebase Cloud Messaging and a trusted server-side sender; it is not claimed as complete until that infrastructure is configured.
 
@@ -69,8 +69,8 @@ Access the deployed application on Vercel:
 ## 🛠️ Technology Stack
 - **Frontend**: HTML5, Tailwind CSS (CDN with container queries & custom color system), Vanilla JavaScript (ES6 Module pattern)
 - **State & Storage**: User-scoped `localStorage` cache plus Firebase Firestore sync (full CRUD, streaks, calendar generation, offline-first fallback)
-- **AI backend**: Vercel Node Function, Vercel AI SDK / AI Gateway, Firebase Admin token verification and private data reads
-- **PWA**: Web App Manifest, network-first page navigation with an offline reconnect screen. Application JavaScript, authenticated pages and API responses are not cached by the worker.
+- **AI backend**: A Vercel Node function verifies Firebase ID tokens with Firebase Admin, reads the signed-in user's permitted context, and calls Gemini directly using server-side `fetch`.
+- **PWA**: Web App Manifest, static app-shell cache, offline reconnect screen and opt-in Web Push. Cached HTML is the page template, not a cache of private API responses.
 - **Typography & Icons**: Material Symbols Outlined, Google Fonts (Hanken Grotesk & Geist)
 - **Deployment**: Vercel Static Hosting with rewrite routing (`vercel.json`)
 
@@ -94,8 +94,8 @@ HabitArc/
 ├── api/
 │   ├── coach.js        # Authenticated server-side AI Coach endpoint
 │   └── _coach-context.js # Server-side Coach request and conversation validation
-├── manifest.webmanifest # PWA metadata (square release icons still required)
-├── sw.js               # Safe offline fallback, no cached auth/app scripts
+├── manifest.webmanifest # PWA metadata, install icons and shortcuts
+├── sw.js               # Static shell cache, offline fallback and push notifications
 ├── offline.html        # Offline fallback screen
 ├── pwa-register.js     # Service-worker registration
 ├── tests/              # Core data, Coach security, PWA and opt-in browser checks
@@ -205,10 +205,9 @@ For each Coach request, HabitArc first flushes the signed-in member's pending lo
 
 ### Remaining release checks
 
-- Configure server-only AI credentials and budget controls, then test real signed-in questions. Local tests use SDK stubs and do not establish live model quality.
+- Configure server-only AI credentials and budget controls, then test real signed-in questions. Local tests use simulated provider responses and do not establish live model quality.
 - Verify the published Firestore rules include `habitCompletions` before the cross-device demo.
-- Add proper square app icons and test installation on Android/iOS. Full offline habit editing and closed-browser push are not included in the current PWA foundation.
-- Some original Settings rows (week-start, default-time selector, privacy page) are still static. Do not present those as completed interactive features.
+- Test installation with the supplied icons on Android/iOS, record a habit offline and verify sync after reconnecting. Test opt-in push on a supported device with the app closed and the server credentials configured.
 
 The Admin SDK bypasses client Firestore rules only inside the protected Vercel function, after Firebase token verification. The existing client rules continue to block other users from reading a member’s data.
 
@@ -231,6 +230,7 @@ Habit lists use two columns from 768px and one column on smaller screens.
 The app still depends on the existing Tailwind/font CDNs; this is not a bundled
 offline redesign.
 
+Use Node 22 and `npm ci`. Firebase Admin's database-compat dependency is pinned at 2.1.7 because 2.1.8 requires Node 24.12 or newer.
 Run `npm run check` and `npm test` for syntax/unit checks. Optional isolated
 browser checks (with Playwright available):
 

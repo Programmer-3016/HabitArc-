@@ -1,7 +1,7 @@
 // Offline-capable app-shell service worker for HabitArc PWA.
-// Network-first keeps online HTML, scripts, and authenticated state fresh;
-// only static UI runtime CDNs and same-origin app shell assets fall back offline.
-const CACHE_NAME = 'habitarc-shell-v29';
+// Static shell files return from cache while they refresh; query navigations
+// stay network-first and never replace the public shell with their responses.
+const CACHE_NAME = 'habitarc-shell-v30';
 const CDN_CACHE_NAME = 'habitarc-cdn-v1';
 const OFFLINE_URL = '/offline.html';
 const SHELL_ASSETS = [
@@ -117,10 +117,10 @@ function isCacheableResponse(response, { allowOpaque = false } = {}) {
   return Boolean(response.ok) && response.type !== 'error' && response.type !== 'opaque';
 }
 
-async function cacheClone(cachePromise, key, response) {
-  const copy = response.clone();
-  const cache = await cachePromise;
-  await cache.put(key, copy);
+function offlineNavigation(cache) {
+  return cache.match(OFFLINE_URL).then(page => page || new Response('You are offline. Reconnect to load HabitArc.', {
+    status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+  }));
 }
 
 
@@ -132,7 +132,8 @@ async function respondFromShellCache(request, key, event, { navigation = false }
   const refreshing = fetch(request)
     .then(async (response) => {
       if (isCacheableResponse(response)) {
-        await cacheClone(Promise.resolve(cache), key, response);
+        // A full cache must not turn a successful network response into a 503.
+        await cache.put(key, response.clone()).catch(() => {});
       }
       return response;
     })
@@ -144,9 +145,7 @@ async function respondFromShellCache(request, key, event, { navigation = false }
   const fresh = await refreshing;
   if (fresh) return fresh;
   if (navigation) {
-    return (await cache.match(OFFLINE_URL)) || new Response('You are offline.', {
-      status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-    });
+    return offlineNavigation(cache);
   }
   return new Response('', { status: 503 });
 }
@@ -168,7 +167,7 @@ self.addEventListener('fetch', (event) => {
         const refreshing = fetch(request)
           .then(async (response) => {
             if (isCacheableResponse(response, { allowOpaque: true })) {
-              await cache.put(request, response.clone());
+              await cache.put(request, response.clone()).catch(() => {});
             }
             return response;
           })
@@ -196,8 +195,7 @@ self.addEventListener('fetch', (event) => {
       fetch(request).catch(async () => {
         const cache = await caches.open(CACHE_NAME);
         const cached = await cache.match(pageKey);
-        return cached || (await cache.match(OFFLINE_URL))
-          || new Response('You are offline.', { status: 503 });
+        return cached || offlineNavigation(cache);
       }),
     );
     return;

@@ -104,9 +104,6 @@ export function cancelFocus() {
 export function minutesOn(date) {
   return getFocusState().sessions.reduce((sum,s)=>sum+(s.date===date?Number(s.minutes)||0:0),0);
 }
-export function focusMinutesBetween(start,end) {
-  return getFocusState().sessions.reduce((sum,s)=>sum+(s.date>=start && s.date<=end?Number(s.minutes)||0:0),0);
-}
 
 
 // Completed-session cloud sync. The active timer stays device-local;

@@ -370,11 +370,6 @@ const HabitArc = (() => {
         return days[_dateFromKey(dateStr).getDay()];
     }
 
-    function _formatDate(dateStr) {
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-    }
-
     // ─── Core Data Access ───────────────────────────
     function _cloneData(data) {
         return JSON.parse(JSON.stringify(data || {}));

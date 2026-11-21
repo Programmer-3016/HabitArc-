@@ -78,7 +78,6 @@ test('New features stay within existing 5-tab PWA; private drafts never use URL 
  assert.match(source('notes-studio.js'),/habitarc_command_capture:/);
  assert.match(source('Add_Habit.html'),/habitarc_command_capture:/);
  assert.match(source('app-ui.js'),/HabitArcCommandHub\?\.mount/);
- assert.match(source('sw.js'),/habitarc-shell-v22/);
  for(const file of ['data-restore.js','productivity-hub.js','month-calendar.js','consistency-shield.js','device-readiness.js','privacy.html'])
    assert.ok(source('sw.js').includes("'/" +file+"'"),file+' must be cached for offline PWA');
 });

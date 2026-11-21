@@ -1184,44 +1184,6 @@
         '..KKKKKK..',
         '.KKKKKKKK.',
     ];
-    const GEAR_SAYA = [
-        'KK.......',
-        'KYK......',
-        '.KUK.....',
-        '..KUK....',
-        '...KUK...',
-        '....KZK..',
-        '.....KUK.',
-        '......KYK',
-        '.......KK',
-    ];
-    const GEAR_KATANA = [
-        '............KK',
-        '...........KWK',
-        '..........KWSK',
-        '.........KWSPK',
-        '........KWSPK.',
-        '.......KWSPK..',
-        '......KWSPK...',
-        '.....KWSPK....',
-        '...KKWSPK.....',
-        '..KYKYKK......',
-        '.KZKUK........',
-        'KYKK..........',
-    ];
-    const GEAR_KATANA_CHEER = [
-        '......KK..',
-        '.....KWK..',
-        '....KWSK..',
-        '...KWSPK..',
-        '..KWSPK...',
-        '..KWSPK...',
-        '.KWSPK....',
-        '.KWSPK....',
-        'KYKYKK....',
-        'KZKUK.....',
-        'KYKK......',
-    ];
     const GEAR_KUNAI = [
         '....KKK....',
         'KKK.KWSKKK.',
@@ -1234,27 +1196,6 @@
         'KCKYYYKWWWWWWWWWWWWWSK',
         'KKKYYYYKSSSSSSSSSSSSK.',
         '.......KKKKKKKKKKKKK..',
-    ];
-    const GEAR_RIFLE = [
-        '.......KKKKKK...........',
-        '......KPSGGJPK..........',
-        'KKKK..KKKKKKKKKKKKK.K...',
-        'KUUAKKKKKKKKKKKKKKKAKKKK',
-        'KUUUAAAPPSSPPPSPPSPKPAPK',
-        'KUUUKKKAAAAAAAAAAAASKKKK',
-        '.KK...KUK.KKAAKKKUK.....',
-        '.....KUK..KPAAK.KUK.....',
-        '....KUK...KAAAK..K......',
-        '....KKK....KAAAK........',
-        '...........KKKKK........',
-    ];
-    const GEAR_BLASTER = [
-        '..KKKKKKKKKK..',
-        '.KWWBJJBWWJGK.',
-        '.KLLBWWBWOGGK.',
-        '.KWWKKKKKKKKK.',
-        '.KWK.KUK......',
-        '.KKK..K.......',
     ];
 
     function drawBitmap(ctx, grid, cx, bottomY, px) {

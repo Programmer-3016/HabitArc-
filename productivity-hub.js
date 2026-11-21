@@ -69,16 +69,6 @@ function capture(kind){
  dialog.close();
  location.href=kind==='note'?'Notes.html?capture=1':'Add_Habit.html?capture=1';
 }
-export function readCaptureDraft(){
- const uid=owner();
- try{
-  const key=CAPTURE+uid,raw=sessionStorage.getItem(key);
-  sessionStorage.removeItem(key);
-  const d=JSON.parse(raw||'null');
-  if(d?.owner===uid&&Date.now()-d.savedAt<5*60000&&typeof d.title==='string')return d.title.slice(0,160);
- }catch{}
- return '';
-}
 function initialize(){
  dialog=document.createElement('dialog');
  dialog.id='ha-command-dialog';dialog.className='ha-command-dialog';

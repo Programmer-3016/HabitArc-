@@ -106,8 +106,9 @@ test('focused dashboard still responds to cloud data and authentication updates'
 });
 
 test('focused dashboard retains the five mobile navigation destinations and top-bar profile shortcut', () => {
-    const nav = html.match(/<nav class="md:hidden[\s\S]*?<\/nav>/)[0];
-    assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]), ['Dashboard.html', 'Habits.html', 'Add_Habit.html', 'Insights.html', 'Arc_AI.html']);
+    const nav = html.match(/<nav\b[^>]*aria-label="Mobile navigation"[^>]*>[\s\S]*?<\/nav>/)?.[0];
+    assert.ok(nav, 'mobile navigation landmark missing');
+    assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]), ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Arc_AI.html']);
     const mobileHeader = html.match(/<header class="[^"]*md:hidden[\s\S]*?<\/header>/)[0];
     assert.ok(mobileHeader.includes('href="Profile.html"'));
     assert.ok(!mobileHeader.includes('href="Settings.html"'));

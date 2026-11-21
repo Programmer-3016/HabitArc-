@@ -10,8 +10,12 @@
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {
-    "ai": "^7.0.172",
     "firebase-admin": "^14.5.1",
     "web-push": "^3.6.7"
+  },
+  "overrides": {
+    "firebase-admin": {
+      "@firebase/database-compat": "2.1.7"
+    }
   }
 }
