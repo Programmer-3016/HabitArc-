@@ -1380,6 +1380,9 @@ const HabitArc = (() => {
                 }
                 const overdue = tasks.filter(task => task.dueDate && task.dueDate < today).length;
                 const dueToday = tasks.filter(task => task.dueDate === today).length;
+                const tomorrow = new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+                const tomorrowKey = [tomorrow.getFullYear(),String(tomorrow.getMonth()+1).padStart(2,'0'),String(tomorrow.getDate()).padStart(2,'0')].join('-');
+                const dueTomorrow = tasks.filter(task => task.dueDate === tomorrowKey).length;
                 if (preferences.morningPlan && nowMinutes >= 8*60
                     && !_hasReminderReceipt('planner','morning',today)) {
                     const habitsToday = getTodayHabits();
@@ -1390,9 +1393,9 @@ const HabitArc = (() => {
                     });
                 }
                 if (preferences.taskAlerts && nowMinutes >= 9*60 &&
-                    (dueToday || overdue) && !_hasReminderReceipt('tasks','digest',today)) {
+                    (dueToday || overdue || dueTomorrow) && !_hasReminderReceipt('tasks','digest',today)) {
                     await _deliverReminder('tasks','digest',today,'Tasks need your attention', {
-                        body:dueToday+' due today · '+overdue+' overdue. Open Plan to review.',
+                        body:dueToday+' due today · '+overdue+' overdue · '+dueTomorrow+' due tomorrow. Open Plan.',
                         icon:'/logo.png',badge:'/logo.png',tag:'task-digest-'+today,
                         renotify:false,data:{url:'/Habits.html'}
                     });
