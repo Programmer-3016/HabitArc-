@@ -2779,3 +2779,32 @@ body.ha-arc-body > main.ha-arc-ai {
 .ha-device-row strong{flex:0 1 50%;font-size:11px;text-align:right;overflow-wrap:anywhere}
 .ha-device-row strong[data-ready="true"]{color:rgb(var(--ha-primary,124 58 237))}
 @media(max-width:359px){.ha-device-row{flex-wrap:wrap}.ha-device-row strong{flex:1 1 100%;text-align:left}}
+
+
+/* ARC AI optional workspace context: no data shared without explicit selection. */
+.ha-arc-context-open{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;padding:5px 11px;background:rgb(var(--ha-surface-container-lowest,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;line-height:1.3}
+.ha-arc-context-open.ha-arc-context-active{background:rgb(var(--ha-primary-container,196 181 253))}
+.ha-arc-data-dialog{width:min(570px,calc(100vw - 18px));max-height:calc(100dvh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;margin:auto;padding:0;border:2px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:18px;background:rgb(var(--ha-background,246 244 239));color:rgb(var(--ha-on-surface,18 18 21));box-shadow:4px 4px 0 var(--rpg-shadow-ink,#121215)}
+.ha-arc-data-dialog::backdrop{background:rgba(15,14,19,.7);backdrop-filter:blur(3px)}
+.ha-arc-data-shell{padding:clamp(16px,3vw,24px)}
+.ha-arc-data-shell header{display:flex;align-items:start;justify-content:space-between;gap:14px}
+.ha-arc-data-shell header small{font-size:10px;letter-spacing:.12em;font-weight:800;color:rgb(var(--ha-primary,124 58 237))}
+.ha-arc-data-shell header h2{font-size:clamp(21px,5vw,27px);font-weight:900;letter-spacing:-.04em;margin:5px 0 0}
+.ha-arc-data-shell header button{border:0;background:rgb(var(--ha-surface-container-lowest,255 255 255));color:inherit;border-radius:9px;padding:7px;cursor:pointer}
+.ha-arc-data-explain{font-size:12px;line-height:1.5;color:rgb(var(--ha-on-surface-variant,82 82 91));margin:13px 0}
+.ha-arc-data-option{display:flex;align-items:flex-start;gap:11px;background:rgb(var(--ha-surface-container-lowest,255 255 255));padding:13px;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:11px;margin:9px 0;cursor:pointer}
+.ha-arc-data-option input,.ha-arc-data-note input{width:18px;height:18px;accent-color:rgb(var(--ha-primary,124 58 237));flex:0 0 18px}
+.ha-arc-data-option span{display:grid;gap:4px}
+.ha-arc-data-option strong,.ha-arc-data-notes>strong{font-size:13px;font-weight:900}
+.ha-arc-data-option small,.ha-arc-data-notes>strong small{font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91));font-weight:500}
+.ha-arc-data-notes{margin:15px 0;padding:13px;background:rgb(var(--ha-primary-container,196 181 253)/.24);border-radius:12px}
+.ha-arc-data-notes p{font-size:11px;line-height:1.5;color:rgb(var(--ha-on-surface-variant,82 82 91));margin:7px 0}
+#arc-data-notes-list{max-height:190px;overflow:auto;display:grid;gap:6px}
+.ha-arc-data-note{display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid rgb(var(--ha-outline-variant,18 18 21)/.3);border-radius:8px;background:rgb(var(--ha-surface-container-lowest,255 255 255));font-size:12px;cursor:pointer}
+.ha-arc-data-note span{min-width:0;overflow-wrap:anywhere}
+.ha-arc-data-shell footer{position:sticky;bottom:0;padding:11px 0 7px;background:rgb(var(--ha-background,246 244 239));display:flex;justify-content:flex-end;gap:9px}
+.ha-arc-data-shell footer button{border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:9px;padding:10px 13px;font-weight:800;font-size:12px;cursor:pointer}
+#arc-data-clear{color:inherit;background:rgb(var(--ha-surface-container-lowest,255 255 255))}
+#arc-data-save{background:rgb(var(--ha-on-surface,18 18 21));color:rgb(var(--ha-surface-container-lowest,255 255 255))}
+#arc-data-status{font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91));margin:6px 0 0}
+@media(max-width:767px){.ha-arc-context-open{font-size:10px;padding:5px 10px}.ha-arc-data-shell{padding:15px}.ha-arc-data-dialog{max-height:calc(100dvh - 18px)}}
