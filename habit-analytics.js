@@ -447,11 +447,12 @@ export function cleanArcDisplayText(text) {
         if(/^\s*\x60{3}/.test(part))return part;
         return part
           .replace(/\(\s*including\s+(?:habit\s+)?(?:record\s+)?ids?[^)]*\bh_[a-z0-9_-]{6,}[^)]*\)/gi,'')
+          .replace(/\bincluding\s+(?:habit\s+)?ids?\s+(?:\x60?h_[a-z0-9_-]{6,}\x60?\s*(?:,\s*|\s+and\s+|\s+or\s*)?)+/gi,'record references omitted')
           .replace(/\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*,\s*/gi,'(')
           .replace(/\s*\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*\)/gi,'')
           .replace(/\x60?h_[a-z0-9_-]{6,}\x60?/gi,'')
           .replace(/\(\s*,/g,'(').replace(/,\s*,/g,', ').replace(/\s+\)/g,')');
-    }).join('').replace(/ {2,}/g,' ');
+    }).join('');
 }
 function arcDeckResponsiveTables(markup,esc) {
     return markup.replace(
