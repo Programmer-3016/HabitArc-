@@ -87,6 +87,9 @@ test('ARC shortcut and Tasks deep link preserve the same five-tab dock',()=>{
   assert.match(arc,/Habits\.html\?section=tasks&amp;rescue=1/);
   assert.match(arc,/rescuePrompt\.slice\(0, 600\)/);
   assert.match(arc,/No task details have been sent/);
+  assert.match(read('rescue-mode.js'),/sessionStorage\.setItem\('habitarc_arc_rescue_prompt'/);
+  assert.match(arc,/sessionStorage\.removeItem\('habitarc_arc_rescue_prompt'/);
+  assert.doesNotMatch(read('rescue-mode.js'),/encodeURIComponent\(prompt\)/);
   assert.match(app,/ensureRescueStyles/);
   assert.match(read('sw.js'),/'\/rescue-planner\.js'/);
   assert.match(read('sw.js'),/'\/rescue-mode\.js'/);
