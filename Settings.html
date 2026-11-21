@@ -360,6 +360,24 @@
 </label>
 </div>
 </div>
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30">
+  <div class="flex items-center gap-element-gap"><span class="material-symbols-outlined text-primary-container">event_busy</span>
+    <div><div class="font-body-lg text-body-lg text-on-surface">Task Deadline Digest</div><div class="font-body-md text-body-md text-on-surface-variant">After 9 AM when HabitArc is open; due today and overdue totals.</div></div>
+  </div>
+  <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+    <input id="toggle-task-alerts" aria-label="Task Deadline Digest" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" type="checkbox"/>
+    <label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer relative" for="toggle-task-alerts"><span class="toggle-checkbox-inner"></span></label>
+  </div>
+</div>
+<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30">
+  <div class="flex items-center gap-element-gap"><span class="material-symbols-outlined text-primary-container">calendar_today</span>
+    <div><div class="font-body-lg text-body-lg text-on-surface">Morning Plan</div><div class="font-body-md text-body-md text-on-surface-variant">After 8 AM when HabitArc is open; today's habits and tasks.</div></div>
+  </div>
+  <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+    <input id="toggle-morning-plan" aria-label="Morning Plan" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" type="checkbox"/>
+    <label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer relative" for="toggle-morning-plan"><span class="toggle-checkbox-inner"></span></label>
+  </div>
+</div>
 <!-- Weekly Summary -->
 <div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0">
 <div class="flex items-center gap-element-gap">
@@ -582,6 +600,8 @@
 
     const dailyToggle = document.getElementById('toggle-daily');
     const weeklyToggle = document.getElementById('toggle-weekly');
+    const taskAlertsToggle=document.getElementById('toggle-task-alerts');
+    const morningPlanToggle=document.getElementById('toggle-morning-plan');
     const notificationStatus = document.getElementById('notification-status');
 
     function setNotificationStatus(message, tone = 'muted') {
@@ -598,10 +618,12 @@
 
         if (dailyToggle) dailyToggle.checked = preferences.dailyReminder;
         if (weeklyToggle) weeklyToggle.checked = preferences.weeklySummary;
+        if(taskAlertsToggle)taskAlertsToggle.checked=preferences.taskAlerts;
+        if(morningPlanToggle)morningPlanToggle.checked=preferences.morningPlan;
 
         if (!preferences.supported) {
             setNotificationStatus('Notifications are not supported in this browser.', 'error');
-        } else if (preferences.permission === 'granted' && (preferences.dailyReminder || preferences.weeklySummary)) {
+        } else if (preferences.permission === 'granted' && (preferences.dailyReminder || preferences.weeklySummary || preferences.taskAlerts || preferences.morningPlan)) {
             setNotificationStatus('Notifications are enabled while HabitArc is open.', 'success');
         } else if (preferences.permission === 'granted') {
             setNotificationStatus('Browser permission is allowed. Turn on a reminder to receive notifications.');
@@ -651,6 +673,21 @@
             }
         });
     }
+
+    const optionalReminderToggles=[
+        [taskAlertsToggle,'taskAlerts','Task reminders'],
+        [morningPlanToggle,'morningPlan','Morning plan']
+    ];
+    optionalReminderToggles.forEach(([toggle,key,label])=>{
+        toggle?.addEventListener('change',async function(){
+            if(this.checked)await enableNotificationPreference(key);
+            else{
+                HabitArc.setReminderPreferences({[key]:false});
+                updateReminderUI();
+                setNotificationStatus(label+' turned off.');
+            }
+        });
+    });
 
     updateReminderUI();
     window.addEventListener('habitarc:data-changed', updateReminderUI);
