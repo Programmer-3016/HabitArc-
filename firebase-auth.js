@@ -60,10 +60,14 @@ window.HabitArcAuthReady = (async () => {
             serverTimestamp,
             writeBatch
         } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js');
+        const {
+            getStorage, ref: storageRef, uploadBytes, getBlob, deleteObject
+        } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js');
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const firestore = getFirestore(app);
+        const storage = getStorage(app);
         const googleProvider = new GoogleAuthProvider();
 
         googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -112,6 +116,99 @@ window.HabitArcAuthReady = (async () => {
 
         function tasksCollection(user) {
             return collection(userDocument(user), 'tasks');
+        }
+        function notesCollection(user) {
+            return collection(userDocument(user), 'notes');
+        }
+        function focusCollection(user) {
+            return collection(userDocument(user), 'focusSessions');
+        }
+        function noteMediaRef(user, noteId, kind) {
+            if (!noteId || typeof noteId !== 'string' || noteId.includes('/')) {
+                throw new Error('Invalid note ID.');
+            }
+            if (kind !== 'photo' && kind !== 'audio') throw new Error('Invalid note media type.');
+            return storageRef(storage, `users/${user.uid}/notes/${noteId}/${kind}`);
+        }
+        function plainNote(docData, fallbackId) {
+            const { _updatedAt, ...note } = docData || {};
+            return {
+                id: note.id || fallbackId,
+                title: typeof note.title === 'string' ? note.title : '',
+                body: typeof note.body === 'string' ? note.body : '',
+                date: typeof note.date === 'string' ? note.date : '',
+                pinned: Boolean(note.pinned),
+                color: typeof note.color === 'string' ? note.color : 'lavender',
+                createdAt: note.createdAt || '',
+                updatedAt: note.updatedAt || '',
+                deleted: Boolean(note.deleted),
+                hasPhoto: Boolean(note.hasPhoto),
+                hasAudio: Boolean(note.hasAudio)
+            };
+        }
+        async function saveNoteCloud(note, user = currentUser) {
+            if (!user) throw new Error('Sign in to sync notes.');
+            if (!note?.id || typeof note.title !== 'string') throw new Error('Invalid note.');
+            if (note.photo) {
+                if (note.photo.size > 5 * 1024 * 1024 || !note.photo.type.startsWith('image/')) throw new Error('Photo must be an image under 5 MB.');
+                await uploadBytes(noteMediaRef(user, note.id, 'photo'), note.photo, { contentType: note.photo.type });
+            }
+            if (note.audio) {
+                if (note.audio.size > 8 * 1024 * 1024 || !note.audio.type.startsWith('audio/')) throw new Error('Audio must be under 8 MB.');
+                await uploadBytes(noteMediaRef(user, note.id, 'audio'), note.audio, { contentType: note.audio.type });
+            }
+            const data = plainNote({
+                ...note, deleted: false, hasPhoto: Boolean(note.photo), hasAudio: Boolean(note.audio)
+            }, note.id);
+            const batch = writeBatch(firestore);
+            batch.set(doc(notesCollection(user), note.id), {
+                ...data, _updatedAt: serverTimestamp()
+            });
+            await batch.commit();
+        }
+        async function deleteNoteCloud(noteId, updatedAt, user = currentUser) {
+            if (!user) throw new Error('Sign in to sync notes.');
+            const batch = writeBatch(firestore);
+            batch.set(doc(notesCollection(user), noteId), {
+                id: noteId, title: '', body: '', date: '', pinned: false, color: 'lavender',
+                createdAt: updatedAt, updatedAt, deleted: true, hasPhoto: false, hasAudio: false,
+                _updatedAt: serverTimestamp()
+            });
+            await batch.commit();
+            // Metadata tombstone is authoritative even when media cleanup is blocked.
+            await Promise.allSettled(['photo', 'audio'].map(kind => deleteObject(noteMediaRef(user, noteId, kind))));
+        }
+        async function getNoteMedia(noteId, kind, user = currentUser) {
+            if (!user) throw new Error('Sign in to download media.');
+            return getBlob(noteMediaRef(user, noteId, kind), kind === 'photo' ? 5 * 1024 * 1024 : 8 * 1024 * 1024);
+        }
+        function subscribeNotes(onChange, onError, user = currentUser) {
+            if (!user) return () => {};
+            return onSnapshot(notesCollection(user), snapshot => {
+                onChange(snapshot.docs.map(entry => plainNote(entry.data(), entry.id)), {
+                    fromCache: snapshot.metadata.fromCache
+                });
+            }, onError);
+        }
+        async function saveFocusSession(record, user = currentUser) {
+            if (!user) throw new Error('Sign in to sync focus history.');
+            if (!record?.id || !record?.date || !Number.isFinite(record.minutes)) throw new Error('Invalid focus session.');
+            const batch = writeBatch(firestore);
+            batch.set(doc(focusCollection(user), record.id), {
+                id: String(record.id), date: record.date, minutes: record.minutes,
+                taskId: record.taskId || '', completedAt: record.completedAt,
+                _updatedAt: serverTimestamp()
+            });
+            await batch.commit();
+        }
+        function subscribeFocusSessions(onChange, onError, user = currentUser) {
+            if (!user) return () => {};
+            return onSnapshot(focusCollection(user), snapshot => {
+                onChange(snapshot.docs.map(entry => {
+                    const { _updatedAt, ...value } = entry.data();
+                    return { ...value, id: entry.id };
+                }), { fromCache: snapshot.metadata.fromCache });
+            }, onError);
         }
 
         function stripCloudTask(task, fallbackId) {
@@ -452,7 +549,13 @@ window.HabitArcAuthReady = (async () => {
             subscribeToUserData,
             saveTask,
             deleteTask,
-            subscribeTasks
+            subscribeTasks,
+            saveNoteCloud,
+            deleteNoteCloud,
+            getNoteMedia,
+            subscribeNotes,
+            saveFocusSession,
+            subscribeFocusSessions
         });
 
         window.HabitArcAuth = authClient;
