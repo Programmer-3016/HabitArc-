@@ -102,7 +102,7 @@ test('Project-wide focus states suppress inner/Tailwind double rings and Planner
   assert.match(appUiJs,/insertBefore\(existing, anchor\)/);
 });
 
-test('Notes Studio shares unified shell topbar and Leaderboard preloads styles before DOM swap',()=>{
+test('Notes Studio shares unified shell topbar, Leaderboard preloads styles before DOM swap, and tab transitions stay uniform',()=>{
   const appUiJs=read('app-ui.js');
   const appCss=read('app-ui.css');
   const notesHtml=read('Notes.html');
@@ -117,6 +117,8 @@ test('Notes Studio shares unified shell topbar and Leaderboard preloads styles b
   // Leaderboard awaits stylesheet + module before replacing <main>, and trophy SVG has explicit bounds
   assert.match(appUiJs,/targetPage === 'Leaderboard\.html'[\s\S]*?ensureLeaderboardStyles\(\)[\s\S]*?ensureLeaderboardModule\(\)/);
   assert.match(appCss,/\[hidden\]\s*\{\s*display:\s*none !important;\s*\}/);
+  assert.match(appCss,/@keyframes haTabEnter/);
+  assert.match(appCss,/html\.ha-spa-navigated body > main/);
   assert.match(lbHtml,/<svg class="lb-icon"\s+width="19"\s+height="19"[^>]*fill="none"/);
 });
 
@@ -126,7 +128,7 @@ test('Retains five-tab mobile navigation and refreshes installed app styles',()=
   assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(x=>x[1]),
     ['Dashboard.html','Habits.html','Notes.html','Insights.html','Arc_AI.html']);
   assert.match(read('sw.js'), /'\/app-ui\.css'/);
-  assert.match(read('sw.js'), /habitarc-shell-v33/);
+  assert.match(read('sw.js'), /habitarc-shell-v34/);
   assert.match(read('tests/ui-layout.mjs'),/Android 320\/360\/390px/);
   assert.match(read('tests/ui-layout.mjs'),/\[320,360,390\]/);
 });

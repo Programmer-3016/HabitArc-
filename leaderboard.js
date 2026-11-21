@@ -89,253 +89,64 @@ export async function mountLeaderboard(root) {
   const find = id => root.querySelector('#' + id);
   const periodButtons = root.querySelectorAll('[data-period]');
   let activePeriod = 'weekly';
-  let activeHeroFilter = 'all';
-  let selectedName = null;
-  let demoBoost = 0;
 
   function buildRoster(period) {
     const base = standings(period);
     const store = window.HabitArc;
     if (store?.isOnboardingComplete?.()) base.find(r => r.self).hero = leagueRunner(store.getSettings());
-    if (!demoBoost) return base;
-    const boosted = base.map(r => {
-      if (!r.self) return r;
-      const pts = r.points + demoBoost;
-      return {
-        ...r,
-        points: pts,
-        weeklyPoints: period === 'weekly' ? pts : r.weeklyPoints,
-        allTimePoints: period === 'allTime' ? pts : r.allTimePoints,
-        delta: r.delta + Math.max(1, Math.floor(demoBoost / 25)),
-        tier: tierForPoints(pts, period),
-      };
-    });
-    return boosted
-      .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
-      .map((r, i) => ({ ...r, rank: i + 1 }));
-  }
-
-  function renderHeroFilters(list) {
-    const wrap = find('companion-filters');
-    if (!wrap) return;
-    const items = [
-      { id: 'all', label: `All (${list.length})` },
-      ...Object.entries(COMPANION_META).map(([id, meta]) => ({
-        id,
-        label: `${meta.label} (${list.filter(r => r.hero === id).length})`,
-      })),
-    ];
-    wrap.replaceChildren(...items.map(item => {
-      const btn = el('button', 'lb-comp-pill', item.label);
-      btn.type = 'button';
-      btn.setAttribute('aria-pressed', String(activeHeroFilter === item.id));
-      btn.addEventListener('click', () => {
-        activeHeroFilter = item.id;
-        draw(activePeriod, false);
-      });
-      return btn;
-    }));
-  }
-
-  function renderSpotlight(runner, mine) {
-    const spot = find('runner-spotlight');
-    if (!spot || !runner) return;
-    const meta = COMPANION_META[runner.hero] || { label: runner.hero, role: 'Runner' };
-    const head = el('div', 'lb-spot-head');
-    const avatar = el('div', 'lb-spot-avatar');
-    avatar.append(sprite(runner.hero, runner.rank === 1 ? 'cheer' : 'act'));
-
-    const copy = el('div', 'lb-spot-copy');
-    copy.append(el('p', 'lb-spot-kicker', `Selected runner · #${String(runner.rank).padStart(2, '0')}`));
-    const nameRow = el('div', 'lb-spot-name-row');
-    nameRow.append(el('h3', null, runner.name));
-    if (runner.self) nameRow.append(el('small', 'lb-you', 'You'));
-    nameRow.append(el('span', 'lb-tier-badge', runner.tier));
-    copy.append(nameRow, el('p', 'lb-spot-sub', `${meta.label} · ${meta.role}`));
-    head.append(avatar, copy);
-
-    const stats = el('div', 'lb-spot-stats');
-    const statItems = [
-      ['Points', `${format.format(runner.points)} pts`],
-      ['Streak', `${runner.streak}d`],
-      ['30d Rate', `${runner.consistency}%`],
-    ];
-    for (const [k, v] of statItems) {
-      const card = el('div', 'lb-spot-stat');
-      card.append(el('span', null, k), el('strong', null, v));
-      stats.append(card);
-    }
-
-    let compareText = `That's you! ${format.format(runner.points)} pts in ${activePeriod === 'weekly' ? 'this week\'s sprint' : 'all-time league'}.`;
-    if (!runner.self) {
-      const diff = runner.points - mine.points;
-      if (diff > 0) compareText = `${runner.name} leads you by ${format.format(diff)} pts right now.`;
-      else if (diff < 0) compareText = `You lead ${runner.name} by ${format.format(Math.abs(diff))} pts.`;
-      else compareText = `Tied on points with ${runner.name}!`;
-    }
-    const h2h = el('p', 'lb-spot-h2h', compareText);
-    spot.replaceChildren(head, stats, h2h);
+    return base;
   }
 
   function draw(period, announce) {
     activePeriod = period;
     const list = buildRoster(period);
     const mine = list.find(r => r.self);
-    const ahead = mine.rank === 1 ? null : list[mine.rank - 2];
-    const gap = ahead ? ahead.points - mine.points : 0;
-    const topPoints = list[0]?.points || 1;
-    const leadMargin = list.length > 1 ? list[0].points - list[1].points : 0;
-
-    if (!selectedName || !list.some(r => r.name === selectedName)) {
-      selectedName = list[0].name;
-    }
-    const inspected = list.find(r => r.name === selectedName) || list[0];
-
-    // Podium header
-    const podiumTitle = find('podium-title');
-    if (podiumTitle) podiumTitle.textContent = period === 'weekly' ? 'Weekly front runners' : 'All-time legends';
-    const leadChip = find('podium-lead');
-    if (leadChip) leadChip.textContent = leadMargin ? `+${format.format(leadMargin)} pts lead` : 'Tied for #1';
+    const gap = mine.rank === 1 ? 0 : list[mine.rank - 2].points - mine.points;
 
     const slot = r => {
-      const meta = COMPANION_META[r.hero] || { label: r.hero };
-      const lane = el('button', 'lb-lane');
-      lane.type = 'button';
+      const lane = el('div', 'lb-lane');
       lane.dataset.rank = String(r.rank);
-      lane.setAttribute('aria-pressed', String(r.name === inspected.name));
-      lane.setAttribute('aria-label', `Rank ${r.rank} ${r.name}, ${format.format(r.points)} points`);
-      if (r.rank === 1) lane.append(el('span', 'lb-crown', '★ Leader'));
-
-      const spriteBox = el('div', 'lb-lane-sprite');
-      spriteBox.append(sprite(r.hero, 'cheer'));
-
       const step = el('div', 'lb-plinth');
-      step.append(
-        el('span', 'lb-plinth-rank', `#${String(r.rank).padStart(2, '0')}`),
-        el('strong', null, r.name),
-        el('span', 'lb-plinth-meta', `${meta.label} · ${r.streak}d`),
-        el('span', 'lb-plinth-pts', `${format.format(r.points)} pts`)
-      );
-      lane.append(spriteBox, step);
-      lane.addEventListener('click', () => {
-        selectedName = r.name;
-        draw(activePeriod, false);
-      });
+      step.append(el('b', null, String(r.rank).padStart(2, '0')), el('strong', null, r.name));
+      lane.append(sprite(r.hero, 'cheer'), step);
       return lane;
     };
     find('podium').replaceChildren(...[list[1], list[0], list[2]].map(slot));
 
-    // Your standing card
-    const selfAvatar = find('self-avatar');
-    if (selfAvatar) {
-      selfAvatar.replaceChildren(sprite(mine.hero, mine.rank === 1 ? 'cheer' : 'act'));
-      const settings = window.HabitArc?.isOnboardingComplete?.() && window.HabitArc.getSettings();
-      selfAvatar.dataset.power = inventory(settings?.treasureRoom).equipped || '';
-    }
-    find('self-rank').textContent = '#' + mine.rank;
-    const tierEl = find('self-tier');
-    if (tierEl) tierEl.textContent = mine.tier;
-    const deltaEl = find('self-delta');
-    if (deltaEl) {
-      deltaEl.textContent = deltaLabel(mine.delta);
-      deltaEl.className = 'lb-delta-pill' + (mine.delta < 0 ? ' is-down' : mine.delta === 0 ? ' is-flat' : '');
-    }
-    find('self-gap').textContent = gap
-      ? `${format.format(mine.points)} pts · ${format.format(gap)} pts behind #${ahead.rank} ${ahead.name}`
-      : `${format.format(mine.points)} pts · Leading the league!`;
-
-    const chasePct = ahead ? Math.max(8, Math.min(99, Math.round((mine.points / Math.max(1, ahead.points)) * 100))) : 100;
-    const chaseLabel = find('self-chase-label');
-    if (chaseLabel) chaseLabel.textContent = ahead ? `Closing in on #${ahead.rank} ${ahead.name}` : 'Holding #1 crown';
-    const chasePctEl = find('self-chase-pct');
-    if (chasePctEl) chasePctEl.textContent = `${chasePct}%`;
-    const chaseBar = find('self-chase-bar');
-    if (chaseBar) chaseBar.style.width = `${chasePct}%`;
-    const chaseProgress = find('self-chase-progress');
-    if (chaseProgress) chaseProgress.setAttribute('aria-valuenow', String(chasePct));
-
-    const resetBtn = find('reset-boost-btn');
-    if (resetBtn) resetBtn.hidden = demoBoost === 0;
-    const boostBtn = find('boost-btn');
-    if (boostBtn) boostBtn.textContent = demoBoost ? `+25 pts (+${demoBoost})` : '+25 pts';
-
-    // Standings table + companion filters
-    renderHeroFilters(list);
-    const periodPill = find('standings-period-pill');
-    if (periodPill) periodPill.textContent = period === 'weekly' ? 'Weekly sprint' : 'All-time';
-
-    const visibleRows = activeHeroFilter === 'all' ? list : list.filter(r => r.hero === activeHeroFilter);
-    find('entries').replaceChildren(...visibleRows.map(r => {
-      const meta = COMPANION_META[r.hero] || { label: r.hero };
+    find('entries').replaceChildren(...list.map(r => {
       const tr = el('tr');
-      tr.dataset.runner = r.name;
+      const nameCell = el('td');
+      const wrap = el('div', 'lb-runner');
+      const avatar = el('span', 'lb-pic');
+      avatar.append(sprite(r.hero, 'run0'));
+      wrap.append(avatar, el('span', null, r.name));
       if (r.self) {
         tr.className = 'lb-mine';
         tr.tabIndex = -1;
-      } else if (r.name === inspected.name) {
-        tr.className = 'is-selected';
+        wrap.append(el('small', 'lb-you', 'You'));
       }
-
-      const rankTd = el('td');
-      const rankWrap = el('div', 'lb-rank-cell');
-      const medalCls = r.rank === 1 ? ' is-gold' : r.rank === 2 ? ' is-silver' : r.rank === 3 ? ' is-bronze' : '';
-      rankWrap.append(el('span', `lb-rank-num${medalCls}`, String(r.rank).padStart(2, '0')));
-      const dEl = el('span', `lb-row-delta${r.delta > 0 ? ' is-up' : r.delta < 0 ? ' is-down' : ''}`, deltaLabel(r.delta));
-      rankWrap.append(dEl);
-      rankTd.append(rankWrap);
-
-      const nameTd = el('td');
-      const btn = el('button', 'lb-runner-btn');
-      btn.type = 'button';
-      btn.setAttribute('aria-pressed', String(r.name === inspected.name));
-      const avatar = el('span', 'lb-pic');
-      const img = sprite(r.hero, 'run0');
-      avatar.append(img);
-
-      const copy = el('span', 'lb-runner-copy');
-      const nameLine = el('span', 'lb-runner-name-line');
-      nameLine.append(el('span', 'lb-runner-name', r.name));
-      if (r.self) nameLine.append(el('small', 'lb-you', 'You'));
-      copy.append(nameLine, el('span', 'lb-runner-sub', `${meta.label} · ${r.streak}d streak · ${r.consistency}%`));
-      btn.append(avatar, copy);
-      btn.addEventListener('click', () => {
-        selectedName = r.name;
-        draw(activePeriod, false);
-      });
-      nameTd.append(btn);
-
-      const ptsTd = el('td');
-      const ptsWrap = el('div', 'lb-pts-cell');
-      ptsWrap.append(el('span', 'lb-pts', format.format(r.points)));
-      const bar = el('span', 'lb-pts-bar');
-      const fill = el('span');
-      fill.style.width = `${Math.max(12, Math.round((r.points / topPoints) * 100))}%`;
-      bar.append(fill);
-      ptsWrap.append(bar);
-      ptsTd.append(ptsWrap);
-
-      tr.append(rankTd, nameTd, ptsTd);
+      nameCell.append(wrap);
+      tr.append(
+        el('td', 'lb-rank', String(r.rank).padStart(2, '0')),
+        nameCell,
+        el('td', 'lb-pts', format.format(r.points))
+      );
       return tr;
     }));
 
-    find('roster').textContent = activeHeroFilter === 'all'
-      ? `${list.length} demo runners`
-      : `${visibleRows.length} of ${list.length} runners`;
+    find('self-rank').textContent = '#' + mine.rank;
+    find('self-gap').textContent = gap
+      ? `${format.format(mine.points)} pts · ${format.format(gap)} pts behind #${mine.rank - 1}`
+      : 'Leading the league';
+    find('roster').textContent = `${list.length} demo runners`;
     periodButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.period === period)));
-    renderSpotlight(inspected, mine);
-
     if (announce) {
       find('announcement').textContent = `${period === 'weekly' ? 'Weekly' : 'All-time'} standings. Your demo rank is ${mine.rank} of ${list.length}.`;
     }
   }
 
   periodButtons.forEach(b => b.addEventListener('click', () => draw(b.dataset.period, true)));
-
-  find('find-me').addEventListener('click', () => {
-    if (activeHeroFilter !== 'all') {
-      activeHeroFilter = 'all';
-      draw(activePeriod, false);
-    }
+  find('find-me')?.addEventListener('click', () => {
     const row = root.querySelector('.lb-mine');
     if (!row) return;
     row.focus({ preventScroll: true });
@@ -343,18 +154,6 @@ export async function mountLeaderboard(root) {
       block: 'center',
       behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
     });
-  });
-
-  find('boost-btn')?.addEventListener('click', () => {
-    demoBoost += 25;
-    selectedName = 'Sarthak';
-    draw(activePeriod, true);
-  });
-
-  find('reset-boost-btn')?.addEventListener('click', () => {
-    demoBoost = 0;
-    selectedName = null;
-    draw(activePeriod, true);
   });
 
   draw('weekly', false);
@@ -536,9 +335,9 @@ function mountTreasureRoom(root, find, redrawLeague) {
     find('treasures').hidden = !treasure;
     find('show-treasures').setAttribute('aria-pressed', String(treasure));
     find('show-league').setAttribute('aria-pressed', String(!treasure));
-    find('lb-scope').textContent = treasure ? 'Arc League · Your collection' : 'Arc League · Season 01 Demo';
+    find('lb-scope').textContent = treasure ? 'Arc League · Your collection' : 'Arc League · Demo';
     find('lb-intro-text').textContent = treasure ? 'Earn powers for your companion by showing up for your own routine.' :
-      'Compare pixel companions, active streaks, and XP sprint gaps across the league.';
+      'See how your runner stacks up against the league.';
     if (treasure) render(); else redrawLeague();
   }
   find('show-treasures').addEventListener('click', () => switchView(true));

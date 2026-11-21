@@ -176,15 +176,11 @@
 <main id="board" class="ha-leaderboard lb-main w-full mx-auto">
   <div class="lb-intro">
     <div class="lb-intro-copy">
-      <p class="ha-insights-eyebrow lb-eyebrow"><span class="lb-live-dot" aria-hidden="true"></span><span id="lb-scope">Arc League · Season 01 Demo</span></p>
+      <p class="ha-insights-eyebrow" id="lb-scope">Arc League · Demo</p>
       <h1>Leaderboard</h1>
-      <p class="ha-insights-intro" id="lb-intro-text">Compare pixel companions, active streaks, and XP sprint gaps across the league.</p>
+      <p class="ha-insights-intro" id="lb-intro-text">See how your runner stacks up against the league.</p>
     </div>
     <div class="lb-controls" id="league-controls">
-      <div class="lb-sprint-chip" title="Demo sprint cycle">
-        <span class="material-symbols-outlined" aria-hidden="true">timer</span>
-        <span>Reset in 2d 14h</span>
-      </div>
       <div class="lb-filters" role="group" aria-label="Ranking period">
         <button type="button" data-period="weekly" aria-pressed="true">This week</button>
         <button type="button" data-period="allTime" aria-pressed="false">All time</button>
@@ -199,81 +195,38 @@
   <div class="lb-grid" id="league-view">
     <div class="lb-feature">
       <section class="lb-stage" aria-label="Top three runners">
-        <div class="lb-scene" aria-hidden="true">
-          <div class="lb-stars"></div>
-          <div class="lb-orbit"></div>
-          <div class="lb-hills"></div>
-        </div>
         <div class="lb-stage-head">
           <div>
-            <p class="lb-terminal">Podium · Top 3</p>
-            <h2 id="podium-title">Front runners</h2>
+            <p class="lb-terminal">Podium</p>
+            <h2>Front runners</h2>
           </div>
-          <div class="lb-stage-right">
-            <span id="podium-lead" class="lb-lead-chip"></span>
-            <span class="lb-trophy-badge" aria-hidden="true">
-              <svg class="lb-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg>
-            </span>
-          </div>
+          <svg class="lb-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg>
+        </div>
+        <div class="lb-scene" aria-hidden="true">
+          <div class="lb-orbit"></div>
+          <div class="lb-hills"></div>
         </div>
         <div id="podium" class="lb-podium"></div>
       </section>
 
       <section class="lb-personal" aria-label="Your sample standing">
-        <div class="lb-personal-top">
-          <div class="lb-self-avatar-wrap">
-            <div class="lb-self-avatar" id="self-avatar"></div>
-            <span class="lb-self-rank" id="self-rank">—</span>
-          </div>
-          <div class="lb-personal-copy">
-            <div class="lb-personal-title-row">
-              <h2>Your standing</h2>
-              <span id="self-tier" class="lb-tier-badge"></span>
-              <span id="self-delta" class="lb-delta-pill"></span>
-            </div>
-            <p id="self-gap"></p>
-          </div>
-          <button type="button" id="find-me" aria-label="Find your row in the standings" title="Jump to your row">
-            <span class="material-symbols-outlined" aria-hidden="true">my_location</span>
-            <span>Locate</span>
-          </button>
+        <div class="lb-self-rank" id="self-rank">—</div>
+        <div>
+          <h2>Your position</h2>
+          <p id="self-gap"></p>
         </div>
-
-        <div class="lb-chase" aria-label="Progress toward next rank">
-          <div class="lb-chase-meta">
-            <span id="self-chase-label">Chasing next rank</span>
-            <strong id="self-chase-pct">0%</strong>
-          </div>
-          <div class="lb-chase-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="self-chase-progress">
-            <div class="lb-chase-fill" id="self-chase-bar"></div>
-          </div>
-        </div>
-
-        <div class="lb-demo-bar">
-          <span class="lb-demo-hint"><span class="material-symbols-outlined" aria-hidden="true">bolt</span>Live rank preview</span>
-          <div class="lb-demo-actions">
-            <button type="button" id="boost-btn" class="lb-demo-btn">+25 pts</button>
-            <button type="button" id="reset-boost-btn" class="lb-demo-reset" hidden>Reset</button>
-          </div>
-        </div>
+        <button type="button" id="find-me" aria-label="Find your row in the standings" title="Find your row">↓</button>
       </section>
-
-      <section class="lb-spotlight" id="runner-spotlight" aria-label="Selected runner details" aria-live="polite"></section>
     </div>
 
     <section class="lb-standings" aria-labelledby="standings-title">
       <div class="lb-table-head">
-        <div class="lb-table-top">
-          <span class="lb-terminal">League rankings</span>
-          <span id="roster"></span>
-        </div>
+        <div class="lb-terminal">League rankings</div>
         <div class="lb-table-title">
           <h2 id="standings-title">Standings</h2>
-          <span id="standings-period-pill" class="lb-period-pill">Weekly sprint</span>
+          <span id="roster"></span>
         </div>
-        <div class="lb-companion-filters" id="companion-filters" role="group" aria-label="Filter by companion"></div>
       </div>
-
       <div class="lb-table-wrap">
         <table>
           <thead>
@@ -285,12 +238,6 @@
           </thead>
           <tbody id="entries"></tbody>
         </table>
-      </div>
-
-      <div class="lb-rules" aria-label="Demo XP scoring formula">
-        <span><strong>+10 XP</strong> habit check-in</span>
-        <span><strong>+5 XP</strong> streak day</span>
-        <span><strong>+25 XP</strong> 100% day clear</span>
       </div>
     </section>
   </div>
@@ -312,7 +259,7 @@
     <p class="lb-foot">One clear per scheduled day. Sample check-ins and standings points don’t count.</p>
   </section>
   <footer class="lb-foot" id="league-footer">
-    <span>●</span> Demo league · Sample runners, streaks, and XP preview — private habit data never leaves your account.
+    <span>●</span> Demo league · Sample runners and points, not live account data.
   </footer>
   <p class="lb-sr" id="announcement" role="status" aria-live="polite"></p>
   <noscript>Enable JavaScript to display sample standings.</noscript>

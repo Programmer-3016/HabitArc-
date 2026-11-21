@@ -28,12 +28,13 @@ test('tierForPoints classifies weekly and all-time thresholds consistently', () 
   assert.equal(tierForPoints(910, 'allTime'), 'Bronze Arc');
 });
 
-test('Leaderboard.html exposes expected stage, spotlight, and controls without leaking unscoped styles', () => {
+test('Leaderboard.html exposes classic Standings UI and treasures controls without leaking unscoped styles', () => {
   const html = readFileSync(new URL('../Leaderboard.html', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../leaderboard.css', import.meta.url), 'utf8');
-  for (const id of ['podium', 'self-rank', 'self-gap', 'find-me', 'boost-btn', 'runner-spotlight', 'entries', 'announcement']) {
+  for (const id of ['podium', 'self-rank', 'self-gap', 'find-me', 'entries', 'announcement', 'show-league', 'show-treasures']) {
     assert.ok(html.includes(`id="${id}"`), `missing #${id} in Leaderboard.html`);
   }
+  assert.doesNotMatch(html, /runner-spotlight|boost-btn|self-avatar/);
   assert.ok(!css.includes('\nbody {') && !css.includes('\ntable {'), 'leaderboard.css must stay scoped to leaderboard selectors');
 });
 
@@ -94,16 +95,11 @@ function collectText(node) {
   return [node.textContent, ...(node.children || []).map(collectText)].filter(Boolean).join(' ');
 }
 
-test('mountLeaderboard drives period switch, boost simulation, companion filtering, spotlight, and locate', async () => {
+test('mountLeaderboard drives period switch and classic position/standings controls', async () => {
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevMatch = globalThis.matchMedia;
-  const ids = [
-    'podium-title', 'podium-lead', 'podium', 'self-avatar', 'self-rank', 'self-tier', 'self-delta',
-    'self-gap', 'find-me', 'self-chase-label', 'self-chase-pct', 'self-chase-progress', 'self-chase-bar',
-    'boost-btn', 'reset-boost-btn', 'runner-spotlight', 'roster', 'standings-title',
-    'standings-period-pill', 'companion-filters', 'entries', 'announcement',
-  ];
+  const ids = ['podium', 'self-rank', 'self-gap', 'find-me', 'roster', 'entries', 'announcement'];
   const root = createNode('main', 'board');
   const byId = new Map();
   for (const id of ids) {
@@ -133,31 +129,15 @@ test('mountLeaderboard drives period switch, boost simulation, companion filteri
     assert.equal(byId.get('podium').children.length, 3);
     assert.equal(byId.get('entries').children.length, 8);
     assert.equal(byId.get('self-rank').textContent, '#4');
-    assert.match(byId.get('self-gap').textContent, /nightowl_k/);
-    assert.match(collectText(byId.get('runner-spotlight')), /mintfox/);
-    assert.equal(byId.get('reset-boost-btn').hidden, true);
-
-    byId.get('boost-btn').click();
-    assert.equal(byId.get('self-rank').textContent, '#3');
-    assert.match(byId.get('self-gap').textContent, /375 pts/);
-    assert.equal(byId.get('reset-boost-btn').hidden, false);
-    assert.match(collectText(byId.get('runner-spotlight')), /Sarthak/);
-
-    byId.get('reset-boost-btn').click();
-    assert.equal(byId.get('self-rank').textContent, '#4');
-    assert.equal(byId.get('reset-boost-btn').hidden, true);
+    assert.match(byId.get('self-gap').textContent, /350 pts · 22 pts behind #3/);
+    assert.equal(byId.get('roster').textContent, '8 demo runners');
 
     allTimeBtn.click();
     assert.equal(byId.get('self-rank').textContent, '#5');
+    assert.match(byId.get('self-gap').textContent, /1,580 pts · 70 pts behind #4/);
     assert.match(byId.get('announcement').textContent, /All-time standings\. Your demo rank is 5 of 8\./);
 
-    const ninjaFilter = byId.get('companion-filters').children.find(b => b.textContent.startsWith('Shinobi'));
-    ninjaFilter.click();
-    assert.equal(byId.get('entries').children.length, 2);
-    assert.equal(byId.get('roster').textContent, '2 of 8 runners');
-
     byId.get('find-me').click();
-    assert.equal(byId.get('entries').children.length, 8);
     const mineRow = root.querySelector('.lb-mine');
     assert.equal(mineRow.focused, true);
     assert.equal(mineRow.scrolled, true);
