@@ -17,13 +17,13 @@ export async function openPushFirestore(env=process.env){
  if(!raw)throw new Error('Missing FIREBASE_SERVICE_ACCOUNT_JSON');
  const json=JSON.parse(raw.startsWith('{')?raw:Buffer.from(raw,'base64').toString('utf8'));
  if(!json.project_id||!json.client_email||!json.private_key)throw new Error('Invalid Firebase Admin configuration');
- const [{getApps,initializeApp,cert},{getFirestore,FieldPath}]=await Promise.all([
+ const [{getApps,initializeApp,cert},{getFirestore,FieldPath,FieldValue}]=await Promise.all([
   import('firebase-admin/app'),import('firebase-admin/firestore')
  ]);
  const app=getApps().find(a=>a.name==='habitarc-push')||initializeApp({credential:cert(json)},'habitarc-push');
- return {db:getFirestore(app),FieldPath};
+ return {db:getFirestore(app),FieldPath,FieldValue};
 }
-export async function dispatchDailyPush({db,FieldPath,webpush,at=new Date(),maxUsers=160}){
+export async function dispatchDailyPush({db,FieldPath,FieldValue,webpush,at=new Date(),maxUsers=160}){
  const date=isoInZone(at,'Asia/Kolkata'),users=await db.collection('users').limit(maxUsers).get();
  let sent=0,skipped=0,expired=0,failed=0;
  for(const user of users.docs){
@@ -63,7 +63,7 @@ export async function dispatchDailyPush({db,FieldPath,webpush,at=new Date(),maxU
    }catch(error){
     failed++;
     if(error?.statusCode===404||error?.statusCode===410){
-     try{await user.ref.update(new FieldPath('pushDevices',deviceId),FieldPath.delete?.()||null);}
+     try{await user.ref.update(new FieldPath('pushDevices',deviceId),FieldValue.delete());}
      catch{ /* Client can also disable and remove its device. */ }
      expired++;
     }
@@ -81,11 +81,11 @@ export default async function handler(req,res){
  if(!authorized(req.headers.authorization,process.env.CRON_SECRET))return res.status(401).json({error:'unauthorized'});
  if(!getPushConfiguration().available)return res.status(503).json({error:'push-backend-not-ready'});
  try{
-  const {db,FieldPath}=await openPushFirestore();
+  const {db,FieldPath,FieldValue}=await openPushFirestore();
   const module=await import('web-push');const webpush=module.default||module;
   webpush.setVapidDetails('https://habit-arc.vercel.app',
     process.env.HABITARC_VAPID_PUBLIC_KEY,process.env.HABITARC_VAPID_PRIVATE_KEY);
-  const summary=await dispatchDailyPush({db,FieldPath,webpush});
+  const summary=await dispatchDailyPush({db,FieldPath,FieldValue,webpush});
   return res.status(200).json(summary);
  }catch(error){
   console.error('HabitArc push dispatch failed',error?.name||'Error');
