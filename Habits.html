@@ -253,6 +253,17 @@
 <section id="ha-plan-day" class="ha-day-workspace" role="tabpanel" aria-labelledby="ha-plan-day-tab" hidden>
   <header class="ha-day-heading"><div><p class="ha-plan-kicker">YOUR DAILY WORKSPACE</p><h2>Day by day<span>.</span></h2><p>Habits, tasks, notes and focus — together.</p></div></header>
   <div class="ha-day-datebar"><button type="button" data-day-action="prev" aria-label="Previous day"><span class="material-symbols-outlined">chevron_left</span></button><input id="ha-day-date" type="date" aria-label="Choose day"><button type="button" data-day-action="next" aria-label="Next day"><span class="material-symbols-outlined">chevron_right</span></button><button type="button" data-day-action="today" class="ha-day-today">Today</button></div>
+  <button id="ha-calendar-toggle" type="button" data-day-action="calendar-toggle" class="ha-month-toggle" aria-expanded="false" aria-controls="ha-month-calendar"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Monthly Calendar <span class="material-symbols-outlined" aria-hidden="true">expand_more</span></button>
+  <section id="ha-month-calendar" class="ha-month-calendar" aria-label="Interactive monthly calendar" hidden>
+    <div class="ha-month-toolbar">
+      <button type="button" data-day-action="month-prev" aria-label="Previous month"><span class="material-symbols-outlined">chevron_left</span></button>
+      <h3 id="ha-month-title">Month</h3>
+      <button type="button" data-day-action="month-next" aria-label="Next month"><span class="material-symbols-outlined">chevron_right</span></button>
+    </div>
+    <div class="ha-month-weekdays" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+    <div id="ha-month-days" class="ha-month-days"></div>
+    <p class="ha-month-legend"><span class="ha-month-taskdot"></span> Scheduled task <span class="ha-month-habitdot"></span> Scheduled habit · Tap a day for details</p>
+  </section>
   <div id="ha-day-metrics" class="ha-day-metrics" aria-live="polite"></div>
   <div id="ha-day-content" class="ha-day-content"></div>
   <div class="ha-day-bottom">
