@@ -77,8 +77,9 @@ export function mountRescueMode({
           '<div><strong>'+escapeHTML(item.title)+'</strong>'+
           '<small>'+escapeHTML(item.priority==='none'?'Regular priority':item.priority+' priority')+
           (item.overdue?' · overdue':' · due today')+'</small>'+
-          '<p>'+escapeHTML(item.hint)+'</p></div>'+
-        '</article>'
+          '<p>'+escapeHTML(item.hint)+'</p>'+
+          (index === 0 ? '<a class="ha-rescue-focus-link" href="Habits.html?section=day&date='+plan.today+'&focusTask='+encodeURIComponent(item.taskId)+'">Open 25-minute Focus <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>' : '')+
+          '</div></article>'
       ).join('');
     } else {
       focusList.innerHTML = '<p class="ha-rescue-empty">Nothing overdue or due today. You are on top of your dated tasks!</p>';
