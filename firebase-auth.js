@@ -60,14 +60,18 @@ window.HabitArcAuthReady = (async () => {
             serverTimestamp,
             writeBatch
         } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js');
-        const {
-            getStorage, ref: storageRef, uploadBytes, getBlob, deleteObject
-        } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js');
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const firestore = getFirestore(app);
-        const storage = getStorage(app);
+        // Do not load Storage on app startup: it is optional and can require billing.
+        let storagePromise = null;
+        function storageClient() {
+            if (!storagePromise) storagePromise = import('https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js')
+                .then(api => ({ api, storage: api.getStorage(app) }))
+                .catch(error => { storagePromise = null; throw error; });
+            return storagePromise;
+        }
         const googleProvider = new GoogleAuthProvider();
 
         googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -123,12 +127,13 @@ window.HabitArcAuthReady = (async () => {
         function focusCollection(user) {
             return collection(userDocument(user), 'focusSessions');
         }
-        function noteMediaRef(user, noteId, kind) {
+        async function noteMediaRef(user, noteId, kind) {
             if (!noteId || typeof noteId !== 'string' || noteId.includes('/')) {
                 throw new Error('Invalid note ID.');
             }
             if (kind !== 'photo' && kind !== 'audio') throw new Error('Invalid note media type.');
-            return storageRef(storage, `users/${user.uid}/notes/${noteId}/${kind}`);
+            const { api, storage } = await storageClient();
+            return { api, target: api.ref(storage, `users/${user.uid}/notes/${noteId}/${kind}`) };
         }
         function plainNote(docData, fallbackId) {
             const { _updatedAt, ...note } = docData || {};
@@ -149,22 +154,39 @@ window.HabitArcAuthReady = (async () => {
         async function saveNoteCloud(note, user = currentUser) {
             if (!user) throw new Error('Sign in to sync notes.');
             if (!note?.id || typeof note.title !== 'string') throw new Error('Invalid note.');
+            let mediaError = null;
+            let hasPhoto = Boolean(note.cloudHasPhoto);
+            let hasAudio = Boolean(note.cloudHasAudio);
             if (note.photo) {
                 if (note.photo.size > 5 * 1024 * 1024 || !note.photo.type.startsWith('image/')) throw new Error('Photo must be an image under 5 MB.');
-                await uploadBytes(noteMediaRef(user, note.id, 'photo'), note.photo, { contentType: note.photo.type });
+                try {
+                    const { api, target } = await noteMediaRef(user, note.id, 'photo');
+                    await api.uploadBytes(target, note.photo, { contentType: note.photo.type });
+                    hasPhoto = true;
+                } catch (error) { mediaError = error; }
             }
             if (note.audio) {
                 if (note.audio.size > 8 * 1024 * 1024 || !note.audio.type.startsWith('audio/')) throw new Error('Audio must be under 8 MB.');
-                await uploadBytes(noteMediaRef(user, note.id, 'audio'), note.audio, { contentType: note.audio.type });
+                try {
+                    const { api, target } = await noteMediaRef(user, note.id, 'audio');
+                    await api.uploadBytes(target, note.audio, { contentType: note.audio.type });
+                    hasAudio = true;
+                } catch (error) { mediaError = error; }
             }
             const data = plainNote({
-                ...note, deleted: false, hasPhoto: Boolean(note.photo), hasAudio: Boolean(note.audio)
+                ...note, deleted: false, hasPhoto, hasAudio
             }, note.id);
             const batch = writeBatch(firestore);
             batch.set(doc(notesCollection(user), note.id), {
                 ...data, _updatedAt: serverTimestamp()
             });
             await batch.commit();
+            if (mediaError) {
+                // The text metadata has synced; keep the local media retry pending.
+                throw Object.assign(new Error('Media upload unavailable; text backed up.'), {
+                    code: mediaError.code || 'storage/unavailable',
+                });
+            }
         }
         async function deleteNoteCloud(noteId, updatedAt, user = currentUser) {
             if (!user) throw new Error('Sign in to sync notes.');
@@ -176,11 +198,15 @@ window.HabitArcAuthReady = (async () => {
             });
             await batch.commit();
             // Metadata tombstone is authoritative even when media cleanup is blocked.
-            await Promise.allSettled(['photo', 'audio'].map(kind => deleteObject(noteMediaRef(user, noteId, kind))));
+            await Promise.allSettled(['photo', 'audio'].map(async kind => {
+                const { api, target } = await noteMediaRef(user, noteId, kind);
+                return api.deleteObject(target);
+            }));
         }
         async function getNoteMedia(noteId, kind, user = currentUser) {
             if (!user) throw new Error('Sign in to download media.');
-            return getBlob(noteMediaRef(user, noteId, kind), kind === 'photo' ? 5 * 1024 * 1024 : 8 * 1024 * 1024);
+            const { api, target } = await noteMediaRef(user, noteId, kind);
+            return api.getBlob(target, kind === 'photo' ? 5 * 1024 * 1024 : 8 * 1024 * 1024);
         }
         function subscribeNotes(onChange, onError, user = currentUser) {
             if (!user) return () => {};
