@@ -124,6 +124,7 @@
     </style>
 <link rel="stylesheet" href="app-ui.css"/>
 <link rel="stylesheet" href="plan-tasks.css"/>
+<link rel="stylesheet" href="rescue-mode.css"/>
 <link rel="stylesheet" href="day-workspace.css"/>
 <script src="app-ui.js"></script>
 </head>
@@ -234,6 +235,15 @@
     <div><span class="ha-tasks-hero-kicker">TODAY'S FOCUS</span><p id="ha-task-focus-count">0 / 0</p><span id="ha-task-focus-caption">Start with one small task.</span></div>
     <div class="ha-tasks-progress-ring" id="ha-task-progress-ring" role="progressbar" aria-label="Today's task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ha-task-focus-pct">0%</span></div>
   </div>
+  <section class="ha-rescue-launch" aria-label="ARC Daily Rescue Mode">
+    <div class="ha-rescue-launch-icon" aria-hidden="true"><span class="material-symbols-outlined">auto_awesome</span></div>
+    <div class="ha-rescue-launch-copy">
+      <span class="ha-rescue-kicker">ARC · DAILY RESCUE</span>
+      <h3>Behind on tasks? Let's reset the plan.</h3>
+      <p id="ha-rescue-launch-status">A lighter way to handle overdue work, without losing your progress.</p>
+    </div>
+    <button id="ha-rescue-open" type="button" class="ha-rescue-launch-button">Build plan <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></button>
+  </section>
   <div class="ha-task-view-switch" role="tablist" aria-label="Task views">
     <button id="ha-task-all-tab" type="button" data-task-view="all" role="tab" aria-selected="true" aria-controls="ha-task-feed"><span class="material-symbols-outlined" aria-hidden="true">list_alt</span> All Tasks</button>
     <button id="ha-task-timeline-tab" type="button" data-task-view="timeline" role="tab" aria-selected="false" aria-controls="ha-task-feed"><span class="material-symbols-outlined" aria-hidden="true">timeline</span> Timeline</button>
@@ -250,6 +260,30 @@
     <section class="ha-day-week" aria-label="Weekly review"><header><span class="material-symbols-outlined">query_stats</span><h3>7-day review</h3></header><div id="ha-week-stats" class="ha-week-stats"></div><p>Focus history and notes currently stay on this device.</p></section>
   </div>
 </section>
+<dialog id="ha-rescue-dialog" class="ha-rescue-dialog" aria-labelledby="ha-rescue-dialog-title">
+ <div class="ha-rescue-dialog-inner">
+   <header class="ha-rescue-dialog-header">
+     <div><span class="ha-rescue-kicker">ARC · RECOVERY WORKSPACE</span><h2 id="ha-rescue-dialog-title">Let's make today manageable<span>.</span></h2><p>Based on your saved tasks. Every date change needs your approval.</p></div>
+     <button id="ha-rescue-close" type="button" class="ha-rescue-x" aria-label="Close recovery plan"><span class="material-symbols-outlined">close</span></button>
+   </header>
+   <div class="ha-rescue-options">
+     <label for="ha-rescue-cap">Tasks per day <select id="ha-rescue-cap"><option value="2">2 · Light</option><option value="3" selected>3 · Balanced</option><option value="4">4 · Focused</option><option value="5">5 · Busy</option></select></label>
+     <button id="ha-rescue-refresh" type="button"><span class="material-symbols-outlined" aria-hidden="true">refresh</span> Rebuild</button>
+   </div>
+   <div id="ha-rescue-overview" class="ha-rescue-overview" aria-live="polite"></div>
+   <section class="ha-rescue-section" aria-labelledby="ha-rescue-focus-title">
+     <div class="ha-rescue-section-heading"><h3 id="ha-rescue-focus-title"><span class="material-symbols-outlined" aria-hidden="true">target</span> Today's priorities</h3><span>Start small</span></div>
+     <div id="ha-rescue-focus-list" class="ha-rescue-focus-list"></div>
+   </section>
+   <section class="ha-rescue-section" aria-labelledby="ha-rescue-moves-title">
+     <div class="ha-rescue-section-heading"><h3 id="ha-rescue-moves-title"><span class="material-symbols-outlined" aria-hidden="true">event_repeat</span> Suggested date changes</h3><span id="ha-rescue-change-count">0 proposed</span></div>
+     <div id="ha-rescue-moves" class="ha-rescue-moves"></div>
+   </section>
+   <p class="ha-rescue-disclosure"><span class="material-symbols-outlined" aria-hidden="true">info</span> Transparent task-priority rules, not a generative AI decision. Existing completed, undated and future tasks stay unchanged unless you explicitly edit them. Cloud sync follows your usual Tasks settings.</p>
+   <p id="ha-rescue-feedback" class="ha-rescue-feedback" aria-live="polite" role="status"></p>
+   <footer class="ha-rescue-actions"><a id="ha-rescue-ask-ai" class="ha-rescue-ai-link" href="Arc_AI.html" title="Open an editable task recovery prompt in ARC AI; send only after you review it"><span class="material-symbols-outlined" aria-hidden="true">smart_toy</span> Ask ARC AI</a><button id="ha-rescue-cancel" type="button">Not now</button><button id="ha-rescue-apply" type="button" class="ha-rescue-approve"><span class="material-symbols-outlined" aria-hidden="true">check</span> Approve selected changes</button></footer>
+ </div>
+</dialog>
 <dialog id="ha-task-dialog" class="ha-task-dialog" aria-labelledby="ha-task-dialog-title">
   <form id="ha-task-form">
     <div class="ha-task-dialog-head"><h2 id="ha-task-dialog-title">New task</h2><button id="ha-task-close" type="button" aria-label="Close task editor"><span class="material-symbols-outlined">close</span></button></div>

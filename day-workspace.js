@@ -115,6 +115,7 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
  const dateInput=$('#ha-day-date',root);
  const focusTask=$('#ha-focus-task',root);
  const focusLength=$('#ha-focus-length',root);
+ let preferredTask = new URLSearchParams(location.search).get('focusTask') || '';
  function render(){
   if(!live||!root.isConnected)return;
   dateInput.value=chosen;
@@ -139,7 +140,9 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
     const current=focusTask.value;
     focusTask.replaceChildren(new Option('General focus',''));
     options.forEach(pair=>focusTask.add(new Option(pair[1].slice(0,70),pair[0])));
-    focusTask.value=options.some(pair=>pair[0]===current)?current:'';
+    focusTask.value=options.some(pair=>pair[0]===preferredTask)?preferredTask
+      : options.some(pair=>pair[0]===current)?current:'';
+    if (focusTask.value === preferredTask) preferredTask='';
     lastTaskOpts=signature;
   }
   renderFocus(root);
