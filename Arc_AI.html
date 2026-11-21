@@ -304,6 +304,7 @@
 
     <!-- Docked Composer Bar -->
     <div id="arc-composer-wrap" class="ha-arc-composer">
+        <button type="button" id="arc-context-open" class="ha-arc-context-open" aria-label="Choose additional ARC AI context">Customize context</button>
         <p id="ai-coach-status" class="ha-arc-prompt-status" role="status" aria-live="polite"></p>
         <form id="ai-coach-form" class="ha-arc-prompt-box" novalidate>
             <label for="ai-coach-question" class="sr-only">Ask ARC AI a question about your habits</label>
@@ -380,6 +381,9 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
     const cardMomentum = document.getElementById('arc-card-momentum');
     const momentumSub = document.getElementById('arc-momentum-sub');
 
+    const arcContextPromise=import('./arc-context.js')
+        .then(mod=>mod.mountArcContext({button:document.getElementById('arc-context-open')}))
+        .catch(error=>{console.warn('Optional ARC context unavailable:',error);return null;});
     const form = document.getElementById('ai-coach-form');
     const questionInput = document.getElementById('ai-coach-question');
     const submitButton = document.getElementById('ai-coach-submit');
@@ -742,6 +746,11 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
             owner = user.uid;
             await cancellable(HabitArc.flushCloudSync(), signal);
             const idToken = await cancellable(HabitArc.getAuthToken(), signal);
+            // The user explicitly picked these sources. Not saved in threads,
+            // and never sent on an unrelated ARC question.
+            const contextPicker = await cancellable(arcContextPromise,signal);
+            const workspaceContext=contextPicker
+                ? await cancellable(contextPicker.collect(),signal) : null;
             renderHistoryList(conversation.slice(-4));
             if (askedEl) askedEl.textContent = question;
             askedWrap?.classList.remove('hidden');
@@ -760,6 +769,7 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
                 body: JSON.stringify({
                     question,
                     conversation: conversation.slice(-3),
+                    ...(workspaceContext ? { workspaceContext } : {}),
                     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 }),
                 signal
