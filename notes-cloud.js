@@ -195,8 +195,8 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
       const client=await window.HabitArcAuthReady;
       if(!alive||!client) {tell('local');return;}
       cloud=client;
+      // subscribe() delivers initial user state; do not double-subscribe.
       unsubscribeAuth=client.subscribe(user=>{void activate(user?.uid||'local');});
-      await activate(client.getCurrentUser?.()?.uid||'local');
     }catch{
       tell('error','Cloud sign-in unavailable · Local notes safe');
     }
