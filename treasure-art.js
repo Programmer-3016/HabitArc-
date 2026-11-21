@@ -1,220 +1,227 @@
-// Original pixel sprites. Each drawing has a shell, independently hinged lid,
-// and a power-specific relic. Coordinates share an integer grid, not a bitmap.
-const ns = 'http://www.w3.org/2000/svg';
-function node(parent, tag, attrs) {
-  const item = document.createElementNS(ns, tag);
-  for (const [key, value] of Object.entries(attrs)) item.setAttribute(key, value);
+// HabitArc original, front-facing 16-bit-style treasure sprites.
+// Visual layer only: preserve the existing tier IDs, unlock flow, modal
+// animation hooks and reward relics. No canvas, external assets or new rewards.
+const NS = 'http://www.w3.org/2000/svg';
+function node(parent, tag, attrs = {}) {
+  const item = document.createElementNS(NS, tag);
+  for (const [name, value] of Object.entries(attrs)) item.setAttribute(name, value);
   parent.append(item);
   return item;
 }
-const group = (g, cls) => node(g, 'g', {class:cls});
-const path = (g, fill, d) => node(g, 'path', {fill,d});
-const rect = (g, fill, x, y, width, height) => node(g, 'rect', {fill,x,y,width,height});
+const group = (parent, cls) => node(parent, 'g', { class: cls });
+const rect = (parent, fill, x, y, width, height) =>
+  node(parent, 'rect', { x, y, width, height, fill });
+const path = (parent, fill, d) => node(parent, 'path', { fill, d });
 
-// Fill the sprite on a logical pixel grid before scaling. This keeps diagonal
-// steps square even when the SVG is shown at a fractional size in the modal.
-function pixelLayer(parent, draw) {
-  const w=88, h=78, rows=Array.from({length:h},()=>Array(w));
-  const dot=(x,y,color)=>{if(x>=0 && y>=0 && x<w && y<h) rows[y][x]=color;};
-  const line=(a,b,color)=>{
-    let [x,y]=a.map(Math.round);
-    const [endX,endY]=b.map(Math.round), dx=Math.abs(endX-x), dy=-Math.abs(endY-y);
-    const sx=x<endX?1:-1, sy=y<endY?1:-1;
-    for(let err=dx+dy;;) {
-      dot(x,y,color); if(x===endX && y===endY) break;
-      const twice=2*err;
-      if(twice>=dy){err+=dy;x+=sx;}
-      if(twice<=dx){err+=dx;y+=sy;}
-    }
-  };
-  const trace=(points,color)=>points.slice(1).forEach((p,i)=>line(points[i],p,color));
-  const poly=(points,fill,edge=fill)=>{
-    const ys=points.map(p=>p[1]);
-    for(let y=Math.max(0,Math.floor(Math.min(...ys)));y<=Math.min(h-1,Math.ceil(Math.max(...ys)));y++){
-      const scan=y+.5, hits=[];
-      points.forEach(([x1,y1],i)=>{
-        const [x2,y2]=points[(i+1)%points.length];
-        if((y1<=scan && scan<y2)||(y2<=scan && scan<y1)) hits.push(x1+(scan-y1)*(x2-x1)/(y2-y1));
-      });
-      hits.sort((a,b)=>a-b);
-      for(let i=0;i+1<hits.length;i+=2)
-        for(let x=Math.ceil(hits[i]-.5);x<hits[i+1]-.5;x++) dot(x,y,fill);
-    }
-    trace([...points,points[0]],edge);
-  };
-  draw(poly,trace);
-  const paths=new Map();
-  rows.forEach((row,y)=>{
-    for(let x=0;x<w;){
-      const start=x, color=row[x++];
-      while(x<w && row[x]===color) x++;
-      if(color) paths.set(color,(paths.get(color)||'')+`M${start} ${y}h${x-start}v1H${start}Z`);
-    }
-  });
-  for(const [color,d] of paths) path(parent,color,d);
+// All visible corners snap to an even-pixel grid in an 88×78 SVG.
+// Hardware, highlights and keyholes are deliberately chunky, never smoothed.
+const PALETTES = Object.freeze({
+  wood: {
+    ink:'#211716', dark:'#56321d', shade:'#834b26',
+    face:'#ad6730', lit:'#cc8740', highlight:'#f4b660',
+    metal:'#b98b52', trim:'#e9b876', shine:'#fff0aa',
+    inside:'#2b1a27', seam:'#6a3926', spark:'#e59a3a',gem:'#3d291c'
+  },
+  iron: {
+    ink:'#1d2638', dark:'#263b57', shade:'#385376',
+    face:'#5e81ab', lit:'#87a8d0', highlight:'#aecde7',
+    metal:'#91b3c8', trim:'#c9e1ed', shine:'#edfcff',
+    inside:'#172b42', seam:'#324b6c', spark:'#96a2ff',gem:'#70dbe8'
+  },
+  gold: {
+    ink:'#2d1930', dark:'#5d2545', shade:'#8c345c',
+    face:'#b04466', lit:'#d65a7c', highlight:'#fa9190',
+    metal:'#d28a20', trim:'#ffca4b', shine:'#fff19b',
+    inside:'#361737', seam:'#742746', spark:'#c66aff',gem:'#ab4ce0'
+  }
+});
+
+function studs(parent, tint, positions) {
+  for (const [x, y] of positions) rect(parent,tint,x,y,2,2);
 }
-
-const metals={
-  wood:{ink:'#271a1b',deep:'#542738',dark:'#774132',mid:'#a36543',light:'#c78b51',glow:'#ffe99a',trim:'#ffc54f',shade:'#c98532',under:'#975421'},
-  iron:{ink:'#182337',deep:'#25364d',dark:'#34495e',mid:'#526b80',light:'#839baf',glow:'#e2f3f8',trim:'#b2c9d5',shade:'#718e9f',under:'#486374'},
-  gold:{ink:'#352035',deep:'#49253f',dark:'#693351',mid:'#954968',light:'#c07876',glow:'#fff1a1',trim:'#ffcc4e',shade:'#d88c33',under:'#a45c28'},
-};
-
-function coffer(body,lid,lining,clasp,well,id) {
-  const iron=id==='iron', gold=id==='gold', c=metals[id];
-  const width=iron?42:gold?38:39, depth=iron?21:24, base=iron?19:21;
-  const ox=(88-width+depth)/2, oy=iron?68:71;
-  const at=(x,u,z)=>[ox+x-u,oy-(x+u)*.43-z];
-  const front=(coords,u=0)=>coords.map(([x,z])=>at(x,u,z));
-  const side=(coords,x=0)=>coords.map(([u,z])=>at(x,u,z));
-  const strip=(x1,x2,u1,z1,u2,z2)=>[at(x1,u1,z1),at(x2,u1,z1),at(x2,u2,z2),at(x1,u2,z2)];
-  // Profiles run from the rear hinge across the crown to the front seam.
-  const arch=iron?[[depth,0],[depth,5],[17,10],[5,10],[0,5],[0,0]]:
-             gold?[[depth,0],[depth,6],[22,11],[17,16],[13,18],[9,17],[4,14],[1,9],[0,4],[0,0]]:
-                  [[depth,0],[depth,5],[22,10],[18,14],[14,16],[10,16],[6,14],[3,11],[1,7],[0,3],[0,0]];
-  const curve=(x,offset=0)=>arch.map(([u,z])=>at(x,u,base+z+offset));
-  const band=(p,l,a,b)=>{
-    arch.slice(1).forEach(([u,z],i)=>{
-      const [pu,pz]=arch[i];
-      p(strip(a,b,pu,base+pz,u,base+z),pu>depth*.55?c.trim:(pz===z?c.glow:c.shade));
-    });
-    l(curve(a),c.under); l(curve(b),c.ink);
-    l(curve(a+1).slice(1,-3),c.glow);
-  };
-
-  pixelLayer(body,(p,l)=>{
-    p(side([[0,0],[depth,0],[depth,base],[0,base]]),c.shade,c.ink);
-    p(side([[3,4],[depth-3,4],[depth-3,base-3],[3,base-3]]),c.deep,c.ink);
-    for(const u of [6,12,18]) l(side([[u,5],[u,base-4]]),c.dark);
-    l(side([[depth-1,2],[1,2],[1,base-2]]),c.trim);
-    p(front([[0,0],[width,0],[width,base],[0,base]]),c.trim,c.ink);
-    p(front([[4,4],[width-4,4],[width-4,base-3],[4,base-3]]),c.dark,c.ink);
-    if(iron) {
-      p(front([[5,7],[8,4],[width-9,4],[width-5,8],[width-5,base-5],[5,base-5]]),c.mid,c.under);
-      for(const x of [5,width-6]) for(const z of [4,base-3]) l(front([[x,z],[x+1,z+1]]),c.glow);
-      p(side([[5,5],[depth-4,5],[depth-4,base-4],[5,base-4]]),c.mid,c.ink);
-      l(side([[7,8],[8,12],[15,12],[16,8]]),c.ink);
-      l(side([[8,9],[9,11],[14,11]]),c.trim);
-    } else if(gold) {
-      for(const x of [5,width-15]){
-        p(front([[x,base-4],[x+5,base-10],[x+10,base-4],[x+7,base-4],[x+5,base-7],[x+3,base-4]]),c.shade);
-      }
-      l(side([[5,8],[11,14],[17,8],[11,6],[5,8]]),c.trim);
-      l(front([[3,3],[width-3,3],[width-3,base-2]]),c.glow);
-    } else {
-      for(const z of [8,13]) {
-        l(front([[5,z],[width-5,z]]),c.deep);
-        l(front([[6,z+1],[width-6,z+1]]),c.mid);
-      }
-      l(front([[6,5],[12,5]]),c.light);
-    }
-    l(front([[1,2],[1,base-1]]),c.glow);
-  });
-  pixelLayer(lid,(p,l)=>{
-    // Long slats first, raised end hoops second, near arched end last.
-    for(let i=0;i<arch.length-1;i++){
-      const [u,z]=arch[i], [v,h]=arch[i+1];
-      const tint=u>depth*.72?c.dark:u>depth*.38?c.light:u>depth*.16?c.mid:c.dark;
-      p(strip(0,width,u,base+z,v,base+h),tint);
-      if([1,3,6,8].includes(i)) l([at(0,u,base+z),at(width,u,base+z)],c.deep);
-    }
-    // Trace the visible crest, not the hidden rear seam through the roof.
-    const [crestU,crestZ]=arch.reduce((a,b)=>a[1]+a[0]*.43>b[1]+b[0]*.43?a:b);
-    l([at(0,crestU,base+crestZ),at(width,crestU,base+crestZ)],c.ink);
-    l(curve(width),c.ink);
-    if(id==='wood') {
-      l([at(8,9,base+15),at(16,9,base+15)],c.light);
-      l([at(21,4,base+12),at(28,4,base+12)],c.light);
-    }
-    band(p,l,width-(iron?4:6),width);
-    if(iron) {
-      band(p,l,16,19);
-      p([at(12,7,base+11),at(29,7,base+11),at(29,7,base+14),at(26,7,base+16),at(15,7,base+16),at(12,7,base+14)],c.shade,c.ink);
-      l([at(15,7,base+12),at(16,7,base+14),at(25,7,base+14),at(26,7,base+12)],c.ink);
-      l([at(16,7,base+16),at(25,7,base+16)],c.glow);
-    }
-    band(p,l,0,iron?4:6);
-    p(curve(0),c.trim,c.ink);
-    const inner=arch.map(([u,z])=>at(0,3+u*(depth-6)/depth,base+1+z*.66));
-    p(inner,c.deep,c.under);
-    for(const u of [7,12,17]) l(side([[u,base+2],[u,base+(iron?5:u===12?9:6)]]),c.dark);
-    l(curve(0).slice(1,-4),c.glow);
-    p(strip(0,width,0,base,0,base+2),c.shade,c.ink);
-    l([at(2,0,base+2),at(width-2,0,base+2)],c.trim);
-    if(gold) {
-      const x=width*.55,u=12,z=base+17;
-      const emblem=points=>points.map(([a,b])=>at(x+a,u,z+b));
-      p(emblem([[-6,0],[-8,7],[-4,5],[-2,8],[0,5],[3,10],[5,3],[7,6],[6,0]]),c.trim,c.ink);
-      l(emblem([[-5,1],[5,1]]),c.glow);
-      p(emblem([[-1,2],[-2,4],[0,6],[2,4],[1,2]]),'#ee9176',c.under);
-    }
-  });
-  pixelLayer(lining,(p,l)=>{
-    const panel=(x,z)=>at(x,depth+z*.13,base+z);
-    const face=(v)=>v.map(([x,z])=>panel(x,z));
-    const height=iron?12:15;
-    p(face([[0,0],[width,0],[width,height-2],[width-2,height],[2,height],[0,height-2]]),c.trim,c.ink);
-    p(face([[3,2],[width-3,2],[width-3,height-3],[3,height-3]]),c.deep,c.under);
-    l(face([[4,4],[width-4,4]]),c.dark);
-    l(face([[3,height-1],[width-4,height-1]]),c.glow);
-    p(face([[width/2-3,height-2],[width/2+3,height-2],[width/2+3,height+1],[width/2-3,height+1]]),c.shade,c.ink);
-  });
-  pixelLayer(well,(p,l)=>{
-    const rim=(inset)=>[at(inset,inset,base),at(width-inset,inset,base),at(width-inset,depth-inset,base),at(inset,depth-inset,base)];
-    p(rim(0),c.trim,c.ink); p(rim(3),c.deep,c.ink);
-    l([at(3,depth-3,base),at(3,3,base),at(width-3,3,base)],c.shade);
-  });
-  pixelLayer(clasp,(p,l)=>{
-    const x=Math.round(width*.53), plate=a=>a.map(([a,b])=>at(x+a,-1,base+b));
-    if(iron){
-      p(plate([[-7,1],[-5,4],[5,4],[7,2],[7,-4],[5,-6],[-5,-6],[-7,-4]]),c.shade,c.ink);
-      p(plate([[-5,-1],[5,-1],[5,1],[-5,1]]),'#79d6da',c.deep);
-      l(plate([[-3,2],[3,2]]),c.glow);
-    } else if(gold){
-      p(plate([[-6,1],[-4,5],[0,7],[5,4],[6,0],[0,-9]]),c.trim,c.ink);
-      p(plate([[-4,1],[0,5],[4,2],[4,-1],[0,-6]]),'#9a4cba',c.deep);
-      p(plate([[-3,1],[0,4],[0,0],[0,-4]]),'#e4a6f0');
-    } else {
-      p(plate([[-4,3],[-2,5],[3,5],[5,3],[5,-4],[3,-7],[-2,-7],[-4,-5]]),c.trim,c.ink);
-      p(plate([[-1,1],[1,2],[2,1],[2,-1],[1,-2],[1,-4],[-1,-4],[-1,-1],[-2,0]]),c.ink);
-      l(plate([[-3,1],[-3,3],[1,4]]),c.glow);
-    }
-  });
+function sparkle(parent, color, x, y, size = 2) {
+  // Four-point retro sparkle built out of integer-aligned square pixels.
+  rect(parent,color,x,y-size,size,size);
+  rect(parent,color,x-size,y,size,size);
+  rect(parent,color,x,y,size,size);
+  rect(parent,color,x+size,y,size,size);
+  rect(parent,color,x,y+size,size,size);
 }
-
-function drawRelic(charm, id) {
-  if (id === 'wood') {
-    path(charm,'#842f20','M43 6H47V11H50V14H52V20H50V24H46V26H41V24H38V21H36V16H39V18H40V12H43Z');
-    path(charm,'#ff963d','M44 10H46V14H49V17H50V20H48V23H41V21H39V17H42V15H44Z');
-    path(charm,'#fff1a1','M44 16H46V19H48V21H46V23H43V21H42V19H44Z');
-  } else if (id === 'iron') {
-    path(charm,'#202b39','M43 6H46V8H52V16H50V20H48V22H46V24H43V22H40V20H38V17H36V8H43Z');
-    path(charm,'#39bfcf','M43 9H46V10H50V16H48V19H46V21H43V19H41V17H39V10H43Z');
-    path(charm,'#d6fffb','M43 10H45V12H42V17H40V11H43Z'); rect(charm,'#288293',45,13,3,5);
+function drawShadow(parent, c) {
+  rect(parent,'var(--case-shadow)',14,65,60,3);
+  rect(parent,'var(--case-shadow)',21,68,46,2);
+  rect(parent,'var(--case-shadow)',27,70,34,2);
+}
+function drawChestBody(parent, c, id) {
+  // Solid squared chest profile, dark pixel outline and side-wall depth.
+  rect(parent,c.ink,12,35,64,29);
+  rect(parent,c.ink,10,40,68,20);
+  rect(parent,c.dark,14,39,60,22);
+  rect(parent,c.shade,16,40,56,21);
+  rect(parent,c.face,19,43,49,15);
+  rect(parent,c.lit,20,44,42,3);
+  rect(parent,c.dark,68,42,5,17);
+  rect(parent,c.seam,25,49,37,2);
+  rect(parent,c.shade,25,51,39,3);
+  rect(parent,c.highlight,27,44,20,2);
+  // Lower bevel and brass/silver/champagne binding strip.
+  rect(parent,c.ink,12,58,64,7);
+  rect(parent,c.metal,14,58,60,5);
+  rect(parent,c.trim,16,58,54,2);
+  rect(parent,c.shade,17,62,52,2);
+  rect(parent,c.ink,14,64,61,2);
+  // Two thick vertical pixelated metal straps.
+  for (const x of [18,62]) {
+    rect(parent,c.ink,x-2,38,10,26);
+    rect(parent,c.metal,x,39,6,23);
+    rect(parent,c.trim,x,39,4,20);
+    rect(parent,c.shine,x+1,41,2,6);
+    rect(parent,c.dark,x+5,42,2,17);
+  }
+  studs(parent,c.shine,[[20,49],[64,49],[20,58],[64,58]]);
+  // Front-facing plank/rune marks distinguish tiers without adding items.
+  if(id==='wood'){
+    rect(parent,c.seam,30,54,13,2);
+    rect(parent,c.highlight,47,47,11,2);
+    rect(parent,c.dark,52,54,4,2);
+  } else if(id==='iron'){
+    rect(parent,c.metal,31,51,25,3);
+    rect(parent,c.shine,34,52,8,2);
+    rect(parent,c.seam,43,55,14,2);
   } else {
-    path(charm,'#95551c','M42 5H46V10H49V12H54V16H50V19H48V24H45V22H42V24H39V20H38V18H35V12H40V10H42Z');
-    path(charm,'#ffe572','M43 8H45V12H48V14H51V16H48V18H46V21H44V19H42V21H41V17H38V14H42V12H43Z');
-    rect(charm,'#fff2b5',43,13,3,3);
+    rect(parent,c.trim,31,51,25,2);
+    rect(parent,c.shine,36,51,10,2);
+    rect(parent,c.metal,34,55,20,2);
+    studs(parent,c.shine,[[31,45],[58,45]]);
   }
 }
-
+function drawInnerWell(parent, c) {
+  // Under the independent lid; visible after the existing opening animation.
+  rect(parent,c.ink,14,32,60,14);
+  rect(parent,c.inside,17,34,54,10);
+  rect(parent,c.dark,20,37,48,6);
+  rect(parent,c.trim,15,33,58,2);
+  rect(parent,c.highlight,19,35,47,2);
+}
+function drawLining(parent, c) {
+  // Glittering loot inside the chest appears only once the lid lifts.
+  rect(parent,c.trim,24,36,40,6);
+  rect(parent,c.shine,30,37,27,3);
+  rect(parent,c.metal,20,41,47,3);
+  studs(parent,c.highlight,[[26,34],[45,32],[59,35]]);
+}
+function drawChestLid(parent, c, id) {
+  // Stepped roof silhouette (no vector curves): classic pixel-game coffer.
+  rect(parent,c.ink,10,29,68,12);
+  rect(parent,c.ink,12,23,64,17);
+  rect(parent,c.ink,16,19,56,21);
+  rect(parent,c.ink,20,17,48,23);
+  rect(parent,c.ink,24,15,40,25);
+  rect(parent,c.dark,14,27,60,10);
+  rect(parent,c.shade,16,23,56,14);
+  rect(parent,c.face,20,21,48,16);
+  rect(parent,c.lit,23,19,42,12);
+  rect(parent,c.highlight,26,18,33,4);
+  rect(parent,c.shine,28,18,19,2);
+  rect(parent,c.shade,21,29,47,4);
+  rect(parent,c.seam,26,23,33,2);
+  rect(parent,c.face,27,26,27,3);
+  // Stepped side rim, matching the hand-drawn reference chest silhouette.
+  rect(parent,c.metal,12,29,64,10);
+  rect(parent,c.trim,14,31,60,6);
+  rect(parent,c.shine,16,31,48,2);
+  rect(parent,c.dark,15,37,59,4);
+  // Distinct top-cover straps that follow the roof.
+  for (const x of [19,61]) {
+    rect(parent,c.ink,x-2,19,10,22);
+    rect(parent,c.metal,x,21,6,18);
+    rect(parent,c.trim,x,21,4,15);
+    rect(parent,c.shine,x+1,22,2,6);
+  }
+  studs(parent,c.shine,[[20,32],[64,32]]);
+  if(id==='gold'){
+    // Tiny royal inlay, separate from the lock emblem.
+    rect(parent,c.trim,37,20,14,3);
+    rect(parent,c.gem,41,18,6,5);
+    rect(parent,c.shine,43,19,2,2);
+  } else if(id==='iron'){
+    rect(parent,c.highlight,34,20,20,2);
+  } else {
+    rect(parent,c.shine,33,20,12,2);
+  }
+}
+function drawClasp(parent, c, id) {
+  // The clasp belongs to the lid so it disappears naturally when opened.
+  rect(parent,c.ink,37,34,16,16);
+  rect(parent,c.metal,39,35,12,13);
+  rect(parent,c.trim,40,35,10,11);
+  rect(parent,c.shine,41,36,5,2);
+  if(id==='gold'){
+    // Faceted purple gem in the grand chest lock.
+    rect(parent,c.ink,42,38,6,8);
+    rect(parent,c.gem,42,39,6,5);
+    rect(parent,'#e7adfa',44,39,2,3);
+    rect(parent,c.dark,44,44,2,2);
+  }else{
+    rect(parent,c.ink,43,39,4,5);
+    rect(parent,c.ink,42,43,6,3);
+    if(id==='iron')rect(parent,c.gem,44,40,2,2);
+  }
+  studs(parent,c.shine,[[40,45],[49,45]]);
+}
+function drawRelic(parent,id) {
+  // Existing chest rewards are unchanged: Ember Trail, Orbit Shield, Crown.
+  if(id==='wood'){
+    path(parent,'#6b2730','M43 5H47V10H50V14H52V20H50V24H46V26H41V23H38V20H36V16H39V12H42Z');
+    path(parent,'#ff9b36','M44 9H46V14H49V17H50V20H48V23H41V21H39V18H42V15H44Z');
+    rect(parent,'#fff4a7',43,16,3,5);
+  }else if(id==='iron'){
+    path(parent,'#162735','M42 6H47V8H52V16H50V20H48V23H43V21H40V19H38V16H36V9H42Z');
+    path(parent,'#34b9cf','M43 9H46V10H50V17H48V20H45V21H42V18H39V10H43Z');
+    rect(parent,'#dcffff',42,11,3,5);
+    rect(parent,'#167caa',45,15,3,4);
+  }else{
+    path(parent,'#95521d','M42 5H46V10H49V12H54V16H50V19H48V24H45V21H42V24H39V20H38V18H35V12H40V10H42Z');
+    path(parent,'#ffe76c','M43 8H45V12H48V14H51V16H48V18H46V21H44V19H42V21H41V17H38V14H42V12H43Z');
+    rect(parent,'#fff9c7',43,12,3,5);
+  }
+}
 export function chestArt(chest, opened) {
+  const id = PALETTES[chest?.id] ? chest.id : 'wood';
+  const c = PALETTES[id];
   const stage = document.createElement('div');
-  stage.className='lb-chest-art'; stage.dataset.open=String(opened); stage.setAttribute('aria-hidden','true');
-  const svg = node(stage,'svg',{viewBox:'0 0 88 78','shape-rendering':'crispEdges',focusable:'false'});
-  const chestGroup=group(group(svg,'lb-chest-entry'),'lb-chest-object');
-  path(chestGroup,'var(--case-shadow)','M11 64H20V62H53V60H73V61H79V65H73V67H59V69H44V72H32V71H22V69H14V67H11Z');
-  const lining=group(chestGroup,'lb-chest-lining');
-  const body=group(chestGroup,'lb-chest-body');
-  path(chestGroup,'var(--case-trim)','M31 43L22 12L37 20L44 4L50 18L65 11L57 43Z').setAttribute('class','lb-chest-light');
-  const well=group(chestGroup,'lb-chest-well');
-  const lid=group(chestGroup,'lb-chest-lid');
-  const charm=group(svg,'lb-chest-relic');
-  coffer(body,lid,lining,group(chestGroup,'lb-chest-clasp'),well,chest.id);
-  drawRelic(charm,chest.id);
+  stage.className = 'lb-chest-art';
+  stage.dataset.open = String(Boolean(opened));
+  stage.dataset.style = 'pixel-game';
+  stage.setAttribute('aria-hidden','true');
+
+  const svg = node(stage,'svg',{
+    viewBox:'0 0 88 78',
+    'shape-rendering':'crispEdges',
+    focusable:'false'
+  });
+  const glow = group(svg,'lb-chest-light');
+  path(glow,c.spark,'M43 10L29 36H5L27 42L14 58L40 48L44 72L49 48L74 58L60 42L83 36H55Z');
+  const ambient = group(svg,'lb-chest-ambient');
+  for(const [x,y,size] of id==='gold' ? [[10,17,2],[76,13,2],[7,44,2],[79,51,2],[34,8,1]]:
+    id==='iron' ? [[10,21,2],[79,28,2],[68,10,1]]:
+    [[9,25,2],[78,30,1]]) sparkle(ambient,c.spark,x,y,size);
+  const shell=group(group(svg,'lb-chest-entry'),'lb-chest-object');
+  drawShadow(shell,c);
+  const body=group(shell,'lb-chest-body');
+  drawChestBody(body,c,id);
+  const well=group(shell,'lb-chest-well');
+  drawInnerWell(well,c);
+  const lining=group(shell,'lb-chest-lining');
+  drawLining(lining,c);
+  const lid=group(shell,'lb-chest-lid');
+  drawChestLid(lid,c,id);
+  drawClasp(group(lid,'lb-chest-clasp'),c,id);
+  const relic=group(svg,'lb-chest-relic');
+  drawRelic(relic,id);
   const sparks=group(svg,'lb-loot-sparks');
-  for(const [x,y] of [[26,23],[61,16],[30,10],[57,29],[36,5],[54,7]]) {
-    path(sparks,'var(--case-trim)', 'M'+x+' '+y+'h2v2h2v2h-2v2h-2v-2h-2v-2h2Z');
+  for(const [x,y] of [[18,14],[68,9],[28,7],[63,22],[37,4],[53,8]]){
+    sparkle(sparks,c.spark,x,y,2);
   }
   return stage;
 }
