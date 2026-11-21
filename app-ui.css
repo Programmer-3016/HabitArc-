@@ -2691,3 +2691,82 @@ body.ha-arc-body > main.ha-arc-ai {
   body > nav.ha-bottom-nav {display:none !important;}
   .ha-habits-create-btn {display:none !important;}
 }
+
+
+/* Android mobile layout audit 2026-11: the ARC Zen home must scroll as a page.
+   The old double scrollport (100dvh body + internal .ha-arc-scroll) clipped
+   the mascot and left the composer well above the fixed five-tab dock.
+   The active conversation remains a bounded chat scrollport. */
+@media (max-width:767px) {
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)) {
+    height:auto;
+    min-height:100dvh;
+    max-height:none;
+    overflow-x:hidden;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)) > main.ha-arc-ai {
+    flex:0 0 auto;
+    min-height:0;
+    height:auto;
+    padding-top:clamp(14px,3.5vw,22px);
+    padding-bottom:8px;
+    gap:12px;
+    overflow:visible;
+  }
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)) .ha-arc-scroll {
+    flex:0 0 auto;
+    height:auto;
+    max-height:none;
+    min-height:0;
+    overflow:visible;
+    overscroll-behavior:auto;
+    margin:0;
+    padding:2px 4px 5px;
+  }
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)) .ha-arc-composer {
+    flex:0 0 auto;
+    padding-top:8px;
+    padding-bottom:8px;
+  }
+  /* Conversation mode is intentionally the only fixed-height ARC layout.
+     Remove body padding reserved for the dock because main already reserves it. */
+  body.ha-arc-body:not(:has(#arc-zen-home:not(.hidden))) {
+    padding-bottom:0;
+    height:100dvh;
+    max-height:100dvh;
+  }
+  body.ha-arc-body:not(:has(#arc-zen-home:not(.hidden))) > main.ha-arc-ai {
+    padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));
+  }
+  body.ha-arc-body:is(.is-arc-typing,:has(.ha-arc-composer:focus-within)) {
+    padding-bottom:calc(8px + env(safe-area-inset-bottom,0px)) !important;
+  }
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)):is(.is-arc-typing,:has(.ha-arc-composer:focus-within)) > main.ha-arc-ai {
+    padding-bottom:8px !important;
+  }
+  /* On short landscape screens keep the launcher accessible without
+     obscuring the last task row beneath the nav. */
+  .ha-arc-zen-meta {max-width:100%;line-height:1.45;overflow-wrap:anywhere}
+  .ha-arc-cards > * {min-width:0}
+  .ha-arc-spot-title,.ha-arc-spot-sub,.ha-arc-sq-title,.ha-arc-sq-sub,
+  .ha-arc-momentum-title,.ha-arc-momentum-sub {overflow-wrap:anywhere}
+}
+@media (max-width:359px) {
+  body.ha-arc-body > main.ha-arc-ai {padding-inline:12px}
+  .ha-arc-spot-body {gap:7px}
+  .ha-arc-ask-pill {padding:5px 7px;font-size:9px}
+  .ha-arc-zen-meta {font-size:10px !important}
+  .ha-arc-rescue-shortcut {gap:10px;padding:12px 13px}
+  .ha-arc-rescue-shortcut-icon {width:37px;height:37px}
+  .ha-arc-rescue-shortcut-copy strong {font-size:13px}
+}
+@media (max-width:767px) and (max-height:520px) {
+  body > nav.ha-bottom-nav {min-height:64px !important;padding:5px !important;bottom:6px !important}
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link {min-height:49px !important;gap:2px !important}
+  body > nav.ha-bottom-nav > a.ha-bottom-nav-link > .material-symbols-outlined {font-size:19px !important}
+  body.ha-arc-body:not(:has(#arc-zen-home:not(.hidden))) > main.ha-arc-ai {
+    padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));
+  }
+}
