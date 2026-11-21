@@ -124,6 +124,7 @@
     </style>
 <link rel="stylesheet" href="app-ui.css"/>
 <link rel="stylesheet" href="plan-tasks.css"/>
+<link rel="stylesheet" href="day-workspace.css"/>
 <script src="app-ui.js"></script>
 </head>
 <body class="bg-background text-on-background antialiased min-h-screen pb-24 relative overflow-x-hidden">
@@ -196,7 +197,7 @@
   </div>
   <div class="ha-plan-modes" role="tablist" aria-label="Planner sections">
     <button type="button" role="tab" id="ha-plan-habits-tab" aria-controls="ha-plan-habits" data-plan-mode="habits" aria-selected="true"><span class="material-symbols-outlined" aria-hidden="true">repeat</span> My Habits</button>
-    <button type="button" role="tab" id="ha-plan-tasks-tab" aria-controls="ha-plan-tasks" data-plan-mode="tasks" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">checklist</span> Tasks</button>
+    <button type="button" role="tab" id="ha-plan-tasks-tab" aria-controls="ha-plan-tasks" data-plan-mode="tasks" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">checklist</span> Tasks</button><button type="button" role="tab" id="ha-plan-day-tab" aria-controls="ha-plan-day" data-plan-mode="day" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span> My Day</button>
   </div>
 </section>
 <div id="ha-plan-habits" role="tabpanel" aria-labelledby="ha-plan-habits-tab">
@@ -238,6 +239,16 @@
     <button id="ha-task-timeline-tab" type="button" data-task-view="timeline" role="tab" aria-selected="false" aria-controls="ha-task-feed"><span class="material-symbols-outlined" aria-hidden="true">timeline</span> Timeline</button>
   </div>
   <div id="ha-task-feed" class="ha-task-feed" aria-live="polite"></div>
+</section>
+<section id="ha-plan-day" class="ha-day-workspace" role="tabpanel" aria-labelledby="ha-plan-day-tab" hidden>
+  <header class="ha-day-heading"><div><p class="ha-plan-kicker">YOUR DAILY WORKSPACE</p><h2>Day by day<span>.</span></h2><p>Habits, tasks, notes and focus — together.</p></div></header>
+  <div class="ha-day-datebar"><button type="button" data-day-action="prev" aria-label="Previous day"><span class="material-symbols-outlined">chevron_left</span></button><input id="ha-day-date" type="date" aria-label="Choose day"><button type="button" data-day-action="next" aria-label="Next day"><span class="material-symbols-outlined">chevron_right</span></button><button type="button" data-day-action="today" class="ha-day-today">Today</button></div>
+  <div id="ha-day-metrics" class="ha-day-metrics" aria-live="polite"></div>
+  <div id="ha-day-content" class="ha-day-content"></div>
+  <div class="ha-day-bottom">
+    <section class="ha-day-focus" aria-label="Focus timer"><header><span class="material-symbols-outlined">timer</span><h3>Focus Mode</h3></header><p>Start a focused session. The timer continues across tabs.</p><div class="ha-day-focus-clock" id="ha-focus-clock" role="timer">25:00</div><div class="ha-day-focus-options"><label>Duration<select id="ha-focus-length"><option value="15">15 min</option><option value="25" selected>25 min</option><option value="45">45 min</option></select></label><label>Task<select id="ha-focus-task"><option value="">General focus</option></select></label></div><div class="ha-day-focus-buttons"><button data-day-action="start-focus" type="button">Start focus</button><button data-day-action="pause-focus" type="button" hidden>Pause</button><button data-day-action="resume-focus" type="button" hidden>Resume</button><button data-day-action="reset-focus" type="button" hidden>Reset</button></div><p id="ha-focus-message" role="status" aria-live="polite"></p></section>
+    <section class="ha-day-week" aria-label="Weekly review"><header><span class="material-symbols-outlined">query_stats</span><h3>7-day review</h3></header><div id="ha-week-stats" class="ha-week-stats"></div><p>Focus history and notes currently stay on this device.</p></section>
+  </div>
 </section>
 <dialog id="ha-task-dialog" class="ha-task-dialog" aria-labelledby="ha-task-dialog-title">
   <form id="ha-task-form">

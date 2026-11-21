@@ -295,6 +295,22 @@
         let analyticsModulePromise = null;
         let notesModulePromise = null;
         let notesStylesPromise = null;
+        let workspaceStylesPromise = null;
+        function ensureWorkspaceStyles() {
+            if (document.querySelector('link[href="day-workspace.css"]')) return Promise.resolve();
+            if (workspaceStylesPromise) return workspaceStylesPromise;
+            workspaceStylesPromise = new Promise((resolve,reject) => {
+                const link=document.createElement('link');
+                link.rel='stylesheet';link.href='day-workspace.css';
+                link.addEventListener('load',resolve,{once:true});
+                link.addEventListener('error',()=>{
+                    link.remove();workspaceStylesPromise=null;
+                    reject(new Error('Daily workspace stylesheet failed'));
+                },{once:true});
+                document.head.appendChild(link);
+            });
+            return workspaceStylesPromise;
+        }
         let plannerStylesPromise = null;
         function ensurePlannerStyles() {
             if (document.querySelector('link[href="plan-tasks.css"]')) return Promise.resolve();
@@ -418,10 +434,11 @@
                     location.href = targetUrl.href;
                     return;
                 }
-                if (targetPage === 'Notes.html' || targetPage === 'Habits.html') {
+                if (targetPage === 'Notes.html' || targetPage === 'Habits.html' || targetPage === 'Dashboard.html') {
                     try {
                         if (targetPage === 'Notes.html') await ensureNotesStyles();
-                        else await ensurePlannerStyles();
+                        if (targetPage === 'Habits.html') await Promise.all([ensurePlannerStyles(),ensureWorkspaceStyles()]);
+                        if (targetPage === 'Dashboard.html') await ensureWorkspaceStyles();
                         if (seq !== navSequence) return;
                     } catch {
                         location.href = targetUrl.href;

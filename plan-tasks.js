@@ -1,4 +1,5 @@
 import { taskStore, localDay, newTask, updateTask, toggleSubtask, groupTasks, timelineDays } from './task-store.js';
+import { mountDay, unmountDay, showDate } from './day-workspace.js';
 
 const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, char => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
@@ -90,7 +91,7 @@ function renderTimeline(tasks) {
     const complete = day.tasks.filter(task => task.completed).length;
     const today = day.date === localDay();
     return '<section class="ha-task-day' + (today ? ' is-today' : '') + '" aria-label="' + escapeHTML(labelDate(day.date)) + '">' +
-      '<div class="ha-task-day-head"><span class="ha-task-day-dot" aria-hidden="true"></span><h3>' + escapeHTML(labelDate(day.date)) + '</h3>' +
+      '<div class="ha-task-day-head"><span class="ha-task-day-dot" aria-hidden="true"></span><h3><button class="ha-task-day-open" type="button" data-task-action="open-day" data-due-date="' + day.date + '" aria-label="Open daily planner for ' + escapeHTML(labelDate(day.date)) + '">' + escapeHTML(labelDate(day.date)) + '</button></h3>' +
       (today ? '<span class="ha-task-today-label">TODAY</span>' : '') +
       '<span class="ha-task-day-progress">' + complete + '/' + day.tasks.length + '</span></div>' +
       (day.tasks.length
@@ -124,10 +125,11 @@ export function mount() {
   const root = document.getElementById('ha-plan-overview');
   const panelHabits = document.getElementById('ha-plan-habits');
   const panelTasks = document.getElementById('ha-plan-tasks');
+  const panelDay = document.getElementById('ha-plan-day');
   const feed = document.getElementById('ha-task-feed');
   const form = document.getElementById('ha-task-form');
   const dialog = document.getElementById('ha-task-dialog');
-  if (!root || !panelHabits || !panelTasks || !feed || !form || !dialog) return;
+  if (!root || !panelHabits || !panelTasks || !panelDay || !feed || !form || !dialog) return;
   if (active?.root === root) return;
   unmount();
 
@@ -135,7 +137,10 @@ export function mount() {
   const signal = controller.signal;
   const $ = (selector) => document.querySelector(selector);
   let editing = null;
-  let mode = readOption('ha-plan-mode', 'habits') === 'tasks' ? 'tasks' : 'habits';
+  const urlParams = new URLSearchParams(location.search);
+  const sectionFromUrl = urlParams.get('section');
+  let mode = ['habits','tasks','day'].includes(sectionFromUrl) ? sectionFromUrl : readOption('ha-plan-mode','habits');
+  if (!['habits','tasks','day'].includes(mode)) mode='habits';
   let view = readOption('ha-task-view', 'all') === 'timeline' ? 'timeline' : 'all';
   let mounted = true;
   const statusEl = $('#ha-task-status');
@@ -159,6 +164,9 @@ export function mount() {
   function updateMode() {
     panelHabits.hidden = mode !== 'habits';
     panelTasks.hidden = mode !== 'tasks';
+    panelDay.hidden = mode !== 'day';
+    if(mode === 'day') mountDay(panelDay);
+    else unmountDay();
     root.querySelectorAll('[data-plan-mode]').forEach(button => {
       const chosen = button.dataset.planMode === mode;
       button.setAttribute('aria-selected', String(chosen));
@@ -254,6 +262,9 @@ export function mount() {
     const target = event.target.closest('[data-task-action]');
     if (!target || !panelTasks.contains(target)) return;
     const action = target.dataset.taskAction;
+    if (action === 'open-day') {
+      mode='day';writeOption('ha-plan-mode',mode);updateMode();showDate(target.dataset.dueDate);return;
+    }
     if (action === 'new') {
       openEditor(null, target.dataset.dueDate || '');
       return;
@@ -299,12 +310,15 @@ export function mount() {
   window.addEventListener('habitarc:data-changed', render, { signal });
   updateMode();
   taskStore.start();
+  if(urlParams.get('new') === '1')openEditor(null,urlParams.get('date')||'');
+  if(mode==='day' && urlParams.get('date'))showDate(urlParams.get('date'));
   active = {
     root,
     destroy() {
       mounted = false;
       controller.abort();
       unsubscribeStore();
+      unmountDay();
       if (dialog.open) dialog.close();
     }
   };

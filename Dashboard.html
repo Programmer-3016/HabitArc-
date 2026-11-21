@@ -135,6 +135,7 @@
         .pop { animation: pop 0.3s ease; }
     </style>
 <link rel="stylesheet" href="app-ui.css"/>
+<link rel="stylesheet" href="day-workspace.css"/>
 <script src="app-ui.js"></script>
 </head>
 <body class="bg-background text-on-background antialiased min-h-screen flex flex-col relative overflow-x-hidden">
@@ -250,6 +251,16 @@
                 <p><span id="longest-streak">0</span><span class="ha-dashboard-unit">days</span></p>
             </div>
         </div>
+    </section>
+
+    <section id="ha-day-dashboard-peek" class="ha-day-dashboard-peek" aria-label="Today at a glance">
+      <div class="ha-day-peek-header">
+        <div><p class="ha-plan-kicker">DAY AT A GLANCE</p><h2>Your day, simplified.</h2></div>
+        <a href="Habits.html?section=day" class="ha-day-peek-open">Open planner <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+      </div>
+      <div id="ha-day-dashboard-stats" class="ha-day-peek-metrics" aria-live="polite">
+        <span><strong>—</strong> habits</span><span><strong>—</strong> tasks</span><span><strong>—</strong> focus</span>
+      </div>
     </section>
 
     <!-- ─── Today's Habits ──────────────────────────── -->
@@ -479,5 +490,8 @@
         // Keep the local profile name available when Firebase is offline.
     });
 })();
+if (window.HabitArc?.getHabits && document.getElementById('ha-day-dashboard-peek')) {
+    import('./day-workspace.js').then(mod => mod.mountDashboard()).catch(error => console.warn('Day summary unavailable:', error));
+}
 </script>
 </body></html>

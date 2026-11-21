@@ -1,0 +1,84 @@
+/* Daily workspace — follows HabitArc's cream, lavender and ink treatment. */
+#ha-plan-day[hidden],
+.ha-day-focus-buttons button[hidden]{display:none!important}
+.ha-day-workspace{color:rgb(var(--ha-on-surface,18 18 21));max-width:100%}
+.ha-day-heading{margin-bottom:20px}
+.ha-day-heading h2{font:800 clamp(30px,6vw,43px)/1.1 'Hanken Grotesk',sans-serif;letter-spacing:-.045em;margin:7px 0}
+.ha-day-heading h2 span{color:rgb(var(--ha-primary,124 58 237))}
+.ha-day-heading p:last-child{font-size:13px;color:rgb(var(--ha-on-surface-variant,82 82 91))}
+.ha-day-datebar{display:flex;align-items:center;gap:8px;margin-bottom:19px}
+.ha-day-datebar button,.ha-day-datebar input{height:40px;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));background:rgb(var(--ha-surface,255 255 255));color:inherit;border-radius:11px;padding:7px 10px;font-weight:700}
+.ha-day-datebar button{display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+.ha-day-datebar input{min-width:0;max-width:235px;flex:1}
+.ha-day-datebar .ha-day-today{background:rgb(var(--ha-primary-container,196 181 253));font-size:12px;padding-inline:14px}
+.ha-day-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:21px}
+.ha-day-metrics>div{background:rgb(var(--ha-primary-container,196 181 253) / .48);border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:14px;padding:13px 14px;display:grid;gap:3px}
+.ha-day-metrics .material-symbols-outlined{font-size:18px}
+.ha-day-metrics strong{font-size:clamp(20px,3vw,27px);font-weight:800;letter-spacing:-.04em}
+.ha-day-metrics small{font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91));font-weight:650}
+.ha-day-content{display:grid;gap:18px}
+.ha-day-section{border:2px solid rgb(var(--ha-outline-variant,18 18 21));background:rgb(var(--ha-surface-container-lowest,255 255 255));box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215);border-radius:17px;overflow:hidden}
+.ha-day-section header{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid rgb(var(--ha-outline-variant,18 18 21)/.24);padding:13px 16px}
+.ha-day-section header h3{display:flex;align-items:center;gap:8px;margin:0;font-size:16px;font-weight:800;letter-spacing:-.025em}
+.ha-day-section header h3 .material-symbols-outlined{font-size:20px;color:rgb(var(--ha-primary,124 58 237))}
+.ha-day-section header a{font-size:12px;font-weight:800;color:rgb(var(--ha-primary,124 58 237));text-decoration:none;white-space:nowrap}
+.ha-day-section-body{padding:3px 15px}
+.ha-day-empty{padding:22px 2px;font-size:12px;color:rgb(var(--ha-on-surface-variant,82 82 91))}
+.ha-day-item{display:flex;align-items:center;gap:12px;padding:12px 0;text-decoration:none;color:inherit;min-width:0}
+.ha-day-item+.ha-day-item{border-top:1px solid rgb(var(--ha-outline-variant,18 18 21)/.18)}
+.ha-day-item-icon{background:rgb(var(--ha-primary-container,196 181 253)/.38);padding:8px;border-radius:10px;font-size:20px}
+.ha-day-item-copy{display:grid;flex:1;min-width:0;gap:3px}
+.ha-day-item-copy strong{font-size:14px;overflow-wrap:anywhere}
+.ha-day-item-copy small{color:rgb(var(--ha-on-surface-variant,82 82 91));font-size:11px}
+.ha-day-item button{border:0;background:transparent;color:rgb(var(--ha-primary,124 58 237));padding:4px;cursor:pointer}
+.ha-day-item button .material-symbols-outlined{font-size:26px}
+.ha-day-done{text-decoration:line-through;opacity:.65}
+.ha-day-bottom{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:23px}
+.ha-day-focus,.ha-day-week{border:2px solid rgb(var(--ha-outline-variant,18 18 21));background:rgb(var(--ha-surface-container-lowest,255 255 255));border-radius:17px;padding:20px}
+.ha-day-focus{background:rgb(var(--ha-primary-container,196 181 253)/.45)}
+.ha-day-focus header,.ha-day-week header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ha-day-focus header .material-symbols-outlined,.ha-day-week header .material-symbols-outlined{color:rgb(var(--ha-primary,124 58 237))}
+.ha-day-focus h3,.ha-day-week h3{font-size:17px;font-weight:800;margin:0}
+.ha-day-focus>p,.ha-day-week>p{font-size:12px;line-height:1.5;color:rgb(var(--ha-on-surface-variant,82 82 91))}
+.ha-day-focus-clock{font:800 clamp(36px,5vw,49px)/1.3 'Hanken Grotesk',sans-serif;letter-spacing:-.06em;margin:13px 0;text-align:center;font-variant-numeric:tabular-nums}
+.ha-day-focus-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ha-day-focus-options label{font-size:11px;font-weight:800;display:grid;gap:6px}
+.ha-day-focus-options select{width:100%;min-width:0;padding:7px;background:rgb(var(--ha-surface,255 255 255));color:inherit;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:9px}
+.ha-day-focus-buttons{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.ha-day-focus-buttons button{flex:1;min-width:75px;padding:10px 9px;background:rgb(var(--ha-on-surface,18 18 21));color:rgb(var(--ha-surface,255 255 255));border:0;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
+.ha-day-focus-buttons button[data-day-action="reset-focus"]{background:transparent;color:rgb(var(--ha-on-surface,18 18 21));border:1.5px solid rgb(var(--ha-outline-variant,18 18 21))}
+.ha-week-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:20px 0 12px}
+.ha-week-stats>div{background:rgb(var(--ha-surface-container-low,244 242 239));border-radius:11px;padding:12px;display:grid;gap:4px}
+.ha-week-stats strong{font-size:21px;font-weight:800;letter-spacing:-.03em}
+.ha-week-stats span{font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91))}
+.ha-day-dashboard-peek{margin:24px 0 0;padding:18px 20px;border:2px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:16px;background:rgb(var(--ha-surface-container-lowest,255 255 255));box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215)}
+.ha-day-peek-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ha-day-peek-header h2{font-size:20px;line-height:1.2;font-weight:800;letter-spacing:-.025em;margin:6px 0 0}
+.ha-day-peek-open{display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-size:12px;font-weight:800;color:rgb(var(--ha-primary,124 58 237));white-space:nowrap}
+.ha-day-peek-open .material-symbols-outlined{font-size:18px}
+.ha-day-peek-metrics{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:14px}
+.ha-day-peek-metrics span{display:flex;align-items:center;gap:5px;font-size:12px;background:rgb(var(--ha-primary-container,196 181 253)/.35);padding:7px 9px;border-radius:10px}
+.ha-day-peek-metrics strong{font-size:15px;font-weight:800}
+@media(max-width:767px){
+ .ha-day-bottom{grid-template-columns:1fr}
+ .ha-day-datebar{gap:5px}
+ .ha-day-datebar button{padding:7px 8px}
+ .ha-day-metrics>div{padding:12px 10px}
+ .ha-day-peek-header h2{font-size:17px}
+ .ha-day-section header{padding:12px}
+ .ha-day-section-body{padding:2px 12px}
+}
+@media(max-width:360px){
+ .ha-day-focus-options{grid-template-columns:1fr}
+ .ha-day-metrics{gap:6px}
+ .ha-day-datebar input{font-size:12px}
+ .ha-day-peek-open{font-size:10px}
+}
+
+/* Three modes fit on narrow Android PWA widths without adding a sixth dock tab. */
+.ha-plan-modes{grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,620px)}
+@media(max-width:767px){
+ .ha-plan-modes{gap:3px;padding:4px}
+ .ha-plan-modes button{min-width:0;gap:4px;padding:7px 3px;font-size:12px}
+ .ha-plan-modes button .material-symbols-outlined{font-size:17px}
+}
