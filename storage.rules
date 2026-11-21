@@ -1,0 +1,20 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/notes/{noteId}/{kind} {
+      function owner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      allow read, delete: if owner();
+      allow create, update: if owner() && (
+        (kind == 'photo'
+          && request.resource.size <= 5 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*'))
+        ||
+        (kind == 'audio'
+          && request.resource.size <= 8 * 1024 * 1024
+          && request.resource.contentType.matches('audio/.*'))
+      );
+    }
+  }
+}
