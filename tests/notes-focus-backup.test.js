@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createNotesSync } from '../notes-cloud.js';
+import { buildPersonalArchive } from '../data-backup.js';
 
 const source = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -114,4 +115,26 @@ test('PWA caches sync and export modules and the Settings backup is not a dead l
   assert.match(settings,/import\('\.\/data-backup\.js'\)/);
   assert.match(source('firebase-auth.js'),/saveFocusSession/);
   assert.match(source('focus-store.js'),/startFocusCloudSync/);
+});
+
+test('Complete backup includes local habit, task and focus data for current account',async()=>{
+  const oldWindow=globalThis.window;
+  const oldStore=globalThis.localStorage;
+  try{
+    const values={
+      'habitarc_data:test-owner':JSON.stringify({habits:[{id:'h1',name:'Walk'}],settings:{theme:'light'}}),
+      'habitarc_tasks_data:test-owner':JSON.stringify([{id:'t1',title:'Plan'}]),
+      'habitarc_focus_v1:test-owner':JSON.stringify({active:null,sessions:[{id:'f1',minutes:15}]})
+    };
+    globalThis.window={HabitArc:{getAuthUser:()=>({uid:'test-owner'})}};
+    globalThis.localStorage={getItem:key=>values[key]||null};
+    const backup=await buildPersonalArchive();
+    assert.equal(backup.type,'habitarc-personal-archive');
+    assert.equal(backup.owner,'test-owner');
+    assert.equal(backup.habits.habits[0].name,'Walk');
+    assert.equal(backup.tasks[0].title,'Plan');
+    assert.equal(backup.focus.sessions[0].minutes,15);
+  }finally{
+    globalThis.window=oldWindow;globalThis.localStorage=oldStore;
+  }
 });
