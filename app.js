@@ -1217,6 +1217,8 @@ const HabitArc = (() => {
         return {
             dailyReminder: Boolean(settings.dailyReminder),
             weeklySummary: Boolean(settings.weeklySummary),
+            taskAlerts: Boolean(settings.taskAlerts),
+            morningPlan: Boolean(settings.morningPlan),
             supported,
             permission,
             delivery: supported && permission === 'granted' ? 'while-open' : 'permission-required'
@@ -1231,7 +1233,11 @@ const HabitArc = (() => {
                 : current.dailyReminder,
             weeklySummary: typeof updates.weeklySummary === 'boolean'
                 ? updates.weeklySummary
-                : current.weeklySummary
+                : current.weeklySummary,
+            taskAlerts: typeof updates.taskAlerts === 'boolean'
+                ? updates.taskAlerts : current.taskAlerts,
+            morningPlan: typeof updates.morningPlan === 'boolean'
+                ? updates.morningPlan : current.morningPlan
         };
 
         updateSettings(next);
@@ -1324,7 +1330,8 @@ const HabitArc = (() => {
 
         const preferences = getReminderPreferences();
         if (!preferences.supported || preferences.permission !== 'granted') return;
-        if (!preferences.dailyReminder && !preferences.weeklySummary) return;
+        if (!preferences.dailyReminder && !preferences.weeklySummary &&
+            !preferences.taskAlerts && !preferences.morningPlan) return;
 
         reminderCheckRunning = true;
         try {
@@ -1353,6 +1360,41 @@ const HabitArc = (() => {
                         tag: `habit-${habit.id}-${today}`,
                         renotify: false,
                         data: { url: '/Dashboard.html' }
+                    });
+                }
+            }
+
+            // Local task reminders. Tasks have a due DATE, not a due time:
+            // show a daily digest instead of falsely claiming timed deadline alerts.
+            // Browser/PWA must be running; background pushes need a server.
+            if (preferences.taskAlerts || preferences.morningPlan) {
+                let tasks = [];
+                try {
+                    const module = await import('./task-store.js');
+                    module.taskStore.start();
+                    if (module.taskStore.getStatus().owner === (activeUserId || 'local')) {
+                        tasks = module.taskStore.getTasks().filter(task => !task.completed);
+                    }
+                } catch (error) {
+                    console.warn('HabitArc: task reminder unavailable', error);
+                }
+                const overdue = tasks.filter(task => task.dueDate && task.dueDate < today).length;
+                const dueToday = tasks.filter(task => task.dueDate === today).length;
+                if (preferences.morningPlan && nowMinutes >= 8*60
+                    && !_hasReminderReceipt('planner','morning',today)) {
+                    const habitsToday = getTodayHabits();
+                    await _deliverReminder('planner','morning',today,'Your HabitArc daily plan', {
+                        body: habitsToday.length+' habits scheduled · '+dueToday+' tasks due today.',
+                        icon:'/logo.png',badge:'/logo.png',tag:'daily-plan-'+today,
+                        renotify:false,data:{url:'/Habits.html'}
+                    });
+                }
+                if (preferences.taskAlerts && nowMinutes >= 9*60 &&
+                    (dueToday || overdue) && !_hasReminderReceipt('tasks','digest',today)) {
+                    await _deliverReminder('tasks','digest',today,'Tasks need your attention', {
+                        body:dueToday+' due today · '+overdue+' overdue. Open Plan to review.',
+                        icon:'/logo.png',badge:'/logo.png',tag:'task-digest-'+today,
+                        renotify:false,data:{url:'/Habits.html'}
                     });
                 }
             }
