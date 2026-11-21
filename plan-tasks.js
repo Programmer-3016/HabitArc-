@@ -1,5 +1,6 @@
 import { taskStore, localDay, newTask, updateTask, toggleSubtask, groupTasks, timelineDays } from './task-store.js';
 import { mountDay, unmountDay, showDate } from './day-workspace.js';
+import { mountRescueMode } from './rescue-mode.js';
 
 const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, char => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
@@ -139,7 +140,8 @@ export function mount() {
   let editing = null;
   const urlParams = new URLSearchParams(location.search);
   const sectionFromUrl = urlParams.get('section');
-  let mode = ['habits','tasks','day'].includes(sectionFromUrl) ? sectionFromUrl : readOption('ha-plan-mode','habits');
+  let mode = urlParams.get('rescue') === '1' ? 'tasks'
+    : ['habits','tasks','day'].includes(sectionFromUrl) ? sectionFromUrl : readOption('ha-plan-mode','habits');
   if (!['habits','tasks','day'].includes(mode)) mode='habits';
   let view = readOption('ha-task-view', 'all') === 'timeline' ? 'timeline' : 'all';
   let mounted = true;
@@ -312,6 +314,11 @@ export function mount() {
   taskStore.start();
   if(urlParams.get('new') === '1')openEditor(null,urlParams.get('date')||'');
   if(mode==='day' && urlParams.get('date'))showDate(urlParams.get('date'));
+  const stopRescue=mountRescueMode({
+    launcher:document.getElementById('ha-rescue-open'),
+    dialog:document.getElementById('ha-rescue-dialog'),
+    autoOpen:urlParams.get('rescue')==='1'
+  });
   active = {
     root,
     destroy() {
@@ -319,6 +326,7 @@ export function mount() {
       controller.abort();
       unsubscribeStore();
       unmountDay();
+      stopRescue();
       if (dialog.open) dialog.close();
     }
   };
