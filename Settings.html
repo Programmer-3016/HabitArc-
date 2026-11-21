@@ -444,6 +444,18 @@
 <span class="material-symbols-outlined text-sm text-on-surface-variant">download</span>
 </button>
 <p id="backup-download-status" role="status" aria-live="polite" class="text-xs text-on-surface-variant px-5 py-2">The exported JSON file is unencrypted. Store it privately. Automatic restore is not available yet.</p>
+<!-- Safe merge-only archive restore. Never overwrite existing records. -->
+<div class="px-5 py-4 border-b border-outline-variant/30">
+  <label for="restore-backup-file" class="flex items-center gap-2 font-bold text-on-surface cursor-pointer">
+    <span class="material-symbols-outlined text-primary-container" aria-hidden="true">settings_backup_restore</span>
+    Restore Personal Backup
+  </label>
+  <p class="text-xs text-on-surface-variant mt-2">Choose a HabitArc JSON file. Preview changes first; your current records are never overwritten. Must match your signed-in account.</p>
+  <input id="restore-backup-file" type="file" accept=".json,application/json" class="mt-3 block w-full text-sm text-on-surface-variant" aria-describedby="restore-backup-status"/>
+  <p id="restore-backup-preview" class="mt-3 p-3 rounded-xl bg-primary-fixed/20 text-sm text-on-surface" hidden></p>
+  <button id="restore-backup-apply" type="button" disabled class="mt-3 px-4 py-2 border-2 border-outline rounded-xl bg-primary-fixed text-on-primary-fixed-variant font-bold disabled:opacity-45">Approve Merge Restore</button>
+  <p id="restore-backup-status" role="status" aria-live="polite" class="text-xs text-on-surface-variant mt-2">Nothing changes until you explicitly approve.</p>
+</div>
 <!-- Reset App -->
 <button id="reset-data-btn" type="button" class="w-full flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors text-left">
 <div class="flex items-center gap-element-gap">
@@ -729,6 +741,12 @@ if(document.getElementById('download-backup-btn')) {
   import('./data-backup.js').then(module => module.mountBackup()).catch(error => {
     console.warn('HabitArc backup module failed to load.',error);
     document.getElementById('backup-download-status').textContent='Backup unavailable. Try reopening Settings.';
+  });
+}
+if(document.getElementById('restore-backup-file')) {
+  import('./data-restore.js').then(module => module.mountRestore()).catch(error => {
+    console.warn('HabitArc restore module failed to load.',error);
+    document.getElementById('restore-backup-status').textContent='Restore module unavailable. Reopen Settings.';
   });
 }
 </script>
