@@ -69,6 +69,10 @@ test('Both top tab groups remain operable at 320px and 480px',()=>{
   assert.match(css,/@media \(max-width:359px\)/);
   assert.match(css,/\.lb-controls \.lb-filters\s*\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css,/\.lb-view-switch button\s*\{[^}]*min-height:46px/);
+  assert.match(html,/lb-mobile-topbar/);
+  assert.match(html,/lb-desktop-topbar/);
+  assert.match(css,/\.lb-desktop-topbar nav\s*\{[^}]*overflow-x:auto/);
+  assert.match(css,/\.lb-mobile-topbar\s*\{[^}]*padding-inline:10px/);
 });
 test('Treasure scope and PWA refresh stay isolated',()=>{
  const html=read('Leaderboard.html'),worker=read('sw.js'),css=read('leaderboard.css');
