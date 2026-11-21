@@ -1,7 +1,7 @@
 // Offline-capable app-shell service worker for HabitArc PWA.
 // Network-first keeps online HTML, scripts, and authenticated state fresh;
 // only static UI runtime CDNs and same-origin app shell assets fall back offline.
-const CACHE_NAME = 'habitarc-shell-v18';
+const CACHE_NAME = 'habitarc-shell-v19';
 const CDN_CACHE_NAME = 'habitarc-cdn-v1';
 const OFFLINE_URL = '/offline.html';
 const SHELL_ASSETS = [
@@ -12,6 +12,8 @@ const SHELL_ASSETS = [
   '/Notes.html',
   '/notes-studio.css',
   '/notes-studio.js',
+  '/notes-cloud.js',
+  '/data-backup.js',
   '/task-store.js',
   '/plan-tasks.js',
   '/plan-tasks.css',

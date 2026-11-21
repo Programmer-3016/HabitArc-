@@ -1,6 +1,6 @@
 /* Day workspace composes existing account-scoped Habits, Tasks and browser Notes. */
 import { taskStore, localDay, updateTask } from './task-store.js';
-import { getFocusState, startFocus, pauseFocus, resumeFocus, cancelFocus, minutesOn } from './focus-store.js';
+import { getFocusState, startFocus, pauseFocus, resumeFocus, cancelFocus, minutesOn, startFocusCloudSync, getFocusSyncStatus } from './focus-store.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=(selector,root=document)=>root.querySelector(selector);
@@ -102,7 +102,9 @@ function renderFocus(root) {
    el.hidden=action==='start-focus'?Boolean(a):action==='pause-focus'?(!a||a.status!=='running'):action==='resume-focus'?(!a||a.status!=='paused'):!a;
  }
  select.disabled=Boolean(a);task.disabled=Boolean(a);
- $('#ha-focus-message',root).textContent=a?(a.status==='running'?'Focus running · stays active across tabs.':'Paused · resume when ready.'):'Only finished sessions count towards your review.';
+ const sync=getFocusSyncStatus();
+ $('#ha-focus-message',root).textContent=(a?(a.status==='running'?'Focus running · stays active across tabs.':'Paused · resume when ready.'):'Only finished sessions count towards your review.')
+  +' · '+sync.message;
 }
 export function mountDay(root=document.getElementById('ha-plan-day')) {
  if(!root||!root.isConnected)return;
@@ -177,10 +179,12 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
  dateInput.addEventListener('change',()=>setDay(dateInput.value),{signal});
  window.addEventListener('habitarc:data-changed',render,{signal});
  window.addEventListener('habitarc:focus-changed',render,{signal});
+ window.addEventListener('habitarc:focus-sync-status',()=>renderFocus(root),{signal});
  window.addEventListener('habitarc:open-day',event=>setDay(event.detail?.date),{signal});
  window.addEventListener('habitarc-auth-state-changed',loadNotes,{signal});
  const unsubscribe=taskStore.subscribe(render);
  taskStore.start();
+ startFocusCloudSync();
  const clock=setInterval(()=>{
    if(!live||!root.isConnected)return;
    // Only update the timer clock each second, not the entire day UI.
@@ -212,6 +216,7 @@ export function mountDashboard(root=document.getElementById('ha-day-dashboard-pe
  };
  const unsubscribe=taskStore.subscribe(render);
  taskStore.start();
+ startFocusCloudSync();
  window.addEventListener('habitarc:data-changed',render,{signal});
  window.addEventListener('habitarc:focus-changed',render,{signal});
  render();

@@ -37,6 +37,8 @@ function finalize(data, at = now()) {
         taskId:a.taskId||'',
         completedAt:new Date(a.endAt).toISOString()
       });
+      // Journal completion before clearing timer, including while offline.
+      queueFocus(data.sessions[data.sessions.length-1]);
     }
     data.active=null;
     write(data);
@@ -104,4 +106,97 @@ export function minutesOn(date) {
 }
 export function focusMinutesBetween(start,end) {
   return getFocusState().sessions.reduce((sum,s)=>sum+(s.date>=start && s.date<=end?Number(s.minutes)||0:0),0);
+}
+
+
+// Completed-session cloud sync. The active timer stays device-local;
+// only finished sessions are uploaded and merged across signed-in devices.
+const FOCUS_PENDING='habitarc_focus_pending_v1:';
+const FOCUS_MIGRATED='habitarc_focus_migrated_v1:';
+let focusCloudStarted=false,focusClient=null,focusUnsubscribe=null,focusAuthUnsubscribe=null;
+let focusCloudOwner='local',focusPending={},focusFlushing=false;
+let focusCloudStatus={state:'local',pending:0,message:'Focus history saved on this device'};
+const validUid=uid=>uid&&uid!=='local';
+const parseJSON=(raw,fallback)=>{try{return JSON.parse(raw)||fallback;}catch{return fallback;}};
+function updateCloudStatus(state,message=''){
+  focusCloudStatus={state,pending:Object.keys(focusPending).length,
+    message:message||(state==='synced'?'Focus history synced':
+      state==='offline'?'Offline · Focus sessions queued':
+      state==='syncing'?'Focus sessions backing up…':
+      state==='error'?'Focus saved locally · Cloud sync unavailable':
+      'Focus history saved on this device')};
+  window.dispatchEvent?.(new CustomEvent('habitarc:focus-sync-status',{detail:focusCloudStatus}));
+}
+export function getFocusSyncStatus(){return {...focusCloudStatus};}
+function queueFocus(record,uid=owner()){
+  if(!validUid(uid)||!record?.id)return;
+  const key=FOCUS_PENDING+uid;
+  const operations=parseJSON(localStorage.getItem(key),{});
+  operations[record.id]=record;
+  localStorage.setItem(key,JSON.stringify(operations));
+  if(focusCloudOwner===uid){focusPending=operations;updateCloudStatus('syncing');void flushFocus();}
+}
+function persistFocusPending(){localStorage.setItem(FOCUS_PENDING+focusCloudOwner,JSON.stringify(focusPending));}
+async function flushFocus(){
+  if(focusFlushing||!focusClient||!validUid(focusCloudOwner)||navigator.onLine===false)return;
+  if(focusClient.getCurrentUser?.()?.uid!==focusCloudOwner)return;
+  const uid=focusCloudOwner;
+  focusFlushing=true;
+  try{
+    for(const [sessionId,record] of Object.entries(focusPending)){
+      if(uid!==focusCloudOwner||focusClient.getCurrentUser?.()?.uid!==uid||navigator.onLine===false)break;
+      await focusClient.saveFocusSession(record);
+      if(uid===focusCloudOwner&&focusPending[sessionId]===record){
+        delete focusPending[sessionId];persistFocusPending();
+      }
+    }
+    if(uid===focusCloudOwner)updateCloudStatus(Object.keys(focusPending).length?'syncing':'synced');
+  }catch(error){
+    if(uid===focusCloudOwner)updateCloudStatus('error',error?.code==='permission-denied'
+      ? 'Focus Firestore rules need deployment' : 'Focus saved locally · Cloud sync unavailable');
+  }finally{focusFlushing=false;}
+}
+async function activateFocus(uid){
+  const target=validUid(uid)?uid:'local';
+  focusUnsubscribe?.();focusUnsubscribe=null;
+  focusCloudOwner=target;
+  if(!validUid(target)){focusPending={};updateCloudStatus('local');return;}
+  focusPending=parseJSON(localStorage.getItem(FOCUS_PENDING+target),{});
+  if(localStorage.getItem(FOCUS_MIGRATED+target)!=='1'){
+    const saved=read();
+    for(const record of saved.sessions){
+      if(!focusPending[record.id])focusPending[record.id]=record;
+    }
+    persistFocusPending();
+    localStorage.setItem(FOCUS_MIGRATED+target,'1');
+  }
+  updateCloudStatus(navigator.onLine===false?'offline':'syncing');
+  if(!focusClient?.getCurrentUser?.()||focusClient.getCurrentUser().uid!==target)return;
+  focusUnsubscribe=focusClient.subscribeFocusSessions((remote,metadata)=>{
+    if(focusCloudOwner!==target)return;
+    const data=read(),seen=new Set(data.sessions.map(r=>r.id));
+    let modified=false;
+    for(const item of remote){
+      if(item?.id&&!seen.has(item.id)&&!focusPending[item.id]){
+        data.sessions.push(item);seen.add(item.id);modified=true;
+      }
+    }
+    if(modified)write({...data,sessions:data.sessions.slice(-500)});
+    updateCloudStatus(Object.keys(focusPending).length?'syncing':'synced');
+    if(navigator.onLine!==false)void flushFocus();
+  },error=>{if(focusCloudOwner===target)updateCloudStatus('error',error?.code==='permission-denied'
+    ? 'Deploy Focus Firestore rules for backup' : 'Focus saved locally · Cloud unavailable');});
+  void flushFocus();
+}
+export function startFocusCloudSync(){
+  if(focusCloudStarted)return;
+  focusCloudStarted=true;
+  window.addEventListener('online',()=>{void flushFocus();});
+  window.addEventListener('offline',()=>updateCloudStatus('offline'));
+  void Promise.resolve(window.HabitArc?.whenAuthReady?.()).then(()=>window.HabitArcAuthReady).then(client=>{
+    if(!client){updateCloudStatus('local');return;}
+    focusClient=client;
+    // subscribe() delivers the initial identity too.
+    focusAuthUnsubscribe=client.subscribe(user=>{void activateFocus(user?.uid||'local');});
+  }).catch(()=>updateCloudStatus('local','Focus saved locally · Sign-in unavailable'));
 }

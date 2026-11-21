@@ -435,14 +435,15 @@
 </div>
 <span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
 </button>
-<!-- Backup -->
-<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<!-- Complete local backup; cloud sync runs separately when rules are deployed. -->
+<button id="download-backup-btn" type="button" class="w-full flex items-center justify-between p-card-padding border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors text-left">
 <div class="flex items-center gap-element-gap">
-<span class="material-symbols-outlined text-primary-container">cloud_sync</span>
-<span class="font-body-lg text-body-lg text-on-surface">Backup to Cloud</span>
+<span class="material-symbols-outlined text-primary-container">backup</span>
+<div><span class="font-body-lg text-body-lg text-on-surface">Download Full Backup</span><p class="text-xs text-on-surface-variant mt-1">Habits, Tasks, Notes, photos, audio &amp; Focus history</p></div>
 </div>
-<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
-</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">download</span>
+</button>
+<p id="backup-download-status" role="status" aria-live="polite" class="text-xs text-on-surface-variant px-5 py-2">The exported JSON file is unencrypted. Store it privately. Automatic restore is not available yet.</p>
 <!-- Reset App -->
 <button id="reset-data-btn" type="button" class="w-full flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors text-left">
 <div class="flex items-center gap-element-gap">
@@ -724,5 +725,11 @@
         });
     }
 })();
+if(document.getElementById('download-backup-btn')) {
+  import('./data-backup.js').then(module => module.mountBackup()).catch(error => {
+    console.warn('HabitArc backup module failed to load.',error);
+    document.getElementById('backup-download-status').textContent='Backup unavailable. Try reopening Settings.';
+  });
+}
 </script>
 </body></html>

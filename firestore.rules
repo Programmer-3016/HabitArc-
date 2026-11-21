@@ -45,5 +45,45 @@ service cloud.firestore {
           'createdAt', 'updatedAt', '_updatedAt'
         ]);
     }
+    // Notes contain private user text and Cloud Storage media flags only.
+    match /users/{userId}/notes/{noteId} {
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.id == noteId
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 100
+        && request.resource.data.body is string
+        && request.resource.data.body.size() <= 10000
+        && request.resource.data.date is string
+        && request.resource.data.date.size() <= 10
+        && request.resource.data.createdAt is string
+        && request.resource.data.updatedAt is string
+        && request.resource.data.pinned is bool
+        && request.resource.data.deleted is bool
+        && request.resource.data.hasPhoto is bool
+        && request.resource.data.hasAudio is bool
+        && request.resource.data.color in ['lavender', 'mint', 'peach', 'white']
+        && request.resource.data.keys().hasOnly([
+          'id', 'title', 'body', 'date', 'createdAt', 'updatedAt',
+          'pinned', 'color', 'deleted', 'hasPhoto', 'hasAudio', '_updatedAt'
+        ]);
+    }
+    match /users/{userId}/focusSessions/{sessionId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.id == sessionId
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.minutes is number
+        && request.resource.data.minutes >= 1
+        && request.resource.data.minutes <= 180
+        && request.resource.data.taskId is string
+        && request.resource.data.completedAt is string
+        && request.resource.data.keys().hasOnly([
+          'id', 'date', 'minutes', 'taskId', 'completedAt', '_updatedAt'
+        ]);
+    }
   }
 }
