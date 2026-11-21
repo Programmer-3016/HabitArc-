@@ -23,7 +23,7 @@ Updated: 2026-11-21. Owner must review this checklist before publishing.
    https://support.google.com/googleplay/android-developer/answer/10144311
    https://support.google.com/googleplay/android-developer/answer/13327111
    The current \`privacy.html\` is explicitly an unfinished beta overview, not final policy.
-6. **Reliable background reminders**: The PWA cannot guarantee notifications when fully closed. Implement consent-based FCM/server schedules (or native Android scheduling) before advertising this as a background alarm.
+6. **Reliable background reminders**: An opt-in daily Android Web Push digest is now wired through a browser subscription, VAPID, secure Vercel cron and Firebase Admin backend. **Actual delivery is not active until the Firebase service account is configured in Vercel**, and Hobby cron timing is approximate (08:30–09:30 IST). Precise per-deadline alarms and multi-time-zone retries still require a stronger scheduler/native Android setup. See `PUSH_SETUP.md`.
 7. **Native widgets**: Not implemented. Real Android home-screen widgets require a native widget provider; shortcuts are **not widgets**.
 8. **Test matrix**: Check 320/360/390/412px portrait, landscape, light/dark, low-memory Android WebView/Chrome, keyboard open, slow/offline links, permission denial, service-worker upgrade, and screen reader.
 9. **Publication**: Product screenshots, app store text, age/content declarations, signing, crash monitoring, Android 16KB-page-size if native libraries are used, and Play Console review are pending.
