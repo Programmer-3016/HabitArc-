@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck } from '../habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, cleanArcDisplayText } from '../habit-analytics.js';
 
 const html = readFileSync(new URL('../Arc_AI.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
@@ -73,7 +73,7 @@ function arcAi({ empty = false, signedIn = false } = {}) {
     };
     const body = element();
     vm.runInNewContext(source, {
-        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, Date: Clock, Intl, AbortSignal, AbortController,
+        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, cleanArcDisplayText, Date: Clock, Intl, AbortSignal, AbortController,
         setTimeout, clearTimeout,
         navigator: { onLine: true },
         console: { warn() {} },
@@ -94,7 +94,7 @@ function arcAi({ empty = false, signedIn = false } = {}) {
                         why: 'Anchor bedtime consistency'
                     },
                     usage: { remaining: 6 },
-                    snapshot: { habitCount: 2, dateWindow: { start: '2026-10-18', end: '2026-11-15' }, timeZone: 'UTC', insufficientData: false, truncated: false },
+                    snapshot: { habitCount: 2, totalScheduled: 56, totalLogged: 28, dateWindow: { start: '2026-10-18', end: '2026-11-15' }, timeZone: 'UTC', insufficientData: false, truncated: false },
                 }),
             };
         },
@@ -170,6 +170,7 @@ test('Arc_AI guest guard blocks network calls and authenticated starter card sub
     assert.match(authed.elements.get('ai-coach-answer').innerHTML, /Try reading 10 minutes right after dinner\./);
     assert.match(authed.elements.get('ai-coach-answer').innerHTML, /ARC \/ SIGNAL DECK/);
     assert.match(authed.elements.get('ai-coach-answer').innerHTML, /data-arc-mode="read"/);
+    assert.match(authed.elements.get('ai-coach-answer').innerHTML, /VERIFIED|SYNCED RECORDS/);
     assert.match(authed.elements.get('ai-coach-status').textContent, /6 ARC AI messages/);
     assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), false);
     assert.equal(authed.elements.get('ai-coach-action-title').textContent, 'Add "10-Min Wind-Down"');
