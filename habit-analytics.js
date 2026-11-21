@@ -239,16 +239,23 @@ function defaultEscapeHtml(value) {
 }
 
 function formatInlineMarkdown(text, esc) {
-    const segments = String(text || '').split(/(`[^`\n]+`)/g);
-    return segments.map((seg, index) => {
-        if (index % 2 === 1 && seg.startsWith('`') && seg.endsWith('`') && seg.length >= 2) {
-            return `<code class="ha-md-code">${esc(seg.slice(1, -1))}</code>`;
+    const style = value => esc(value)
+        .replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/__([^_\n]+?)__/g, '<strong>$1</strong>')
+        .replace(/(^|[^*\w])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>')
+        .replace(/~~([^~\n]+?)~~/g, '<del>$1</del>');
+    // Safe external links only: never create javascript:/data: hrefs or raw tags.
+    const linkPattern = /(\[[^\]\n]{1,160}\]\(https?:\/\/[^\s()\n]{1,1800}\))/gi;
+    return String(text || '').split(/(\x60[^\x60\n]+\x60)/g).map((segment, index) => {
+        if (index % 2 === 1 && segment.startsWith('\x60') && segment.endsWith('\x60')) {
+            return '<code class="ha-md-code">' + esc(segment.slice(1,-1)) + '</code>';
         }
-        let html = esc(seg);
-        html = html.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/__([^_\n]+?)__/g, '<strong>$1</strong>');
-        html = html.replace(/(^|[^*\w])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
-        return html;
+        return segment.split(linkPattern).map(chunk => {
+            const match = /^\[([^\]\n]{1,160})\]\((https?:\/\/[^\s()\n]{1,1800})\)$/i.exec(chunk);
+            if (!match) return style(chunk);
+            return '<a class="ha-md-link" href="' + esc(match[2]) +
+              '" target="_blank" rel="noopener noreferrer">' + style(match[1]) + '</a>';
+        }).join('');
     }).join('');
 }
 
@@ -379,4 +386,91 @@ export function renderCoachMarkdown(markdown, escapeHTML = defaultEscapeHtml) {
     }
 
     return blocks.join('');
+}
+
+
+// ─── ARC Signal Deck ───────────────────────────────────────────────────
+// Presentation only. All words and numbers come from the returned answer.
+// The complete original remains available in READ mode, verbatim.
+export function splitArcAnswer(sourceText) {
+    const source = String(sourceText || '').replace(/\r\n?/g, '\n').trim().slice(0, 12000);
+    if (!source) return {lead:'',sections:[],source:''};
+    const lines = source.split('\n');
+    let index=0,lead='';
+    // Extract ONLY the opening paragraph, not lists, code or headings.
+    const startsBlock=line=>/^\s*(?:#{1,4}\s|[-*•]\s|\d+[.)]\s|>|(?:\x60){3}|[-*_]{3,}$)/.test(line);
+    const startsTable=lines.length>1 && lines[0].includes('|') && isTableSeparator(lines[1]);
+    if(lines.length && !startsBlock(lines[0]) && !startsTable) {
+        const first=[];
+        while(index<lines.length && lines[index].trim() && !startsBlock(lines[index])){
+            first.push(lines[index].trim());
+            index++;
+        }
+        if(first.length)lead=first.join('\n');
+    }
+    const remaining=lines.slice(index);
+    let fenced=false,current={title:'',lines:[]};
+    const groups=[];
+    const emit=()=>{
+        const body=current.lines.join('\n').trim();
+        if(body || current.title)groups.push({title:current.title,body});
+    };
+    for(const line of remaining) {
+        if(/^\s*(?:\x60){3}/.test(line)){fenced=!fenced;current.lines.push(line);continue;}
+        const heading=!fenced && /^\s*#{1,4}\s+(.+)$/.exec(line);
+        if(heading) {
+            emit();
+            current={title:heading[1].trim().slice(0,160),lines:[]};
+        } else current.lines.push(line);
+    }
+    emit();
+    const sections=groups.map((g,i)=>({
+        title:g.title || (i===0 && !lead ? 'The answer' : 'More detail'),
+        body:g.body
+    })).filter(g=>g.body||g.title);
+    return {source,lead,sections};
+}
+function arcDeckCodeBlocks(markup) {
+    return markup.replace(/<pre class="ha-md-pre"><code>([\s\S]*?)<\/code><\/pre>/g,
+        (_,code)=>'<div class="ha-arc-code-frame"><div class="ha-arc-code-head"><span>CODE / REFERENCE</span>'+
+        '<button type="button" data-arc-copy-code aria-label="Copy code block">COPY CODE</button></div>'+
+        '<pre class="ha-md-pre"><code>'+code+'</code></pre></div>');
+}
+export function renderArcSignalDeck(markdown, escapeHTML = defaultEscapeHtml) {
+    const esc=typeof escapeHTML==='function'?escapeHTML:defaultEscapeHtml;
+    const {source,lead,sections}=splitArcAnswer(markdown);
+    if(!source)return '';
+    const original=arcDeckCodeBlocks(renderCoachMarkdown(source,esc));
+    const summary=lead
+      ? '<div class="ha-arc-signal-copy ha-md-prose">'+renderCoachMarkdown(lead,esc)+'</div>'
+      : '<p class="ha-arc-signal-empty">Explore ARC’s response in the readouts below.</p>';
+    const sectionHtml=sections.map((item,index)=>{
+        const content=item.body?arcDeckCodeBlocks(renderCoachMarkdown(item.body,esc)):'';
+        const title=esc(item.title.replace(/[*\x60_~]/g,''));
+        const number=String(index+1).padStart(2,'0');
+        return '<section class="ha-arc-deck-panel" data-arc-panel="'+index+'">'+
+          '<div class="ha-arc-deck-panel-index" aria-hidden="true"><span>'+number+'</span><i></i></div>'+
+          '<div class="ha-arc-deck-panel-main"><div class="ha-arc-deck-panel-meta">READOUT '+number+' / '+String(sections.length).padStart(2,'0')+'</div>'+
+          '<h3 class="ha-arc-deck-panel-title">'+title+'</h3>'+
+          '<div class="ha-arc-deck-panel-content ha-md-prose">'+content+'</div></div></section>';
+    }).join('');
+    const pills=sections.length>1
+      ? '<nav class="ha-arc-deck-map" aria-label="Explore answer sections"><span class="ha-arc-deck-map-label">EXPLORE /</span>'+
+        sections.map((g,i)=>'<button type="button" data-arc-jump="'+i+'" title="'+esc(g.title)+'">'+
+          '<span>'+String(i+1).padStart(2,'0')+'</span>'+esc(g.title.replace(/[*\x60_~]/g,'').slice(0,32))+'</button>').join('')+'</nav>'
+      : '';
+    return '<div class="ha-arc-signal-deck" data-arc-layout="signal">'+
+      '<div class="ha-arc-deck-controls"><span class="ha-arc-deck-brand"><i aria-hidden="true"></i> ARC / SIGNAL DECK</span>'+
+      '<div class="ha-arc-deck-modes" role="group" aria-label="Response display">'+
+      '<button type="button" data-arc-mode="signal" aria-pressed="true">SIGNAL</button>'+
+      '<button type="button" data-arc-mode="read" aria-pressed="false">READ</button></div></div>'+
+      '<div class="ha-arc-deck-signal-view">'+
+      '<div class="ha-arc-signal-hero"><div class="ha-arc-signal-top"><span>01 / THE SIGNAL</span>'+
+      '<span class="ha-arc-signal-glyph" aria-hidden="true">✳ ··· ◼</span></div>'+summary+
+      '<div class="ha-arc-signal-foot"><span>THE QUICK READ</span><span>ARC // HABIT INTELLIGENCE</span></div></div>'+
+      pills+(sections.length?'<div class="ha-arc-deck-sections">'+sectionHtml+'</div>':'')+
+      '</div>'+
+      '<div class="ha-arc-deck-read-view" hidden><div class="ha-arc-deck-read-label">ORIGINAL RESPONSE / UNABRIDGED</div>'+
+      '<div class="ha-arc-deck-original ha-md-prose">'+original+'</div></div>'+
+      '<div class="ha-arc-deck-bottom"><span>FORMAT / SIGNAL DECK</span><span>Original answer preserved in READ</span></div></div>';
 }
