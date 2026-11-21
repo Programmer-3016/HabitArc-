@@ -397,6 +397,22 @@
 </div>
 <p id="notification-status" class="px-card-padding pb-4 text-xs text-on-surface-variant" role="status" aria-live="polite"></p>
 </section>
+<!-- Consent-based Background Web Push: daily IST digest, not precise alarms. -->
+<section class="mb-section-margin" aria-labelledby="ha-bg-push-heading">
+ <h3 id="ha-bg-push-heading" class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Background Notifications (Beta)</h3>
+ <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4">
+  <div class="flex items-start gap-3"><span class="material-symbols-outlined text-primary-container" aria-hidden="true">notifications_active</span>
+   <div class="min-w-0"><strong class="text-on-surface">Daily plan &amp; task digest</strong>
+    <p class="text-xs text-on-surface-variant mt-1">Opt in to one push per day around <strong>08:30–09:30 IST</strong>, including when the PWA is closed on supported devices. This is not a precise task deadline alarm; delivery depends on the browser and Vercel scheduler.</p>
+   </div>
+  </div>
+  <div class="flex flex-wrap gap-2 mt-3">
+   <button id="ha-bg-push-enable" type="button" class="px-4 py-2 bg-primary-fixed text-on-primary-fixed-variant border-2 border-outline rounded-xl font-bold disabled:opacity-50">Enable Background Digest</button>
+   <button id="ha-bg-push-disable" type="button" hidden class="px-4 py-2 bg-surface border-2 border-outline rounded-xl font-bold">Disable on This Device</button>
+  </div>
+  <p id="ha-bg-push-status" role="status" aria-live="polite" class="text-xs text-on-surface-variant mt-3">Checking secure push setup…</p>
+ </div>
+</section>
 <!-- PWA Section -->
 <section class="mb-section-margin">
 <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">App</h3>
@@ -798,6 +814,10 @@ if(document.getElementById('restore-backup-file')) {
 }
 if(document.getElementById('ha-device-check')){
  import('./device-readiness.js').then(mod=>mod.mountDeviceReadiness()).catch(error=>console.warn('Device checks unavailable:',error));
+}
+if(document.getElementById('ha-bg-push-enable')) {
+ import('./push-subscriptions.js').then(mod=>mod.mountBackgroundPush())
+   .catch(()=>{const status=document.getElementById('ha-bg-push-status');if(status)status.textContent='Background push is unavailable on this device.'});
 }
 </script>
 </body></html>
