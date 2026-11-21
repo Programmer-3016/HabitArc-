@@ -132,14 +132,33 @@ body > main.ha-leaderboard {
 .lb-chest-stage-btn:hover .lb-chest-art svg { transform: translateY(-3px) scale(1.03); }
 .lb-chest-stage-btn:active .lb-chest-art svg { transform: translateY(0) scale(0.98); }
 .lb-chest-stage-btn:focus-visible { outline: 3px solid rgb(var(--ha-primary)); outline-offset: 2px; }
+/* Dungeon stone pedestal matching the pixel-game cave reference (dark plum stone wall + mossy rock ledge). */
 .lb-chest-art {
-    --case-shadow:rgba(0,0,0,.48);
-    position:relative; isolation:isolate; overflow:hidden; display:grid; place-items:center;
-    height:clamp(172px,18vw,202px); padding-bottom:10px; border-radius:13px;
-    border: 2px solid #16131c;
-    background:radial-gradient(ellipse at 50% 62%,color-mix(in srgb,var(--case-face) 32%,transparent),transparent 66%),#13101a;
+    --case-shadow:rgba(0,0,0,.52);
+    position:relative; isolation:isolate; overflow:hidden; display:grid; place-items:end center;
+    height:clamp(182px,19vw,210px); padding-bottom:10px; border-radius:13px;
+    border: 2px solid #16101b;
+    background-color: #241126;
+    background-image:
+      radial-gradient(ellipse at 50% 62%, color-mix(in srgb, var(--case-face) 28%, transparent), transparent 64%),
+      linear-gradient(180deg, rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 100% 100%, 28px 14px, 28px 14px;
 }
-.lb-chest-art svg { width:176px; max-width:100%; height:auto; image-rendering:pixelated; transition: transform 150ms ease; }
+.lb-chest-art[data-style="pixel-game"]::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 18px;
+    z-index: -1;
+    border-top: 3px solid #22c55e;
+    background:
+      linear-gradient(90deg, #4ade80 0 18%, transparent 18% 42%, #4ade80 42% 62%, transparent 62% 84%, #22c55e 84% 100%) 0 0 / 48px 4px no-repeat,
+      repeating-linear-gradient(90deg, #9a5a3a 0 14px, #4b242a 14px 17px, #854632 17px 31px, #3b1c26 31px 34px),
+      #4a2328;
+    box-shadow: inset 0 4px 0 rgba(0, 0, 0, .28);
+}
+.lb-chest-art svg { width:184px; max-width:100%; height:auto; image-rendering:pixelated; transition: transform 150ms ease; filter: drop-shadow(0 3px 0 rgba(12, 6, 16, .6)); }
 .lb-chest-relic, .lb-chest-well, .lb-chest-lining, .lb-loot-sparks, .lb-chest-light { opacity:0; }
 .lb-chest-art[data-open="true"] .lb-chest-lid { opacity:0; }
 .lb-chest-art[data-open="true"] :is(.lb-chest-relic,.lb-chest-well,.lb-chest-lining,.lb-loot-sparks) { opacity:1; }
@@ -391,21 +410,23 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
   max-width: 100%;
   image-rendering: pixelated;
   shape-rendering: crispEdges;
-  filter: drop-shadow(0 3px 0 rgb(20 16 26 / .12));
+  filter: drop-shadow(0 4px 0 rgba(14, 7, 20, .55));
 }
-.lb-chest-ambient { opacity: .88; }
-.lb-chest-art[data-style="pixel-game"] {
-  background:
-    radial-gradient(ellipse at 50% 62%,color-mix(in srgb,var(--case-trim) 17%,transparent),transparent 68%),
-    var(--paper-soft);
-}
+.lb-chest-ambient { opacity: .92; }
 .lb-chest[data-tier="iron"] .lb-chest-art[data-style="pixel-game"] {
-  background:radial-gradient(ellipse at 50% 60%,rgb(157 184 237 / .24),transparent 67%),var(--paper-soft);
+  background-image:
+    radial-gradient(ellipse at 50% 62%, rgba(56, 189, 248, .22), transparent 64%),
+    linear-gradient(180deg, rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
 }
 .lb-chest[data-tier="gold"] .lb-chest-art[data-style="pixel-game"] {
-  background:radial-gradient(ellipse at 50% 60%,rgb(205 147 248 / .21),transparent 67%),var(--paper-soft);
+  background-image:
+    radial-gradient(ellipse at 50% 62%, rgba(250, 204, 21, .24), transparent 64%),
+    linear-gradient(180deg, rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
 }
-.lb-chest-art[data-open="true"] .lb-chest-ambient { opacity:.66; }
+.lb-reveal .lb-chest-art::after { display: none; }
+.lb-chest-art[data-open="true"] .lb-chest-ambient { opacity:.75; }
 
 /* Always expose both Leaderboard views without horizontal tab clipping. */
 .lb-view-switch { max-width:100%; }
