@@ -930,6 +930,14 @@ import { buildHabitCoachContext, renderCoachMarkdown } from './habit-analytics.j
 
     renderArcConsole();
     restoreSavedThread();
+    // ARC Rescue prepares a suggestion only; the user reviews and sends it.
+    // Nothing is uploaded to the Coach unless they explicitly press Send.
+    const rescuePrompt = new URLSearchParams(location.search).get('rescuePrompt');
+    if (rescuePrompt && questionInput) {
+        questionInput.value = rescuePrompt.slice(0, 600);
+        resizeTextarea();
+        setStatus('Review this recovery prompt before asking ARC AI. No task details have been sent.');
+    }
 })();
 </script>
 </body>
