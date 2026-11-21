@@ -399,7 +399,8 @@ export function splitArcAnswer(sourceText) {
     let index=0,lead='';
     // Extract ONLY the opening paragraph, not lists, code or headings.
     const startsBlock=line=>/^\s*(?:#{1,4}\s|[-*•]\s|\d+[.)]\s|>|(?:\x60){3}|[-*_]{3,}$)/.test(line);
-    if(lines.length && !startsBlock(lines[0])) {
+    const startsTable=lines.length>1 && lines[0].includes('|') && isTableSeparator(lines[1]);
+    if(lines.length && !startsBlock(lines[0]) && !startsTable) {
         const first=[];
         while(index<lines.length && lines[index].trim() && !startsBlock(lines[index])){
             first.push(lines[index].trim());
