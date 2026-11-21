@@ -132,36 +132,41 @@ body > main.ha-leaderboard {
 .lb-chest-stage-btn:hover .lb-chest-art svg { transform: translateY(-3px) scale(1.03); }
 .lb-chest-stage-btn:active .lb-chest-art svg { transform: translateY(0) scale(0.98); }
 .lb-chest-stage-btn:focus-visible { outline: 3px solid rgb(var(--ha-primary)); outline-offset: 2px; }
-/* Dungeon stone pedestal matching the pixel-game cave reference (dark plum stone wall + mossy rock ledge). */
+/* Dungeon stone cave stage & mossy cobblestone ledge matching 16-bit pixel reference. */
 .lb-chest-art {
-    --case-shadow:rgba(0,0,0,.52);
+    --case-shadow:rgba(16,4,18,.58);
     position:relative; isolation:isolate; overflow:hidden; display:grid; place-items:end center;
-    height:clamp(182px,19vw,210px); padding-bottom:10px; border-radius:13px;
+    height:clamp(172px,19vw,196px); padding-bottom:0; border-radius:13px;
     border: 2px solid #16101b;
-    background-color: #241126;
+    background-color: #29071d;
     background-image:
-      radial-gradient(ellipse at 50% 62%, color-mix(in srgb, var(--case-face) 28%, transparent), transparent 64%),
-      linear-gradient(180deg, rgba(255,255,255,.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-    background-size: 100% 100%, 28px 14px, 28px 14px;
+      radial-gradient(ellipse at 50% 60%, color-mix(in srgb, var(--case-face) 18%, transparent), transparent 64%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 112 64' preserveAspectRatio='xMinYMid slice' shape-rendering='crispEdges'%3E%3Crect width='112' height='64' fill='%2329071d'/%3E%3Crect x='0' y='0' width='36' height='64' fill='%23251a30'/%3E%3Crect x='36' y='10' width='2' height='54' fill='%231a1423'/%3E%3Crect x='0' y='28' width='38' height='2' fill='%232d213c'/%3E%3Crect x='0' y='30' width='38' height='2' fill='%231a1423'/%3E%3Crect x='17' y='0' width='2' height='28' fill='%231a1423'/%3E%3Crect x='23' y='32' width='2' height='32' fill='%231a1423'/%3E%3Crect x='38' y='16' width='16' height='2' fill='%233c102c'/%3E%3Crect x='38' y='24' width='20' height='2' fill='%232d213c'/%3E%3Crect x='4' y='8' width='10' height='7' fill='%232d213c'/%3E%3Crect x='21' y='13' width='11' height='8' fill='%232d213c'/%3E%3Crect x='4' y='36' width='15' height='9' fill='%232d213c'/%3E%3Crect x='86' y='12' width='6' height='4' fill='%233c102c'/%3E%3Crect x='74' y='38' width='5' height='3' fill='%233c102c'/%3E%3C/svg%3E");
+    background-size: 100% 100%, 100% 100%;
+    image-rendering: pixelated;
 }
 .lb-chest-art[data-style="pixel-game"]::after {
     content: "";
     position: absolute;
     inset: auto 0 0;
-    height: 18px;
+    height: 17.95%;
     z-index: -1;
-    border-top: 3px solid #22c55e;
-    background:
-      linear-gradient(90deg, #4ade80 0 18%, transparent 18% 42%, #4ade80 42% 62%, transparent 62% 84%, #22c55e 84% 100%) 0 0 / 48px 4px no-repeat,
-      repeating-linear-gradient(90deg, #9a5a3a 0 14px, #4b242a 14px 17px, #854632 17px 31px, #3b1c26 31px 34px),
-      #4a2328;
-    box-shadow: inset 0 4px 0 rgba(0, 0, 0, .28);
+    background-color: #311527;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 14' shape-rendering='crispEdges'%3E%3Crect width='48' height='14' fill='%23311527'/%3E%3Crect x='0' y='0' width='48' height='2' fill='%23421b30'/%3E%3Crect x='1' y='1' width='7' height='5' fill='%2398503c'/%3E%3Crect x='2' y='1' width='4' height='2' fill='%23d3722c'/%3E%3Crect x='9' y='1' width='8' height='6' fill='%2398503c'/%3E%3Crect x='11' y='1' width='4' height='2' fill='%23d3722c'/%3E%3Crect x='18' y='0' width='6' height='5' fill='%23802750'/%3E%3Crect x='25' y='1' width='9' height='6' fill='%2398503c'/%3E%3Crect x='26' y='1' width='5' height='2' fill='%23d3722c'/%3E%3Crect x='35' y='1' width='6' height='5' fill='%2398503c'/%3E%3Crect x='42' y='0' width='5' height='6' fill='%2398503c'/%3E%3Crect x='43' y='1' width='3' height='2' fill='%23d3722c'/%3E%3Crect x='0' y='7' width='5' height='5' fill='%23802750'/%3E%3Crect x='6' y='8' width='8' height='5' fill='%2398503c'/%3E%3Crect x='7' y='8' width='4' height='2' fill='%23d3722c'/%3E%3Crect x='15' y='7' width='9' height='6' fill='%2398503c'/%3E%3Crect x='16' y='7' width='5' height='2' fill='%23d3722c'/%3E%3Crect x='25' y='8' width='7' height='5' fill='%23802750'/%3E%3Crect x='33' y='7' width='9' height='6' fill='%2398503c'/%3E%3Crect x='35' y='7' width='4' height='2' fill='%23d3722c'/%3E%3Crect x='43' y='8' width='5' height='5' fill='%23802750'/%3E%3Crect x='5' y='0' width='5' height='2' fill='%23438f4e'/%3E%3Crect x='6' y='0' width='3' height='1' fill='%23a4af2c'/%3E%3Crect x='7' y='2' width='3' height='2' fill='%232f6545'/%3E%3Crect x='14' y='0' width='7' height='2' fill='%23438f4e'/%3E%3Crect x='15' y='0' width='4' height='1' fill='%23a4af2c'/%3E%3Crect x='16' y='2' width='4' height='2' fill='%23438f4e'/%3E%3Crect x='17' y='4' width='2' height='1' fill='%232f6545'/%3E%3Crect x='29' y='0' width='6' height='2' fill='%23438f4e'/%3E%3Crect x='30' y='0' width='3' height='1' fill='%23a4af2c'/%3E%3Crect x='31' y='2' width='3' height='2' fill='%232f6545'/%3E%3Crect x='41' y='0' width='5' height='2' fill='%23438f4e'/%3E%3Crect x='42' y='0' width='2' height='1' fill='%23a4af2c'/%3E%3C/svg%3E");
+    background-size: auto 100%;
+    background-repeat: repeat-x;
+    image-rendering: pixelated;
 }
-.lb-chest-art svg { width:184px; max-width:100%; height:auto; image-rendering:pixelated; transition: transform 150ms ease; filter: drop-shadow(0 3px 0 rgba(12, 6, 16, .6)); }
+.lb-chest-art svg { height:100%; width:auto; max-width:100%; display:block; image-rendering:pixelated; shape-rendering:crispEdges; transition: transform 150ms ease; }
 .lb-chest-relic, .lb-chest-well, .lb-chest-lining, .lb-loot-sparks, .lb-chest-light { opacity:0; }
 .lb-chest-art[data-open="true"] .lb-chest-lid { opacity:0; }
-.lb-chest-art[data-open="true"] :is(.lb-chest-relic,.lb-chest-well,.lb-chest-lining,.lb-loot-sparks) { opacity:1; }
+.lb-chest-art[data-open="true"] .lb-chest-well { opacity:1; }
+/* Vault cards keep the clean dungeon chest silhouette; the loot reveal dialog plays the full celebration. */
+.lb-chest .lb-chest-art .lb-chest-ambient,
+.lb-chest .lb-chest-art .lb-loot-sparks,
+.lb-chest .lb-chest-art .lb-chest-relic,
+.lb-chest .lb-chest-art .lb-chest-lining { opacity:0; }
+.lb-reveal .lb-chest-art[data-open="true"] :is(.lb-chest-relic,.lb-chest-well,.lb-chest-lining,.lb-loot-sparks) { opacity:1; }
 .lb-chest-art[data-open="true"] .lb-chest-relic { transform:translateY(0); }
 .lb-chest-progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .lb-chest-progress-meta small, .lb-chest-progress-meta span { font: 600 .74rem/1 var(--mono); color: var(--sub); }
@@ -403,30 +408,12 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
 @media(max-width:767px) { .lb-grid { grid-template-columns:minmax(0,1fr); gap:18px; } .lb-podium { min-height:198px; } .lb-intro { gap:12px; } .lb-filters button { min-height:44px; } .lb-stage-head { padding:16px 16px 0; } .lb-table-head { padding:16px; } .lb-feature { gap:12px; } }
 @media(max-width:370px) { body > main.ha-leaderboard { padding-inline:14px; } .lb-standings :is(th,td):first-child { padding-left:12px; } .lb-standings :is(th,td):last-child { padding-right:12px; } .lb-runner { gap:5px; } }
 
-/* ─── Leaderboard-only polish: pixel-game chest art & resilient top tabs ─── */
-/* Chest content is deliberately unchanged: only the treasure sprite stage. */
-.lb-chest-art svg {
-  width: clamp(164px, 18vw, 196px);
-  max-width: 100%;
-  image-rendering: pixelated;
-  shape-rendering: crispEdges;
-  filter: drop-shadow(0 4px 0 rgba(14, 7, 20, .55));
-}
-.lb-chest-ambient { opacity: .92; }
-.lb-chest[data-tier="iron"] .lb-chest-art[data-style="pixel-game"] {
-  background-image:
-    radial-gradient(ellipse at 50% 62%, rgba(56, 189, 248, .22), transparent 64%),
-    linear-gradient(180deg, rgba(255,255,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-}
-.lb-chest[data-tier="gold"] .lb-chest-art[data-style="pixel-game"] {
-  background-image:
-    radial-gradient(ellipse at 50% 62%, rgba(250, 204, 21, .24), transparent 64%),
-    linear-gradient(180deg, rgba(255,255,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+/* ─── Leaderboard-only polish: reveal modal reset & resilient top tabs ─── */
+.lb-reveal .lb-chest-art {
+  background: none;
+  border: 0;
 }
 .lb-reveal .lb-chest-art::after { display: none; }
-.lb-chest-art[data-open="true"] .lb-chest-ambient { opacity:.75; }
 
 /* Always expose both Leaderboard views without horizontal tab clipping. */
 .lb-view-switch { max-width:100%; }
