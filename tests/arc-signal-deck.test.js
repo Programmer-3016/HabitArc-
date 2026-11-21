@@ -27,7 +27,7 @@ test('Signal Deck maps the original answer into lead, readouts and action route'
  assert.match(out,/data-arc-jump="2"/);
  assert.match(out,/data-arc-mode="signal" aria-pressed="true"/);
  assert.match(out,/data-arc-mode="read" aria-pressed="false"/);
- assert.match(out,/FULL RESPONSE \/ UNABRIDGED/);
+ assert.match(out,/FULL RESPONSE \/ CLEAR READING/);
  assert.match(out,/<ol class="ha-md-ol">/);
  assert.match(out,/THE QUICK READ/);
  assert.match(out,/Track completion for 7 days/);
@@ -88,7 +88,7 @@ test('Responsive view controls, history and exact raw-copy remain wired to exist
  assert.match(html,/renderArcSignalDeck\(latest\.answer/);
  assert.match(html,/renderArcSignalDeck\(turn\.answer/);
  assert.match(html,/handleDeckInteraction/);
- assert.match(html,/navigator\.clipboard\.writeText\(latestAnswer\)/);
+ assert.match(html,/navigator\.clipboard\.writeText\(cleanArcDisplayText\(latestAnswer\)\)/);
  assert.match(html,/renderSuggestedAction\(activeAction/);
  const mobileNav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
  assert.equal((mobileNav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
