@@ -63,7 +63,7 @@ export function mountRescueMode({
     const focusTitles = plan.focus.map(item => item.title).slice(0,3);
     const moved = plan.changes.filter(item=>item.proposedDate!==plan.today).slice(0,3);
     aiPrompt = [
-      'Help me make a compassionate, realistic recovery plan. These are my HabitArc task details:'
+      'Help me make a compassionate, realistic recovery plan. These are my HabitArc task details:',
       plan.overdueCount+' overdue; '+plan.backlogCount+' tasks due today or earlier.',
       focusTitles.length ? 'Suggested priorities: '+focusTitles.join('; ')+'.' : '',
       moved.length ? 'Suggested postponements: '+moved.map(item=>item.title+' to '+item.proposedDate).join('; ')+'.' : '',
