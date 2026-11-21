@@ -690,7 +690,8 @@ export function createCoachHandler({
                 usage: { remaining: quota.remaining, limit: quota.limit, resetAt: quota.resetAt },
                 snapshot: {
                     generatedAt: requestTime.toISOString(),
-                    habitCount: metrics.habitCount, latestWeekRate: metrics.latestWeekRate,
+                    habitCount: metrics.habitCount, totalScheduled: metrics.totalScheduled,
+                    totalLogged: metrics.totalLogged, latestWeekRate: metrics.latestWeekRate,
                     dateWindow: metrics.dateWindow, timeZone: metrics.timeZone,
                     insufficientData: metrics.insufficientData, truncated: metrics.truncated
                 }
