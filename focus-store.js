@@ -196,7 +196,7 @@ export function startFocusCloudSync(){
   void Promise.resolve(window.HabitArc?.whenAuthReady?.()).then(()=>window.HabitArcAuthReady).then(client=>{
     if(!client){updateCloudStatus('local');return;}
     focusClient=client;
+    // subscribe() delivers the initial identity too.
     focusAuthUnsubscribe=client.subscribe(user=>{void activateFocus(user?.uid||'local');});
-    void activateFocus(client.getCurrentUser?.()?.uid||'local');
   }).catch(()=>updateCloudStatus('local','Focus saved locally · Sign-in unavailable'));
 }
