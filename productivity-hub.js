@@ -37,7 +37,7 @@ async function search(){
  taskStore.start();
  const habits=(window.HabitArc?.getHabits?.()||[]).map(h=>({title:h.name||'Habit',subtitle:h.category||'',
    icon:h.icon||'repeat',type:'Habit',href:'Habit_Detail.html?id='+encodeURIComponent(h.id)}));
- const tasks=taskStore.getTasks().map(t=>({title:t.title,subtitle:t.dueDate||'No due date',
+ const tasks=(taskStore.getStatus().owner===uid ? taskStore.getTasks() : []).map(t=>({title:t.title,subtitle:t.dueDate||'No due date',
    icon:t.completed?'check_circle':'checklist',type:'Task',href:'Habits.html?section=tasks'}));
  const matches=[...habits,...tasks,...notes].filter(x=>x.title.toLocaleLowerCase().includes(q)||x.subtitle.toLocaleLowerCase().includes(q)).slice(0,20);
  results.innerHTML=matches.length?matches.map(row).join(''):'<p class="ha-command-empty">No results. Capture it below.</p>';
