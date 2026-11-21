@@ -174,30 +174,45 @@ function mountTreasureRoom(root, find, redrawLeague) {
     dialog.dataset.phase = 'sealed';
     dialog.setAttribute('aria-label', chest.name + (sample ? ' preview' : ' reward'));
     const art = chestArt(chest, false);
-    const kicker = el('div','lb-reveal-kicker');
-    const stateLabel = el('span','lb-reveal-badge',sample ? 'Opening preview' : 'Treasure unlocked');
-    kicker.append(stateLabel, el('strong','lb-reveal-chest-name',chest.name));
-    const orbit = el('div','lb-reveal-orbit');
-    orbit.setAttribute('aria-hidden','true');
-    const pulse = el('div','lb-reveal-wave');
-    pulse.setAttribute('aria-hidden','true');
-    const open = el('button','lb-reveal-open');
+    const kicker = el('div', 'lb-reveal-kicker');
+    const stateLabel = el('span', 'lb-reveal-badge', sample ? 'Opening preview' : 'Treasure unlocked');
+    const headline = el('strong', 'lb-reveal-chest-name', chest.name);
+    kicker.append(stateLabel, headline);
+    const orbit = el('div', 'lb-reveal-orbit');
+    orbit.setAttribute('aria-hidden', 'true');
+    const pulse = el('div', 'lb-reveal-wave');
+    pulse.setAttribute('aria-hidden', 'true');
+    const open = el('button', 'lb-reveal-open');
     open.type = 'button'; open.autofocus = true;
-    open.setAttribute('aria-label','Tap to open ' + chest.name);
-    open.append(el('span','lb-reveal-prompt','Tap to open'));
-    const close = el('button','lb-reveal-close','×');
-    close.type = 'button'; close.setAttribute('aria-label','Close treasure');
-    const title = el('h2','lb-reveal-title',chest.power);
-    const detail = el('p','lb-reveal-detail', sample ? 'Preview only · No XP awarded' : '+' + chest.xp + ' XP · Power equipped');
-    const done = el('button','lb-reveal-done','Back to treasures');
+    open.setAttribute('aria-label', 'Tap to open ' + chest.name);
+    open.append(el('span', 'lb-reveal-prompt', 'Tap to open'));
+    const close = el('button', 'lb-reveal-close', '×');
+    close.type = 'button'; close.setAttribute('aria-label', 'Close treasure');
+    const title = el('h2', 'lb-reveal-title', chest.power);
+    const detail = el('p', 'lb-reveal-detail', sample ? 'Preview only · No XP awarded' : '+' + chest.xp + ' XP · Power equipped');
+    const done = el('button', 'lb-reveal-done', 'Back to treasures');
     done.type = 'button';
-    const copy = el('div','lb-reveal-copy');
+    const copy = el('div', 'lb-reveal-copy');
     copy.append(title, detail);
     copy.hidden = done.hidden = true;
-    const announce = el('div','lb-sr'); announce.setAttribute('role','status');
+    const announce = el('div', 'lb-sr'); announce.setAttribute('role', 'status');
     dialog.append(orbit, kicker, pulse, art, open, copy, done, close, announce);
-    showing = {dialog, scope, ready};
-    let finishTimer;
+    showing = { dialog, scope, ready };
+    let finishTimer, typeTimer;
+    function typeHeadline(targetText) {
+      clearInterval(typeTimer);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        headline.textContent = targetText;
+        return;
+      }
+      let idx = 1;
+      headline.textContent = targetText.slice(0, idx);
+      typeTimer = setInterval(() => {
+        idx += 1;
+        headline.textContent = targetText.slice(0, idx);
+        if (idx >= targetText.length) clearInterval(typeTimer);
+      }, 55);
+    }
     function finish() {
       if (!dialog.open || dialog.dataset.phase !== 'opening') return;
       clearTimeout(finishTimer);
@@ -205,28 +220,30 @@ function mountTreasureRoom(root, find, redrawLeague) {
       if (!sample) stateLabel.textContent = 'Reward unlocked';
       copy.hidden = done.hidden = false;
       announce.textContent = chest.power + '. ' + detail.textContent;
-      if (document.activeElement === dialog) done.focus({preventScroll:true});
+      if (document.activeElement === dialog) done.focus({ preventScroll: true });
     }
     open.addEventListener('click', () => {
       if (!dialog.open || dialog.dataset.phase !== 'sealed') return;
-      if (!sample && !applyTreasure(chest,'open',scope,hero)) {
+      if (!sample && !applyTreasure(chest, 'open', scope, hero)) {
         dialog.close();
         render();
         find('announcement').textContent = 'Your collection changed. Check the chest and try again.';
         return;
       }
       dialog.dataset.phase = 'opening';
-      dialog.focus({preventScroll:true});
+      dialog.focus({ preventScroll: true });
       open.hidden = true;
       art.dataset.open = 'true';
+      typeHeadline(sample ? 'Preview Item' : 'New Item');
       // The relic is the last animated beat. A bounded fallback also handles
       // background tabs, cancelled animations and motion-preference changes.
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
-      art.querySelector('.lb-chest-relic').addEventListener('animationend', finish, {once:true});
-      finishTimer = setTimeout(finish,2400);
+      art.querySelector('.lb-chest-relic').addEventListener('animationend', finish, { once: true });
+      finishTimer = setTimeout(finish, 2400);
     });
     dialog.addEventListener('close', () => {
       clearTimeout(finishTimer);
+      clearInterval(typeTimer);
       if (showing?.dialog === dialog) showing = null;
       dialog.remove();
       if (!root.isConnected || !active) return;

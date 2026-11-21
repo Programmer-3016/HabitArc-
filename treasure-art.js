@@ -1,6 +1,7 @@
-// HabitArc original, front-facing 16-bit pixel-game treasure chests.
-// Integer-aligned SVG rects in an 88x78 canvas with layered open-chest rim,
-// overflowing loot pile, and pixelated relic emblems (Ember Trail, Orbit Shield, Star Crown).
+// HabitArc original, chunky 16-bit RPG pixel-game treasure chests.
+// Crisp 3/4 front perspective on an 88x78 integer grid: golden/metal border trim,
+// distinct wood/armor/royal planks, keyhole lockplate, hinged open-lid assembly,
+// glowing coin mound, and pixelated relics above the lid.
 const NS = 'http://www.w3.org/2000/svg';
 
 function node(parent, tag, attrs = {}) {
@@ -15,318 +16,286 @@ const rect = (parent, fill, x, y, width, height) =>
   node(parent, 'rect', { x, y, width, height, fill });
 const path = (parent, fill, d) => node(parent, 'path', { fill, d });
 
-// Distinct 16-bit palettes per chest tier on an 88x78 integer pixel grid.
+// Reference-inspired bold contrast palettes (heavy ink outline, gleaming outer
+// frame trim, rich shaded horizontal planks, and saturated loot/gem highlights).
 const PALETTES = Object.freeze({
   wood: {
-    ink: '#1f1312', dark: '#4f2b19', shade: '#7a4221',
-    face: '#a85f2b', lit: '#cc7f3a', highlight: '#f0ab57',
-    metal: '#858d99', trim: '#c4cdd9', shine: '#f1f5f9',
-    strapDark: '#475569',
+    ink: '#160908', dark: '#56210d', shade: '#7b3314',
+    face: '#a3481c', lit: '#c45c27', highlight: '#df7b3d',
+    metal: '#cc7a12', trim: '#f2ac29', shine: '#fff08a',
+    strapDark: '#8c4e08',
     goldDark: '#b45309', goldMid: '#f59e0b', goldLit: '#fef08a',
-    inside: '#24141e', seam: '#3d1f12', spark: '#fb923c', gem: '#fbbf24'
+    inside: '#1c0b0d', lidUnder: '#451a0c', seam: '#3b1508',
+    spark: '#fb923c', gem: '#fbbf24'
   },
   iron: {
-    ink: '#131d2e', dark: '#22354f', shade: '#334e70',
-    face: '#4c6d94', lit: '#7297be', highlight: '#a5c8e8',
-    metal: '#94b8d0', trim: '#cfe8f5', shine: '#f2fcff',
-    strapDark: '#29435c',
+    ink: '#0c1320', dark: '#1e3047', shade: '#2c4666',
+    face: '#3f628a', lit: '#5982ad', highlight: '#85add4',
+    metal: '#759cb8', trim: '#bcdcf0', shine: '#f0fbff',
+    strapDark: '#3f5f7a',
     goldDark: '#0369a1', goldMid: '#38bdf8', goldLit: '#e0f2fe',
-    inside: '#102033', seam: '#1d2f45', spark: '#38bdf8', gem: '#67e8f9'
+    inside: '#0d1929', lidUnder: '#18283d', seam: '#162436',
+    spark: '#38bdf8', gem: '#67e8f9'
   },
   gold: {
-    ink: '#29121e', dark: '#611d38', shade: '#8a294d',
-    face: '#b0365e', lit: '#d45279', highlight: '#f78ca7',
-    metal: '#cc8214', trim: '#fbbf24', shine: '#fef9c3',
+    ink: '#1c0913', dark: '#4e1329', shade: '#731c3d',
+    face: '#9b2753', lit: '#c23a6c', highlight: '#ea6c97',
+    metal: '#ca8a04', trim: '#facc15', shine: '#fef9c3',
     strapDark: '#854d0e',
     goldDark: '#b45309', goldMid: '#facc15', goldLit: '#fef9c3',
-    inside: '#2b1024', seam: '#4c162b', spark: '#fde047', gem: '#c084fc'
+    inside: '#1e0b1a', lidUnder: '#3d1022', seam: '#3b0e1e',
+    spark: '#fde047', gem: '#c084fc'
   }
 });
 
-function rivets(parent, highlight, shadow, positions) {
+function rivets(parent, shine, dark, positions) {
   for (const [x, y] of positions) {
-    rect(parent, shadow, x, y + 1, 2, 2);
-    rect(parent, highlight, x, y, 2, 2);
+    rect(parent, dark, x, y + 1, 2, 2);
+    rect(parent, shine, x, y, 2, 2);
   }
 }
 
-function sparkle(parent, color, coreColor, x, y, size = 2) {
+function sparkle(parent, color, shine, x, y, size = 2) {
   rect(parent, color, x, y - size, size, size);
   rect(parent, color, x - size, y, size, size);
-  rect(parent, coreColor, x, y, size, size);
+  rect(parent, shine, x, y, size, size);
   rect(parent, color, x + size, y, size, size);
   rect(parent, color, x, y + size, size, size);
 }
 
 function drawShadow(parent) {
-  rect(parent, 'var(--case-shadow)', 14, 66, 60, 2);
-  rect(parent, 'var(--case-shadow)', 18, 68, 52, 2);
-  rect(parent, 'var(--case-shadow)', 24, 70, 40, 2);
+  rect(parent, 'var(--case-shadow)', 14, 67, 60, 2);
+  rect(parent, 'var(--case-shadow)', 18, 69, 52, 2);
+  rect(parent, 'var(--case-shadow)', 24, 71, 40, 2);
 }
 
 function drawChestBody(parent, c, id) {
-  // Stepped RPG coffer base with notched bottom feet & 2.5D right-wall bevel.
-  rect(parent, c.ink, 12, 36, 64, 28);
-  rect(parent, c.ink, 10, 40, 68, 22);
-  rect(parent, c.ink, 12, 62, 14, 5);
-  rect(parent, c.ink, 62, 62, 14, 5);
+  // Chunky squared pixel base silhouette with notched corners.
+  rect(parent, c.ink, 12, 40, 64, 27);
+  rect(parent, c.ink, 10, 42, 68, 22);
+  rect(parent, c.ink, 14, 65, 12, 3);
+  rect(parent, c.ink, 62, 65, 12, 3);
 
-  // Side ring handles (pixel iron rings sticking cleanly from left/right walls).
-  rect(parent, c.ink, 8, 45, 4, 8);
-  rect(parent, c.metal, 9, 46, 2, 6);
-  rect(parent, c.shine, 9, 46, 2, 2);
-  rect(parent, c.ink, 76, 45, 4, 8);
-  rect(parent, c.dark, 77, 46, 2, 6);
-  rect(parent, c.metal, 77, 46, 2, 2);
+  // Side pixel handle loops.
+  rect(parent, c.ink, 8, 48, 4, 8);
+  rect(parent, c.metal, 9, 49, 2, 6);
+  rect(parent, c.shine, 9, 49, 2, 2);
+  rect(parent, c.ink, 76, 48, 4, 8);
+  rect(parent, c.strapDark, 77, 49, 2, 6);
+  rect(parent, c.metal, 77, 49, 2, 2);
 
-  // Inner wood / plate wall + horizontal plank courses + grain seams.
-  rect(parent, c.dark, 14, 38, 60, 24);
-  rect(parent, c.shade, 16, 40, 56, 20);
-  rect(parent, c.face, 18, 40, 46, 17);
-  rect(parent, c.lit, 18, 41, 40, 3);
-  rect(parent, c.lit, 18, 48, 34, 2);
-  rect(parent, c.lit, 18, 55, 28, 2);
+  // Crisp gold/metal outer perimeter frame around front chest panel (reference signature).
+  rect(parent, c.metal, 13, 41, 62, 24);
+  rect(parent, c.trim, 13, 41, 56, 22);
+  rect(parent, c.shine, 14, 41, 40, 2);
+  rect(parent, c.strapDark, 15, 63, 59, 2);
+  rect(parent, c.strapDark, 70, 43, 5, 21);
 
-  // Plank horizontal shadows for layered tactile pixel boards.
-  rect(parent, c.seam, 16, 46, 56, 2);
-  rect(parent, c.seam, 16, 53, 56, 2);
-  // Offset vertical wood/plate joints.
-  rect(parent, c.seam, 34, 40, 2, 6);
-  rect(parent, c.seam, 54, 48, 2, 5);
-  rect(parent, c.highlight, 28, 42, 10, 1);
-  rect(parent, c.highlight, 41, 49, 11, 1);
+  // Inner wood / armor front box with 3 thick shaded planks + deep seam grooves.
+  rect(parent, c.dark, 18, 44, 52, 18);
+  rect(parent, c.shade, 19, 45, 50, 16);
+  // Top plank
+  rect(parent, c.lit, 19, 45, 48, 4);
+  rect(parent, c.highlight, 20, 45, 34, 2);
+  // Seam 1
+  rect(parent, c.seam, 19, 49, 50, 2);
+  // Mid plank
+  rect(parent, c.face, 19, 51, 50, 4);
+  rect(parent, c.lit, 19, 51, 40, 2);
+  // Seam 2
+  rect(parent, c.seam, 19, 55, 50, 2);
+  // Bottom plank
+  rect(parent, c.shade, 19, 57, 50, 4);
+  rect(parent, c.face, 19, 57, 36, 2);
 
-  // Bottom binding rail + corner feet bevels.
-  rect(parent, c.ink, 12, 58, 64, 6);
-  rect(parent, c.metal, 14, 59, 60, 4);
-  rect(parent, c.trim, 16, 59, 50, 2);
-  rect(parent, c.strapDark, 14, 62, 60, 2);
-  // Corner chest legs.
-  rect(parent, c.metal, 14, 62, 10, 3);
-  rect(parent, c.trim, 14, 62, 7, 2);
-  rect(parent, c.metal, 64, 62, 10, 3);
-  rect(parent, c.strapDark, 68, 62, 6, 3);
+  // Vertical brick/grain notches + right shadow wall.
+  rect(parent, c.dark, 64, 45, 5, 16);
+  rect(parent, c.seam, 31, 45, 2, 4);
+  rect(parent, c.seam, 54, 51, 2, 4);
 
-  // Two chunky vertical metal corner straps with 3D specular highlight.
-  for (const x of [17, 63]) {
-    rect(parent, c.ink, x - 2, 37, 10, 27);
-    rect(parent, c.strapDark, x, 38, 8, 24);
-    rect(parent, c.metal, x, 38, 6, 23);
-    rect(parent, c.trim, x + 1, 39, 4, 18);
-    rect(parent, c.shine, x + 1, 40, 2, 7);
-    rect(parent, c.strapDark, x + 6, 40, 2, 20);
-  }
-  rivets(parent, c.shine, c.ink, [[19, 43], [19, 51], [19, 59], [65, 43], [65, 51], [65, 59]]);
+  // Center metallic lockplate cradle on body + corner studs.
+  rect(parent, c.ink, 37, 41, 14, 10);
+  rect(parent, c.trim, 39, 41, 10, 8);
+  rect(parent, c.shine, 40, 42, 4, 2);
+  rect(parent, c.ink, 42, 43, 4, 5);
+  rivets(parent, c.shine, c.strapDark, [[15, 43], [15, 60], [71, 43], [71, 60]]);
 
-  // Tier-specific front ornament details.
-  if (id === 'wood') {
-    rect(parent, c.highlight, 25, 41, 7, 2);
-    rect(parent, c.highlight, 48, 55, 9, 2);
-    rect(parent, c.dark, 68, 42, 4, 16);
-  } else if (id === 'iron') {
-    // Mid-chest armor belt & cyan runic pips.
-    rect(parent, c.ink, 26, 48, 36, 7);
-    rect(parent, c.metal, 27, 49, 34, 5);
-    rect(parent, c.trim, 28, 49, 30, 2);
-    rect(parent, c.gem, 31, 50, 4, 3);
-    rect(parent, c.gem, 53, 50, 4, 3);
-    rivets(parent, c.shine, c.strapDark, [[28, 42], [58, 42]]);
-  } else {
-    // Royal hammered-gold belly filigree + twin amethyst accents.
-    rect(parent, c.ink, 27, 49, 34, 6);
-    rect(parent, c.trim, 28, 50, 32, 4);
-    rect(parent, c.shine, 30, 50, 22, 2);
-    rect(parent, c.ink, 31, 43, 6, 5);
-    rect(parent, c.gem, 32, 44, 4, 3);
-    rect(parent, '#f5d0fe', 33, 44, 2, 1);
-    rect(parent, c.ink, 51, 43, 6, 5);
-    rect(parent, c.gem, 52, 44, 4, 3);
-    rect(parent, '#f5d0fe', 53, 44, 2, 1);
+  // Tier signature body inlays.
+  if (id === 'iron') {
+    rect(parent, c.gem, 24, 52, 4, 2);
+    rect(parent, c.gem, 60, 52, 4, 2);
+  } else if (id === 'gold') {
+    rect(parent, c.gem, 24, 46, 4, 3);
+    rect(parent, '#f5d0fe', 25, 46, 2, 1);
+    rect(parent, c.gem, 60, 46, 4, 3);
+    rect(parent, '#f5d0fe', 61, 46, 2, 1);
   }
 }
 
 function drawInnerWell(parent, c, id) {
-  // Hinged flipped-open lid silhouette peeking behind + deep inner cavity.
-  rect(parent, c.ink, 14, 18, 60, 17);
-  rect(parent, c.dark, 16, 20, 56, 13);
-  rect(parent, c.inside, 18, 22, 52, 10);
-  // Top metal rim of the swung-back lid.
-  rect(parent, c.ink, 16, 17, 56, 4);
-  rect(parent, c.metal, 18, 18, 52, 2);
-  rect(parent, c.trim, 20, 18, 36, 2);
+  // Opened chest state (matching video 00:03-00:07):
+  // Hinged lid physically flipped UP and angled back behind the cavity!
+  rect(parent, c.ink, 14, 19, 60, 14);
+  rect(parent, c.ink, 16, 17, 56, 3);
+  // Tilted open lid outer golden/silver rim & dark inner underside planks.
+  rect(parent, c.trim, 16, 18, 56, 12);
+  rect(parent, c.shine, 18, 18, 38, 2);
+  rect(parent, c.strapDark, 68, 20, 4, 10);
+  // Shaded lid underside interior planks (foreshortened wood/slate slats).
+  rect(parent, c.lidUnder, 19, 20, 50, 8);
+  rect(parent, c.seam, 19, 23, 50, 2);
+  rect(parent, c.dark, 20, 25, 48, 3);
+  // Golden/silver lid lip catching light cleanly at bottom of raised lid (`y = 28..30`).
+  rect(parent, c.trim, 16, 28, 56, 3);
+  rect(parent, c.shine, 18, 28, 42, 2);
   if (id === 'gold') {
-    rect(parent, c.trim, 38, 15, 12, 3);
+    rect(parent, c.ink, 37, 14, 14, 5);
+    rect(parent, c.trim, 39, 15, 10, 3);
     rect(parent, c.gem, 42, 15, 4, 3);
   }
 
-  // Lower coffer opening cavity & beveled wooden/metal front lip.
-  rect(parent, c.ink, 14, 32, 60, 12);
-  rect(parent, c.inside, 17, 34, 54, 8);
-  rect(parent, c.trim, 14, 38, 60, 3);
-  rect(parent, c.shine, 16, 38, 44, 2);
-  rect(parent, c.dark, 16, 41, 56, 2);
+  // Dark hollow coffer interior directly beneath the raised lid (`y = 31..42`).
+  rect(parent, c.ink, 12, 31, 64, 11);
+  rect(parent, c.metal, 13, 32, 62, 10);
+  rect(parent, c.trim, 14, 32, 56, 9);
+  rect(parent, c.inside, 18, 33, 52, 8);
+  rect(parent, c.dark, 20, 39, 48, 2);
+  // Front top rim separating open mouth from lower coffer front.
+  rect(parent, c.shine, 15, 40, 44, 2);
 }
 
 function drawLining(parent, c) {
-  // Stepped mound of pixel gold coins + shimmering loot inside the cavity.
-  rect(parent, c.goldDark, 21, 35, 46, 5);
-  rect(parent, c.goldMid, 24, 32, 40, 7);
-  rect(parent, c.goldMid, 29, 29, 30, 8);
-  rect(parent, c.goldLit, 32, 30, 14, 3);
-  rect(parent, c.goldLit, 47, 32, 8, 2);
-  rect(parent, c.goldLit, 25, 35, 10, 2);
-  // Highlighted individual coin rims & gems tucked in loot pile.
-  rect(parent, c.shine, 35, 31, 4, 2);
-  rect(parent, c.shine, 50, 35, 4, 2);
-  rect(parent, c.gem, 28, 35, 4, 3);
-  rect(parent, c.gem, 54, 33, 4, 3);
-  rect(parent, '#ffffff', 42, 30, 2, 2);
+  // Glowing coin mound & gems sitting cleanly inside the opened cavity (`y = 32..40`).
+  rect(parent, c.goldDark, 21, 36, 46, 5);
+  rect(parent, c.goldMid, 24, 34, 40, 6);
+  rect(parent, c.goldMid, 29, 32, 30, 6);
+  rect(parent, c.goldLit, 32, 33, 14, 2);
+  rect(parent, c.goldLit, 47, 35, 9, 2);
+  rect(parent, c.shine, 35, 34, 4, 2);
+  rect(parent, c.gem, 27, 36, 4, 3);
+  rect(parent, c.gem, 54, 35, 4, 3);
+  rect(parent, '#ffffff', 42, 33, 2, 2);
 }
 
 function drawChestLid(parent, c, id) {
-  // Classic barrel-arched stepped RPG pixel lid with 2px side overhang over body.
-  rect(parent, c.ink, 24, 13, 40, 25);
-  rect(parent, c.ink, 18, 16, 52, 22);
-  rect(parent, c.ink, 13, 20, 62, 18);
-  rect(parent, c.ink, 9, 27, 70, 13);
+  // Closed barrel-domed pixel lid matching reference 00:00 silhouette (`y = 18..42`).
+  rect(parent, c.ink, 21, 18, 46, 24);
+  rect(parent, c.ink, 16, 20, 56, 22);
+  rect(parent, c.ink, 12, 24, 64, 18);
+  rect(parent, c.ink, 10, 29, 68, 13);
 
-  // Curved top shading courses.
-  rect(parent, c.dark, 11, 28, 66, 9);
-  rect(parent, c.shade, 15, 22, 58, 15);
-  rect(parent, c.face, 19, 18, 48, 15);
-  rect(parent, c.lit, 24, 15, 36, 9);
-  rect(parent, c.highlight, 27, 15, 24, 3);
-  rect(parent, c.shine, 30, 15, 12, 2);
+  // Outer golden/silver/royal stepped arch border enclosing the lid planks!
+  rect(parent, c.metal, 13, 24, 62, 18);
+  rect(parent, c.trim, 14, 23, 56, 18);
+  rect(parent, c.trim, 18, 20, 50, 19);
+  rect(parent, c.shine, 22, 20, 36, 2);
+  rect(parent, c.shine, 14, 38, 52, 2);
+  rect(parent, c.strapDark, 68, 25, 6, 16);
 
-  // Lid plank / steel rib seams.
-  rect(parent, c.seam, 17, 24, 52, 2);
-  rect(parent, c.seam, 15, 29, 58, 2);
-  rect(parent, c.lit, 25, 26, 26, 2);
+  // Inner curved wood / armor / royal lid slats (`3` clean stepped horizontal courses).
+  rect(parent, c.dark, 18, 23, 50, 15);
+  // Top crest plank
+  rect(parent, c.lit, 21, 23, 44, 4);
+  rect(parent, c.highlight, 23, 23, 28, 2);
+  // Seam
+  rect(parent, c.seam, 19, 27, 49, 2);
+  // Middle arch plank
+  rect(parent, c.face, 18, 29, 50, 4);
+  rect(parent, c.lit, 19, 29, 36, 2);
+  // Seam
+  rect(parent, c.seam, 17, 33, 52, 2);
+  // Lower arch plank
+  rect(parent, c.shade, 17, 35, 52, 3);
+  rect(parent, c.face, 18, 35, 34, 2);
 
-  // Heavy overhanging lid lip band (`y = 31..38`).
-  rect(parent, c.ink, 10, 31, 68, 8);
-  rect(parent, c.metal, 12, 32, 64, 5);
-  rect(parent, c.trim, 14, 32, 52, 3);
-  rect(parent, c.shine, 16, 32, 24, 2);
-  rect(parent, c.strapDark, 12, 36, 64, 2);
+  // Center lid vertical frame bridge & side strap accents.
+  rect(parent, c.trim, 15, 24, 4, 16);
+  rect(parent, c.shine, 15, 25, 2, 8);
+  rect(parent, c.metal, 67, 24, 5, 16);
+  rect(parent, c.trim, 41, 20, 6, 18);
+  rect(parent, c.shine, 42, 21, 2, 10);
 
-  // Two continuous vertical roof straps aligned directly above body straps.
-  for (const x of [17, 63]) {
-    rect(parent, c.ink, x - 2, 17, 10, 21);
-    rect(parent, c.strapDark, x, 18, 8, 19);
-    rect(parent, c.metal, x, 18, 6, 18);
-    rect(parent, c.trim, x + 1, 19, 4, 15);
-    rect(parent, c.shine, x + 1, 19, 2, 6);
-    rect(parent, c.strapDark, x + 6, 19, 2, 17);
-  }
-  rivets(parent, c.shine, c.ink, [[19, 22], [19, 32], [65, 22], [65, 32]]);
-
-  // Tier-distinct lid top crown / crest hardware.
   if (id === 'gold') {
-    // Stepped royal pixel crown crest atop lid arch!
-    rect(parent, c.ink, 33, 9, 22, 8);
-    rect(parent, c.ink, 35, 7, 4, 3);
-    rect(parent, c.ink, 42, 6, 4, 4);
-    rect(parent, c.ink, 49, 7, 4, 3);
-    rect(parent, c.trim, 35, 10, 18, 6);
-    rect(parent, c.shine, 36, 8, 2, 5);
-    rect(parent, c.shine, 43, 7, 2, 6);
-    rect(parent, c.shine, 50, 8, 2, 5);
-    rect(parent, c.gem, 41, 11, 6, 4);
-    rect(parent, '#f5d0fe', 42, 11, 2, 2);
+    // 3-point royal pixel crown crest perched cleanly atop the gold lid!
+    rect(parent, c.ink, 33, 13, 22, 8);
+    rect(parent, c.ink, 34, 10, 4, 4);
+    rect(parent, c.ink, 42, 9, 4, 5);
+    rect(parent, c.ink, 50, 10, 4, 4);
+    rect(parent, c.trim, 35, 14, 18, 6);
+    rect(parent, c.shine, 35, 11, 2, 5);
+    rect(parent, c.shine, 43, 10, 2, 6);
+    rect(parent, c.shine, 51, 11, 2, 5);
+    rect(parent, c.gem, 41, 15, 6, 3);
   } else if (id === 'iron') {
-    // Reinforced central steel spine ridge with twin cyan studs.
-    rect(parent, c.ink, 34, 12, 20, 6);
-    rect(parent, c.metal, 36, 13, 16, 4);
-    rect(parent, c.trim, 37, 13, 12, 2);
-    rect(parent, c.gem, 42, 14, 4, 2);
-  } else {
-    // Oak plank metal center reinforcement tab.
-    rect(parent, c.ink, 38, 14, 12, 4);
-    rect(parent, c.trim, 39, 15, 10, 2);
-    rect(parent, c.shine, 40, 15, 4, 2);
+    rect(parent, c.ink, 35, 16, 18, 5);
+    rect(parent, c.trim, 37, 17, 14, 3);
+    rect(parent, c.gem, 42, 17, 4, 2);
   }
 }
 
 function drawClasp(parent, c, id) {
-  // Heavy chunky front latch overlapping lid lip & chest body.
-  rect(parent, c.ink, 35, 31, 18, 18);
-  rect(parent, c.ink, 37, 48, 14, 3);
-  rect(parent, c.strapDark, 37, 32, 14, 16);
-  rect(parent, c.metal, 37, 32, 12, 15);
-  rect(parent, c.trim, 38, 33, 10, 12);
-  rect(parent, c.shine, 39, 34, 6, 2);
+  // Bold front center lockplate bridging lid rim & chest base (`x = 37..50, y = 34..47`).
+  rect(parent, c.ink, 37, 34, 14, 14);
+  rect(parent, c.metal, 38, 35, 12, 12);
+  rect(parent, c.trim, 39, 35, 10, 10);
+  rect(parent, c.shine, 40, 36, 5, 2);
 
   if (id === 'gold') {
-    // Jeweled royal amethyst lock with facet highlight.
-    rect(parent, c.ink, 40, 36, 8, 9);
-    rect(parent, c.gem, 41, 37, 6, 7);
-    rect(parent, '#f3e8ff', 42, 38, 2, 3);
-    rect(parent, '#7e22ce', 44, 41, 3, 3);
+    rect(parent, c.ink, 41, 38, 6, 7);
+    rect(parent, c.gem, 42, 39, 4, 5);
+    rect(parent, '#f3e8ff', 42, 39, 2, 2);
   } else if (id === 'iron') {
-    // Forged steel padlock with glowing cyan core + key recess.
-    rect(parent, c.ink, 40, 36, 8, 9);
-    rect(parent, c.gem, 41, 37, 6, 5);
-    rect(parent, '#ecfeff', 42, 37, 2, 3);
-    rect(parent, c.dark, 43, 42, 2, 3);
+    rect(parent, c.ink, 41, 38, 6, 7);
+    rect(parent, c.gem, 42, 39, 4, 4);
+    rect(parent, '#ecfeff', 42, 39, 2, 2);
+    rect(parent, c.ink, 43, 43, 2, 2);
   } else {
-    // Classic golden-rimmed keyhole escutcheon.
-    rect(parent, c.ink, 41, 36, 6, 5);
-    rect(parent, c.ink, 42, 40, 4, 5);
-    rect(parent, c.goldMid, 42, 37, 4, 3);
-    rect(parent, c.ink, 43, 38, 2, 4);
+    // Classic deep pixel keyhole slot in golden clasp (reference silhouette).
+    rect(parent, c.ink, 42, 38, 4, 4);
+    rect(parent, c.ink, 43, 41, 2, 4);
   }
-  rivets(parent, c.shine, c.ink, [[38, 44], [48, 44]]);
 }
 
 function drawRelic(parent, id) {
-  // 16-bit integer-grid relics hovering proudly above the opened chest.
+  // Crisp integer-grid 16-bit loot icon hovering cleanly above the swung-back lid (`y = 2..17`).
   if (id === 'wood') {
-    // Ember Flame icon: dark ember outline + orange flame + yellow/white hot core.
-    rect(parent, '#451218', 42, 4, 4, 4);
-    rect(parent, '#451218', 38, 8, 12, 6);
-    rect(parent, '#451218', 35, 13, 18, 10);
-    rect(parent, '#451218', 37, 22, 14, 4);
-    rect(parent, '#ea580c', 43, 6, 3, 4);
-    rect(parent, '#ea580c', 39, 10, 10, 12);
-    rect(parent, '#ea580c', 37, 15, 14, 7);
-    rect(parent, '#fb923c', 41, 11, 6, 11);
-    rect(parent, '#fde047', 41, 15, 6, 7);
-    rect(parent, '#ffffff', 43, 18, 3, 3);
-    // Floating ember pixels.
-    rect(parent, '#fb923c', 34, 8, 2, 2);
-    rect(parent, '#fde047', 52, 6, 2, 2);
+    // Ember Flame sprite.
+    rect(parent, '#451218', 42, 1, 4, 3);
+    rect(parent, '#451218', 38, 4, 12, 5);
+    rect(parent, '#451218', 36, 8, 16, 8);
+    rect(parent, '#451218', 38, 15, 12, 3);
+    rect(parent, '#ea580c', 43, 2, 3, 4);
+    rect(parent, '#ea580c', 39, 6, 10, 9);
+    rect(parent, '#fb923c', 40, 8, 8, 7);
+    rect(parent, '#fde047', 41, 10, 6, 5);
+    rect(parent, '#ffffff', 43, 12, 3, 2);
+    rect(parent, '#fb923c', 33, 5, 2, 2);
+    rect(parent, '#fde047', 53, 4, 2, 2);
   } else if (id === 'iron') {
-    // Orbit Shield icon: classic pixel heater shield with frosty cyan glint.
-    rect(parent, '#0f1e2e', 35, 7, 18, 12);
-    rect(parent, '#0f1e2e', 37, 19, 14, 4);
-    rect(parent, '#0f1e2e', 40, 23, 8, 3);
-    rect(parent, '#0f1e2e', 42, 26, 4, 2);
-    rect(parent, '#cbd5e1', 37, 9, 14, 10);
-    rect(parent, '#cbd5e1', 39, 19, 10, 3);
-    rect(parent, '#cbd5e1', 41, 22, 6, 3);
-    rect(parent, '#0284c7', 39, 11, 10, 8);
-    rect(parent, '#0284c7', 41, 19, 6, 3);
-    rect(parent, '#38bdf8', 39, 11, 5, 7);
-    rect(parent, '#e0f2fe', 40, 12, 3, 3);
-    rect(parent, '#ffffff', 41, 12, 2, 2);
+    // Orbit Shield sprite.
+    rect(parent, '#0f1e2e', 36, 2, 16, 9);
+    rect(parent, '#0f1e2e', 38, 11, 12, 4);
+    rect(parent, '#0f1e2e', 41, 15, 6, 3);
+    rect(parent, '#cbd5e1', 38, 4, 12, 7);
+    rect(parent, '#cbd5e1', 40, 11, 8, 3);
+    rect(parent, '#0284c7', 40, 5, 8, 6);
+    rect(parent, '#0284c7', 42, 11, 4, 3);
+    rect(parent, '#38bdf8', 40, 5, 4, 5);
+    rect(parent, '#e0f2fe', 41, 6, 2, 2);
   } else {
-    // Royal 3-spired Gold Pixel Crown with jewel accents.
-    rect(parent, '#451a03', 33, 9, 22, 15);
-    rect(parent, '#451a03', 34, 6, 4, 4);
-    rect(parent, '#451a03', 42, 4, 4, 6);
-    rect(parent, '#451a03', 50, 6, 4, 4);
-    rect(parent, '#f59e0b', 35, 11, 18, 11);
-    rect(parent, '#facc15', 35, 8, 2, 12);
-    rect(parent, '#facc15', 43, 6, 2, 14);
-    rect(parent, '#facc15', 51, 8, 2, 12);
-    rect(parent, '#facc15', 36, 13, 16, 7);
-    rect(parent, '#fef08a', 37, 13, 10, 3);
-    rect(parent, '#fef9c3', 43, 7, 2, 4);
-    rect(parent, '#b45309', 36, 20, 16, 2);
-    rect(parent, '#c084fc', 43, 16, 2, 3);
-    rect(parent, '#f43f5e', 37, 16, 2, 2);
-    rect(parent, '#38bdf8', 49, 16, 2, 2);
+    // Royal Star Crown sprite.
+    rect(parent, '#451a03', 34, 5, 20, 12);
+    rect(parent, '#451a03', 35, 2, 4, 4);
+    rect(parent, '#451a03', 42, 1, 4, 5);
+    rect(parent, '#451a03', 49, 2, 4, 4);
+    rect(parent, '#f59e0b', 36, 7, 16, 8);
+    rect(parent, '#facc15', 36, 4, 2, 10);
+    rect(parent, '#facc15', 43, 2, 2, 12);
+    rect(parent, '#facc15', 50, 4, 2, 10);
+    rect(parent, '#fef08a', 38, 8, 10, 3);
+    rect(parent, '#c084fc', 43, 11, 2, 3);
+    rect(parent, '#f43f5e', 38, 11, 2, 2);
+    rect(parent, '#38bdf8', 48, 11, 2, 2);
   }
 }
 
@@ -346,14 +315,14 @@ export function chestArt(chest, opened) {
   });
 
   const glow = group(svg, 'lb-chest-light');
-  path(glow, c.spark, 'M44 8L31 35H7L27 42L14 58L40 48L44 72L48 48L74 58L61 42L81 35H57Z');
+  path(glow, c.spark, 'M44 6L32 34H8L27 42L14 58L40 48L44 72L48 48L74 58L61 42L80 34H56Z');
 
   const ambient = group(svg, 'lb-chest-ambient');
   const ambientSpots = id === 'gold'
-    ? [[9, 16, 2], [77, 12, 2], [7, 43, 2], [79, 50, 2], [44, 4, 1]]
+    ? [[8, 15, 2], [79, 13, 2], [6, 44, 2], [81, 50, 2], [44, 3, 1]]
     : id === 'iron'
-      ? [[10, 20, 2], [78, 26, 2], [69, 9, 1]]
-      : [[9, 24, 2], [77, 29, 1]];
+      ? [[9, 19, 2], [79, 25, 2], [70, 9, 1]]
+      : [[9, 23, 2], [78, 28, 1]];
   for (const [x, y, size] of ambientSpots) {
     sparkle(ambient, c.spark, c.shine, x, y, size);
   }
@@ -374,7 +343,7 @@ export function chestArt(chest, opened) {
   drawRelic(relic, id);
 
   const sparks = group(svg, 'lb-loot-sparks');
-  for (const [x, y] of [[18, 13], [69, 10], [27, 6], [64, 21], [36, 4], [54, 7]]) {
+  for (const [x, y] of [[17, 12], [70, 9], [26, 5], [64, 21], [35, 3], [55, 7]]) {
     sparkle(sparks, c.spark, c.shine, x, y, 2);
   }
 
