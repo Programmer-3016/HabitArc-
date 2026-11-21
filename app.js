@@ -2053,6 +2053,16 @@ const HabitArc = (() => {
         if (!authClient) {
             throw new Error('Authentication is not available right now.');
         }
+        // On shared Android devices, stop this account's browser push before
+        // switching identities. Cloud record removal is best-effort offline.
+        try {
+            if (localStorage.getItem('habitarc_push_device_owner')) {
+                await Promise.race([
+                    import('./push-subscriptions.js').then(mod=>mod.disableBackgroundPush()).catch(()=>{}),
+                    new Promise(resolve=>window.setTimeout(resolve,1800))
+                ]);
+            }
+        } catch {}
         await authClient.signOut();
     }
 

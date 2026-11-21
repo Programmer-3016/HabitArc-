@@ -1,7 +1,7 @@
 // Offline-capable app-shell service worker for HabitArc PWA.
 // Network-first keeps online HTML, scripts, and authenticated state fresh;
 // only static UI runtime CDNs and same-origin app shell assets fall back offline.
-const CACHE_NAME = 'habitarc-shell-v23';
+const CACHE_NAME = 'habitarc-shell-v24';
 const CDN_CACHE_NAME = 'habitarc-cdn-v1';
 const OFFLINE_URL = '/offline.html';
 const SHELL_ASSETS = [
@@ -27,6 +27,7 @@ const SHELL_ASSETS = [
   '/rescue-planner.js',
   '/rescue-mode.js',
   '/arc-context.js',
+  '/push-subscriptions.js',
   '/rescue-mode.css',
   '/plan-tasks.css',
   '/day-workspace.js',
@@ -205,6 +206,21 @@ self.addEventListener('fetch', (event) => {
   if (SHELL_ASSET_SET.has(url.pathname) && !url.search) {
     event.respondWith(respondFromShellCache(request, url.pathname, event));
   }
+});
+
+/* Secure browser Web Push delivery when app windows are closed.
+ * The server sends only bounded, user-consented daily digests. */
+self.addEventListener('push',event=>{
+ let payload={};
+ try{if(event.data)payload=event.data.json();}catch{}
+ const allowed=NOTIFICATION_DESTINATIONS.has(payload?.url)?payload.url:'/Habits.html';
+ const title=typeof payload?.title==='string'&&payload.title.length<90?payload.title:'HabitArc daily check-in';
+ const body=typeof payload?.body==='string'?payload.body.slice(0,200):'Open HabitArc to review your daily plan.';
+ const tag=typeof payload?.tag==='string'?payload.tag.slice(0,90):'habitarc-daily';
+ event.waitUntil(self.registration.showNotification(title,{
+  body,icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',
+  tag,renotify:false,data:{url:allowed}
+ }));
 });
 
 self.addEventListener('notificationclick', (event) => {
