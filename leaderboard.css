@@ -1413,3 +1413,93 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
         transition: none;
     }
 }
+
+
+/* ─── Leaderboard-only polish: pixel-game chest art & resilient top tabs ─── */
+/* Chest content is deliberately unchanged: only the treasure sprite stage. */
+.lb-chest-art svg {
+  width: clamp(164px, 18vw, 196px);
+  max-width: 100%;
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+  filter: drop-shadow(0 3px 0 rgb(20 16 26 / .12));
+}
+.lb-chest-ambient { opacity: .88; }
+.lb-chest-art[data-style="pixel-game"] {
+  background:
+    radial-gradient(ellipse at 50% 62%,color-mix(in srgb,var(--case-trim) 17%,transparent),transparent 68%),
+    var(--paper-soft);
+}
+.lb-chest[data-tier="iron"] .lb-chest-art[data-style="pixel-game"] {
+  background:radial-gradient(ellipse at 50% 60%,rgb(157 184 237 / .24),transparent 67%),var(--paper-soft);
+}
+.lb-chest[data-tier="gold"] .lb-chest-art[data-style="pixel-game"] {
+  background:radial-gradient(ellipse at 50% 60%,rgb(205 147 248 / .21),transparent 67%),var(--paper-soft);
+}
+.lb-chest-art[data-open="true"] .lb-chest-ambient { opacity:.66; }
+
+/* Always expose both Leaderboard views without horizontal tab clipping. */
+.lb-view-switch { max-width:100%; }
+.lb-view-switch button { white-space:nowrap; }
+
+/* Ranking period buttons have equal tap targets and never exceed their row. */
+.lb-controls .lb-filters { min-width:0; }
+.lb-controls .lb-filters button { min-width:0; white-space:nowrap; }
+
+/* On 768-1050px desktop, the top page controls share space gracefully. */
+@media (min-width:768px) and (max-width:1050px) {
+  .lb-intro-copy { flex-basis:280px; }
+  .lb-controls { flex:0 1 auto; max-width:100%; }
+}
+@media (max-width:767px) {
+  .lb-intro-copy { flex-basis:100%; }
+  .lb-view-switch {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+    gap:5px;
+    padding:5px;
+    margin-bottom:16px;
+  }
+  .lb-view-switch button {
+    width:100%;min-width:0;min-height:46px;
+    padding-inline:8px;font-size:clamp(.79rem,3.6vw,.94rem);
+  }
+  .lb-controls {
+    display:grid;
+    grid-template-columns:minmax(0,auto) minmax(0,1fr);
+    align-items:stretch;
+    gap:9px;
+    width:100%;
+    min-width:0;
+  }
+  .lb-sprint-chip {
+    min-width:0;max-width:100%;min-height:46px;
+    justify-content:center;text-align:center;
+    white-space:nowrap;padding-inline:9px;
+  }
+  .lb-controls .lb-filters {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;min-width:0;max-width:100%;
+  }
+  .lb-controls .lb-filters button {
+    min-height:42px;padding-inline:6px;
+    font-size:clamp(.74rem,3vw,.85rem);
+  }
+  .lb-chest-art svg { width:min(55vw,196px); }
+}
+@media (max-width:480px) {
+  .lb-controls { grid-template-columns:minmax(0,1fr); }
+  .lb-sprint-chip { width:100%;justify-content:center; }
+  .lb-controls .lb-filters { width:100%; }
+  .lb-view-switch { margin-top:2px; }
+}
+@media (max-width:359px) {
+  .lb-view-switch button { font-size:.8rem; padding-inline:4px; }
+  .lb-controls .lb-filters button { padding-inline:4px; font-size:.78rem; }
+  .lb-chest-art svg { width:min(59vw,184px); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .lb-chest-art svg { transition:none; }
+}
