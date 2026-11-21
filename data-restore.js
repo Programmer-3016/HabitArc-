@@ -139,8 +139,14 @@ export async function restoreArchive(staged){
    throw new Error('Account changed since preview. Nothing imported; preview again.');
  const next=await prepare(staged.archive,staged.uid);
  const uid=staged.uid;
+ const verifyOwner=()=>{
+   if(currentOwner()!==uid||taskStore.getStatus().owner!==uid)
+     throw new Error('Account changed during restore; stop and preview the file again.');
+ };
+ verifyOwner();
  // Add new notes first in one IndexedDB transaction (all or nothing for notes).
  await appendNotes(next.notes,uid);
+ verifyOwner();
  // Queue only actual inserted Notes. Cloud sync will replay on the Notes page.
  if(uid!=='local'&&next.notes.length){
    const key='habitarc_notes_pending:'+uid,queue=getJson(key,{});
@@ -158,7 +164,9 @@ export async function restoreArchive(staged){
    for(const session of next.sessions)queue[session.id]=session;
    localStorage.setItem(key,JSON.stringify(queue));
  }
- for(const task of next.tasks)taskStore.put(task);
+ verifyOwner();
+ for(const task of next.tasks){verifyOwner();taskStore.put(task);}
+ verifyOwner();
  const habits=window.HabitArc.restoreArchiveHabits(staged.archive.habits);
  window.dispatchEvent(new CustomEvent('habitarc:focus-changed'));
  window.dispatchEvent(new CustomEvent('habitarc:data-changed',{detail:{source:'restore'}}));
