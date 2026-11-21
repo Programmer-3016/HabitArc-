@@ -55,7 +55,7 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
     const local=(await list()).filter(item=>item.owner===uid);
     if(!alive||uid!==scope)return;
     for(const note of local) {
-      if(!pending[note.id]) pending[note.id]={type:'upsert',updatedAt:note.updatedAt||new Date().toISOString(),revision:Date.now()+Math.random()};
+      if(!pending[note.id]) pending[note.id]={type:'upsert',migration:true,updatedAt:note.updatedAt||new Date().toISOString(),revision:Date.now()+Math.random()};
     }
     persist();
     writeKey(key,'1');
@@ -68,8 +68,11 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
     const originals=new Map(notes.filter(n=>n.owner===uid).map(n=>[n.id,n]));
     for(const remote of records){
       if(!alive||uid!==scope||seq!==remoteSerial)return;
-      if(pending[remote.id])continue;
       const local=originals.get(remote.id);
+      if(pending[remote.id]?.migration && String(remote.updatedAt||'')>String(local?.updatedAt||'')){
+        delete pending[remote.id];persist();
+      }
+      if(pending[remote.id])continue;
       if(!remote.deleted&&local&&String(local.updatedAt)>String(remote.updatedAt||'')){
         journal(remote.id,'upsert');
         continue;
@@ -122,10 +125,11 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
           else{
             const note=await get(id);
             if(!note||note.owner!==uid) {
-              // The local record was deleted: never resurrect a deleted note.
-              continue;
+              // Avoid resurrecting a record deleted while a save was in flight.
+              await cloud.deleteNoteCloud(id,op.updatedAt);
+            } else {
+              await cloud.saveNoteCloud(note);
             }
-            await cloud.saveNoteCloud(note);
           }
           if(scope===uid&&pending[id]?.revision===op.revision){
             delete pending[id];
@@ -148,6 +152,8 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
       if(!online())tell('offline');
       else if(failed)tell(hasMediaError?'media':'error',cloudError);
       else tell(Object.keys(pending).length?'pending':mediaWarning?'media':'synced');
+      // A user edit can arrive while a previous upload is in flight.
+      if(!failed&&Object.keys(pending).length&&online())queueMicrotask(()=>void flush());
     }
   }
   async function activate(uid){
@@ -174,7 +180,7 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
         : 'Notes sync temporarily offline · Local copy safe';
       tell('error',cloudError);
     });
-    if(online())void flush();
+    // First reconcile remote versions before uploading migrated local notes.
   }
   async function start(){
     if(started)return;
@@ -200,7 +206,10 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
     start,
     upsert(note){if(note?.id)journal(note.id,'upsert');},
     delete(noteId){if(noteId)journal(noteId,'delete');},
-    retry(){void flush();},
+    retry(){
+      if(validScope(scope))pending=readPending(scope);
+      void flush();
+    },
     status(){return {scope,pending:Object.keys(pending).length};},
     stop(){alive=false;listener.abort();unsubscribeAuth?.();unsubscribeCloud?.();remoteSerial++;}
   };
