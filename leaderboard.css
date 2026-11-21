@@ -1503,3 +1503,66 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
 @media (prefers-reduced-motion:reduce) {
   .lb-chest-art svg { transition:none; }
 }
+
+
+/* Leaderboard top navigation: tablet tabs stay reachable, no page overflow.
+   Shared five-tab mobile dock and every other page are untouched. */
+@media(min-width:768px) and (max-width:1080px){
+  .lb-desktop-topbar > div{
+    gap:9px;
+    padding-inline:clamp(12px,1.7vw,22px);
+    min-width:0;
+  }
+  .lb-desktop-topbar .ha-brand-link{flex:0 0 auto}
+  .lb-desktop-topbar nav{
+    min-width:0;
+    flex:1 1 auto;
+    justify-content:flex-start;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-inline:contain;
+  }
+  .lb-desktop-topbar nav::-webkit-scrollbar{display:none}
+  .lb-desktop-topbar nav a{
+    flex:0 0 auto;
+    white-space:nowrap;
+    padding:8px 9px;
+    font-size:12px;
+  }
+  .lb-desktop-topbar > div > div:last-child{
+    flex:0 0 auto;
+    gap:5px;
+  }
+  .lb-desktop-topbar > div > div:last-child > a:first-child{
+    padding:7px 9px;
+    font-size:12px;
+  }
+  .lb-desktop-topbar > div > div:last-child > div{
+    padding-inline:7px;
+  }
+}
+@media(max-width:390px){
+  .lb-mobile-topbar{
+    min-width:0;
+    padding-inline:10px;
+    gap:7px;
+  }
+  .lb-mobile-topbar .ha-brand-link{
+    min-width:0;
+    gap:6px;
+  }
+  .lb-mobile-topbar .ha-brand-wordmark{
+    white-space:nowrap;
+    font-size:15px;
+  }
+  .lb-mobile-topbar > div:last-child{
+    gap:5px;
+    flex:0 0 auto;
+  }
+  .lb-mobile-topbar .ha-hdr-profile{
+    width:32px;
+    height:32px;
+  }
+  .lb-mobile-topbar #header-streak-count{font-size:10px}
+}
