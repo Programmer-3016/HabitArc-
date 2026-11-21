@@ -50,3 +50,13 @@ Under **Settings → Data**, *Download Full Backup* exports the currently active
 Account sign-out never exports Notes or Focus to another identity; locally stored entries remain in their own account-scoped keys. Signed-out local-only entries are not silently migrated to a subsequently signed-in account.
 
 **Still pending:** background/scheduled native reminders, global search, self-service complete account deletion, automated ARC AI planning and native Play Store widgets. These were not part of the data-safety patch.
+
+## ARC Daily Rescue Mode (November 2026)
+
+Open **ARC AI → Daily Rescue Mode** or **Plan → Tasks → Build plan**. The planner reads incomplete tasks due today or earlier from the current account's local-first task store. It ranks them by existing priority and deadline, suggests up to 2–5 tasks to tackle today, and spreads excess work to later days with space in the schedule. Future-dated, completed and undated tasks remain untouched.
+
+The recovery preview displays each proposed due-date change with a checkbox and editable date. **No change is saved unless the user explicitly chooses changes and confirms the dialog.** Before any write it checks the account and task revision again; stale edits are skipped. Approved changes go through the existing task-store offline/cloud sync queue; they do not create new tasks, invent completions, or change streaks. The first priority includes a link to **My Day / Focus Mode** with the relevant task selected; the timer does not auto-start.
+
+"Ask ARC AI" opens the existing Gemini-backed ARC Coach with an **editable, prefilled prompt** containing a short summary of actual tasks. This text is **not submitted** until the user presses Ask, which sends it to the existing secure AI service under the account's normal quotas. ARC AI advice is informational and cannot directly change task dates. The prioritization/dates in the Rescue preview are computed by deterministic rules, not presented as AI-generated.
+
+The bottom navigation remains exactly five tabs. No additional Firebase rules are needed for the Rescue interface; task syncing across devices still requires the separate Tasks security-rule deployment and verification described above.
