@@ -60,3 +60,38 @@
   .notes-section-head h2 {font-size:19px;}
   .notes-section-head>span#notes-storage-label {font-size:10px;}
 }
+
+
+/* Mobile keyboard/small phone: avoid cut-off editor controls.
+   The Notes Studio remains independent from Tailwind. */
+@media (max-width:767px) {
+  .notes-dialog {
+    width:min(calc(100vw - 16px),550px);
+    max-width:calc(100vw - 16px);
+    max-height:calc(100dvh - 22px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+    padding:17px;
+    overscroll-behavior:contain;
+    scroll-padding-bottom:90px;
+  }
+  .notes-dialog-actions {
+    position:sticky;
+    bottom:-17px;
+    z-index:2;
+    background:var(--paper);
+    padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));
+    margin-bottom:-17px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .notes-dialog :is(input,textarea,select,audio) {min-width:0;max-width:100%}
+  .notes-dialog-head h2 {font-size:clamp(20px,5vw,24px)}
+  .notes-section-head {min-width:0}
+}
+@media (max-width:359px) {
+  .notes-dialog {padding:12px}
+  .notes-dialog-actions {bottom:-12px;margin-bottom:-12px}
+  .notes-heading {gap:9px}
+  .notes-feature {padding:15px}
+  .notes-feature h2 {font-size:23px}
+  .notes-section-head>span#notes-storage-label {max-width:49%}
+}

@@ -82,3 +82,43 @@
  .ha-plan-modes button{min-width:0;gap:4px;padding:7px 3px;font-size:12px}
  .ha-plan-modes button .material-symbols-outlined{font-size:17px}
 }
+
+
+/* Narrow Android: date controls and overview cards must fit 320px without
+   compressing the native date input into an unreadable sliver. */
+@media (max-width:380px) {
+  .ha-day-datebar {
+    display:grid;
+    grid-template-columns:40px minmax(0,1fr) 40px;
+    gap:7px;
+  }
+  .ha-day-datebar > button[data-day-action="prev"] {grid-column:1}
+  .ha-day-datebar > input[type="date"] {
+    grid-column:2;
+    width:100%;
+    min-width:0;
+    max-width:none;
+    font-size:13px;
+    padding-inline:7px;
+  }
+  .ha-day-datebar > button[data-day-action="next"] {grid-column:3}
+  .ha-day-datebar > button[data-day-action="today"] {
+    grid-column:1/-1;
+    width:100%;
+    min-width:0;
+  }
+  .ha-day-metrics {gap:6px}
+  .ha-day-metrics > div {padding:10px 8px}
+  .ha-day-metrics strong {font-size:19px}
+  .ha-day-metrics small {font-size:10px}
+  .ha-day-peek-header {align-items:flex-start;flex-wrap:wrap}
+  .ha-day-peek-open {margin-left:auto}
+}
+@media (max-width:359px) {
+  .ha-day-focus-options {grid-template-columns:1fr}
+  .ha-week-stats {gap:7px}
+  .ha-week-stats > div {padding:10px}
+  .ha-week-stats strong {font-size:18px}
+  .ha-day-peek-metrics {gap:5px}
+  .ha-day-peek-metrics span {font-size:11px}
+}

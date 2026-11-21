@@ -142,3 +142,58 @@
  text-decoration:none;color:#6246ad;font-size:11px;font-weight:800;
 }
 .ha-rescue-focus-link .material-symbols-outlined{font-size:16px}
+
+
+/* Android small-width / keyboard resilience. The review footer remains reachable
+   inside the modal even when the date picker or software keyboard is open. */
+@media (max-width:767px) {
+  .ha-rescue-dialog {
+    width:min(calc(100vw - 16px),640px);
+    max-width:calc(100dvh - 22px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+    max-height:calc(100dvh - 22px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+    overscroll-behavior:contain;
+    scroll-padding-bottom:100px;
+  }
+  .ha-rescue-dialog-inner {padding:16px 15px 0}
+  .ha-rescue-dialog-header h2 {font-size:clamp(22px,6vw,28px)}
+  .ha-rescue-dialog-header p,.ha-rescue-launch-copy p {overflow-wrap:anywhere}
+  .ha-rescue-options {flex-wrap:wrap}
+  .ha-rescue-move {min-width:0;max-width:100%}
+  .ha-rescue-move-copy {min-width:0;overflow-wrap:anywhere}
+  .ha-rescue-actions {
+    position:sticky;
+    bottom:0;
+    z-index:2;
+    margin:12px -15px 0;
+    padding:12px 15px calc(12px + env(safe-area-inset-bottom,0px));
+    background:#f8f6f2;
+    box-shadow:0 -5px 12px rgb(23 19 30 / .06);
+  }
+  .ha-rescue-actions .ha-rescue-approve {
+    flex:1 1 auto;
+    min-width:0;
+    justify-content:center;
+    text-align:center;
+    white-space:normal;
+    line-height:1.35;
+  }
+  .ha-rescue-actions #ha-rescue-cancel {flex:0 0 auto}
+}
+@media (max-width:480px) {
+  .ha-rescue-move-date {
+    width:calc(100% - 27px);
+    margin-left:27px;
+    min-width:0;
+  }
+  .ha-rescue-move-date input {width:100%;max-width:100%;min-width:0}
+}
+@media (max-width:359px) {
+  .ha-arc-rescue-shortcut {gap:10px;padding:12px 13px}
+  .ha-arc-rescue-shortcut-icon {width:37px;height:37px}
+  .ha-arc-rescue-shortcut-copy strong {font-size:13px}
+  .ha-arc-rescue-shortcut-copy small {font-size:10px}
+  .ha-rescue-options {gap:8px}
+  .ha-rescue-dialog-inner {padding-inline:12px}
+  .ha-rescue-actions {margin-inline:-12px;padding-inline:12px}
+  .ha-rescue-actions button {font-size:11px}
+}

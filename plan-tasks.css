@@ -251,3 +251,36 @@
   .ha-tasks-toolbar .ha-task-new{padding:9px 10px;font-size:12px;}
   .ha-plan-overview h1{font-size:34px;}
 }
+
+
+/* Form dialogs are usable with compact phone widths and resized keyboards.
+   Preserve the existing form fields and save/delete logic. */
+@media (max-width:767px) {
+  .ha-task-dialog {
+    width:min(calc(100vw - 18px),560px);
+    max-width:min(560px,calc(100vw - 18px));
+    max-height:calc(100dvh - 22px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+    padding:16px;
+    overscroll-behavior:contain;
+    scroll-padding-bottom:92px;
+  }
+  .ha-task-dialog-head h2 {font-size:clamp(19px,5vw,23px)}
+  .ha-task-dialog-actions {
+    position:sticky;
+    bottom:-16px;
+    background:rgb(var(--ha-surface-container-lowest,255 255 255));
+    padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));
+    margin-bottom:-16px;
+    z-index:2;
+  }
+  .ha-task-dialog :is(input,textarea,select) {max-width:100%;min-width:0}
+  .ha-task-day-head h3 {min-width:0;overflow-wrap:anywhere}
+}
+@media (max-width:359px) {
+  .ha-task-dialog {padding:12px}
+  .ha-task-dialog-actions {bottom:-12px;margin-bottom:-12px}
+  .ha-task-field-pair {grid-template-columns:1fr}
+  .ha-task-dialog-actions .ha-task-save {padding:10px 12px;font-size:12px}
+  .ha-task-view-switch button {font-size:12px;gap:4px}
+  .ha-task-view-switch button .material-symbols-outlined {font-size:16px}
+}

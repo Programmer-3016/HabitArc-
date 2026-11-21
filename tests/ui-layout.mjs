@@ -45,7 +45,7 @@ try {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     const base = `http://127.0.0.1:${server.address().port}`;
-    const pages = ['Dashboard', 'Habits', 'Insights', 'Arc_AI', 'Add_Habit', 'Habit_Detail', 'Profile', 'Settings'];
+    const pages = ['Dashboard', 'Habits', 'Notes', 'Insights', 'Arc_AI', 'Add_Habit', 'Habit_Detail', 'Profile', 'Settings'];
     if (output) await mkdir(output, { recursive: true });
     for (const width of [320, 390, 768, 1366]) {
         await page.setViewportSize({ width, height: 900 });
@@ -64,6 +64,58 @@ try {
             if (output && [390, 1366].includes(width)) await page.screenshot({ path: resolve(output, `${name}-${width}.png`), fullPage: true });
         }
     }
+    // Android 320/360/390px: catch clipped ARC top, nested scroll traps and hidden modal actions.
+    for (const width of [320,360,390]) {
+        const height = width === 320 ? 568 : 780;
+        await page.setViewportSize({width,height});
+        await page.goto(base + '/Arc_AI.html', { waitUntil:'networkidle' });
+        const intro = await page.evaluate(() => {
+            const scroller = document.querySelector('.ha-arc-scroll');
+            const mascot = document.querySelector('.ha-arc-mascot-sq').getBoundingClientRect();
+            const header = document.querySelector('body > header').getBoundingClientRect();
+            const composer = document.querySelector('.ha-arc-composer').getBoundingClientRect();
+            return {
+                overflow: getComputedStyle(scroller).overflowY,
+                mascotTop:mascot.top,headerBottom:header.bottom,composerBottom:composer.bottom
+            };
+        });
+        assert.equal(intro.overflow, 'visible','ARC Zen home must use page scroll at '+width);
+        assert(intro.mascotTop >= intro.headerBottom-1,'ARC top clipped at '+width);
+        assert(intro.composerBottom > intro.mascotTop,'ARC composer is misplaced at '+width);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth+1),false);
+        await page.evaluate(() => {
+            document.querySelector('#arc-zen-home').classList.add('hidden');
+            document.querySelector('#arc-thread-view').classList.remove('hidden');
+        });
+        assert.equal(await page.locator('.ha-arc-scroll').evaluate(el => getComputedStyle(el).overflowY),
+            'auto','ARC conversation scroll should remain contained at '+width);
+
+        await page.goto(base + '/Habits.html', {waitUntil:'networkidle'});
+        await page.locator('[data-plan-mode="day"]').click();
+        const dayDate=await page.locator('#ha-day-date').boundingBox();
+        assert(dayDate && dayDate.width>=108 && dayDate.x>=-1 && dayDate.x+dayDate.width<=width+1,
+            'My Day date input clips at '+width);
+        await page.locator('[data-plan-mode="tasks"]').click();
+        await page.locator('#ha-rescue-open').click();
+        const rescue=await page.locator('#ha-rescue-dialog').boundingBox();
+        assert(rescue && rescue.x>=-1 && rescue.x+rescue.width<=width+1,
+            'Rescue dialog horizontal overflow at '+width);
+        assert(rescue.y>=-1 && rescue.y+rescue.height<=height+1,
+            'Rescue dialog vertical overflow at '+width);
+        assert.equal(await page.locator('.ha-rescue-actions').evaluate(el => getComputedStyle(el).position),
+            'sticky','Approval controls should stick inside Rescue dialog');
+        await page.locator('#ha-rescue-close').click();
+
+        await page.goto(base + '/Notes.html', {waitUntil:'networkidle'});
+        await page.locator('#new-note').click();
+        const note=await page.locator('#note-dialog').boundingBox();
+        assert(note && note.x>=-1 && note.x+note.width<=width+1,
+            'Notes dialog horizontal overflow at '+width);
+        assert.equal(await page.locator('.notes-dialog-actions').evaluate(el => getComputedStyle(el).position),
+            'sticky','Notes save should stick inside editor');
+        await page.locator('#close-note').click();
+    }
+    await page.setViewportSize({width:1366,height:900});
     await page.goto(`${base}/Settings.html`, { waitUntil: 'networkidle' });
     const backgrounds = new Set();
     for (const theme of ['light', 'dark', 'forest', 'midnight']) {
