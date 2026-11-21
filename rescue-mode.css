@@ -135,3 +135,9 @@
   .ha-rescue-actions{flex-wrap:wrap}
   .ha-rescue-ai-link{width:100%;margin-bottom:3px}
 }
+
+.ha-rescue-focus-link {
+ display:inline-flex;align-items:center;gap:5px;margin-top:9px;
+ text-decoration:none;color:#6246ad;font-size:11px;font-weight:800;
+}
+.ha-rescue-focus-link .material-symbols-outlined{font-size:16px}
