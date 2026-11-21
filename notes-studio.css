@@ -43,3 +43,20 @@
   .notes-heading {flex-wrap:wrap;}
   .notes-heading .notes-primary {margin-left:auto;}
 }
+
+/* Cloud sync text must wrap rather than stretching the mobile Notes heading. */
+.notes-section-head>span#notes-storage-label {
+  max-width:min(52%,270px);
+  text-align:right;
+  overflow-wrap:anywhere;
+  line-height:1.3;
+}
+.notes-section-head>span#notes-storage-label[data-sync-state="error"],
+.notes-section-head>span#notes-storage-label[data-sync-state="media"] {
+  color:#b45309;
+}
+@media(max-width:370px){
+  .notes-section-head {align-items:flex-start;}
+  .notes-section-head h2 {font-size:19px;}
+  .notes-section-head>span#notes-storage-label {font-size:10px;}
+}
