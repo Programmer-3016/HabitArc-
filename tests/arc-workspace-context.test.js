@@ -44,6 +44,6 @@ test('ARC five-tab navigation and PWA offline cache still remain intact',()=>{
  const html=source('Arc_AI.html');
  const nav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
  assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
- assert.match(source('sw.js'),/habitarc-shell-v28/);
+ assert.match(source('sw.js'),/habitarc-shell-v29/);
  assert.match(source('sw.js'),/arc-context\.js/);
 });
