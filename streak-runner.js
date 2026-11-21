@@ -2699,6 +2699,9 @@
         const runnerId = normalizeCompanionId(
             options.runnerId || getHabitArcStore()?.getSettings?.()?.companion
         );
+        const loot = getHabitArcStore()?.getSettings?.()?.treasureRoom;
+        const equipped = loot?.runnerId === runnerId && Array.isArray(loot.opened) && loot.opened.includes(loot.equipped)
+            ? loot.equipped : null;
         const tier = milestoneTier(N);
         const tl = getTimeline(N);
         const fx = buildEffects(N, runnerId);
@@ -3244,6 +3247,18 @@
             hctx.save();
             hctx.translate(GX + Math.sin(aAng) * (GR + aLift), GY - Math.cos(aAng) * (GR + aLift));
             hctx.rotate(aAng);
+            if (equipped === 'wood' || equipped === 'iron' || equipped === 'gold') {
+                hctx.save();
+                hctx.fillStyle = equipped === 'wood' ? '#F4A658' : equipped === 'iron' ? '#88DFF6' : '#FFDC74';
+                for (let i = 0; i < 6; i++) {
+                    const phase = T * .002 + i * Math.PI / 3;
+                    const x = equipped === 'wood' ? -10 - i * 3 : Math.cos(phase) * (equipped === 'iron' ? 19 : 9);
+                    const y = equipped === 'wood' ? -7 + Math.sin(phase) * 2 : equipped === 'iron'
+                        ? -sprRenderedH / 2 + Math.sin(phase) * 16 : crownY - 6 + Math.sin(phase) * 3;
+                    hctx.fillRect(Math.round(x), Math.round(y), i % 2 ? 2 : 3, i % 2 ? 2 : 3);
+                }
+                hctx.restore();
+            }
 
             if (runnerId === 'ninja' && ninjaSmokeP >= 0 && ninjaSmokeP < 0.75) {
                 const sp = ninjaSmokeP / 0.75;

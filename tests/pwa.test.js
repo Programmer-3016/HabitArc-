@@ -118,6 +118,8 @@ test('PWA precaches complete HabitArc app shell and square/maskable icons', asyn
     '/Habits.html',
     '/Leaderboard.html',
     '/leaderboard.js',
+    '/runner-treasures.js',
+    '/treasure-art.js',
     '/leaderboard.css',
     '/Arc_AI.html',
     '/app.js',

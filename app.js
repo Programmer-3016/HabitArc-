@@ -439,6 +439,12 @@ const HabitArc = (() => {
         return _cloneData(rawHabits)
             .filter((habit) => habit && typeof habit === 'object')
             .map((habit) => {
+                // Older starter routines predate the flag. Match both original
+                // prompts, not a common habit name like "Reading".
+                if (habit.starterHabit == null && SEED_HABITS.some(seed =>
+                    seed.why === habit.why && seed.motivation === habit.motivation)) {
+                    habit.starterHabit = true;
+                }
                 const rawCompletions = habit.completions && typeof habit.completions === 'object'
                     ? habit.completions
                     : {};
@@ -572,6 +578,7 @@ const HabitArc = (() => {
             ...DEFAULT_DATA,
             habits: SEED_HABITS.map((habit) => ({
                 ..._cloneData(habit),
+                starterHabit: true,
                 id: _generateId()
             })),
             onboardingComplete: false
@@ -763,6 +770,14 @@ const HabitArc = (() => {
         const idx = data.habits.findIndex(h => h.id === id);
         if (idx === -1) return false;
         const nextHabit = { ...data.habits[idx], ...updates };
+        // A schedule change takes effect today, not on already tracked days.
+        const prior = data.habits[idx];
+        if (Array.isArray(updates.repeat) && JSON.stringify(prior.repeat) !== JSON.stringify(updates.repeat)) {
+            const today = _today();
+            const initial = { from: prior.createdAt, days: prior.repeat ?? ['sun','mon','tue','wed','thu','fri','sat'] };
+            nextHabit.scheduleHistory = [...(prior.scheduleHistory || [initial]).filter(s => s.from < today),
+                { from: today, days: [...updates.repeat] }];
+        }
         nextHabit.accentColor = _normaliseHabitAccent(nextHabit.accentColor, nextHabit.category);
         data.habits[idx] = nextHabit;
         _save(data);
@@ -1196,6 +1211,9 @@ const HabitArc = (() => {
         const data = _getData();
         const { onboardingComplete, ...settingsUpdates } = updates;
 
+        if (!data.settings.leagueCompanion && data.onboardingComplete && settingsUpdates.companion) {
+            data.settings.leagueCompanion = data.settings.companion;
+        }
         data.settings = { ...data.settings, ...settingsUpdates };
         if (typeof onboardingComplete === 'boolean') {
             data.onboardingComplete = onboardingComplete;

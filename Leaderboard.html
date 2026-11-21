@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -17,8 +16,8 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Space+Grotesk:wght@600;700&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
+        window.tailwind = window.tailwind || {};
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -113,6 +112,7 @@
 <body class="bg-background text-on-background antialiased min-h-screen pb-24 relative overflow-x-hidden">
 <!-- Subtle Background Pattern -->
 <div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
+
 <!-- Top App Bar (Mobile) -->
 <header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
     <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
@@ -129,13 +129,16 @@
             <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
             <span id="header-streak-count">0d</span>
         </div>
+        <a class="ha-hdr-profile flex items-center justify-center" href="Leaderboard.html" aria-label="Leaderboard" aria-current="page">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg>
+        </a>
         <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
             <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
         </a>
     </div>
 </header>
 
-<!-- Desktop Top Bar (Full-width, clean, minimal) -->
+<!-- Desktop Top Bar -->
 <header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
     <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
         <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
@@ -149,8 +152,9 @@
         </a>
         <nav class="flex items-center gap-1">
             <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Dashboard.html">Dashboard</a>
-            <a class="px-4 py-2 rounded-lg text-sm font-semibold text-primary transition-colors" href="Habits.html">Plan</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Habits.html">Plan</a>
             <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Insights.html">Insights</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-semibold text-primary transition-colors" href="Leaderboard.html" aria-current="page">Leaderboard</a>
             <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Arc_AI.html">ARC AI</a>
         </nav>
         <div class="flex items-center gap-2">
@@ -168,23 +172,148 @@
         </div>
     </div>
 </header>
+
 <main id="board" class="ha-leaderboard lb-main w-full mx-auto">
-  <div class="lb-intro"><div><p class="ha-insights-eyebrow">Arc League · Demo</p><h1>Leaderboard</h1><p class="ha-insights-intro">See how your runner stacks up against the league.</p></div>
-    <div class="lb-filters" role="group" aria-label="Ranking period"><button type="button" data-period="weekly" aria-pressed="true">This week</button><button type="button" data-period="allTime" aria-pressed="false">All time</button></div>
+  <div class="lb-intro">
+    <div class="lb-intro-copy">
+      <p class="ha-insights-eyebrow lb-eyebrow"><span class="lb-live-dot" aria-hidden="true"></span><span id="lb-scope">Arc League · Season 01 Demo</span></p>
+      <h1>Leaderboard</h1>
+      <p class="ha-insights-intro" id="lb-intro-text">Compare pixel companions, active streaks, and XP sprint gaps across the league.</p>
+    </div>
+    <div class="lb-controls" id="league-controls">
+      <div class="lb-sprint-chip" title="Demo sprint cycle">
+        <span class="material-symbols-outlined" aria-hidden="true">timer</span>
+        <span>Reset in 2d 14h</span>
+      </div>
+      <div class="lb-filters" role="group" aria-label="Ranking period">
+        <button type="button" data-period="weekly" aria-pressed="true">This week</button>
+        <button type="button" data-period="allTime" aria-pressed="false">All time</button>
+      </div>
+    </div>
   </div>
-  <div class="lb-grid">
+
+  <div class="lb-filters lb-view-switch" role="group" aria-label="League view">
+    <button type="button" id="show-league" aria-pressed="true" aria-controls="league-view">Standings</button>
+    <button type="button" id="show-treasures" aria-pressed="false" aria-controls="treasures">Treasures</button>
+  </div>
+  <div class="lb-grid" id="league-view">
     <div class="lb-feature">
-      <section class="lb-stage" aria-label="Top three runners"><div class="lb-stage-head"><div><p class="lb-terminal">Podium</p><h2>Front runners</h2></div><svg class="lb-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg></div>
-        <div class="lb-scene" aria-hidden="true"><div class="lb-orbit"></div><div class="lb-hills"></div></div>
+      <section class="lb-stage" aria-label="Top three runners">
+        <div class="lb-scene" aria-hidden="true">
+          <div class="lb-stars"></div>
+          <div class="lb-orbit"></div>
+          <div class="lb-hills"></div>
+        </div>
+        <div class="lb-stage-head">
+          <div>
+            <p class="lb-terminal">Podium · Top 3</p>
+            <h2 id="podium-title">Front runners</h2>
+          </div>
+          <div class="lb-stage-right">
+            <span id="podium-lead" class="lb-lead-chip"></span>
+            <span class="lb-trophy-badge" aria-hidden="true">
+              <svg class="lb-icon" viewBox="0 0 24 24"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg>
+            </span>
+          </div>
+        </div>
         <div id="podium" class="lb-podium"></div>
       </section>
-      <section class="lb-personal" aria-label="Your sample standing"><div class="lb-self-rank" id="self-rank">—</div><div><h2>Your position</h2><p id="self-gap"></p></div><button type="button" id="find-me" aria-label="Find your row in the standings" title="Find your row">↓</button></section>
+
+      <section class="lb-personal" aria-label="Your sample standing">
+        <div class="lb-personal-top">
+          <div class="lb-self-avatar-wrap">
+            <div class="lb-self-avatar" id="self-avatar"></div>
+            <span class="lb-self-rank" id="self-rank">—</span>
+          </div>
+          <div class="lb-personal-copy">
+            <div class="lb-personal-title-row">
+              <h2>Your standing</h2>
+              <span id="self-tier" class="lb-tier-badge"></span>
+              <span id="self-delta" class="lb-delta-pill"></span>
+            </div>
+            <p id="self-gap"></p>
+          </div>
+          <button type="button" id="find-me" aria-label="Find your row in the standings" title="Jump to your row">
+            <span class="material-symbols-outlined" aria-hidden="true">my_location</span>
+            <span>Locate</span>
+          </button>
+        </div>
+
+        <div class="lb-chase" aria-label="Progress toward next rank">
+          <div class="lb-chase-meta">
+            <span id="self-chase-label">Chasing next rank</span>
+            <strong id="self-chase-pct">0%</strong>
+          </div>
+          <div class="lb-chase-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="self-chase-progress">
+            <div class="lb-chase-fill" id="self-chase-bar"></div>
+          </div>
+        </div>
+
+        <div class="lb-demo-bar">
+          <span class="lb-demo-hint"><span class="material-symbols-outlined" aria-hidden="true">bolt</span>Live rank preview</span>
+          <div class="lb-demo-actions">
+            <button type="button" id="boost-btn" class="lb-demo-btn">+25 pts</button>
+            <button type="button" id="reset-boost-btn" class="lb-demo-reset" hidden>Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="lb-spotlight" id="runner-spotlight" aria-label="Selected runner details" aria-live="polite"></section>
     </div>
-    <section class="lb-standings" aria-labelledby="standings-title"><div class="lb-table-head"><div class="lb-terminal">League rankings</div><div class="lb-table-title"><h2 id="standings-title">Standings</h2><span id="roster"></span></div></div>
-      <table><thead><tr><th scope="col">Rank</th><th scope="col">Runner</th><th scope="col">Points</th></tr></thead><tbody id="entries"></tbody></table>
+
+    <section class="lb-standings" aria-labelledby="standings-title">
+      <div class="lb-table-head">
+        <div class="lb-table-top">
+          <span class="lb-terminal">League rankings</span>
+          <span id="roster"></span>
+        </div>
+        <div class="lb-table-title">
+          <h2 id="standings-title">Standings</h2>
+          <span id="standings-period-pill" class="lb-period-pill">Weekly sprint</span>
+        </div>
+        <div class="lb-companion-filters" id="companion-filters" role="group" aria-label="Filter by companion"></div>
+      </div>
+
+      <div class="lb-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Rank</th>
+              <th scope="col">Runner</th>
+              <th scope="col">Points</th>
+            </tr>
+          </thead>
+          <tbody id="entries"></tbody>
+        </table>
+      </div>
+
+      <div class="lb-rules" aria-label="Demo XP scoring formula">
+        <span><strong>+10 XP</strong> habit check-in</span>
+        <span><strong>+5 XP</strong> streak day</span>
+        <span><strong>+25 XP</strong> 100% day clear</span>
+      </div>
     </section>
   </div>
-  <footer class="lb-foot"><span>●</span> Demo league · Sample runners and points, not live account data.</footer>
+
+  <section id="treasures" class="lb-treasures" aria-labelledby="treasures-title" hidden>
+    <div class="lb-vault-head">
+      <div>
+        <p class="lb-terminal">Personal collection</p>
+        <h2 id="treasures-title">The treasure room</h2>
+        <p>Clear your scheduled habits to unlock keepsakes for your runner. Rest days never set you back.</p>
+      </div>
+      <div class="lb-runner-plaque">
+        <div id="treasure-avatar" class="lb-power-avatar" aria-hidden="true"></div>
+        <div><small>Your runner</small><strong id="treasure-runner">—</strong><span id="treasure-xp">0 treasure XP</span></div>
+      </div>
+    </div>
+    <p id="treasure-summary" class="lb-vault-summary"></p>
+    <div id="treasure-cards" class="lb-vault-grid"></div>
+    <p class="lb-foot">One clear per scheduled day. Sample check-ins and standings points don’t count.</p>
+  </section>
+  <footer class="lb-foot" id="league-footer">
+    <span>●</span> Demo league · Sample runners, streaks, and XP preview — private habit data never leaves your account.
+  </footer>
   <p class="lb-sr" id="announcement" role="status" aria-live="polite"></p>
   <noscript>Enable JavaScript to display sample standings.</noscript>
 </main>

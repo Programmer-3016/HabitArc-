@@ -1754,6 +1754,7 @@
             userBio: `North Star: ${northStar}`,
             theme: selectedTheme,
             companion: selectedCompanion,
+            leagueCompanion: HabitArc.getSettings().leagueCompanion || selectedCompanion,
             goalDuration: parseInt(selectedDuration) || 30,
             // Browser permission is requested later from the explicit
             // Settings toggle, never during an authentication redirect. Do

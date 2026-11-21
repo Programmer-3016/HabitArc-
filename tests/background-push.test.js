@@ -50,7 +50,8 @@ test('Web Push controls are opt-in, and service worker supports closed-app recep
  assert.match(client,/new FieldPath\('pushDevices',deviceId\)/);
  const worker=read('sw.js');
  assert.match(worker,/self\.addEventListener\('push'/);
- assert.match(worker,/habitarc-shell-v24/);
+ const revision=worker.match(/const CACHE_NAME = 'habitarc-shell-v(\d+)'/);
+ assert.ok(Number(revision?.[1]) >= 24, 'Web Push requires app shell v24 or newer');
  assert.match(worker,/push-subscriptions\.js/);
  const config=JSON.parse(read('vercel.json'));
  assert.deepEqual(config.crons,[{path:'/api/push-cron',schedule:'0 3 * * *'}]);
