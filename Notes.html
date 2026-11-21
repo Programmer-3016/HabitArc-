@@ -1,18 +1,123 @@
-<!doctype html>
-<html lang="en" class="light">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f6f4ef">
-<title>Notes Studio · HabitArc</title>
-<link rel="manifest" href="manifest.webmanifest">
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="HabitArc" name="application-name"/>
+<meta content="#141212" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="HabitArc" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="icons/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
 <script defer src="pwa-register.js"></script>
-<link rel="icon" href="icons/favicon-32.png">
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
+<title>Notes Studio · HabitArc</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Space+Grotesk:wght@600;700&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        window.tailwind = window.tailwind || {};
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002113",
+                        "on-surface": "#191c1d",
+                        "on-background": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "tertiary-fixed": "#ffdad8",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2e3132",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-primary-fixed": "#002114",
+                        "surface-container-low": "#f3f4f5",
+                        "primary": "#012d1d",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#85d7ad",
+                        "secondary-container": "#a0f4c8",
+                        "tertiary-fixed-dim": "#f5b7b4",
+                        "on-tertiary-container": "#d29895",
+                        "on-tertiary-fixed": "#331111",
+                        "on-surface-variant": "#414844",
+                        "primary-fixed": "#c1ecd4",
+                        "secondary": "#0e6c4a",
+                        "outline-variant": "#c1c8c2",
+                        "outline": "#717973",
+                        "surface-variant": "#e1e3e4",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "surface-container": "#edeeef",
+                        "surface": "#f8f9fa",
+                        "surface-tint": "#3f6653",
+                        "inverse-primary": "#a5d0b9",
+                        "on-secondary-container": "#19724f",
+                        "on-tertiary-fixed-variant": "#673a39",
+                        "on-primary-container": "#86af99",
+                        "background": "#f8f9fa",
+                        "tertiary-container": "#5a302f",
+                        "primary-container": "#1b4332",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "tertiary": "#401b1b",
+                        "secondary-fixed": "#a0f4c8",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "20px",
+                        "element-gap": "12px",
+                        "stack-gap": "16px",
+                        "card-padding": "20px",
+                        "section-margin": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+        .geist { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+    </style>
+<link rel="stylesheet" href="app-ui.css"/>
+<link rel="stylesheet" href="notes-studio.css"/>
 <script src="app-ui.js"></script>
-<link rel="stylesheet" href="app-ui.css">
-<link rel="stylesheet" href="notes-studio.css">
 </head>
-<body>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+<div class="fixed inset-0 grid-bg pointer-events-none z-[-1]"></div>
+
+<!-- Top App Bar (Mobile) -->
 <header class="notes-mobile-header w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
     <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
         <span class="ha-brand-badge" aria-hidden="true">
@@ -28,20 +133,55 @@
             <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
             <span id="header-streak-count">0d</span>
         </div>
+        <a class="ha-hdr-profile flex items-center justify-center" href="Leaderboard.html" aria-label="Leaderboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0V3Zm10 2h4v2a4 4 0 0 1-4 4M7 5H3v2a4 4 0 0 0 4 4m5 3v5m-4 2h8"/></svg>
+        </a>
         <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
             <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
         </a>
     </div>
 </header>
-<header class="notes-topbar">
-  <a class="notes-brand" href="Dashboard.html"><span class="notes-logo material-symbols-outlined">trending_up</span>HabitArc</a>
-  <nav class="notes-desktop-nav" aria-label="Main navigation"><a href="Dashboard.html">Dashboard</a><a href="Habits.html">Plan</a><a class="active" href="Notes.html" aria-current="page">Notes</a><a href="Insights.html">Insights</a><a href="Arc_AI.html">ARC AI</a></nav>
-  <a class="notes-back" href="Dashboard.html"><span class="material-symbols-outlined">arrow_back</span><span>Dashboard</span></a>
+
+<!-- Desktop Top Bar -->
+<header class="hidden md:block w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25">
+    <div class="flex justify-between items-center px-8 lg:px-16 py-2.5">
+        <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
+            <span class="ha-brand-badge" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
+                    <path d="M4 17l5.5-5.5 3.5 3.5L20 7"/>
+                    <path d="M14.5 7H20v5.5"/>
+                </svg>
+            </span>
+            <span class="ha-brand-wordmark">HabitArc</span>
+        </a>
+        <nav class="flex items-center gap-1" aria-label="Main navigation">
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Dashboard.html">Dashboard</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Habits.html">Plan</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-semibold text-primary transition-colors" href="Notes.html" aria-current="page">Notes</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Insights.html">Insights</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Leaderboard.html">Leaderboard</a>
+            <a class="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors" href="Arc_AI.html">ARC AI</a>
+        </nav>
+        <div class="flex items-center gap-2">
+            <a href="Add_Habit.html" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">add</span>
+                New
+            </a>
+            <div class="px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/15 text-amber-600 flex items-center gap-1.5 font-semibold text-xs geist">
+                <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+                <span id="header-streak-count-web">0 Day Streak</span>
+            </div>
+            <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
+            </a>
+        </div>
+    </div>
 </header>
+
 <main class="notes-shell">
-  <div class="notes-heading"><div><span class="notes-kicker">YOUR PERSONAL SPACE <span aria-hidden="true">✦</span></span><h1>Notes Studio<span class="notes-dot">.</span></h1><p>Capture thoughts, save moments, keep growing.</p></div><button id="new-note" class="notes-primary"><span class="material-symbols-outlined">add</span> New note</button></div>
+  <div class="notes-heading"><div><span class="notes-kicker">YOUR PERSONAL SPACE <span aria-hidden="true">✦</span></span><h1>Notes Studio<span class="notes-dot">.</span></h1><p>Capture thoughts, save moments, keep growing.</p></div><button id="new-note" class="notes-primary" type="button"><span class="material-symbols-outlined">add</span> New note</button></div>
   <section class="notes-feature" aria-label="Quick capture"><div><span class="notes-feature-label">QUICK CAPTURE</span><h2>Big ideas start small.</h2><p>Write it down, speak your mind, or save a moment — all in one place.</p></div><div class="notes-feature-icons" aria-hidden="true"><span class="material-symbols-outlined">edit_note</span><span class="material-symbols-outlined">mic</span><span class="material-symbols-outlined">image</span></div></section>
-  <div class="notes-toolbar"><label class="notes-search"><span class="material-symbols-outlined">search</span><input id="notes-search" type="search" placeholder="Search your notes..." autocomplete="off" aria-label="Search notes"></label><div class="notes-filters" role="group" aria-label="Filter notes"><button data-filter="all" class="selected">All</button><button data-filter="text">Text</button><button data-filter="image">Images</button><button data-filter="audio">Audio</button></div></div>
+  <div class="notes-toolbar"><label class="notes-search"><span class="material-symbols-outlined">search</span><input id="notes-search" type="search" placeholder="Search your notes..." autocomplete="off" aria-label="Search notes"></label><div class="notes-filters" role="group" aria-label="Filter notes"><button type="button" data-filter="all" class="selected">All</button><button type="button" data-filter="text">Text</button><button type="button" data-filter="image">Images</button><button type="button" data-filter="audio">Audio</button></div></div>
   <div class="notes-section-head"><h2>My collection <span id="notes-count">0</span></h2><span id="notes-storage-label">Private to this device</span></div>
   <section id="notes-grid" class="notes-grid" aria-live="polite"></section>
 <dialog id="note-dialog" class="notes-dialog"><form id="note-form" method="dialog"><div class="notes-dialog-head"><h2 id="dialog-title">Create a note</h2><button type="button" id="close-note" aria-label="Close"><span class="material-symbols-outlined">close</span></button></div><label class="notes-field">Title<input id="note-title" maxlength="100" placeholder="Give your note a title..." required></label><label class="notes-field">Note date<input id="note-date" type="date"></label><label class="notes-field">Your thoughts<textarea id="note-body" rows="6" maxlength="10000" placeholder="What's on your mind?"></textarea></label><div class="notes-attachments"><label class="notes-attach"><span class="material-symbols-outlined">add_photo_alternate</span> Add photo<input id="note-image" type="file" accept="image/*" hidden></label><button id="record-audio" class="notes-attach" type="button"><span class="material-symbols-outlined">mic</span><span id="record-label">Record voice</span></button></div><div id="attachment-status" role="status" aria-live="polite"></div><div class="notes-dialog-actions"><button type="button" id="delete-note" class="notes-danger" hidden>Delete</button><button type="submit" class="notes-primary">Save note</button></div></form></dialog>

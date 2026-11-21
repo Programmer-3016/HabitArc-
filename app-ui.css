@@ -736,6 +736,7 @@ body {
 
 body .grid-bg { display: none !important; }
 :root[data-theme="light"] body .grid-bg { display: none !important; }
+[hidden] { display: none !important; }
 
 body > main { padding-top: 22px; padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 body > main > *, body > main :is(.flex-1, .flex-grow) { min-width: 0; }

@@ -145,6 +145,124 @@
             if (pill) pill.classList.toggle('hidden', navigator.onLine !== false);
         }
 
+        const pageCache = new Map();
+        const inFlightPages = new Map();
+        const STYLE_ORDER = [
+            'plan-tasks.css',
+            'rescue-mode.css',
+            'day-workspace.css',
+            'consistency-shield.css',
+            'leaderboard.css',
+            'notes-studio.css',
+            'productivity-hub.css',
+        ];
+        function appendOrderedStyle(link) {
+            const href = link.getAttribute('href') || '';
+            const idx = STYLE_ORDER.indexOf(href);
+            if (idx !== -1 && document.head) {
+                for (let i = idx + 1; i < STYLE_ORDER.length; i++) {
+                    const anchor = document.head.querySelector(`link[href="${STYLE_ORDER[i]}"]`);
+                    if (anchor) {
+                        document.head.insertBefore(link, anchor);
+                        return;
+                    }
+                }
+            }
+            document.head.appendChild(link);
+        }
+        function ensureOrderedLink(href, errMessage, getCache, setCache) {
+            const existing = document.querySelector(`link[href="${href}"]`);
+            if (existing) {
+                // Keep canonical cascade order when navigating from pages (e.g. Dashboard -> Habits).
+                const idx = STYLE_ORDER.indexOf(href);
+                if (idx !== -1 && document.head) {
+                    for (let i = idx + 1; i < STYLE_ORDER.length; i++) {
+                        const anchor = document.head.querySelector(`link[href="${STYLE_ORDER[i]}"]`);
+                        if (anchor && (existing.compareDocumentPosition(anchor) & Node.DOCUMENT_POSITION_PRECEDING)) {
+                            document.head.insertBefore(existing, anchor);
+                            break;
+                        }
+                    }
+                }
+                return Promise.resolve();
+            }
+            if (getCache()) return getCache();
+            const pending = new Promise((resolve, reject) => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = href;
+                link.addEventListener('load', resolve, { once: true });
+                link.addEventListener('error', () => {
+                    link.remove();
+                    setCache(null);
+                    reject(new Error(errMessage));
+                }, { once: true });
+                appendOrderedStyle(link);
+            });
+            setCache(pending);
+            return pending;
+        }
+        let analyticsModulePromise = null;
+        let notesModulePromise = null;
+        let notesStylesPromise = null;
+        let leaderboardStylesPromise = null;
+        let leaderboardModulePromise = null;
+        let workspaceStylesPromise = null;
+        function ensureWorkspaceStyles() {
+            return ensureOrderedLink('day-workspace.css', 'Daily workspace stylesheet failed', () => workspaceStylesPromise, v => { workspaceStylesPromise = v; });
+        }
+        let shieldStylesPromise = null;
+        function ensureShieldStyles() {
+            return ensureOrderedLink('consistency-shield.css', 'Shield CSS unavailable', () => shieldStylesPromise, v => { shieldStylesPromise = v; });
+        }
+        let rescueStylesPromise = null;
+        function ensureRescueStyles() {
+            return ensureOrderedLink('rescue-mode.css', 'ARC Rescue stylesheet could not load', () => rescueStylesPromise, v => { rescueStylesPromise = v; });
+        }
+
+        let plannerStylesPromise = null;
+        function ensurePlannerStyles() {
+            return ensureOrderedLink('plan-tasks.css', 'Planner styles failed to load', () => plannerStylesPromise, v => { plannerStylesPromise = v; });
+        }
+
+        function ensureLeaderboardStyles() {
+            return ensureOrderedLink('leaderboard.css', 'Leaderboard stylesheet failed', () => leaderboardStylesPromise, v => { leaderboardStylesPromise = v; });
+        }
+
+        function ensureLeaderboardModule() {
+            if (window.__haLeaderboardModule) return Promise.resolve(window.__haLeaderboardModule);
+            if (!leaderboardModulePromise) {
+                leaderboardModulePromise = Promise.all([import('./leaderboard.js'), import('./companion-sprites.js')])
+                    .then(([mod]) => {
+                        window.__haLeaderboardModule = mod;
+                        return mod;
+                    })
+                    .catch(error => {
+                        leaderboardModulePromise = null;
+                        throw error;
+                    });
+            }
+            return leaderboardModulePromise;
+        }
+
+        function ensureNotesStyles() {
+            return ensureOrderedLink('notes-studio.css', 'Notes stylesheet could not load', () => notesStylesPromise, v => { notesStylesPromise = v; });
+        }
+
+        function removeNotesStyles() {
+            document.querySelector('link[href="notes-studio.css"]')?.remove();
+            notesStylesPromise = null;
+        }
+
+        function ensureNotesModule() {
+            if (!notesModulePromise) {
+                notesModulePromise = import('./notes-studio.js').catch(error => {
+                    notesModulePromise = null;
+                    throw error;
+                });
+            }
+            return notesModulePromise;
+        }
         function syncPageChrome() {
             const page = location.pathname.split('/').pop() || 'Dashboard.html';
             const main = document.querySelector('main');
@@ -260,17 +378,15 @@
             renderInstallBanner();
             if (typeof _syncHeaderChrome === 'function') _syncHeaderChrome();
             if (page === 'Leaderboard.html' && main?.classList.contains('ha-leaderboard')) {
-                if (!document.head.querySelector('link[href="leaderboard.css"]')) {
-                    const sheet = document.createElement('link');
-                    sheet.rel = 'stylesheet';
-                    sheet.href = 'leaderboard.css';
-                    const anchor = document.head.querySelector('link[href="notes-studio.css"], link[href="productivity-hub.css"]');
-                    if (anchor) document.head.insertBefore(sheet, anchor);
-                    else document.head.append(sheet);
+                void ensureLeaderboardStyles?.();
+                const mountBoard = mod => mod?.mountLeaderboard?.(main);
+                if (window.__haLeaderboardModule) {
+                    void mountBoard(window.__haLeaderboardModule);
+                } else {
+                    ensureLeaderboardModule().then(mountBoard).catch(() => {
+                        if (main.isConnected) main.querySelector('#announcement').textContent = 'Could not load standings. Please refresh to retry.';
+                    });
                 }
-                import('./leaderboard.js').then(m => m.mountLeaderboard(main)).catch(() => {
-                    if (main.isConnected) main.querySelector('#announcement').textContent = 'Could not load standings. Please refresh to retry.';
-                });
             }
         }
 
@@ -292,102 +408,6 @@
 
         // Instant in-place shell router: pre-caches app pages in memory and swaps
         // <header>/<main> without full browser page reloads or top loading bars.
-        const pageCache = new Map();
-        const inFlightPages = new Map();
-        const STYLE_ORDER = [
-            'plan-tasks.css',
-            'rescue-mode.css',
-            'day-workspace.css',
-            'consistency-shield.css',
-            'leaderboard.css',
-            'notes-studio.css',
-            'productivity-hub.css',
-        ];
-        function appendOrderedStyle(link) {
-            const href = link.getAttribute('href') || '';
-            const idx = STYLE_ORDER.indexOf(href);
-            if (idx !== -1 && document.head) {
-                for (let i = idx + 1; i < STYLE_ORDER.length; i++) {
-                    const anchor = document.head.querySelector(`link[href="${STYLE_ORDER[i]}"]`);
-                    if (anchor) {
-                        document.head.insertBefore(link, anchor);
-                        return;
-                    }
-                }
-            }
-            document.head.appendChild(link);
-        }
-        function ensureOrderedLink(href, errMessage, getCache, setCache) {
-            const existing = document.querySelector(`link[href="${href}"]`);
-            if (existing) {
-                // Keep canonical cascade order when navigating from pages (e.g. Dashboard -> Habits).
-                const idx = STYLE_ORDER.indexOf(href);
-                if (idx !== -1 && document.head) {
-                    for (let i = idx + 1; i < STYLE_ORDER.length; i++) {
-                        const anchor = document.head.querySelector(`link[href="${STYLE_ORDER[i]}"]`);
-                        if (anchor && (existing.compareDocumentPosition(anchor) & Node.DOCUMENT_POSITION_PRECEDING)) {
-                            document.head.insertBefore(existing, anchor);
-                            break;
-                        }
-                    }
-                }
-                return Promise.resolve();
-            }
-            if (getCache()) return getCache();
-            const pending = new Promise((resolve, reject) => {
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = href;
-                link.addEventListener('load', resolve, { once: true });
-                link.addEventListener('error', () => {
-                    link.remove();
-                    setCache(null);
-                    reject(new Error(errMessage));
-                }, { once: true });
-                appendOrderedStyle(link);
-            });
-            setCache(pending);
-            return pending;
-        }
-        let analyticsModulePromise = null;
-        let notesModulePromise = null;
-        let notesStylesPromise = null;
-        let workspaceStylesPromise = null;
-        function ensureWorkspaceStyles() {
-            return ensureOrderedLink('day-workspace.css', 'Daily workspace stylesheet failed', () => workspaceStylesPromise, v => { workspaceStylesPromise = v; });
-        }
-        let shieldStylesPromise = null;
-        function ensureShieldStyles() {
-            return ensureOrderedLink('consistency-shield.css', 'Shield CSS unavailable', () => shieldStylesPromise, v => { shieldStylesPromise = v; });
-        }
-        let rescueStylesPromise = null;
-        function ensureRescueStyles() {
-            return ensureOrderedLink('rescue-mode.css', 'ARC Rescue stylesheet could not load', () => rescueStylesPromise, v => { rescueStylesPromise = v; });
-        }
-
-        let plannerStylesPromise = null;
-        function ensurePlannerStyles() {
-            return ensureOrderedLink('plan-tasks.css', 'Planner styles failed to load', () => plannerStylesPromise, v => { plannerStylesPromise = v; });
-        }
-
-        function ensureNotesStyles() {
-            return ensureOrderedLink('notes-studio.css', 'Notes stylesheet could not load', () => notesStylesPromise, v => { notesStylesPromise = v; });
-        }
-
-        function removeNotesStyles() {
-            document.querySelector('link[href="notes-studio.css"]')?.remove();
-            notesStylesPromise = null;
-        }
-
-        function ensureNotesModule() {
-            if (!notesModulePromise) {
-                notesModulePromise = import('./notes-studio.js').catch(error => {
-                    notesModulePromise = null;
-                    throw error;
-                });
-            }
-            return notesModulePromise;
-        }
         let navSequence = 0;
 
         function ensureAnalyticsModule() {
@@ -435,6 +455,12 @@
             void fetchPageHtml(target.url.pathname);
             if (target.targetPage === 'Insights.html' || target.targetPage === 'Arc_AI.html') {
                 void ensureAnalyticsModule();
+            } else if (target.targetPage === 'Leaderboard.html') {
+                void ensureLeaderboardStyles();
+                void ensureLeaderboardModule().catch(() => {});
+            } else if (target.targetPage === 'Notes.html') {
+                void ensureNotesStyles();
+                void ensureNotesModule().catch(() => {});
             }
         }
 
@@ -459,13 +485,18 @@
                     location.href = targetUrl.href;
                     return;
                 }
-                if (targetPage === 'Notes.html' || targetPage === 'Habits.html' || targetPage === 'Dashboard.html' || targetPage === 'Arc_AI.html' || targetPage === 'Insights.html') {
+                if (targetPage === 'Notes.html' || targetPage === 'Habits.html' || targetPage === 'Dashboard.html' || targetPage === 'Arc_AI.html' || targetPage === 'Insights.html' || targetPage === 'Leaderboard.html') {
                     try {
-                        if (targetPage === 'Notes.html') await ensureNotesStyles();
+                        if (targetPage === 'Notes.html') {
+                            const modReady = ensureNotesModule();
+                            await ensureNotesStyles();
+                            await modReady;
+                        }
                         if (targetPage === 'Habits.html') await Promise.all([ensurePlannerStyles(),ensureWorkspaceStyles(),ensureRescueStyles()]);
                         if (targetPage === 'Dashboard.html') await ensureWorkspaceStyles();
                         if (targetPage === 'Arc_AI.html') await ensureRescueStyles();
                         if (targetPage === 'Insights.html') await ensureShieldStyles();
+                        if (targetPage === 'Leaderboard.html') await Promise.all([ensureLeaderboardStyles(), ensureLeaderboardModule()]);
                         if (seq !== navSequence) return;
                     } catch {
                         location.href = targetUrl.href;

@@ -5,14 +5,18 @@ import { readFileSync } from 'node:fs';
 const source = (file) => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 const fiveTabs = ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Arc_AI.html'];
 
-test('Notes mobile header has independent responsive layout and app data', () => {
+test('Notes mobile and desktop headers match the unified HabitArc app shell', () => {
   const html = source('Notes.html');
   const css = source('notes-studio.css');
   assert.match(html, /class="notes-mobile-header\b/);
+  assert.match(html, /id="tailwind-config"/);
+  assert.match(html, /href="Add_Habit\.html"/);
+  assert.match(html, /id="header-streak-count-web"/);
+  assert.doesNotMatch(html, /notes-topbar/);
   assert.match(html, /<script src="app\.js"><\/script>/);
-  assert.match(css, /header\.notes-mobile-header > div\s*\{\s*display:flex !important/);
-  assert.match(css, /header\.notes-topbar\s*\{display:none !important/);
-  assert.match(css, /header\.notes-mobile-header\s*\{display:none !important/);
+  assert.match(css, /header\.notes-mobile-header > div\s*\{[\s\S]*?display:\s*flex !important/);
+  assert.match(css, /header\.notes-mobile-header\s*\{\s*display:\s*none !important/);
+  assert.doesNotMatch(css, /(?:^|\n)\s*body\s*\{/);
 });
 
 test('every app page has the same five tabs, no sixth Add action', () => {
