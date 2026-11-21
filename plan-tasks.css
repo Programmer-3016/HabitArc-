@@ -38,9 +38,9 @@
   font-size:28px !important;
 }
 .ha-plan-modes {
-  width:min(100%,470px);
+  width:min(100%,620px);
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   padding:5px;
   gap:5px;
   background:rgb(var(--ha-surface-container-low,244 242 239));
@@ -229,6 +229,17 @@
   outline-color:rgb(var(--ha-primary,124 58 237));
   font:500 13px/1.5 'Hanken Grotesk',sans-serif;
 }
+.ha-task-field :is(input,select,textarea):focus,
+.ha-task-field :is(input,select,textarea):focus-visible {
+  outline:none !important;
+  border-color:rgb(var(--ha-primary,124 58 237)) !important;
+  box-shadow:0 0 0 3px rgb(var(--ha-primary,124 58 237) / .22) !important;
+  --tw-ring-shadow:0 0 #0000 !important;--tw-ring-offset-shadow:0 0 #0000 !important;--tw-ring-color:transparent !important;
+}
+.ha-task-step input:focus,.ha-task-step input:focus-visible {
+  --tw-ring-shadow:0 0 #0000 !important;--tw-ring-offset-shadow:0 0 #0000 !important;--tw-ring-color:transparent !important;
+}
+.ha-task-step input:focus-visible { outline:2px solid rgb(var(--ha-primary,124 58 237)) !important; outline-offset:2px; }
 .ha-task-field textarea {resize:vertical;}
 .ha-task-field-pair {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 .ha-task-form-error{color:#b91c1c;font-size:12px;}
@@ -237,7 +248,9 @@
 .ha-task-save{margin-left:auto;}
 @media (max-width:767px) {
   .ha-plan-overview {gap:15px;}
-  .ha-plan-modes{width:100%;}
+  .ha-plan-modes{width:100%;gap:3px;padding:4px;}
+  .ha-plan-modes button{gap:4px;padding:7px 3px;font-size:12px;}
+  .ha-plan-modes button .material-symbols-outlined{font-size:17px;}
   .ha-plan-badge {font-size:22px !important;padding:10px;}
   .ha-tasks-toolbar{align-items:flex-start;}
   .ha-tasks-toolbar h2{font-size:22px;}

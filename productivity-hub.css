@@ -21,8 +21,9 @@
 .ha-command-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:800;color:rgb(var(--ha-primary,124 58 237))}
 .ha-command-inner>header h2{font:800 clamp(23px,5vw,31px)/1.2 'Hanken Grotesk',sans-serif;letter-spacing:-.04em;margin:6px 0 0}
 #ha-command-close{flex:0 0 auto;border:0;background:rgb(var(--ha-surface-container,239 235 245));color:inherit;border-radius:9px;display:grid;place-items:center;padding:7px;cursor:pointer}
-.ha-command-search{display:flex;align-items:center;gap:9px;padding:8px 11px;background:rgb(var(--ha-surface-container-lowest,255 255 255));border:2px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:12px}
-.ha-command-search input{flex:1;min-width:0;width:100%;outline:0;border:0;background:transparent;color:inherit;font-size:16px;padding:7px 0}
+.ha-command-search{display:flex;align-items:center;gap:9px;padding:8px 11px;background:rgb(var(--ha-surface-container-lowest,255 255 255));border:2px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:12px;transition:border-color .15s ease,box-shadow .15s ease}
+.ha-command-search input,.ha-command-search input:focus,.ha-command-search input:focus-visible{flex:1;min-width:0;width:100%;outline:none !important;outline-offset:0 !important;border:0 !important;background:transparent;color:inherit;box-shadow:none !important;--tw-ring-shadow:0 0 #0000 !important;--tw-ring-offset-shadow:0 0 #0000 !important;--tw-ring-color:transparent !important;font-size:16px;padding:7px 0}
+.ha-command-search:focus-within{border-color:rgb(var(--ha-primary,124 58 237));box-shadow:0 0 0 3px rgb(var(--ha-primary,124 58 237) / .22)}
 .ha-command-status{font-size:11px;color:rgb(var(--ha-on-surface-variant,82 82 91));margin:9px 3px}
 .ha-command-results{max-height:min(35vh,300px);overflow:auto;display:grid;gap:6px}
 .ha-command-result{display:grid;grid-template-columns:29px minmax(0,1fr) 23px;gap:8px;align-items:center;padding:10px 12px;text-decoration:none;color:inherit;background:rgb(var(--ha-surface-container-lowest,255 255 255));border:1px solid rgb(var(--ha-outline-variant,18 18 21)/.6);border-radius:10px}
@@ -32,12 +33,13 @@
 .ha-command-capture{margin-top:18px;background:rgb(var(--ha-primary-container,196 181 253)/.36);border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:15px;padding:15px}
 .ha-command-capture h3{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:800;margin:0 0 10px}
 .ha-command-capture input{max-width:100%;width:100%;min-width:0;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:9px;padding:10px;color:inherit;background:rgb(var(--ha-surface-container-lowest,255 255 255))}
+.ha-command-capture input:focus,.ha-command-capture input:focus-visible{outline:none !important;border-color:rgb(var(--ha-primary,124 58 237));box-shadow:0 0 0 3px rgb(var(--ha-primary,124 58 237) / .22) !important;--tw-ring-shadow:0 0 #0000 !important;--tw-ring-offset-shadow:0 0 #0000 !important;--tw-ring-color:transparent !important}
 .ha-command-date-label{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:800;margin-top:10px}
 .ha-command-date-label input{max-width:165px;font-size:12px}
 .ha-command-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
 .ha-command-actions button{border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:9px;padding:10px 6px;background:rgb(var(--ha-on-surface,18 18 21));color:rgb(var(--ha-surface,255 255 255));font-size:12px;font-weight:800;cursor:pointer}
 .ha-command-capture>small{display:block;margin-top:10px;font-size:10px;line-height:1.4;color:rgb(var(--ha-on-surface-variant,82 82 91))}
-.ha-command-dialog :focus-visible,.ha-command-trigger:focus-visible{outline:3px solid rgb(var(--ha-primary,124 58 237));outline-offset:2px}
+.ha-command-dialog :where(button,a):focus-visible,.ha-command-trigger:focus-visible{outline:2.5px solid rgb(var(--ha-primary,124 58 237));outline-offset:2px}
 @media(max-width:767px){
  .ha-command-dialog{max-height:calc(100dvh - 22px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
  .ha-command-results{max-height:27dvh}

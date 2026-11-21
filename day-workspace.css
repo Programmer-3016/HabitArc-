@@ -8,6 +8,7 @@
 .ha-day-heading p:last-child{font-size:13px;color:rgb(var(--ha-on-surface-variant,82 82 91))}
 .ha-day-datebar{display:flex;align-items:center;gap:8px;margin-bottom:19px}
 .ha-day-datebar button,.ha-day-datebar input{height:40px;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));background:rgb(var(--ha-surface,255 255 255));color:inherit;border-radius:11px;padding:7px 10px;font-weight:700}
+.ha-day-datebar input:focus,.ha-day-datebar input:focus-visible,.ha-day-focus-options select:focus,.ha-day-focus-options select:focus-visible{outline:none !important;border-color:rgb(var(--ha-primary,124 58 237)) !important;box-shadow:0 0 0 3px rgb(var(--ha-primary,124 58 237) / .22) !important;--tw-ring-shadow:0 0 #0000 !important;--tw-ring-offset-shadow:0 0 #0000 !important;--tw-ring-color:transparent !important}
 .ha-day-datebar button{display:grid;place-items:center;cursor:pointer;flex-shrink:0}
 .ha-day-datebar input{min-width:0;max-width:235px;flex:1}
 .ha-day-datebar .ha-day-today{background:rgb(var(--ha-primary-container,196 181 253));font-size:12px;padding-inline:14px}
@@ -83,6 +84,10 @@
  .ha-plan-modes{gap:3px;padding:4px}
  .ha-plan-modes button{min-width:0;gap:4px;padding:7px 3px;font-size:12px}
  .ha-plan-modes button .material-symbols-outlined{font-size:17px}
+}
+@media(max-width:359px){
+ .ha-plan-modes button{font-size:11px;gap:3px;white-space:nowrap}
+ .ha-plan-modes button .material-symbols-outlined{font-size:15px}
 }
 
 

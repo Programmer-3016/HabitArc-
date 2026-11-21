@@ -2336,18 +2336,18 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
             const style = document.createElement('style');
             style.id = reducedMotionStyleId;
             style.textContent = `
-                :where(a:not([href="Add_Habit.html"]), button, input, select, textarea, summary, [role="button"]):focus-visible {
-                    outline: 3px solid #10b981 !important;
-                    outline-offset: 3px !important;
+                :where(a:not([href="Add_Habit.html"]), button, summary, [role="button"]):focus-visible {
+                    outline: 2.5px solid rgb(var(--ha-primary, 16 185 129));
+                    outline-offset: 2px;
                 }
                 header a[href="Add_Habit.html"]:focus-visible,
                 nav.fixed > a[href="Add_Habit.html"]:focus-visible > div {
-                    outline: 3px solid #10b981 !important;
-                    outline-offset: 3px !important;
+                    outline: 2.5px solid rgb(var(--ha-primary, 16 185 129));
+                    outline-offset: 2px;
                 }
                 .toggle-checkbox:focus-visible + .toggle-label {
-                    outline: 3px solid #10b981;
-                    outline-offset: 3px;
+                    outline: 2.5px solid rgb(var(--ha-primary, 16 185 129));
+                    outline-offset: 2px;
                 }
                 @media (prefers-reduced-motion: reduce) {
                     *, *::before, *::after {

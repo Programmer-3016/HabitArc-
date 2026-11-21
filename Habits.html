@@ -427,7 +427,7 @@
                 render();
                 // Rendering replaces the button; keep keyboard focus on the same habit.
                 const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
-                refocusedBtn?.focus();
+                refocusedBtn?.focus({ preventScroll: true });
                 if (completedNow) {
                     window.HabitArcStreak?.maybeCelebrate?.();
                 }

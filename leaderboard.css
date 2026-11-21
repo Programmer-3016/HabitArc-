@@ -1291,7 +1291,7 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
     background: var(--ha-hero-fg);
 }
 
-.lb-mine:focus {
+.lb-mine:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -3px;
 }

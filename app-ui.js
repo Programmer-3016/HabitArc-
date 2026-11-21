@@ -264,7 +264,9 @@
                     const sheet = document.createElement('link');
                     sheet.rel = 'stylesheet';
                     sheet.href = 'leaderboard.css';
-                    document.head.append(sheet);
+                    const anchor = document.head.querySelector('link[href="notes-studio.css"], link[href="productivity-hub.css"]');
+                    if (anchor) document.head.insertBefore(sheet, anchor);
+                    else document.head.append(sheet);
                 }
                 import('./leaderboard.js').then(m => m.mountLeaderboard(main)).catch(() => {
                     if (main.isConnected) main.querySelector('#announcement').textContent = 'Could not load standings. Please refresh to retry.';
@@ -292,93 +294,84 @@
         // <header>/<main> without full browser page reloads or top loading bars.
         const pageCache = new Map();
         const inFlightPages = new Map();
+        const STYLE_ORDER = [
+            'plan-tasks.css',
+            'rescue-mode.css',
+            'day-workspace.css',
+            'consistency-shield.css',
+            'leaderboard.css',
+            'notes-studio.css',
+            'productivity-hub.css',
+        ];
+        function appendOrderedStyle(link) {
+            const href = link.getAttribute('href') || '';
+            const idx = STYLE_ORDER.indexOf(href);
+            if (idx !== -1 && document.head) {
+                for (let i = idx + 1; i < STYLE_ORDER.length; i++) {
+                    const anchor = document.head.querySelector(`link[href="${STYLE_ORDER[i]}"]`);
+                    if (anchor) {
+                        document.head.insertBefore(link, anchor);
+                        return;
+                    }
+                }
+            }
+            document.head.appendChild(link);
+        }
+        function ensureOrderedLink(href, errMessage, getCache, setCache) {
+            const existing = document.querySelector(`link[href="${href}"]`);
+            if (existing) {
+                // Keep canonical cascade order when navigating from pages (e.g. Dashboard -> Habits).
+                const idx = STYLE_ORDER.indexOf(href);
+                if (idx !== -1 && document.head) {
+                    for (let i = idx + 1; i < STYLE_ORDER.length; i++) {
+                        const anchor = document.head.querySelector(`link[href="${STYLE_ORDER[i]}"]`);
+                        if (anchor && (existing.compareDocumentPosition(anchor) & Node.DOCUMENT_POSITION_PRECEDING)) {
+                            document.head.insertBefore(existing, anchor);
+                            break;
+                        }
+                    }
+                }
+                return Promise.resolve();
+            }
+            if (getCache()) return getCache();
+            const pending = new Promise((resolve, reject) => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = href;
+                link.addEventListener('load', resolve, { once: true });
+                link.addEventListener('error', () => {
+                    link.remove();
+                    setCache(null);
+                    reject(new Error(errMessage));
+                }, { once: true });
+                appendOrderedStyle(link);
+            });
+            setCache(pending);
+            return pending;
+        }
         let analyticsModulePromise = null;
         let notesModulePromise = null;
         let notesStylesPromise = null;
         let workspaceStylesPromise = null;
         function ensureWorkspaceStyles() {
-            if (document.querySelector('link[href="day-workspace.css"]')) return Promise.resolve();
-            if (workspaceStylesPromise) return workspaceStylesPromise;
-            workspaceStylesPromise = new Promise((resolve,reject) => {
-                const link=document.createElement('link');
-                link.rel='stylesheet';link.href='day-workspace.css';
-                link.addEventListener('load',resolve,{once:true});
-                link.addEventListener('error',()=>{
-                    link.remove();workspaceStylesPromise=null;
-                    reject(new Error('Daily workspace stylesheet failed'));
-                },{once:true});
-                document.head.appendChild(link);
-            });
-            return workspaceStylesPromise;
+            return ensureOrderedLink('day-workspace.css', 'Daily workspace stylesheet failed', () => workspaceStylesPromise, v => { workspaceStylesPromise = v; });
         }
-        let shieldStylesPromise=null;
+        let shieldStylesPromise = null;
         function ensureShieldStyles() {
-            if(document.querySelector('link[href="consistency-shield.css"]'))return Promise.resolve();
-            if(shieldStylesPromise)return shieldStylesPromise;
-            shieldStylesPromise=new Promise((resolve,reject)=>{
-                const link=document.createElement('link');
-                link.rel='stylesheet';link.href='consistency-shield.css';
-                link.addEventListener('load',resolve,{once:true});
-                link.addEventListener('error',()=>{link.remove();shieldStylesPromise=null;reject(new Error('Shield CSS unavailable'));},{once:true});
-                document.head.appendChild(link);
-            });
-            return shieldStylesPromise;
+            return ensureOrderedLink('consistency-shield.css', 'Shield CSS unavailable', () => shieldStylesPromise, v => { shieldStylesPromise = v; });
         }
         let rescueStylesPromise = null;
         function ensureRescueStyles() {
-            if (document.querySelector('link[href="rescue-mode.css"]')) return Promise.resolve();
-            if (rescueStylesPromise) return rescueStylesPromise;
-            rescueStylesPromise = new Promise((resolve, reject) => {
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'rescue-mode.css';
-                link.addEventListener('load', resolve, { once: true });
-                link.addEventListener('error', () => {
-                    link.remove();
-                    rescueStylesPromise = null;
-                    reject(new Error('ARC Rescue stylesheet could not load'));
-                }, { once: true });
-                document.head.appendChild(link);
-            });
-            return rescueStylesPromise;
+            return ensureOrderedLink('rescue-mode.css', 'ARC Rescue stylesheet could not load', () => rescueStylesPromise, v => { rescueStylesPromise = v; });
         }
 
         let plannerStylesPromise = null;
         function ensurePlannerStyles() {
-            if (document.querySelector('link[href="plan-tasks.css"]')) return Promise.resolve();
-            if (plannerStylesPromise) return plannerStylesPromise;
-            plannerStylesPromise = new Promise((resolve, reject) => {
-                const sheet = document.createElement('link');
-                sheet.rel = 'stylesheet';
-                sheet.href = 'plan-tasks.css';
-                sheet.addEventListener('load', resolve, { once: true });
-                sheet.addEventListener('error', () => {
-                    sheet.remove();
-                    plannerStylesPromise = null;
-                    reject(new Error('Planner styles failed to load'));
-                }, { once: true });
-                document.head.appendChild(sheet);
-            });
-            return plannerStylesPromise;
+            return ensureOrderedLink('plan-tasks.css', 'Planner styles failed to load', () => plannerStylesPromise, v => { plannerStylesPromise = v; });
         }
 
-
         function ensureNotesStyles() {
-            if (document.querySelector('link[href="notes-studio.css"]')) return Promise.resolve();
-            if (notesStylesPromise) return notesStylesPromise;
-            notesStylesPromise = new Promise((resolve, reject) => {
-                const sheet = document.createElement('link');
-                sheet.rel = 'stylesheet';
-                sheet.href = 'notes-studio.css';
-                sheet.addEventListener('load', resolve, {once:true});
-                sheet.addEventListener('error', () => {
-                    sheet.remove();
-                    notesStylesPromise = null;
-                    reject(new Error('Notes stylesheet could not load'));
-                }, {once:true});
-                document.head.appendChild(sheet);
-            });
-            return notesStylesPromise;
+            return ensureOrderedLink('notes-studio.css', 'Notes stylesheet could not load', () => notesStylesPromise, v => { notesStylesPromise = v; });
         }
 
         function removeNotesStyles() {

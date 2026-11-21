@@ -181,9 +181,13 @@
             transition: all 0.2s ease;
         }
         
-        .input-elegant:focus {
-            outline: none;
-            box-shadow: none;
+        .input-elegant:focus,
+        .input-elegant:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+            --tw-ring-shadow: 0 0 #0000 !important;
+            --tw-ring-offset-shadow: 0 0 #0000 !important;
+            --tw-ring-color: transparent !important;
             border-bottom-color: theme('colors.primary');
         }
 
@@ -194,12 +198,16 @@
             transition: all 0.2s ease;
         }
 
-        .input-boxed:focus {
+        .input-boxed:focus,
+        .input-boxed:focus-visible {
             border-color: theme('colors.primary');
-            box-shadow: 0 0 0 1px theme('colors.primary');
-            outline: none;
+            --tw-ring-shadow: 0 0 #0000 !important;
+            --tw-ring-offset-shadow: 0 0 #0000 !important;
+            --tw-ring-color: transparent !important;
+            box-shadow: 0 0 0 2px rgb(16 185 129 / 0.22) !important;
+            outline: none !important;
         }
-        button:focus-visible, a:focus-visible {
+        :where(button, a):focus-visible {
             outline: 2px solid currentColor;
             outline-offset: 3px;
         }

@@ -93,7 +93,7 @@
     .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
     .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
     .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
-    :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+    :where(a, button):focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
     @media (prefers-reduced-motion: reduce) {
         .animate-in { animation: none; opacity: 1; }
         .stat-bar, .cal-cell { transition: none; }

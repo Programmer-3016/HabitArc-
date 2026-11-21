@@ -68,13 +68,46 @@ test('Desktop, tablet, and narrow phone UI responsiveness guards stay intact acr
   assert.doesNotMatch(onboarding,/user-scalable=no|maximum-scale=1\.0/);
 });
 
+test('Project-wide focus states suppress inner/Tailwind double rings and Planner 3-tab row survives SPA navigation',()=>{
+  const appJs=read('app.js');
+  const appUiJs=read('app-ui.js');
+  const appCss=read('app-ui.css');
+  const hubCss=read('productivity-hub.css');
+  const notesCss=read('notes-studio.css');
+  const planCss=read('plan-tasks.css');
+  const dayCss=read('day-workspace.css');
+  const rescueCss=read('rescue-mode.css');
+  const habitsHtml=read('Habits.html');
+  const addHabitHtml=read('Add_Habit.html');
+
+  // No blanket !important neon outline on input/select/textarea inside styled wrappers
+  assert.doesNotMatch(appJs,/:where\([^)]*input[^)]*\):focus-visible[\s\S]*?#10b981 !important/);
+
+  // Composite search wrappers (Command Center + Notes Studio) move focus glow to the outer container
+  assert.match(hubCss,/\.ha-command-search input,[\s\S]*?outline:none !important[\s\S]*?--tw-ring-shadow:0 0 #0000 !important/);
+  assert.match(hubCss,/\.ha-command-search:focus-within\{/);
+  assert.match(notesCss,/\.notes-search input,[\s\S]*?outline:none !important[\s\S]*?--tw-ring-shadow:0 0 #0000 !important/);
+  assert.match(notesCss,/\.notes-search:focus-within\{/);
+
+  // Boxed/underline inputs suppress @tailwindcss/forms double focus rings across pages and dialogs
+  for(const [name,css] of [['app-ui.css',appCss],['plan-tasks.css',planCss],['day-workspace.css',dayCss],['rescue-mode.css',rescueCss],['Add_Habit.html',addHabitHtml]]){
+    assert.match(css,/--tw-ring-shadow:\s*0 0 #0000 !important/,name+' must clear Tailwind forms ring');
+  }
+  assert.match(habitsHtml,/refocusedBtn\?\.focus\(\{ preventScroll: true \}\)/);
+
+  // Planner 3-tab switcher stays 3 columns on both cold load and Dashboard -> Habits SPA navigation
+  assert.match(planCss,/\.ha-plan-modes\s*\{[\s\S]*?grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(appUiJs,/STYLE_ORDER[\s\S]*?'plan-tasks\.css'[\s\S]*?'rescue-mode\.css'[\s\S]*?'day-workspace\.css'/);
+  assert.match(appUiJs,/insertBefore\(existing, anchor\)/);
+});
+
 test('Retains five-tab mobile navigation and refreshes installed app styles',()=>{
   const html=read('Arc_AI.html');
   const nav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
   assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(x=>x[1]),
     ['Dashboard.html','Habits.html','Notes.html','Insights.html','Arc_AI.html']);
   assert.match(read('sw.js'), /'\/app-ui\.css'/);
-  assert.match(read('sw.js'), /habitarc-shell-v31/);
+  assert.match(read('sw.js'), /habitarc-shell-v32/);
   assert.match(read('tests/ui-layout.mjs'),/Android 320\/360\/390px/);
   assert.match(read('tests/ui-layout.mjs'),/\[320,360,390\]/);
 });
