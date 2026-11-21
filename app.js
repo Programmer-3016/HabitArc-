@@ -1485,6 +1485,44 @@ const HabitArc = (() => {
         _save(resetData);
     }
 
+    // ─── Restore (merge-only; never replace the local account) ──────
+    function restoreArchiveHabits(snapshot, { includeSettings = false } = {}) {
+        if (!snapshot || !Array.isArray(snapshot.habits) || typeof snapshot !== 'object') {
+            throw new Error('Backup habit records are invalid.');
+        }
+        const data = _getData();
+        const incoming = snapshot.habits.filter(h =>
+            h && typeof h.id === 'string' && h.id.length <= 90 &&
+            typeof h.name === 'string' && h.name.length <= 160
+        );
+        if (incoming.length !== snapshot.habits.length) throw new Error('Invalid habit fields in backup.');
+        const known = new Set(data.habits.map(h => h.id));
+        const toAdd = incoming.filter(h => !known.has(h.id));
+        if (data.habits.length + toAdd.length > 20) throw new Error('Restore would exceed the 20-habit limit. Remove duplicates from the source backup first.');
+        const records = snapshot.completionHistory && typeof snapshot.completionHistory === 'object'
+            && !Array.isArray(snapshot.completionHistory) ? snapshot.completionHistory : {};
+        let addedRecords = 0;
+        for (const [id, record] of Object.entries(records)) {
+            if (id.length > 180 || !record || typeof record !== 'object') continue;
+            if (typeof record.habitId !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(record.date || '')) continue;
+            if (!['completed','not_completed'].includes(record.status)) continue;
+            if (data.completionHistory[id]) continue;
+            data.completionHistory[id] = {
+                id, habitId:record.habitId, date:record.date, status:record.status,
+                completedAt:record.completedAt || null, updatedAt:record.updatedAt || new Date().toISOString()
+            };
+            _queueCompletionHistoryOperation(id,'upsert');
+            addedRecords++;
+        }
+        data.habits.push(...toAdd.map(h => _cloneData(h)));
+        if (includeSettings && snapshot.settings && typeof snapshot.settings === 'object') {
+            const allowed = ['theme','goalDuration','startWeekOn','defaultReminderTime','userName','userBio','dailyReminder','weeklySummary'];
+            for (const key of allowed) if (Object.hasOwn(snapshot.settings,key)) data.settings[key] = snapshot.settings[key];
+        }
+        _save(data);
+        return { habits:toAdd.length, completions:addedRecords };
+    }
+
     // ─── Greeting ───────────────────────────────────
     function getGreeting() {
         const hour = new Date().getHours();
@@ -2091,6 +2129,7 @@ const HabitArc = (() => {
         playCompletionSound,
 
         // Export / Reset
+        restoreArchiveHabits,
         exportCSV,
         resetAllData,
 
