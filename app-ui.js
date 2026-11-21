@@ -311,6 +311,25 @@
             });
             return workspaceStylesPromise;
         }
+        let rescueStylesPromise = null;
+        function ensureRescueStyles() {
+            if (document.querySelector('link[href="rescue-mode.css"]')) return Promise.resolve();
+            if (rescueStylesPromise) return rescueStylesPromise;
+            rescueStylesPromise = new Promise((resolve, reject) => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'rescue-mode.css';
+                link.addEventListener('load', resolve, { once: true });
+                link.addEventListener('error', () => {
+                    link.remove();
+                    rescueStylesPromise = null;
+                    reject(new Error('ARC Rescue stylesheet could not load'));
+                }, { once: true });
+                document.head.appendChild(link);
+            });
+            return rescueStylesPromise;
+        }
+
         let plannerStylesPromise = null;
         function ensurePlannerStyles() {
             if (document.querySelector('link[href="plan-tasks.css"]')) return Promise.resolve();
@@ -434,11 +453,12 @@
                     location.href = targetUrl.href;
                     return;
                 }
-                if (targetPage === 'Notes.html' || targetPage === 'Habits.html' || targetPage === 'Dashboard.html') {
+                if (targetPage === 'Notes.html' || targetPage === 'Habits.html' || targetPage === 'Dashboard.html' || targetPage === 'Arc_AI.html') {
                     try {
                         if (targetPage === 'Notes.html') await ensureNotesStyles();
-                        if (targetPage === 'Habits.html') await Promise.all([ensurePlannerStyles(),ensureWorkspaceStyles()]);
+                        if (targetPage === 'Habits.html') await Promise.all([ensurePlannerStyles(),ensureWorkspaceStyles(),ensureRescueStyles()]);
                         if (targetPage === 'Dashboard.html') await ensureWorkspaceStyles();
+                        if (targetPage === 'Arc_AI.html') await ensureRescueStyles();
                         if (seq !== navSequence) return;
                     } catch {
                         location.href = targetUrl.href;
