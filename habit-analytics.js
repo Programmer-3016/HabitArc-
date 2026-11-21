@@ -447,7 +447,7 @@ export function cleanArcDisplayText(text) {
         if(/^\s*\x60{3}/.test(part))return part;
         return part
           .replace(/\s*\(\s*including\s+(?:habit\s+)?(?:record\s+)?ids?[^)]*\bh_[a-z0-9_-]{6,}[^)]*\)/gi,'')
-          .replace(/\bincluding\s+(?:habit\s+)?ids?\s+\x60?h_[a-z0-9_-]{6,}\x60?(?:\s*,\s*(?:and\s+)?\x60?h_[a-z0-9_-]{6,}\x60?|\s+and\s+\x60?h_[a-z0-9_-]{6,}\x60?)*/gi,'several record entries')
+          .replace(/\bincluding\s+(?:habit\s+)?ids?\s+\x60?h_[a-z0-9_-]{6,}\x60?(?:\s*,\s*(?:and\s+)?\x60?h_[a-z0-9_-]{6,}\x60?|\s+and\s+\x60?h_[a-z0-9_-]{6,}\x60?)*/gi,'multiple matching habit entries')
           .replace(/\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*,\s*/gi,'(')
           .replace(/\s*\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*\)/gi,'')
           .replace(/\x60?h_[a-z0-9_-]{6,}\x60?/gi,'')
@@ -485,7 +485,8 @@ function arcDeckVerifiedMetrics(snapshot,esc) {
         '<div class="ha-arc-metric-card"><span class="ha-arc-metric-name">'+esc(m.label)+'</span>'+
         '<strong class="ha-arc-metric-value">'+esc(m.value.toLocaleString('en-IN'))+'</strong>'+
         '<span class="ha-arc-metric-index">0'+(i+1)+'</span></div>').join('')+'</div>'+
-      (snapshot.totalLogged===0?'<p class="ha-arc-verified-caveat">No completions were logged. That does not mean the activities were not performed.</p>':'')+
+      '<p class="ha-arc-verified-caveat">Scheduled totals are estimated from current repeat settings. '+
+      (snapshot.totalLogged===0?'No completions were logged; this does not prove the activities were not performed.':'Logged completions reflect saved entries, not everything done offline.')+'</p>'+
       '</section>';
 }
 
