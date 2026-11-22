@@ -538,7 +538,13 @@ export function renderArcSignalDeck(markdown, escapeHTML = defaultEscapeHtml, ve
  */
 export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, verifiedSnapshot = null) {
     const esc = typeof escapeHTML === 'function' ? escapeHTML : defaultEscapeHtml;
-    const source = cleanArcDisplayText(markdown);
+    // Keep dates and routine reminder times easy to read in normal prose,
+    // without boxed inline-code chips that fragment lines on narrow phones.
+    // Preserve fenced code blocks exactly as supplied.
+    const source = cleanArcDisplayText(markdown).split(/((?:^|\n)```[^\n]*\n[\s\S]*?(?:^|\n)```)/gm)
+        .map((piece, index) => index % 2 === 1 ? piece
+            : piece.replace(/`(\d{4}-\d{2}-\d{2}|(?:[01]?\d|2[0-3]):[0-5]\d)`/g, '$1'))
+        .join('');
     if (!source.trim()) return '';
     const content = arcDeckResponsiveTables(
         arcDeckCodeBlocks(renderCoachMarkdown(source, esc)), esc
