@@ -555,3 +555,59 @@ export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, ve
         : '';
     return '<div class="ha-arc-chat-answer ha-md-prose">' + content + sourceNote + '</div>';
 }
+
+
+/**
+ * Client-side SSE reader for POST /api/coach. Handles arbitrary network chunk
+ * boundaries, UTF-8 splits, CRLF, and multiple event frames per chunk.
+ * Requiring a terminal "done" prevents saving truncated responses as complete.
+ */
+export async function consumeArcCoachStream(response, onEvent) {
+    if (!response?.body?.getReader) throw new Error('Streaming is not supported in this browser.');
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let completed = false;
+    let totalChars = 0;
+    async function handleFrame(frame) {
+        const lines = frame.split('\n');
+        const name = lines.find(line => line.startsWith('event:'))?.slice(6).trim() || 'message';
+        const data = lines.filter(line => line.startsWith('data:'))
+            .map(line => line.slice(5).trimStart()).join('\n');
+        if (!data) return;
+        let value;
+        try { value = JSON.parse(data); }
+        catch { throw new Error('ARC AI returned an invalid streaming event.'); }
+        if (name === 'error') throw new Error(value?.message || 'ARC AI streaming failed.');
+        if (name === 'done') completed = true;
+        await onEvent(name, value);
+    }
+    try {
+        while (!completed) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const text = decoder.decode(value, { stream: true });
+            totalChars += text.length;
+            if (totalChars > 100000) throw new Error('ARC AI streamed response exceeded the limit.');
+            buffer += text;
+            buffer = buffer.replace(/\r\n/g, '\n');
+            let end;
+            while ((end = buffer.indexOf('\n\n')) !== -1) {
+                const event = buffer.slice(0, end);
+                buffer = buffer.slice(end + 2);
+                await handleFrame(event);
+                if (completed) break;
+            }
+            if (buffer.length > 16000) throw new Error('ARC AI returned an oversized streaming event.');
+        }
+        if (!completed) {
+            buffer += decoder.decode();
+            buffer = buffer.replace(/\r\n/g, '\n').trim();
+            if (buffer) await handleFrame(buffer);
+        }
+        if (!completed) throw new Error('ARC AI connection closed before the reply finished. Please retry.');
+    } finally {
+        if (!completed) await reader.cancel().catch(() => {});
+        reader.releaseLock();
+    }
+}
