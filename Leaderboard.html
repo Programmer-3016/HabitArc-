@@ -249,9 +249,14 @@
         <h2 id="treasures-title">Pixel loot &amp; runner powers</h2>
         <p>Clear every scheduled habit on a day to forge a clear day. Unlock wooden, iron, gold, and dragon chests to equip pixel powers on your companion.</p>
         <div class="lb-vault-stats" aria-label="Treasure room stats">
+          <span class="lb-vault-stat"><strong id="treasure-level">LVL 1</strong></span>
+          <span class="lb-vault-stat"><strong id="treasure-xp">0</strong> / 500 XP</span>
           <span class="lb-vault-stat"><strong id="treasure-clears">0</strong> clear days</span>
           <span class="lb-vault-stat"><strong id="treasure-opened-count">0 / 4</strong> chests</span>
-          <span class="lb-vault-stat"><strong id="treasure-xp">0</strong> XP</span>
+        </div>
+        <div class="lb-vault-xp-track" aria-label="Vault level progression">
+          <progress id="treasure-xp-bar" max="500" value="0" aria-label="Vault XP"></progress>
+          <span class="lb-vault-xp-legend">Wood +30 · Iron +70 · Gold +140 · Dragon +260 XP</span>
         </div>
       </div>
       <div class="lb-runner-plaque">

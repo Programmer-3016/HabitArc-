@@ -334,6 +334,15 @@ function mountTreasureRoom(root, find, redrawLeague) {
     find('treasure-avatar').dataset.power = bag.equipped || '';
     find('treasure-avatar').replaceChildren(sprite(hero, bag.equipped ? 'cheer' : 'run0'));
     find('treasure-runner').textContent = ready ? COMPANION_META[hero].label : 'Your companion';
+    const maxXp = CHESTS.reduce((sum, c) => sum + c.xp, 0) || 500;
+    const level = bag.opened.length + 1;
+    const levelEl = find('treasure-level');
+    if (levelEl) levelEl.textContent = level > CHESTS.length ? `LVL ${level} MAX` : `LVL ${level}`;
+    const xpBarEl = find('treasure-xp-bar');
+    if (xpBarEl) {
+      xpBarEl.max = maxXp;
+      xpBarEl.value = Math.min(maxXp, bag.xp);
+    }
     find('treasure-xp').textContent = String(bag.xp);
     const clearsEl = find('treasure-clears');
     if (clearsEl) clearsEl.textContent = String(count);
@@ -355,7 +364,6 @@ function mountTreasureRoom(root, find, redrawLeague) {
           : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name} unlocks.`;
 
     const shortNames = { wood: 'Wooden', iron: 'Iron', gold: 'Gold', ruby: 'Dragon' };
-    const questTags = { wood: 'LVL 1', iron: 'LVL 2', gold: 'LVL 3', ruby: 'BOSS' };
     const cards = CHESTS.map(c => {
       const opened = bag.opened.includes(c.id);
       const equipped = bag.equipped === c.id;
@@ -382,11 +390,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
             ? `Replay ${c.name} opening`
             : `Preview ${c.name} opening`
       );
-      const questChip = el('span', 'lb-quest-chip', questTags[c.id] || `${c.days}D`);
-      questChip.setAttribute('aria-hidden', 'true');
-      const lootChip = el('span', 'lb-loot-chip', `+${c.xp} XP`);
-      lootChip.setAttribute('aria-hidden', 'true');
-      stageBtn.append(chestArt(c, opened), questChip, lootChip);
+      stageBtn.append(chestArt(c, opened));
       stageBtn.addEventListener('click', () => reveal(c, !canOpen, stageBtn));
 
       const progressWrap = el('div', 'lb-xp-bar');
