@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {splitArcAnswer,renderArcSignalDeck,renderCoachMarkdown,cleanArcDisplayText,buildHabitCoachContext} from '../habit-analytics.js';
+import {splitArcAnswer,renderArcSignalDeck,renderArcChatAnswer,renderCoachMarkdown,cleanArcDisplayText,buildHabitCoachContext} from '../habit-analytics.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
@@ -83,19 +83,20 @@ test('Safe Markdown links and strikethrough work without clickable script scheme
  assert.match(out,/<del>old<\/del>/);
 });
 
-test('Responsive view controls, history and exact raw-copy remain wired to existing ARC AI',()=>{
+test('Single-chat UI, archived messages and raw-copy remain wired to existing ARC AI',()=>{
  const html=read('Arc_AI.html');
- assert.match(html,/renderArcSignalDeck\(latest\.answer/);
- assert.match(html,/renderArcSignalDeck\(turn\.answer/);
- assert.match(html,/handleDeckInteraction/);
+ assert.match(html,/renderArcChatAnswer\(latest\.answer/);
+ assert.match(html,/renderArcChatAnswer\(turn\.answer/);
+ assert.match(html,/handleAnswerInteraction/);
+ assert.doesNotMatch(html,/SIGNAL \/ READ/);
  assert.match(html,/navigator\.clipboard\.writeText\(cleanArcDisplayText\(latestAnswer\)\)/);
  assert.match(html,/renderSuggestedAction\(activeAction/);
  const mobileNav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
  assert.equal((mobileNav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
  const css=read('app-ui.css');
- assert.match(css,/\.ha-arc-deck-controls/);
- assert.match(css,/@media\(max-width:359px\)/);
- assert.match(css,/\.ha-arc-deck-read-view\[hidden\]/);
+ assert.match(css,/\.ha-arc-chat-answer/);
+ assert.match(css,/@media \(max-width: 359px\)/);
+ assert.match(css,/body\.ha-arc-body\.is-arc-thread-active \.ha-arc-answer-card/);
  assert.match(css,/prefers-reduced-motion/);
  assert.match(read('sw.js'),/habit-analytics\.js/);
 });
@@ -160,4 +161,41 @@ test('Actual analytics determine completion statistics, not generated text',()=>
  assert.equal(metrics.habitCount,1);
  assert.equal(metrics.totalScheduled,28);
  assert.equal(metrics.totalLogged,0);
+});
+
+
+test('Conversation layout renders one complete Markdown answer without duplicate hero or modes', () => {
+ const answer = [
+  'You have **0 recorded completions**. That does not prove you skipped the routines.',
+  '',
+  '### One small next step',
+  '- **Today:** Log one habit you complete.',
+  '- **Tomorrow:** Try again.',
+  '',
+  'A short closing thought.'
+ ].join('\n');
+ const html = renderArcChatAnswer(answer, undefined, {habitCount:12,totalScheduled:220,totalLogged:0});
+ assert.match(html,/class="ha-arc-chat-answer ha-md-prose"/);
+ assert.match(html,/<strong>0 recorded completions<\/strong>/);
+ assert.match(html,/<h4 class="ha-md-h">One small next step<\/h4>/);
+ assert.match(html,/<ul class="ha-md-ul">/);
+ assert.match(html,/A short closing thought/);
+ assert.match(html,/SYNCED ACCOUNT SNAPSHOT/);
+ assert.match(html,/12 habits · 0\/220 logged checks/);
+ assert.equal((html.match(/One small next step/g)||[]).length,1);
+ assert.doesNotMatch(html,/SIGNAL|READOUT|data-arc-mode|ha-arc-signal-hero/);
+});
+
+test('Chat renderer safely escapes injected markup and keeps formatted tables and code copy', () => {
+ const input = '### Compare\n\n| Habit | Rate |\n| --- | --- |\n| Read | 25% |\n\n' +
+  '\x60\x60\x60js\nconst ok = 1;\n\x60\x60\x60\n\n' +
+  '<img src=x onerror=alert(1)> [safe](https://example.org/?x=1&y=2)';
+ const out = renderArcChatAnswer(input);
+ assert.match(out,/ha-arc-responsive-table/);
+ assert.match(out,/data-label="Habit"/);
+ assert.match(out,/data-arc-copy-code/);
+ assert.match(out,/&lt;img src=x onerror=alert\(1\)&gt;/);
+ assert.doesNotMatch(out,/<img\b/i);
+ assert.match(out,/https:\/\/example.org\/\?x=1&amp;y=2/);
+ assert.doesNotMatch(out,/ha-arc-chat-source/);
 });

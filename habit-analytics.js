@@ -529,3 +529,29 @@ export function renderArcSignalDeck(markdown, escapeHTML = defaultEscapeHtml, ve
       '<div class="ha-arc-deck-original ha-md-prose">'+original+'</div></div>'+
       '<div class="ha-arc-deck-bottom"><span>FORMAT / SIGNAL DECK</span><span>Full answer in READ · record IDs hidden</span></div></div>';
 }
+
+
+/**
+ * ARC AI conversational response. One continuous, accessible Markdown answer;
+ * no duplicated preview/readout, no forced sections, and no unverified AI
+ * numbers introduced by the presentation layer.
+ */
+export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, verifiedSnapshot = null) {
+    const esc = typeof escapeHTML === 'function' ? escapeHTML : defaultEscapeHtml;
+    const source = cleanArcDisplayText(markdown);
+    if (!source.trim()) return '';
+    const content = arcDeckResponsiveTables(
+        arcDeckCodeBlocks(renderCoachMarkdown(source, esc)), esc
+    );
+    const snapshot = verifiedSnapshot;
+    const verified = snapshot && ['habitCount', 'totalScheduled', 'totalLogged']
+        .every(key => Number.isSafeInteger(snapshot[key]) && snapshot[key] >= 0 && snapshot[key] <= 100000)
+        && snapshot.totalLogged <= snapshot.totalScheduled;
+    const sourceNote = verified
+        ? '<div class="ha-arc-chat-source" role="note"><span>SYNCED ACCOUNT SNAPSHOT</span><span>' +
+          esc(String(snapshot.habitCount)) + ' habits · ' +
+          esc(String(snapshot.totalLogged)) + '/' + esc(String(snapshot.totalScheduled)) +
+          ' logged checks</span></div>'
+        : '';
+    return '<div class="ha-arc-chat-answer ha-md-prose">' + content + sourceNote + '</div>';
+}
