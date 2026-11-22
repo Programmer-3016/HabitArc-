@@ -170,23 +170,16 @@ function mountTreasureRoom(root, find, redrawLeague) {
     if (showing) return;
     const {scope, ready, hero} = read();
     const dialog = el('dialog', 'lb-reveal');
+    dialog.tabIndex = -1;
     dialog.dataset.tier = chest.id;
     dialog.dataset.phase = 'sealed';
-    dialog.setAttribute('aria-label', chest.name + (sample ? ' preview' : ' reward'));
+    dialog.setAttribute('aria-label', chest.name + (sample ? ' preview' : ' reward') + '. Click anywhere to open.');
     const stageCtrl = createRevealStage(chest, false);
     const art = stageCtrl.stage;
     const kicker = el('div', 'lb-reveal-kicker');
     const stateLabel = el('span', 'lb-reveal-badge', sample ? 'Opening preview' : 'Treasure unlocked');
     const headline = el('strong', 'lb-reveal-chest-name', chest.name);
     kicker.append(stateLabel, headline);
-    const open = el('button', 'lb-reveal-open');
-    open.type = 'button'; open.autofocus = true;
-    open.setAttribute('aria-label', 'Tap to open ' + chest.name);
-    open.append(el('span', 'lb-reveal-prompt', 'Tap to open'));
-    const openingCue = el('p', 'lb-reveal-wait', 'Opening chest...');
-    openingCue.hidden = true;
-    const close = el('button', 'lb-reveal-close', '×');
-    close.type = 'button'; close.setAttribute('aria-label', 'Close treasure');
     const title = el('h2', 'lb-reveal-title', chest.power);
     const detail = el('p', 'lb-reveal-detail', sample ? 'Preview only · No XP awarded' : '+' + chest.xp + ' XP · Power equipped');
     const done = el('button', 'lb-reveal-done', 'Back to treasures');
@@ -195,9 +188,9 @@ function mountTreasureRoom(root, find, redrawLeague) {
     copy.append(title, detail);
     copy.hidden = done.hidden = true;
     const slot = el('div', 'lb-reveal-slot');
-    slot.append(open, openingCue, copy, done);
+    slot.append(copy, done);
     const announce = el('div', 'lb-sr'); announce.setAttribute('role', 'status');
-    dialog.append(kicker, art, slot, close, announce);
+    dialog.append(art, kicker, slot, announce);
     showing = { dialog, scope, ready };
     let finishTimer, typeTimer;
     function typeHeadline(targetText) {
@@ -218,16 +211,12 @@ function mountTreasureRoom(root, find, redrawLeague) {
       if (!dialog.open || dialog.dataset.phase !== 'opening') return;
       clearTimeout(finishTimer);
       dialog.dataset.phase = 'revealed';
-      openingCue.hidden = true;
       if (!sample) stateLabel.textContent = 'Reward unlocked';
       copy.hidden = done.hidden = false;
       announce.textContent = chest.power + '. ' + detail.textContent;
       if (document.activeElement === dialog) done.focus({ preventScroll: true });
     }
-    art.addEventListener('click', () => {
-      if (dialog.dataset.phase === 'sealed') open.click();
-    });
-    open.addEventListener('click', () => {
+    function triggerOpen() {
       if (!dialog.open || dialog.dataset.phase !== 'sealed') return;
       if (!sample && !applyTreasure(chest, 'open', scope, hero)) {
         dialog.close();
@@ -237,12 +226,19 @@ function mountTreasureRoom(root, find, redrawLeague) {
       }
       dialog.dataset.phase = 'opening';
       dialog.focus({ preventScroll: true });
-      open.hidden = true;
-      openingCue.hidden = false;
       typeHeadline(sample ? 'Preview Item' : 'New Item');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       stageCtrl.play({ reducedMotion: reduced, onClimax: finish });
       if (!reduced) finishTimer = setTimeout(finish, 3600);
+    }
+    dialog.addEventListener('click', () => {
+      if (dialog.dataset.phase === 'sealed') triggerOpen();
+    });
+    dialog.addEventListener('keydown', event => {
+      if (dialog.dataset.phase === 'sealed' && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        triggerOpen();
+      }
     });
     dialog.addEventListener('close', () => {
       stageCtrl.stop();
@@ -256,17 +252,13 @@ function mountTreasureRoom(root, find, redrawLeague) {
       if (fallback === card && card) card.tabIndex = -1;
       (trigger?.isConnected && !trigger.disabled ? trigger : fallback)?.focus({preventScroll:true});
     }, {once:true});
-    close.addEventListener('click', () => dialog.close());
-    done.addEventListener('click', () => dialog.close());
-    dialog.addEventListener('click', event => {
-      if (event.target !== dialog || dialog.dataset.phase === 'opening') return;
-      const box = art.getBoundingClientRect();
-      const outside = event.clientX < box.left || event.clientX > box.right ||
-        event.clientY < box.top || event.clientY > box.bottom;
-      if (outside) dialog.close();
+    done.addEventListener('click', event => {
+      event.stopPropagation();
+      dialog.close();
     });
     root.append(dialog);
     dialog.showModal();
+    dialog.focus({ preventScroll: true });
   }
   function applyTreasure(chest, action, scope, hero) {
     const current = read();

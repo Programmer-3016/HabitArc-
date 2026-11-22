@@ -8,6 +8,7 @@ import {
   STAGE_HEIGHT,
   STAGE_WIDTH,
   chestArt,
+  computeStageDimensions,
   createRevealStage,
   renderChestPixels,
   renderRevealFrame,
@@ -98,13 +99,23 @@ test('56-frame 112x96 reveal stage keeps neutral dark background behind chest an
   assert.ok(cornerColors.size >= 2);
 });
 
-test('Modal reveal contract triggers playback, climax completion, and preserves XP/unlock rewards', () => {
+test('Modal reveal uses fullscreen tap-anywhere UX without Tap to open button or close cross', () => {
   assert.equal(render(chestArt, 'wood', true).dataset.open, 'true');
+  const dimsDesktop = computeStageDimensions(1366, 900);
+  const dimsPhone = computeStageDimensions(390, 844);
+  assert.ok(dimsDesktop.width >= 160 && dimsDesktop.height >= 110);
+  assert.ok(dimsPhone.width >= 96 && dimsPhone.height >= 160);
+  assert.equal(renderRevealFrame('gold', 34, dimsDesktop.width, dimsDesktop.height).length, dimsDesktop.width * dimsDesktop.height);
+
   const js = read('leaderboard.js');
+  const css = read('leaderboard.css');
   assert.match(js, /createRevealStage\(chest, false\)/);
   assert.match(js, /stageCtrl\.play\(/);
   assert.match(js, /stageCtrl\.stop\(/);
+  assert.match(js, /dialog\.addEventListener\('click'/);
   assert.match(js, /changeTreasure\(/);
+  assert.doesNotMatch(js, /lb-reveal-open|lb-reveal-close|Tap to open/);
+  assert.match(css, /\.lb-reveal \.lb-reveal-stage\s*\{[^}]*position:\s*fixed;\s*inset:\s*0/);
   const rewards = read('runner-treasures.js');
   assert.match(rewards, /days: 1, xp: 30/);
   assert.match(rewards, /days: 7, xp: 70/);

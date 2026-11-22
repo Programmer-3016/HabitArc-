@@ -395,8 +395,8 @@ function drawScaledArt(r, art, palMap, cx, cy, scale) {
 
 function drawFloorShadow(r, ox, oy, dropY) {
   const cy = oy + 52 + dropY, cx = ox + 32;
-  if (cy >= r.h) return;
-  for (let y = cy - 5; y <= cy + 6; y++) {
+  if (cy - 5 >= r.h) return;
+  for (let y = Math.max(0, cy - 5); y <= Math.min(r.h - 1, cy + 6); y++) {
     for (let x = cx - 24; x <= cx + 24; x++) {
       const dx = (x - cx) / 24, dy = (y - cy) / 5.5;
       if (dx * dx + dy * dy <= 1) r.put(SHADOW_BG, x, y);
@@ -405,8 +405,10 @@ function drawFloorShadow(r, ox, oy, dropY) {
 }
 
 function drawItemBacklight(r, tier, cx, cy, reach, phase, t, climax = 0) {
-  for (let y = 0; y < STAGE_HEIGHT; y++) {
-    for (let x = 0; x < STAGE_WIDTH; x++) {
+  const unit = Math.min(r.w, r.h) / STAGE_HEIGHT;
+  const maxCorner = Math.ceil(Math.hypot(Math.max(cx, r.w - cx), Math.max(cy, r.h - cy))) + 6;
+  for (let y = 0; y < r.h; y++) {
+    for (let x = 0; x < r.w; x++) {
       const dx = x - cx, dy = y - cy;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const dEll = Math.sqrt(dx * dx + (dy * 1.25) * (dy * 1.25));
@@ -414,54 +416,58 @@ function drawItemBacklight(r, tier, cx, cy, reach, phase, t, climax = 0) {
       if (tier === 'wood') {
         let col = STAGE_BG;
         if (reach > 0.02) {
-          if (dist < 6 + reach * 38) col = '#17100e';
-          if (dist < 4 + reach * 26 + phase * 2) col = '#291710';
-          if (reach > 0.35 && Math.abs(dx) < (3 + reach * 9) && y < cy + 30) {
-            col = Math.abs(dx) < 5 ? '#572814' : '#3b1d10';
+          if (dist < (6 + reach * 38) * unit) col = '#17100e';
+          if (dist < (4 + reach * 26 + phase * 2) * unit) col = '#291710';
+          if (reach > 0.35 && Math.abs(dx) < (3 + reach * 9) * unit && y < cy + 36 * unit) {
+            col = Math.abs(dx) < 5 * unit ? '#572814' : '#3b1d10';
           }
-          if (dEll < 3 + reach * 14 + phase * 3) col = '#6b3214';
-          if (climax > 0 && dist < 16) col = '#fb923c';
-          else if (reach > 0.75 && phase > 0.65 && dist < 22 && (Math.abs(dx) < 3 || Math.abs(dy) < 2)) col = '#9a4718';
+          if (dEll < (3 + reach * 14 + phase * 3) * unit) col = '#6b3214';
+          if (climax > 0 && dist < 16 * unit) col = '#fb923c';
+          else if (reach > 0.75 && phase > 0.65 && dist < 22 * unit && (Math.abs(dx) < 3 * unit || Math.abs(dy) < 2 * unit)) col = '#9a4718';
         }
         r.put(col, x, y);
       } else if (tier === 'iron') {
         let col = STAGE_BG;
         if (reach > 0.02) {
-          if (dist < 8 + reach * 46) col = '#08152b';
-          if (dist < 5 + reach * 32 + phase * 3) col = '#0b2547';
-          if (dist < 3 + reach * 20 + phase * 4) col = '#113c6e';
+          const maxFrost = Math.max(8 + reach * 46, reach * maxCorner * 0.85);
+          if (dist < maxFrost) col = '#08152b';
+          if (dist < (5 + reach * 32 + phase * 3) * unit) col = '#0b2547';
+          if (dist < (3 + reach * 20 + phase * 4) * unit) col = '#113c6e';
           if (reach > 0.25) {
             const ang = Math.atan2(dy, dx);
             const wedge = Math.abs(((ang + t * 0.04) % (Math.PI / 4)) - Math.PI / 8);
-            if (dist > 4 && dist < 8 + reach * 44 && wedge < 0.09) col = dist < 26 ? '#0e7490' : '#0b355e';
+            if (dist > 4 * unit && dist < Math.max((8 + reach * 44) * unit, reach * maxCorner * 0.92) && wedge < 0.09) {
+              col = dist < 26 * unit ? '#0e7490' : '#0b355e';
+            }
             if (reach > 0.5) {
-              const ring1 = 12 + ((t * 2.2) % 38);
-              const ring2 = 12 + (((t * 2.2) + 19) % 38);
-              if (Math.abs(dist - ring1) < 1.1 && dist < 8 + reach * 44) col = dist < 34 ? '#38bdf8' : '#0284c7';
-              else if (reach > 0.75 && ring2 < 46 && Math.abs(dist - ring2) < 0.95) col = '#0284c7';
+              const span = 42 * unit;
+              const ring1 = 12 * unit + ((t * 2.2 * unit) % span);
+              const ring2 = 12 * unit + (((t * 2.2 + 19) * unit) % span);
+              if (Math.abs(dist - ring1) < 1.25 * unit && dist < (8 + reach * 44) * unit) col = dist < 34 * unit ? '#38bdf8' : '#0284c7';
+              else if (reach > 0.75 && ring2 < 48 * unit && Math.abs(dist - ring2) < 1.05 * unit) col = '#0284c7';
             }
           }
-          if (climax > 0 && dist < 20) col = climax > 1 ? '#e0f2fe' : '#38bdf8';
-          else if (reach > 0.7 && dist < 13 && phase > 0.5) col = '#0369a1';
+          if (climax > 0 && dist < 20 * unit) col = climax > 1 ? '#e0f2fe' : '#38bdf8';
+          else if (reach > 0.7 && dist < 13 * unit && phase > 0.5) col = '#0369a1';
         }
         r.put(col, x, y);
       } else {
         let col = STAGE_BG;
         if (reach > 0.02) {
-          const maxR = 8 + reach * 66;
+          const maxR = 8 + reach * maxCorner;
           if (dist < maxR) col = '#1b0d26';
           if (reach > 0.2) {
             const a1 = Math.atan2(dy, dx) + t * 0.10;
             const a2 = Math.atan2(dy, dx) - t * 0.06;
             const m1 = ((a1 % (Math.PI / 5)) + (Math.PI / 5)) % (Math.PI / 5);
             const m2 = ((a2 % (Math.PI / 6)) + (Math.PI / 6)) % (Math.PI / 6);
-            if (m2 < 0.21 && dist > 4 && dist < maxR) col = dist < 42 ? '#4c1d95' : '#2e1065';
-            if (m1 < 0.24 && dist > 3 && dist < maxR) col = dist < 34 ? '#b45309' : '#612c09';
-            if (dist < 4 + reach * 24 + phase * 4) col = (m1 < 0.22) ? '#eab308' : '#7e22ce';
+            if (m2 < 0.21 && dist > 4 * unit && dist < maxR) col = dist < 44 * unit ? '#4c1d95' : '#2e1065';
+            if (m1 < 0.24 && dist > 3 * unit && dist < maxR) col = dist < 36 * unit ? '#b45309' : '#612c09';
+            if (dist < (4 + reach * 24 + phase * 4) * unit) col = (m1 < 0.22) ? '#eab308' : '#7e22ce';
           }
-          if (dist < 2 + reach * 15 + phase * 4) col = '#fde047';
-          if (climax > 0 && dist < 24) col = climax > 1 ? '#ffffff' : '#fef9c3';
-          else if (reach > 0.8 && dist < 12 && phase > 0.7) col = '#fef9c3';
+          if (dist < (2 + reach * 15 + phase * 4) * unit) col = '#fde047';
+          if (climax > 0 && dist < 24 * unit) col = climax > 1 ? '#ffffff' : '#fef9c3';
+          else if (reach > 0.8 && dist < 12 * unit && phase > 0.7) col = '#fef9c3';
         }
         r.put(col, x, y);
       }
@@ -476,7 +482,7 @@ function drawSparkle(r, col, core, x, y, s = 2) {
 
 function drawLabel(r, text, y, fg, shadow) {
   const w = [...text].reduce((a, ch) => a + (FONT[ch]?.[0].length || 3) + 1, -1);
-  let cx = Math.round((STAGE_WIDTH - w) / 2);
+  let cx = Math.round((r.w - w) / 2);
   for (const ch of text) {
     const g = FONT[ch] || FONT[' '];
     for (let ry = 0; ry < g.length; ry++) {
@@ -491,6 +497,18 @@ function drawLabel(r, text, y, fg, shadow) {
   }
 }
 
+/** Compute crisp fullscreen pixel-grid dimensions that fit any phone or desktop viewport. */
+export function computeStageDimensions(vw = STAGE_WIDTH, vh = STAGE_HEIGHT) {
+  if (!Number.isFinite(vw) || !Number.isFinite(vh) || vw < 180 || vh < 180) {
+    return { width: STAGE_WIDTH, height: STAGE_HEIGHT };
+  }
+  const pxScale = Math.max(3, Math.min(7, Math.floor(vh / 128), Math.floor(vw / 96)));
+  return {
+    width: Math.max(96, Math.ceil(vw / pxScale)),
+    height: Math.max(STAGE_HEIGHT, Math.ceil(vh / pxScale)),
+  };
+}
+
 /** Render a standalone 64x64 transparent chest frame for vault cards. */
 export function renderChestPixels(tierId, fIdx = 0) {
   const tier = normTier(tierId);
@@ -499,13 +517,18 @@ export function renderChestPixels(tierId, fIdx = 0) {
   return r.g;
 }
 
-/** Render a 112x96 reveal stage frame (0..55) for modal playback and unit verification. */
-export function renderRevealFrame(tierId, frameIndex) {
+/** Render a reveal stage frame (0..55) at either default 112x96 or fullscreen (gw x gh). */
+export function renderRevealFrame(tierId, frameIndex, gw = STAGE_WIDTH, gh = STAGE_HEIGHT) {
   const tier = normTier(tierId);
   const { art, artPal, label, fg, shadow } = CHEST_THEMES[tier];
   const i = Math.max(0, Math.min(REVEAL_FRAME_COUNT - 1, frameIndex | 0));
-  const r = makeSurface(STAGE_WIDTH, STAGE_HEIGHT, STAGE_BG);
-  const ox = 24, oy = 20;
+  const r = makeSurface(gw, gh, STAGE_BG);
+  const cx = Math.round(gw / 2);
+  const heroY = gh === STAGE_HEIGHT ? 41 : Math.round(gh * 0.43);
+  const ox = cx - 32;
+  const oy = heroY - 21;
+  const mouthY = oy + 32;
+  const unit = Math.min(gw, gh) / STAGE_HEIGHT;
 
   if (i <= 14) {
     drawFloorShadow(r, ox, oy, 0);
@@ -514,18 +537,19 @@ export function renderRevealFrame(tierId, frameIndex) {
     drawTierChest(r, tier, chestIdx, ox + shake, oy, 0);
     if (i >= 11) {
       const glowCol = tier === 'iron' ? '#7dd3fc' : tier === 'gold' ? '#fde047' : '#fbbf24';
-      drawSparkle(r, glowCol, '#ffffff', 52, 54 - (i - 11), 1);
+      drawSparkle(r, glowCol, '#ffffff', cx - 4, mouthY + 2 - (i - 11), 1);
     }
   } else if (i <= 27) {
     const p = (i - 15) / 12;
-    const itemX = Math.round(52 + Math.min(1, p * 1.4) * 4);
-    const itemY = Math.round(52 - Math.sin(p * Math.PI * 0.5) * 11);
+    const itemX = Math.round((cx - 4) + Math.min(1, p * 1.4) * 4);
+    const itemY = Math.round(mouthY - Math.sin(p * Math.PI * 0.5) * (mouthY - heroY));
     const reach = Math.pow(p, 1.35) * 0.88;
-    const chestDrop = i < 19 ? 0 : Math.round(Math.pow((i - 19) / 8, 1.4) * 34);
+    const dropSpan = Math.max(34, gh - (oy + 16));
+    const chestDrop = i < 19 ? 0 : Math.round(Math.pow((i - 19) / 8, 1.4) * dropSpan);
     const chestFrame = i <= 18 ? 10 : 9;
 
     drawItemBacklight(r, tier, itemX, itemY, reach, p * 0.8, i, i === 27 ? 1 : 0);
-    if (chestDrop < 32) {
+    if (chestDrop < dropSpan - 2) {
       drawFloorShadow(r, ox, oy, chestDrop);
       drawTierChest(r, tier, chestFrame, ox, oy, chestDrop);
     }
@@ -543,29 +567,36 @@ export function renderRevealFrame(tierId, frameIndex) {
     const phase = t < 5 ? 1.0 - t * 0.04 : 0.74 + Math.sin(t * 0.45) * 0.14;
     const bobY = t >= 2 ? Math.round(Math.sin(t * 0.5) * 1.5) : 0;
 
-    drawItemBacklight(r, tier, 56, 41, 1.0, phase, i, climax);
-    drawScaledArt(r, art, artPal, 56, 41 + bobY, 2);
+    drawItemBacklight(r, tier, cx, heroY, 1.0, phase, i, climax);
+    drawScaledArt(r, art, artPal, cx, heroY + bobY, 2);
 
     if (tier === 'wood') {
-      const pts = [[24, 54 - (t % 12), 1], [86, 48 - ((t + 4) % 14), 1], [32, 24 - (t % 8), 1]];
+      const pts = [
+        [cx - Math.round(32 * unit), heroY + 13 - (t % 12), 1],
+        [cx + Math.round(30 * unit), heroY + 7 - ((t + 4) % 14), 1],
+        [cx - Math.round(24 * unit), heroY - 17 - (t % 8), 1],
+      ];
       for (const [sx, sy, ss] of pts) drawSparkle(r, '#ea580c', '#fde047', sx, sy, ss);
     } else if (tier === 'iron') {
       for (let k = 0; k < 4; k++) {
         const a = t * 0.32 + (k * Math.PI) / 2;
-        drawSparkle(r, '#38bdf8', '#ffffff', 56 + Math.cos(a) * 34, 41 + Math.sin(a) * 26, 2);
+        drawSparkle(r, '#38bdf8', '#ffffff', cx + Math.cos(a) * (34 * unit), heroY + Math.sin(a) * (26 * unit), 2);
       }
     } else {
+      const dx = 36 * unit, dy = 24 * unit;
       const sparks = [
-        [16, 16, '#fde047', 2], [95, 18, '#c084fc', 2], [14, 62, '#38bdf8', 2],
-        [96, 60, '#fde047', 2], [26, 36, '#f472b6', 1], [86, 34, '#fef08a', 2],
-        [22, 74, '#fde047', 1], [90, 75, '#c084fc', 1],
+        [cx - dx, heroY - dy, '#fde047', 2], [cx + dx, heroY - dy, '#c084fc', 2],
+        [cx - dx - 4, heroY + dy, '#38bdf8', 2], [cx + dx + 4, heroY + dy, '#fde047', 2],
+        [cx - dx * 0.7, heroY - 4, '#f472b6', 1], [cx + dx * 0.7, heroY - 6, '#fef08a', 2],
+        [cx - dx * 0.85, heroY + dy + 10, '#fde047', 1], [cx + dx * 0.85, heroY + dy + 11, '#c084fc', 1],
       ];
       sparks.forEach(([sx, sy, col, ss], idx) => {
         if ((t + idx) % 3 !== 0) drawSparkle(r, col, '#ffffff', sx, sy, ss);
       });
     }
 
-    if (t >= 2) drawLabel(r, label, 82, fg, shadow);
+    const labelY = gh === STAGE_HEIGHT ? 82 : Math.min(gh - 10, heroY + 29);
+    if (t >= 2) drawLabel(r, label, labelY, fg, shadow);
   }
 
   return r.g;
@@ -648,15 +679,34 @@ export function createRevealStage(chest, opened = false) {
 
   const canvas = document.createElement('canvas');
   canvas.className = 'lb-reveal-canvas';
-  canvas.width = STAGE_WIDTH;
-  canvas.height = STAGE_HEIGHT;
+  let gw = STAGE_WIDTH, gh = STAGE_HEIGHT;
+  const syncSize = () => {
+    const win = typeof window !== 'undefined' ? window : null;
+    const dims = computeStageDimensions(win?.innerWidth || 0, win?.innerHeight || 0);
+    gw = dims.width;
+    gh = dims.height;
+    canvas.width = gw;
+    canvas.height = gh;
+  };
+  syncSize();
   stage.append(canvas);
 
   let timer = 0;
   let stopped = false;
+  let currentFrame = opened ? 34 : 0;
 
-  const draw = idx => paintPixels(canvas, renderRevealFrame(tier, idx), STAGE_WIDTH, STAGE_HEIGHT);
-  draw(opened ? 34 : 0);
+  const draw = idx => {
+    currentFrame = idx;
+    paintPixels(canvas, renderRevealFrame(tier, idx, gw, gh), gw, gh);
+  };
+  const onResize = () => {
+    syncSize();
+    draw(currentFrame);
+  };
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('resize', onResize);
+  }
+  draw(currentFrame);
 
   return {
     stage,
@@ -664,6 +714,7 @@ export function createRevealStage(chest, opened = false) {
       clearTimeout(timer);
       stopped = false;
       stage.dataset.open = 'true';
+      syncSize();
       if (reducedMotion) {
         draw(34);
         onClimax?.();
@@ -687,6 +738,9 @@ export function createRevealStage(chest, opened = false) {
     stop() {
       stopped = true;
       clearTimeout(timer);
+      if (typeof window !== 'undefined' && typeof window.removeEventListener === 'function') {
+        window.removeEventListener('resize', onResize);
+      }
     },
   };
 }

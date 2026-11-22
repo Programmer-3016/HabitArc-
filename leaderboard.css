@@ -180,33 +180,28 @@ body > main.ha-leaderboard {
 }
 .lb-chest-preview:hover { border-color: var(--ink); background: rgb(var(--ha-surface-container)); }
 .lb-chest-preview:focus-visible { outline:3px solid rgb(var(--ha-primary)); outline-offset:2px; }
-/* Pixel-game retro dark stage inside reveal dialog: neutral while sealed, item backlight blooms after open. */
+/* Fullscreen seamless dark pixel stage: tap anywhere to open, zero border box or close cross clutter. */
 .lb-reveal {
     --loot-rgb:249 115 22; --case-trim:#fbbf24;
     position:fixed; inset:0; margin:0; border:0; box-sizing:border-box;
     width:100%; max-width:none; height:100%; height:100dvh; max-height:none;
-    overflow-x:hidden; overflow-y:auto; isolation:isolate;
-    background:rgba(10, 9, 14, .96); color:#ffffff;
+    overflow:hidden; isolation:isolate;
+    background:#0a090e; color:#ffffff;
     font-family:var(--head, system-ui); text-align:center; overscroll-behavior:contain;
+    -webkit-tap-highlight-color:transparent;
 }
 .lb-reveal[open] {
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:clamp(12px, 2.2vh, 20px);
-    padding:max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+    padding:max(22px, 5dvh, env(safe-area-inset-top)) 16px max(26px, 5.5dvh, env(safe-area-inset-bottom));
 }
+.lb-reveal[data-phase="sealed"] { cursor:pointer; }
 .lb-reveal[data-tier="iron"] { --loot-rgb:56 189 248; --case-trim:#7dd3fc; }
 .lb-reveal[data-tier="gold"] { --loot-rgb:250 204 21; --case-trim:#fef08a; }
-.lb-reveal::backdrop { background:transparent; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+.lb-reveal::backdrop { background:#0a090e; }
 html:has(.lb-reveal[open]) { overflow:hidden; }
-.lb-reveal::before {
-    content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
-    background:radial-gradient(ellipse closest-side at center, rgb(var(--loot-rgb) / .24), rgb(var(--loot-rgb) / .08) 48%, transparent 74%);
-    opacity:0; transition:opacity 550ms ease;
-}
-.lb-reveal[data-phase="opening"]::before { opacity:1; transition-delay:950ms; }
-.lb-reveal[data-phase="revealed"]::before { opacity:1; transition-delay:0ms; }
 .lb-reveal-kicker {
-    max-width:92vw; display:grid; justify-items:center; gap:.55rem; margin:0;
+    position:relative; z-index:1; max-width:92vw;
+    display:grid; justify-items:center; gap:.55rem; margin:0;
 }
 .lb-reveal-badge {
     display:inline-flex; align-items:center; gap:.55em; padding:.28rem .65rem;
@@ -219,71 +214,45 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
     letter-spacing:.03em; text-shadow:0 3px 0 #000000; min-height:1.3em;
 }
 .lb-reveal .lb-reveal-stage {
-    position:relative; display:grid; place-items:center;
-    width:min(88vw, 44dvh, 336px); height:auto; aspect-ratio:112 / 96;
-    padding:0; border:2px solid rgba(255, 255, 255, .14); border-radius:14px;
-    background:#0a090e; background-image:none; overflow:hidden;
-    box-shadow:0 16px 38px rgba(0,0,0,.62);
-    transition:border-color 260ms ease, box-shadow 260ms ease;
-}
-.lb-reveal[data-phase="sealed"] .lb-reveal-stage { cursor:pointer; }
-.lb-reveal[data-phase="revealed"] .lb-reveal-stage {
-    border-color:rgb(var(--loot-rgb) / .52);
-    box-shadow:0 0 38px rgb(var(--loot-rgb) / .24), 0 18px 40px rgba(0,0,0,.68);
+    position:fixed; inset:0; z-index:0; width:100%; height:100%; max-width:none;
+    padding:0; border:0; border-radius:0; background:#0a090e; background-image:none;
+    box-shadow:none; pointer-events:none; display:block;
 }
 .lb-reveal-canvas {
     display:block; width:100%; height:100%;
     image-rendering:pixelated; image-rendering:crisp-edges;
 }
 .lb-reveal-slot {
-    min-height:112px; width:min(92vw, 32rem);
-    display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:12px;
+    position:relative; z-index:1; min-height:96px; width:min(92vw, 32rem);
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:12px;
 }
-.lb-reveal-wait {
-    margin:10px 0 0; font:600 .8rem/1.4 var(--mono, monospace); color:#cbd5e1;
-    letter-spacing:.04em; text-transform:uppercase;
+.lb-reveal-copy {
+    width:100%;
+    text-shadow:0 2px 10px rgba(0,0,0,.92), 0 1px 2px #000000;
 }
-.lb-reveal-copy { width:100%; }
-.lb-reveal-title { margin:0; font:700 clamp(1.4rem,4vw,2.2rem)/1.15 var(--head,system-ui); letter-spacing:-.03em; color:#ffffff; }
-.lb-reveal-detail { margin:.4rem 0 0; font:600 .86rem/1.4 var(--mono,monospace); color:#cbd5e1; }
+.lb-reveal-title { margin:0; font:700 clamp(1.45rem,4vw,2.2rem)/1.15 var(--head,system-ui); letter-spacing:-.03em; color:#ffffff; }
+.lb-reveal-detail { margin:.35rem 0 0; font:600 .86rem/1.4 var(--mono,monospace); color:#e2e8f0; }
 .lb-reveal-done {
     min-height:44px; width:max-content; max-width:90%;
-    padding:.55rem 1.25rem; cursor:pointer;
+    padding:.6rem 1.35rem; cursor:pointer;
 }
 @media (max-height:540px) {
-    .lb-reveal[open] { gap:8px; }
-    .lb-reveal .lb-reveal-stage { width:min(76vw, 42dvh, 280px); }
-    .lb-reveal-slot { min-height:84px; gap:8px; }
-    .lb-reveal-title, .lb-reveal-chest-name { font-size:1.25rem; }
+    .lb-reveal[open] { padding-block:14px; }
+    .lb-reveal-slot { min-height:68px; gap:8px; }
+    .lb-reveal-title, .lb-reveal-chest-name { font-size:1.2rem; }
 }
-/* The sealed pose waits indefinitely until tapped. */
 .lb-reveal [hidden] { display:none !important; }
-.lb-reveal-open {
-    display:inline-flex; justify-content:center; align-items:center;
-    background:transparent; border:0; padding:0;
-    cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent;
-}
-.lb-reveal-prompt {
-    display:inline-flex; align-items:center; gap:.65em; min-height:44px; padding:0 1.2rem;
-}
-.lb-chest-action:enabled, .lb-reveal-prompt, .lb-reveal-done {
+.lb-chest-action:enabled, .lb-reveal-done {
     background:var(--rpg-cta); color:var(--rpg-cta-fg); border-radius:var(--ha-ctrl-radius);
     border:2px solid var(--rpg-shadow-ink); box-shadow:2px 2px 0 var(--rpg-shadow-ink);
     font:700 .95rem/1.2 var(--head);
 }
-.lb-reveal-prompt, .lb-reveal-done {
+.lb-reveal-done {
     background:var(--case-trim, #f5b82e); color:#121215; border-color:#000000;
     box-shadow:3px 3px 0 #000000; font-family:"Press Start 2P", var(--head); font-size:.72rem; letter-spacing:.03em;
 }
-.lb-reveal-prompt::before { content:""; width:6px; height:6px; background:currentColor; transform:rotate(45deg); }
-.lb-reveal-open:active .lb-reveal-prompt, .lb-reveal-done:active, .lb-chest-action:enabled:active { box-shadow:none; translate:1px 1px; }
-.lb-reveal-open:focus-visible { outline:none; }
-.lb-reveal-open:focus-visible .lb-reveal-prompt, .lb-reveal-close:focus-visible, .lb-reveal-done:focus-visible { outline:3px solid var(--case-trim, #f5b82e); outline-offset:4px; }
-.lb-reveal-close {
-    position:fixed; right:max(1rem,env(safe-area-inset-right)); top:max(1rem,env(safe-area-inset-top));
-    width:44px; height:44px; padding:0; border:2px solid var(--case-trim, #f5b82e); border-radius:var(--ha-ctrl-radius);
-    color:#ffffff; background:#1c1724; box-shadow:2px 2px 0 #000000; font:500 1.5rem/1 var(--head); cursor:pointer;
-}
+.lb-reveal-done:active, .lb-chest-action:enabled:active { box-shadow:none; translate:1px 1px; }
+.lb-reveal-done:focus-visible { outline:3px solid var(--case-trim, #f5b82e); outline-offset:4px; }
 @keyframes lb-caption { from {opacity:0;translate:0 5px} to {opacity:1;translate:0 0} }
 @media (prefers-reduced-motion:no-preference) {
     .lb-reveal[data-phase="revealed"] .lb-reveal-copy { animation:lb-caption .28s ease-out both; }
@@ -363,11 +332,6 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
 @media(max-width:767px) { .lb-grid { grid-template-columns:minmax(0,1fr); gap:18px; } .lb-podium { min-height:198px; } .lb-intro { gap:12px; } .lb-filters button { min-height:44px; } .lb-stage-head { padding:16px 16px 0; } .lb-table-head { padding:16px; } .lb-feature { gap:12px; } }
 @media(max-width:370px) { body > main.ha-leaderboard { padding-inline:14px; } .lb-standings :is(th,td):first-child { padding-left:12px; } .lb-standings :is(th,td):last-child { padding-right:12px; } .lb-runner { gap:5px; } }
 
-/* ─── Leaderboard-only polish: reveal modal reset & resilient top tabs ─── */
-.lb-reveal .lb-chest-art {
-  background: none;
-  border: 0;
-}
 .lb-reveal .lb-chest-art::after { display: none; }
 
 /* Always expose both Leaderboard views without horizontal tab clipping. */
