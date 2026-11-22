@@ -128,7 +128,8 @@ test('Retains five-tab mobile navigation and refreshes installed app styles',()=
   assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(x=>x[1]),
     ['Dashboard.html','Habits.html','Notes.html','Insights.html','Arc_AI.html']);
   assert.match(read('sw.js'), /'\/app-ui\.css'/);
-  assert.match(read('sw.js'), /habitarc-shell-v38/);
+  const revision = read('sw.js').match(/const CACHE_NAME = 'habitarc-shell-v(\d+)'/);
+  assert.ok(Number(revision?.[1]) >= 39, 'offline Iron Chest art requires shell v39 or newer');
   assert.match(read('tests/ui-layout.mjs'),/Android 320\/360\/390px/);
   assert.match(read('tests/ui-layout.mjs'),/\[320,360,390\]/);
 });

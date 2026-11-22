@@ -25,14 +25,6 @@ const PALETTES = Object.freeze({
     inside: '#2c1f2e', lidMid: '#332334', lidEdge: '#5e4162',
     goldMid: '#fdcb35', goldLit: '#fef9c3', spark: '#fb923c', gem: '#fbbf24'
   },
-  iron: {
-    contour: '#2c1f2e',
-    face: '#5a9ba4', lit: '#73cab2', shade: '#3a7f82',
-    side: '#13574d', sideDeep: '#004424',
-    shine: '#fdd14d', trim: '#fdcb35', metal: '#e9700c', rimDark: '#a54209',
-    inside: '#2c1f2e', lidMid: '#332334', lidEdge: '#5e4162',
-    goldMid: '#73cab2', goldLit: '#e0f2fe', spark: '#38bdf8', gem: '#67e8f9'
-  },
   gold: {
     contour: '#2c1f2e',
     face: '#b0305a', lit: '#d84f79', shade: '#821d41',
@@ -265,15 +257,6 @@ function drawRelic(parent, id) {
     rect(parent, '#fb923c', 36, 8, 8, 5);
     rect(parent, '#fde047', 37, 9, 6, 4);
     rect(parent, '#ffffff', 39, 10, 3, 2);
-  } else if (id === 'iron') {
-    rect(parent, '#0f1e2e', 33, 2, 14, 8);
-    rect(parent, '#0f1e2e', 35, 10, 10, 3);
-    rect(parent, '#0f1e2e', 38, 13, 4, 2);
-    rect(parent, '#cbd5e1', 34, 3, 12, 6);
-    rect(parent, '#cbd5e1', 36, 9, 8, 3);
-    rect(parent, '#0284c7', 36, 5, 8, 5);
-    rect(parent, '#38bdf8', 36, 5, 4, 4);
-    rect(parent, '#e0f2fe', 37, 6, 2, 2);
   } else {
     rect(parent, '#451a03', 31, 5, 18, 10);
     rect(parent, '#451a03', 32, 2, 4, 4);
@@ -289,13 +272,19 @@ function drawRelic(parent, id) {
 }
 
 export function chestArt(chest, opened) {
-  const id = PALETTES[chest?.id] ? chest.id : 'wood';
-  const c = PALETTES[id];
   const stage = document.createElement('div');
   stage.className = 'lb-chest-art';
   stage.dataset.open = String(Boolean(opened));
   stage.dataset.style = 'pixel-game';
   stage.setAttribute('aria-hidden', 'true');
+  if (chest?.id === 'iron') {
+    const sprite = document.createElement('span');
+    sprite.className = 'lb-iron-sprite';
+    stage.append(sprite);
+    return stage;
+  }
+  const id = chest?.id === 'gold' ? 'gold' : 'wood';
+  const c = PALETTES[id];
 
   const svg = node(stage, 'svg', {
     viewBox: '0 0 88 78',
@@ -309,9 +298,7 @@ export function chestArt(chest, opened) {
   const ambient = group(svg, 'lb-chest-ambient');
   const ambientSpots = id === 'gold'
     ? [[8, 17, 2], [77, 15, 2], [7, 45, 2], [79, 49, 2]]
-    : id === 'iron'
-      ? [[9, 21, 2], [77, 26, 2]]
-      : [[9, 24, 2], [76, 27, 1]];
+    : [[9, 24, 2], [76, 27, 1]];
   for (const [x, y, size] of ambientSpots) {
     sparkle(ambient, c.spark, c.shine, x, y, size);
   }

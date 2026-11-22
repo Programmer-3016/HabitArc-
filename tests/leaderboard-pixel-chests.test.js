@@ -21,10 +21,10 @@ function render(id,opened=false) {
   };
   try{return chestArt({id},opened);}finally{globalThis.document=old;}
 }
-test('Existing three reward tiers use distinct chunky 16-bit chest sprites',()=>{
+test('Wood and Gold retain their distinct layered dungeon sprites',()=>{
   assert.deepEqual(CHESTS.map(c=>c.id),['wood','iron','gold']);
   const colors=new Set();
-  for(const id of ['wood','iron','gold']) {
+  for(const id of ['wood','gold']) {
     const art=render(id);
     assert.equal(art.className,'lb-chest-art');
     assert.equal(art.dataset.open,'false');
@@ -44,7 +44,20 @@ test('Existing three reward tiers use distinct chunky 16-bit chest sprites',()=>
     assert.ok(!fill.includes('url('),'no remote art resources');
     colors.add(fill.slice(0,340));
   }
-  assert.equal(colors.size,3,'different pixel palettes for each reward tier');
+  assert.equal(colors.size,2,'different pixel palettes for both SVG tiers');
+});
+test('Iron uses the approved 26-frame sheet instead of a second chest or relic',()=>{
+  const asset='/icons/iron-chest-sheet.png';
+  const png=readFileSync(new URL('..'+asset,import.meta.url));
+  assert.deepEqual([png.readUInt32BE(16),png.readUInt32BE(20)],[26*64,64]);
+  for(const opened of [false,true]){
+    const art=render('iron',opened);
+    assert.equal(art.dataset.open,String(opened));
+    assert.equal(art.attrs['aria-hidden'],'true');
+    assert.deepEqual(art.children.map(n=>n.className),['lb-iron-sprite']);
+  }
+  assert.ok(read('leaderboard.css').includes('.'+asset));
+  assert.ok(read('sw.js').includes("'"+asset+"'"));
 });
 test('Open chest state preserves existing reveal contract without changing XP',()=>{
   assert.equal(render('wood',true).dataset.open,'true');

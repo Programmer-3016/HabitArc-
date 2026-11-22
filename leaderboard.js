@@ -238,7 +238,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
       // The relic is the last animated beat. A bounded fallback also handles
       // background tabs, cancelled animations and motion-preference changes.
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
-      art.querySelector('.lb-chest-relic').addEventListener('animationend', finish, { once: true });
+      art.querySelector('.lb-iron-sprite, .lb-chest-relic').addEventListener('animationend', finish, { once: true });
       finishTimer = setTimeout(finish, 2400);
     });
     dialog.addEventListener('close', () => {
