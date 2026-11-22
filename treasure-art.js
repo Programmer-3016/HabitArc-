@@ -1035,9 +1035,177 @@ function buildVaultBackdrop32() {
   return buf;
 }
 
-/** Build a Vault Card chest stage displaying the crisp 64x64 3/4 pixel chest on a pixel volcanic UI backdrop. */
-export function chestArt(chest, opened) {
+const CARD_ANIM_PAL = Object.freeze({
+  wood: Object.freeze({ primary: '#fb923c', secondary: '#fde047', gem: '#fef08a' }),
+  iron: Object.freeze({ primary: '#38bdf8', secondary: '#7dd3fc', gem: '#e0f2fe' }),
+  gold: Object.freeze({ primary: '#facc15', secondary: '#c084fc', gem: '#fef9c3' }),
+  ruby: Object.freeze({ primary: '#fb7185', secondary: '#facc15', gem: '#ffe4e6' }),
+});
+const CARD_TIER_OFFSET = Object.freeze({ wood: 0, iron: 260, gold: 520, ruby: 780 });
+
+/**
+ * Render one 64x64 transparent animated Vault Card chest frame for tests and 20fps card canvases.
+ * - ready: eager bouncy hop + peeking lid + twinkling tier sparkles
+ * - collected / equipped: proudly open chest streaming floating treasure embers & lock glints
+ * - locked: gentle idle slumber shimmer with periodic lock/gem pulse
+ */
+export function paintCardChestFrame(r, tierId, opened, state = 'locked', elapsedMs = 0) {
+  const tier = normTier(tierId);
+  const C = col => (r.is32 ? col32(col) : col);
+  if (r.is32) r.buf.fill(0);
+  else r.g.fill(null);
+
+  const pal = CARD_ANIM_PAL[tier];
+  const offMs = CARD_TIER_OFFSET[tier] || 0;
+  const tMs = Math.max(0, elapsedMs) + offMs;
+  const tick = Math.floor(tMs / 55);
+
+  if (state === 'ready' && !opened) {
+    const pose = sealedIdlePose(tMs);
+    const fIdx = pose.jumpY <= -3 ? 1 : 0;
+    drawTierChest(r, tier, fIdx, pose.shakeX, pose.jumpY, 0);
+
+    // Alternating tier sparkles around eager chest
+    const spA = tick % 18;
+    if (spA < 10) {
+      const sy = 16 - Math.floor(spA / 2) + Math.round(pose.jumpY * 0.5);
+      if (spA >= 2 && spA <= 7) drawSparkle(r, C(pal.primary), C('#ffffff'), 12 + pose.shakeX, sy, 1);
+      else r.put(C(pal.secondary), 12 + pose.shakeX, sy);
+    }
+    const spB = (tick + 9) % 18;
+    if (spB < 10) {
+      const sy = 18 - Math.floor(spB / 2) + Math.round(pose.jumpY * 0.5);
+      if (spB >= 2 && spB <= 7) drawSparkle(r, C(pal.secondary), C('#ffffff'), 51 + pose.shakeX, sy, 1);
+      else r.put(C(pal.primary), 51 + pose.shakeX, sy);
+    }
+    // Periodic bright clasp gleam
+    const glint = tick % 26;
+    if (glint <= 3) {
+      const gx = 21 + glint + pose.shakeX;
+      r.put(C('#ffffff'), gx, 43 + pose.jumpY);
+      r.put(C(pal.gem), gx, 44 + pose.jumpY);
+    }
+    return;
+  }
+
+  if (opened) {
+    drawTierChest(r, tier, 10, 0, 0, 0);
+
+    // Floating pixel sparks & embers rising cleanly from open treasure chest mouth
+    const streams = [
+      [25, 29, 0, pal.secondary],
+      [32, 27, 7, pal.primary],
+      [38, 29, 14, pal.gem],
+      [29, 26, 21, pal.secondary],
+    ];
+    for (const [bx, by, delay, col] of streams) {
+      const phase = (tick + delay) % 28;
+      if (phase < 19) {
+        const y = by - phase;
+        const sway = phase % 8 < 4 ? 0 : 1;
+        if (phase >= 5 && phase <= 11) {
+          drawSparkle(r, C(col), C('#ffffff'), bx + sway, y, 1);
+        } else {
+          r.put(C(phase > 14 ? col : '#ffffff'), bx + sway, y);
+        }
+      }
+    }
+
+    // Treasure hoard coin shimmer inside the open lid
+    const glintIdx = Math.floor(tick / 4) % 4;
+    const hoardGlints = [[27, 30], [34, 31], [30, 29], [23, 31]];
+    const [hgx, hgy] = hoardGlints[glintIdx];
+    r.put(C('#ffffff'), hgx, hgy);
+    r.put(C(pal.gem), hgx + 1, hgy);
+
+    // Extra twin orbiting aura sparks when this relic power is actively equipped
+    if (state === 'equipped') {
+      const bob = Math.round(Math.sin(tMs * 0.0055) * 4);
+      drawSparkle(r, C(pal.primary), C('#ffffff'), 10, 31 + bob, 1);
+      drawSparkle(r, C(pal.secondary), C('#ffffff'), 53, 31 - bob, 1);
+      const crestPhase = tick % 20;
+      if (crestPhase < 4) r.put(C('#ffffff'), 29 + crestPhase, 12);
+    }
+    return;
+  }
+
+  // Locked chest: grounded with calm ember mote float, lock-gem pulse & subtle shiver
+  const microShake = tick % 56 === 48 ? -1 : tick % 56 === 50 ? 1 : 0;
+  drawTierChest(r, tier, 0, microShake, 0, 0);
+
+  // Subtle ambient dust motes hovering near dark horizon around the chest
+  const m1y = 20 + Math.round(Math.sin(tMs * 0.0028) * 2);
+  const m2y = 24 - Math.round(Math.cos(tMs * 0.0024) * 2);
+  r.put(C(pal.primary), 13, m1y);
+  r.put(C(pal.secondary), 50, m2y);
+
+  // Periodic lock/emblem crystal glint so even locked chests feel alive
+  const gemCycle = tick % 34;
+  if (gemCycle < 6) {
+    const gemPts = tier === 'gold'
+      ? [[22, 43], [25, 43]]
+      : tier === 'ruby'
+        ? [[20, 41], [27, 41], [23, 43]]
+        : [[23, 44], [24, 44]];
+    const col = gemCycle < 3 ? '#ffffff' : pal.gem;
+    for (const [gx, gy] of gemPts) r.put(C(col), gx + microShake, gy);
+  }
+}
+
+const cardAnimEntries = new Set();
+let cardAnimRafId = 0;
+
+function stopCardLoop() {
+  if (cardAnimRafId && typeof cancelAnimationFrame === 'function') {
+    cancelAnimationFrame(cardAnimRafId);
+  }
+  cardAnimRafId = 0;
+}
+
+function stepCardAnimations(now) {
+  cardAnimRafId = 0;
+  if (typeof document !== 'undefined' && document.hidden) return;
+  const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  if (reduced) return;
+
+  let activeCount = 0;
+  for (const entry of cardAnimEntries) {
+    if (!entry.canvas.isConnected) {
+      cardAnimEntries.delete(entry);
+      continue;
+    }
+    if (entry.canvas.closest?.('[hidden]')) continue;
+    activeCount += 1;
+    const elapsed = Math.max(0, (now || 0) - entry.startMs);
+    const step = Math.floor(elapsed / 55);
+    if (step === entry.lastStep) continue;
+    entry.lastStep = step;
+    paintCardChestFrame(entry.surface, entry.tier, entry.opened, entry.state, elapsed);
+    entry.ctx.putImageData(entry.img, 0, 0);
+  }
+  if (activeCount > 0 && typeof requestAnimationFrame === 'function') {
+    cardAnimRafId = requestAnimationFrame(stepCardAnimations);
+  }
+}
+
+/** Start or resume shared 20fps pixel animations across visible Vault chest cards. */
+export function wakeCardChestAnimations() {
+  if (cardAnimRafId || cardAnimEntries.size === 0 || typeof requestAnimationFrame !== 'function') return;
+  const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  if (reduced) return;
+  cardAnimRafId = requestAnimationFrame(stepCardAnimations);
+}
+
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) wakeCardChestAnimations();
+  });
+}
+
+/** Build a Vault Card chest stage displaying an animated 64x64 3/4 pixel chest on a pixel twilight pedestal. */
+export function chestArt(chest, opened, { state } = {}) {
   const tier = normTier(chest?.id);
+  const chestState = state || (opened ? 'collected' : 'locked');
   const stage = document.createElement('div');
   stage.className = 'lb-chest-art';
   stage.dataset.tier = tier;
@@ -1054,8 +1222,25 @@ export function chestArt(chest, opened) {
     ctx.imageSmoothingEnabled = false;
     const img = ctx.createImageData(64, 64);
     const buf32 = new Uint32Array(img.data.buffer);
-    drawTierChest(makeSurface32(64, 64, buf32), tier, opened ? 10 : 0, 0, 0, 0);
+    const surface = makeSurface32(64, 64, buf32);
+    paintCardChestFrame(surface, tier, Boolean(opened), chestState, 0);
     ctx.putImageData(img, 0, 0);
+
+    if (typeof requestAnimationFrame === 'function') {
+      const startMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
+      cardAnimEntries.add({
+        canvas,
+        ctx,
+        img,
+        surface,
+        tier,
+        opened: Boolean(opened),
+        state: chestState,
+        startMs,
+        lastStep: 0,
+      });
+      wakeCardChestAnimations();
+    }
   }
 
   const bg = document.createElement('canvas');

@@ -12,6 +12,7 @@ import {
   computeStageDimensions,
   createRevealStage,
   getTreasureSoundEnabled,
+  paintCardChestFrame,
   playChestEquipChime,
   playChestRevealAudio,
   renderChestPixels,
@@ -287,4 +288,30 @@ test('8-bit chest sound effects respect mute preference, play tier tracks, and c
   } finally {
     globalThis.window = oldWin;
   }
+});
+
+test('Vault card chests animate crisply per state across ready, equipped, collected, and locked', () => {
+  const frameFor = (tier, opened, state, elapsedMs) => {
+    const g = new Array(64 * 64).fill(null);
+    const surface = {
+      is32: false, w: 64, h: 64, g,
+      put(c, x, y) {
+        const px = Math.round(x), py = Math.round(y);
+        if (px >= 0 && px < 64 && py >= 0 && py < 64) g[py * 64 + px] = c;
+      },
+      rect(c, x, y, rw, rh) {
+        const x0 = Math.round(x), y0 = Math.round(y), x1 = Math.round(x + rw), y1 = Math.round(y + rh);
+        for (let py = Math.max(0, y0); py < Math.min(64, y1); py++) {
+          for (let px = Math.max(0, x0); px < Math.min(64, x1); px++) g[py * 64 + px] = c;
+        }
+      },
+    };
+    paintCardChestFrame(surface, tier, opened, state, elapsedMs);
+    return g;
+  };
+
+  assert.notDeepEqual(frameFor('gold', false, 'ready', 0), frameFor('gold', false, 'ready', 620), 'ready chest hops and sparkles over time');
+  assert.notDeepEqual(frameFor('iron', true, 'equipped', 0), frameFor('iron', true, 'equipped', 440), 'equipped open chest streams sparks and aura');
+  assert.notDeepEqual(frameFor('wood', true, 'collected', 0), frameFor('wood', true, 'collected', 330), 'collected open chest streams rising sparks');
+  assert.notDeepEqual(frameFor('ruby', false, 'locked', 0), frameFor('ruby', false, 'locked', 750), 'locked chest gently shimmers over time');
 });

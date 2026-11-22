@@ -6,6 +6,7 @@ import {
   playChestEquipChime,
   playChestRevealAudio,
   setTreasureSoundEnabled,
+  wakeCardChestAnimations,
 } from './treasure-art.js';
 // Public preview roster only. Never fetch or compare private habit documents here.
 export const COMPANION_META = Object.freeze({
@@ -358,7 +359,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
     find('treasure-summary').textContent = !ready
       ? 'Finish onboarding to track clear days and unlock chests — tap any chest below to preview its animation.'
       : !next
-        ? `Vault complete! All ${CHESTS.length} chests unlocked. Equip any relic power below.`
+        ? `Vault complete! All ${CHESTS.length} chests unlocked. Equip any runner power below.`
         : count >= next.days
           ? `${next.name} is unlocked and ready to open! Tap it to claim +${next.xp} XP.`
           : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name} unlocks.`;
@@ -414,7 +415,7 @@ function makeReplayIcon(opened) {
             ? `Replay ${c.name} opening`
             : `Preview ${c.name} opening`
       );
-      stageBtn.append(chestArt(c, opened));
+      stageBtn.append(chestArt(c, opened, { state }));
       stageBtn.addEventListener('click', () => reveal(c, !canOpen, stageBtn));
 
       const preview = el('button', 'lb-chest-preview');
@@ -444,9 +445,9 @@ function makeReplayIcon(opened) {
         'button',
         'lb-chest-action',
         equipped
-          ? '★ Equipped'
+          ? '✓ Equipped'
           : opened
-            ? 'Equip relic'
+            ? 'Equip power'
             : canOpen
               ? 'Open chest'
               : `Locked · ${c.days}d`
@@ -465,9 +466,12 @@ function makeReplayIcon(opened) {
         currentCard.focus({ preventScroll: true });
       });
 
+      const powerLine = el('p', 'lb-power-name');
+      powerLine.append(el('span', 'lb-power-kicker', 'Power: '), el('strong', null, c.power));
+
       body.append(
         heading,
-        el('strong', 'lb-power-name', `★ ${c.power}`),
+        powerLine,
         progressWrap,
         button
       );
@@ -477,6 +481,7 @@ function makeReplayIcon(opened) {
     });
 
     find('treasure-cards').replaceChildren(...cards);
+    wakeCardChestAnimations();
     if (focused) find('treasure-cards').querySelector('[data-chest="' + focused + '"]:not(:disabled)')?.focus({ preventScroll: true });
     if (focusedCard) {
       const card = find('treasure-cards').querySelector('[data-tier="' + focusedCard + '"]');
@@ -493,7 +498,7 @@ function makeReplayIcon(opened) {
     find('lb-scope').textContent = treasure ? 'Arc League · Your collection' : 'Arc League · Demo';
     find('lb-intro-text').textContent = treasure ? 'Earn powers for your companion by showing up for your own routine.' :
       'See how your runner stacks up against the league.';
-    if (treasure) render(); else redrawLeague();
+    if (treasure) { render(); wakeCardChestAnimations(); } else redrawLeague();
   }
   find('show-treasures').addEventListener('click', () => switchView(true));
   find('show-league').addEventListener('click', () => switchView(false));
