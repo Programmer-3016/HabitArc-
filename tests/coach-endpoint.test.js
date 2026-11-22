@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSign, generateKeyPairSync } from 'node:crypto';
-import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields } from '../api/coach.js';
+import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields, createCoachStreamCollector, streamWithGemini } from '../api/coach.js';
 
 function fixture({ anonymous = false, authCode, configured = true, limit = 15 } = {}) {
     let usage;
@@ -229,4 +229,143 @@ test('REST Firebase backend verifies RS256 ID tokens, blocks anonymous/wrong-aud
     const badRes = { headers: {}, setHeader(k, v) { this.headers[k] = v; }, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
     await handler({ method: 'POST', headers: { authorization: `Bearer ${wrongAudJwt}`, 'content-type': 'application/json' }, body: { question: 'Hello?', timeZone: 'Asia/Kolkata' } }, badRes);
     assert.equal(badRes.code, 401);
+});
+
+
+test('Real SSE Coach path keeps auth, quotas, server snapshots and private action tags', async () => {
+    const auth = { verifyIdToken: async () => ({ uid: 'stream-member', firebase: { sign_in_provider: 'google.com' } }) };
+    let quotaCalls = 0;
+    let releases = 0;
+    let generatorCalls = 0;
+    const handler = createCoachHandler({
+        configured: () => true,
+        now: () => new Date('2026-11-23T09:00:00Z'),
+        getAdmin: async () => ({
+            auth,
+            reserveQuota: async () => { quotaCalls++; return { leaseId: 'lease', remaining: 7, limit: 15, resetAt: '2026-11-24T00:00:00.000Z' }; },
+            releaseQuota: async () => { releases++; },
+            loadSnapshot: async () => ({ habits: [], completionHistory: [], settings: {} })
+        }),
+        streamGenerate: async ({ onDelta, prompt }) => {
+            generatorCalls++;
+            assert.match(prompt, /streaming question/);
+            onDelta('Start with a **small check-in**.\n');
+            onDelta('<habitarc_ac');
+            onDelta('tion>{"type":"create_habit","name":"Check In","category":"Mindfulness","reminder":"08:30","repeat":["mon"]}</habitarc_action>');
+        },
+        generate: async () => { throw new Error('Non-streaming endpoint must not generate here.'); }
+    });
+    const response = {
+        headers: {}, statusCode: 0, output: '', ended: false,
+        setHeader(k, v) { this.headers[k] = v; },
+        flushHeaders() {},
+        once() {},
+        write(data) { this.output += data; },
+        end() { this.ended = true; }
+    };
+    await handler({
+        method: 'POST',
+        headers: { authorization: 'Bearer test', 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: { question: 'streaming question', timeZone: 'Asia/Kolkata' }
+    }, response);
+    assert.equal(response.statusCode, 200);
+    assert.match(response.headers['Content-Type'], /text\/event-stream/);
+    assert.equal(response.ended, true);
+    assert.equal(quotaCalls, 1);
+    assert.equal(releases, 1);
+    assert.equal(generatorCalls, 1);
+    const blocks = response.output.trim().split(/\n\n/);
+    const events = blocks.map(block => ({
+        name: block.match(/^event: (.+)$/m)?.[1],
+        data: JSON.parse(block.match(/^data: (.+)$/m)?.[1])
+    }));
+    assert.equal(events[0].name, 'start');
+    assert.equal(events.at(-1).name, 'done');
+    const visible = events.filter(e => e.name === 'delta').map(e => e.data.text).join('');
+    assert.equal(visible.trim(), 'Start with a **small check-in**.');
+    assert.doesNotMatch(visible, /habitarc_action|create_habit/);
+    const complete = events.at(-1).data;
+    assert.equal(complete.answer, 'Start with a **small check-in**.');
+    assert.equal(complete.snapshot.habitCount, 0);
+    assert.equal(complete.suggestedAction?.name, 'Check In');
+});
+
+test('Collector handles split private action marker and flushes short non-action text', () => {
+    let displayed = '';
+    const collector = createCoachStreamCollector(delta => { displayed += delta; });
+    for (const delta of ['Hello ', '<habitarc', '_action>', '{"type":"create_habit"}', '</habitarc_action>']) collector.push(delta);
+    collector.flush();
+    assert.equal(displayed, 'Hello ');
+    assert.match(collector.raw, /habitarc_action/);
+    displayed = '';
+    const ordinary = createCoachStreamCollector(delta => { displayed += delta; });
+    ordinary.push('Hi');
+    ordinary.flush();
+    assert.equal(displayed, 'Hi');
+});
+
+test('Gemini SSE parser processes genuine streamed fragments across CRLF/UTF-8 chunk splits', async () => {
+    const old = process.env.HABITARC_GEMINI_API_KEY;
+    process.env.HABITARC_GEMINI_API_KEY = 'mock-provider-key';
+    try {
+        const fixture = [
+            'data: {"candidates":[{"content":{"parts":[{"text":"Hi "}]}}]}\r\n\r\n',
+            'data: {"candidates":[{"content":{"parts":[{"text":"🌟 day!"}]}, "finishReason":"STOP"}]}\r\n\r\n'
+        ].join('');
+        const bytes = new TextEncoder().encode(fixture);
+        let index = 0;
+        const body = new ReadableStream({
+            pull(controller) {
+                if (index >= bytes.length) { controller.close(); return; }
+                controller.enqueue(bytes.slice(index, index + 7));
+                index += 7;
+            }
+        });
+        const deltas = [];
+        await streamWithGemini({
+            model: 'gemini-test', system: 'Test', prompt: '{}', maxOutputTokens: 32,
+            abortSignal: AbortSignal.timeout(5000),
+            fetchImpl: async (url, options) => {
+                assert.match(url, /:streamGenerateContent\?alt=sse$/);
+                assert.equal(options.headers['x-goog-api-key'], 'mock-provider-key');
+                return { status: 200, ok: true, body };
+            },
+            onDelta: delta => deltas.push(delta)
+        });
+        assert.deepEqual(deltas, ['Hi ', '🌟 day!']);
+    } finally {
+        if (old === undefined) delete process.env.HABITARC_GEMINI_API_KEY;
+        else process.env.HABITARC_GEMINI_API_KEY = old;
+    }
+});
+
+test('Streaming failures after headers send an error frame and release the user lease', async () => {
+    let releases = 0;
+    const handler = createCoachHandler({
+        configured: () => true,
+        now: () => new Date('2026-11-23T09:00:00Z'),
+        logError() {},
+        getAdmin: async () => ({
+            auth: { verifyIdToken: async () => ({ uid: 'stream-member', firebase: { sign_in_provider: 'google.com' } }) },
+            reserveQuota: async () => ({ leaseId: 'lease', remaining: 7, limit: 15 }),
+            releaseQuota: async () => { releases++; },
+            loadSnapshot: async () => ({ habits: [], completionHistory: [], settings: {} })
+        }),
+        streamGenerate: async ({ onDelta }) => { onDelta('Partial reply'); throw new Error('provider disconnected'); }
+    });
+    const response = {
+        headers: {}, output: '', ended: false,
+        setHeader(k,v) { this.headers[k] = v; }, flushHeaders() {}, once() {},
+        write(text) { this.output += text; }, end() { this.ended = true; }
+    };
+    await handler({
+        method: 'POST',
+        headers: { authorization: 'Bearer test', 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: { question: 'Check my habits?', timeZone: 'Asia/Kolkata' }
+    }, response);
+    assert.equal(releases, 1);
+    assert.equal(response.ended, true);
+    assert.match(response.output, /event: error/);
+    assert.doesNotMatch(response.output, /event: done/);
+    assert.doesNotMatch(response.output, /provider disconnected/);
 });

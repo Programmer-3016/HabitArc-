@@ -351,7 +351,7 @@
 
 <script src="app.js"></script>
 <script type="module">
-import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText } from './habit-analytics.js';
+import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream } from './habit-analytics.js';
 (function initArcAI() {
     if (typeof HabitArc === 'undefined') return;
 
@@ -750,6 +750,21 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText } from
         const controller = new AbortController();
         requestController = controller;
         const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45000)]);
+        let streamedDraft = '';
+        let draftTimer = null;
+        const renderDraft = () => {
+            draftTimer = null;
+            if (controller !== requestController || controller.signal.aborted) return;
+            if (answerEl) answerEl.innerHTML = renderArcChatAnswer(streamedDraft, HabitArc.escapeHTML);
+            if (scrollArea && Number.isFinite(scrollArea.scrollHeight) && Number.isFinite(scrollArea.clientHeight)
+                && scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 180) {
+                scrollArea.scrollTop = scrollArea.scrollHeight;
+            }
+        };
+        const scheduleDraft = () => {
+            if (draftTimer !== null) return;
+            draftTimer = setTimeout(renderDraft, 75);
+        };
 
         try {
             if (navigator.onLine === false) {
@@ -775,12 +790,14 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText } from
             if (evidenceEl) evidenceEl.textContent = 'Analyzing your 28-day habit history…';
             renderSuggestedAction(null);
             answerCard?.classList.remove('hidden');
+            answerCard?.setAttribute?.('aria-live', 'off');
             showThreadView(true);
-            setStatus('Reviewing your synced history, goals and conversation…');
+            setStatus('ARC is thinking…');
             const response = await fetch('/api/coach', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'text/event-stream',
                     Authorization: `Bearer ${idToken}`
                 },
                 body: JSON.stringify({
@@ -850,7 +867,20 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText } from
             window.HabitArcUI?.announce?.('ARC AI response is ready.');
         } catch (error) {
             if (controller !== requestController || controller.signal.aborted) return;
-            renderThreadFromState();
+            if (draftTimer !== null) {
+                clearTimeout(draftTimer);
+                draftTimer = null;
+            }
+            if (streamedDraft) {
+                // Keep an interrupted reply visible, but never save it as a
+                // completed turn or expose a suggested action from partial text.
+                if (answerEl) answerEl.innerHTML = renderArcChatAnswer(streamedDraft, HabitArc.escapeHTML);
+                if (evidenceEl) evidenceEl.textContent = 'Partial reply · not saved. Your question is ready to retry.';
+                answerCard?.classList.remove('hidden');
+                showThreadView(true);
+            } else {
+                renderThreadFromState();
+            }
             setStatus(
                 error?.name === 'TimeoutError'
                     ? 'This is taking too long. Your question is kept—check your connection and try again.'
@@ -860,6 +890,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText } from
         } finally {
             if (controller === requestController) {
                 requestController = null;
+                answerCard?.setAttribute?.('aria-live', 'polite');
+                if (draftTimer !== null) clearTimeout(draftTimer);
                 setLoading(false);
             }
         }

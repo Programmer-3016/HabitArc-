@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText } from '../habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream } from '../habit-analytics.js';
 
 const html = readFileSync(new URL('../Arc_AI.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
@@ -15,7 +15,7 @@ class Clock extends Date {
 }
 const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-function arcAi({ empty = false, signedIn = false } = {}) {
+function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false } = {}) {
     const elements = new Map();
     const events = new Map();
     const requests = [];
@@ -73,7 +73,7 @@ function arcAi({ empty = false, signedIn = false } = {}) {
     };
     const body = element();
     vm.runInNewContext(source, {
-        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, Date: Clock, Intl, AbortSignal, AbortController,
+        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, Date: Clock, Intl, AbortSignal, AbortController,
         setTimeout, clearTimeout,
         navigator: { onLine: true },
         console: { warn() {} },
@@ -81,22 +81,41 @@ function arcAi({ empty = false, signedIn = false } = {}) {
         window: { addEventListener: (name, handler) => events.set(name, handler), HabitArcUI: { announce: msg => announced.push(msg) } },
         fetch: async (url, options) => {
             requests.push({ url, options });
-            return {
-                ok: true,
-                json: async () => ({
-                    answer: 'Try reading 10 minutes right after dinner.',
-                    suggestedAction: {
-                        type: 'create_habit',
-                        name: '10-Min Wind-Down',
-                        category: 'Mindfulness',
-                        reminder: '21:15',
-                        repeat: ['mon', 'wed', 'fri'],
-                        why: 'Anchor bedtime consistency'
-                    },
-                    usage: { remaining: 6 },
-                    snapshot: { habitCount: 2, totalScheduled: 56, totalLogged: 28, dateWindow: { start: '2026-10-18', end: '2026-11-15' }, timeZone: 'UTC', insufficientData: false, truncated: false },
-                }),
+            const payload = {
+                answer: 'Try reading 10 minutes right after dinner.',
+                suggestedAction: {
+                    type: 'create_habit',
+                    name: '10-Min Wind-Down',
+                    category: 'Mindfulness',
+                    reminder: '21:15',
+                    repeat: ['mon', 'wed', 'fri'],
+                    why: 'Anchor bedtime consistency'
+                },
+                usage: { remaining: 6 },
+                snapshot: { habitCount: 2, totalScheduled: 56, totalLogged: 28, dateWindow: { start: '2026-10-18', end: '2026-11-15' }, timeZone: 'UTC', insufficientData: false, truncated: false }
             };
+            if (streaming) {
+                const streamText = [
+                    'event: start\ndata: {"ready":true}\n\n',
+                    'event: delta\ndata: {"text":"Try reading 10 minutes "}\n\n',
+                    'event: delta\ndata: {"text":"right after dinner."}\n\n',
+                    truncated ? '' : 'event: done\ndata: ' + JSON.stringify(payload) + '\n\n'
+                ].join('');
+                const bytes = new TextEncoder().encode(streamText);
+                let cursor = 0;
+                return {
+                    ok: true,
+                    headers: { get: () => 'text/event-stream; charset=utf-8' },
+                    body: new ReadableStream({
+                        pull(controller) {
+                            if (cursor >= bytes.length) { controller.close(); return; }
+                            controller.enqueue(bytes.slice(cursor, cursor + 21));
+                            cursor += 21;
+                        }
+                    })
+                };
+            }
+            return { ok: true, json: async () => payload };
         },
     });
     return { elements, events, requests, announced, addedHabits, updatedHabits, body };
@@ -185,4 +204,28 @@ test('Arc_AI guest guard blocks network calls and authenticated starter card sub
     assert.equal(authed.elements.get('arc-thread-view').classList.contains('hidden'), true);
     assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), true);
     assert.equal(authed.elements.get('ai-coach-question').value, '');
+});
+
+
+test('ARC AI uses real SSE deltas then saves only the completed answer', async () => {
+    const authed = arcAi({ signedIn: true, streaming: true });
+    authed.elements.get('arc-card-momentum').handlers.click();
+    await new Promise(resolve => setTimeout(resolve, 30));
+    assert.equal(authed.requests.length, 1);
+    assert.equal(authed.requests[0].options.headers.Accept, 'text/event-stream');
+    assert.match(authed.elements.get('ai-coach-answer').innerHTML, /Try reading 10 minutes right after dinner/);
+    assert.match(authed.elements.get('ai-coach-status').textContent, /6 ARC AI messages/);
+    assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), false);
+    assert.equal(authed.elements.get('ai-coach-question').value, '');
+});
+
+test('ARC AI interrupted SSE keeps a partial reply visible without saving it', async () => {
+    const authed = arcAi({ signedIn: true, streaming: true, truncated: true });
+    authed.elements.get('arc-card-momentum').handlers.click();
+    await new Promise(resolve => setTimeout(resolve, 30));
+    assert.match(authed.elements.get('ai-coach-answer').innerHTML, /Try reading 10 minutes right after dinner/);
+    assert.match(authed.elements.get('ai-coach-evidence').textContent, /Partial reply/);
+    assert.match(authed.elements.get('ai-coach-status').textContent, /connection closed before/);
+    assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), true);
+    assert.match(authed.elements.get('ai-coach-question').value, /28-day momentum/);
 });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {splitArcAnswer,renderArcSignalDeck,renderArcChatAnswer,renderCoachMarkdown,cleanArcDisplayText,buildHabitCoachContext} from '../habit-analytics.js';
+import {splitArcAnswer,renderArcSignalDeck,renderArcChatAnswer,consumeArcCoachStream,renderCoachMarkdown,cleanArcDisplayText,buildHabitCoachContext} from '../habit-analytics.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
@@ -198,4 +198,46 @@ test('Chat renderer safely escapes injected markup and keeps formatted tables an
  assert.doesNotMatch(out,/<img\b/i);
  assert.match(out,/https:\/\/example.org\/\?x=1&amp;y=2/);
  assert.doesNotMatch(out,/ha-arc-chat-source/);
+});
+
+
+test('Mobile SSE reader renders real chunks in order and accepts only a final done event', async () => {
+    const frames = [
+        'event: start\r\ndata: {"ready":true}\r\n\r\n',
+        'event: delta\r\ndata: {"text":"First "}\r\n\r\n',
+        'event: delta\r\ndata: {"text":"🌟 then second"}\r\n\r\n',
+        'event: done\r\ndata: {"answer":"First 🌟 then second","suggestedAction":null}\r\n\r\n'
+    ].join('');
+    const bytes = new TextEncoder().encode(frames);
+    let cursor = 0;
+    const body = new ReadableStream({
+        pull(controller) {
+            if (cursor >= bytes.length) { controller.close(); return; }
+            controller.enqueue(bytes.slice(cursor, cursor + 9));
+            cursor += 9;
+        }
+    });
+    let collected = '';
+    let final;
+    await consumeArcCoachStream({ body }, (event, value) => {
+        if (event === 'delta') collected += value.text;
+        if (event === 'done') final = value;
+    });
+    assert.equal(collected, 'First 🌟 then second');
+    assert.equal(final.answer, 'First 🌟 then second');
+});
+
+test('Mobile SSE reader rejects truncated responses and provider error frames', async () => {
+    const bodyFrom = text => {
+        const bytes = new TextEncoder().encode(text);
+        return new ReadableStream({ start(controller) { controller.enqueue(bytes); controller.close(); } });
+    };
+    await assert.rejects(
+        consumeArcCoachStream({ body: bodyFrom('event: delta\ndata: {"text":"Unfinished"}\n\n') }, () => {}),
+        /connection closed before/
+    );
+    await assert.rejects(
+        consumeArcCoachStream({ body: bodyFrom('event: error\ndata: {"message":"Retry later"}\n\n') }, () => {}),
+        /Retry later/
+    );
 });
