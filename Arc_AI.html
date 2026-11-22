@@ -282,7 +282,6 @@
             <div class="ha-arc-resp-hdr">
                 <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
                 <div class="ha-arc-resp-tools">
-                    <span class="ha-arc-resp-tag">SIGNAL / READ</span>
                     <button id="ai-coach-copy-btn" type="button" class="ha-arc-copy-btn" aria-label="Copy response">COPY</button>
                 </div>
             </div>
@@ -352,7 +351,7 @@
 
 <script src="app.js"></script>
 <script type="module">
-import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, cleanArcDisplayText } from './habit-analytics.js';
+import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText } from './habit-analytics.js';
 (function initArcAI() {
     if (typeof HabitArc === 'undefined') return;
 
@@ -629,42 +628,19 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, clean
         actionBox.classList.remove('hidden');
     }
 
-    // Event delegation works for active answers and archived thread messages.
-    // View toggles never change the underlying answer or trigger API calls.
-    function handleDeckInteraction(event) {
-        const button=event.target?.closest?.('button[data-arc-mode],button[data-arc-jump],button[data-arc-copy-code]');
-        const deck=button?.closest?.('.ha-arc-signal-deck');
-        if(!button||!deck)return;
-        if(button.hasAttribute('data-arc-mode')) {
-            const mode=button.dataset.arcMode==='read'?'read':'signal';
-            deck.dataset.arcLayout=mode;
-            const signalView=deck.querySelector('.ha-arc-deck-signal-view');
-            const readView=deck.querySelector('.ha-arc-deck-read-view');
-            if(signalView)signalView.hidden=mode!=='signal';
-            if(readView)readView.hidden=mode!=='read';
-            deck.querySelectorAll('[data-arc-mode]').forEach(item=>
-                item.setAttribute('aria-pressed',String(item.dataset.arcMode===mode)));
-            return;
-        }
-        if(button.hasAttribute('data-arc-jump')){
-            const index=Number(button.dataset.arcJump);
-            if(!Number.isSafeInteger(index)||index<0)return;
-            const target=deck.querySelectorAll('.ha-arc-deck-panel')[index];
-            const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-            target?.scrollIntoView?.({behavior:reduced?'instant':'smooth',block:'nearest'});
-            return;
-        }
-        if(button.hasAttribute('data-arc-copy-code')){
-            const source=button.closest('.ha-arc-code-frame')?.querySelector('pre code')?.textContent;
-            if(typeof source!=='string'||!navigator.clipboard?.writeText)return;
-            void navigator.clipboard.writeText(source).then(()=>{
-                button.textContent='COPIED';
-                window.setTimeout?.(()=>{if(button.isConnected)button.textContent='COPY CODE';},1400);
-            }).catch(()=>{});
-        }
+    // Keep code block copy buttons usable in both current and archived replies.
+    function handleAnswerInteraction(event) {
+        const button = event.target?.closest?.('button[data-arc-copy-code]');
+        if (!button?.closest?.('.ha-arc-chat-answer')) return;
+        const source = button.closest('.ha-arc-code-frame')?.querySelector('pre code')?.textContent;
+        if (typeof source !== 'string' || !navigator.clipboard?.writeText) return;
+        void navigator.clipboard.writeText(source).then(() => {
+            button.textContent = 'COPIED';
+            window.setTimeout?.(() => { if (button.isConnected) button.textContent = 'COPY CODE'; }, 1400);
+        }).catch(() => {});
     }
-    answerEl?.addEventListener('click',handleDeckInteraction);
-    historyEl?.addEventListener('click',handleDeckInteraction);
+    answerEl?.addEventListener('click', handleAnswerInteraction);
+    historyEl?.addEventListener('click', handleAnswerInteraction);
 
     function renderHistoryList(turns) {
         if (!historyEl) return;
@@ -673,9 +649,8 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, clean
             <article class="ha-arc-answer-card">
                 <div class="ha-arc-resp-hdr">
                     <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
-                    <span class="ha-arc-resp-tag">SIGNAL / READ</span>
-                </div>
-                <div class="ha-arc-answer-body"><div class="ha-arc-answer-text ha-md-prose">${renderArcSignalDeck(turn.answer, HabitArc.escapeHTML)}</div></div>
+                    </div>
+                <div class="ha-arc-answer-body"><div class="ha-arc-answer-text ha-md-prose">${renderArcChatAnswer(turn.answer, HabitArc.escapeHTML)}</div></div>
             </article>
         `).join('');
     }
@@ -694,7 +669,7 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, clean
         renderHistoryList(prior);
         if (askedEl) askedEl.textContent = latest.question;
         askedWrap?.classList.remove('hidden');
-        if (answerEl) answerEl.innerHTML = renderArcSignalDeck(latest.answer, HabitArc.escapeHTML, lastVerifiedSnapshot);
+        if (answerEl) answerEl.innerHTML = renderArcChatAnswer(latest.answer, HabitArc.escapeHTML, lastVerifiedSnapshot);
         if (copyAnswerButton) copyAnswerButton.textContent = 'COPY';
         if (evidenceEl) evidenceEl.textContent = lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.';
         renderSuggestedAction(activeAction, { applied: activeActionApplied });
@@ -838,6 +813,11 @@ import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, clean
                   (source.truncated ? 'Some history was outside the context limit. ' : '') +
                   'Today is in progress. Advice is not a guarantee.'
                 : 'Based on your synced HabitArc records. Advice is not a guarantee.';
+            const deviceHabitCount = HabitArc.getHabits?.()?.length;
+            if (lastVerifiedSnapshot && Number.isSafeInteger(deviceHabitCount)
+                && deviceHabitCount !== lastVerifiedSnapshot.habitCount) {
+                lastEvidence += ` Cloud account shows ${lastVerifiedSnapshot.habitCount} habits, but this device shows ${deviceHabitCount}. Check sync before comparing rates.`;
+            }
             activeAction = payload.suggestedAction || null;
             activeActionApplied = false;
             renderThreadFromState();
