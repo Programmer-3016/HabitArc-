@@ -161,44 +161,25 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 .lb-chest-stage-btn:hover .lb-chest-canvas { transform: translateY(-4px) scale(1.04); }
 .lb-chest-stage-btn:active .lb-chest-canvas { transform: translateY(-1px) scale(0.98); }
 .lb-chest-stage-btn:focus-visible { outline: 3px solid rgb(var(--ha-primary)); outline-offset: 2px; }
-/* Realistic arched stone dungeon vault alcove with warm wall torches and 3/4 isometric cobblestone floor. */
+/* Crisp 100% pixel-art volcanic caldera & HabitArc violet twilight dais scene behind each chest. */
 .lb-chest-art {
-    --case-shadow:rgba(16,4,18,.58);
     position:relative; isolation:isolate; overflow:hidden; display:grid; place-items:end center;
     height:clamp(84px, 21vw, 138px); padding-bottom:0; border-radius:11px;
     border: 2px solid var(--rpg-shadow-ink, #121215);
-    background-color: #120e18;
-    background-image:
-      radial-gradient(ellipse 68% 72% at 50% 42%, rgba(255, 206, 138, .12), rgba(18, 14, 24, .24) 60%, rgba(7, 5, 11, .76) 100%),
-      radial-gradient(circle at 18% 36%, rgba(251, 146, 60, .20), transparent 34%),
-      radial-gradient(circle at 82% 36%, rgba(251, 146, 60, .20), transparent 34%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100' preserveAspectRatio='xMidYMid slice' shape-rendering='crispEdges'%3E%3Crect width='160' height='100' fill='%23120e18'/%3E%3Crect x='22' y='12' width='116' height='68' fill='%231a1522'/%3E%3Crect x='24' y='14' width='22' height='11' fill='%23231d2d'/%3E%3Crect x='48' y='14' width='26' height='11' fill='%23292235'/%3E%3Crect x='76' y='14' width='24' height='11' fill='%23231d2d'/%3E%3Crect x='102' y='14' width='34' height='11' fill='%23201b29'/%3E%3Crect x='24' y='27' width='32' height='12' fill='%23282134'/%3E%3Crect x='58' y='27' width='22' height='12' fill='%232f283c'/%3E%3Crect x='82' y='27' width='28' height='12' fill='%23292235'/%3E%3Crect x='112' y='27' width='24' height='12' fill='%23231d2d'/%3E%3Crect x='24' y='41' width='20' height='13' fill='%23262030'/%3E%3Crect x='46' y='41' width='30' height='13' fill='%232e273a'/%3E%3Crect x='78' y='41' width='26' height='13' fill='%23282133'/%3E%3Crect x='106' y='41' width='30' height='13' fill='%23221c2c'/%3E%3Crect x='24' y='56' width='28' height='14' fill='%23201a2a'/%3E%3Crect x='54' y='56' width='24' height='14' fill='%23272132'/%3E%3Crect x='80' y='56' width='30' height='14' fill='%23231d2d'/%3E%3Crect x='112' y='56' width='24' height='14' fill='%231d1826'/%3E%3Crect x='48' y='14' width='24' height='1' fill='%233d354d'/%3E%3Crect x='58' y='27' width='20' height='1' fill='%23433a54'/%3E%3Crect x='46' y='41' width='28' height='1' fill='%233e364f'/%3E%3Crect x='0' y='0' width='22' height='80' fill='%2316121d'/%3E%3Crect x='138' y='0' width='22' height='80' fill='%2316121d'/%3E%3Crect x='20' y='0' width='2' height='80' fill='%230b0810'/%3E%3Crect x='138' y='0' width='2' height='80' fill='%230b0810'/%3E%3Crect x='0' y='0' width='160' height='12' fill='%2314101b'/%3E%3Crect x='22' y='12' width='14' height='6' fill='%231e1928'/%3E%3Crect x='124' y='12' width='14' height='6' fill='%231e1928'/%3E%3Crect x='22' y='12' width='116' height='2' fill='%230b0810'/%3E%3Crect x='2' y='16' width='16' height='12' fill='%23221c2c'/%3E%3Crect x='2' y='30' width='16' height='14' fill='%23262030'/%3E%3Crect x='2' y='46' width='16' height='14' fill='%23201b29'/%3E%3Crect x='142' y='16' width='16' height='12' fill='%23221c2c'/%3E%3Crect x='142' y='30' width='16' height='14' fill='%23262030'/%3E%3Crect x='142' y='46' width='16' height='14' fill='%23201b29'/%3E%3Crect x='27' y='33' width='4' height='6' fill='%234b3526'/%3E%3Crect x='28' y='28' width='2' height='5' fill='%23ea580c'/%3E%3Crect x='28' y='26' width='2' height='3' fill='%23facc15'/%3E%3Crect x='29' y='25' width='1' height='2' fill='%23fef9c3'/%3E%3Crect x='129' y='33' width='4' height='6' fill='%234b3526'/%3E%3Crect x='130' y='28' width='2' height='5' fill='%23ea580c'/%3E%3Crect x='130' y='26' width='2' height='3' fill='%23facc15'/%3E%3Crect x='130' y='25' width='1' height='2' fill='%23fef9c3'/%3E%3Crect x='34' y='14' width='3' height='4' fill='%2327432e'/%3E%3Crect x='35' y='18' width='2' height='3' fill='%2333573b'/%3E%3Crect x='118' y='14' width='4' height='3' fill='%2327432e'/%3E%3C/svg%3E");
-    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-    box-shadow: inset 0 5px 10px rgba(0, 0, 0, .55);
+    background-color: #151024;
     image-rendering: pixelated;
 }
-.lb-chest-art[data-style="pixel-game"]::before {
-    content: "";
+.lb-chest-bg {
     position: absolute;
-    left: 50%;
-    bottom: 9%;
-    width: 66%;
-    height: 18%;
-    transform: translateX(-50%);
+    inset: 0;
     z-index: 0;
-    pointer-events: none;
-    background: radial-gradient(ellipse at center, rgba(5, 3, 9, .86) 0%, rgba(5, 3, 9, .42) 55%, transparent 76%);
-}
-.lb-chest-art[data-style="pixel-game"]::after {
-    content: "";
-    position: absolute;
-    inset: auto 0 0;
-    height: 24%;
-    z-index: -1;
-    background-color: #17131e;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 26' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Crect width='160' height='26' fill='%23120e18'/%3E%3Crect x='0' y='0' width='160' height='2' fill='%230b0810'/%3E%3Cpolygon points='2,3 34,3 28,12 0,12' fill='%23231e2c'/%3E%3Cpolygon points='36,3 74,3 72,12 30,12' fill='%232e2839'/%3E%3Cpolygon points='76,3 114,3 118,12 74,12' fill='%23332c40'/%3E%3Cpolygon points='116,3 158,3 160,12 120,12' fill='%23251f2f'/%3E%3Cpolygon points='0,14 38,14 30,26 0,26' fill='%23282233'/%3E%3Cpolygon points='40,14 82,14 84,26 32,26' fill='%23373045'/%3E%3Cpolygon points='84,14 126,14 134,26 86,26' fill='%23322b3e'/%3E%3Cpolygon points='128,14 160,14 160,26 136,26' fill='%23221d2b'/%3E%3Crect x='36' y='3' width='38' height='1' fill='%23433b52'/%3E%3Crect x='76' y='3' width='38' height='1' fill='%23494059'/%3E%3Crect x='40' y='14' width='42' height='1' fill='%234a415b'/%3E%3Crect x='84' y='14' width='42' height='1' fill='%23433b52'/%3E%3Crect x='27' y='11' width='4' height='2' fill='%232b4832'/%3E%3Crect x='116' y='12' width='5' height='2' fill='%232b4832'/%3E%3C/svg%3E");
-    background-size: 100% 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
     image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    pointer-events: none;
 }
 .lb-chest-canvas {
     position: relative;
@@ -209,8 +190,7 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     aspect-ratio: 1;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    transform: translateY(-2px);
-    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .72));
+    transform: translateY(-3px);
     transition: transform 150ms ease;
 }
 .lb-chest-progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }

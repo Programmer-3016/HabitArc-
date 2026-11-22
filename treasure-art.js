@@ -957,7 +957,145 @@ export function revealFrameDelay(frameIndex) {
   return t < 3 ? 80 : 110;
 }
 
-/** Build a Vault Card chest stage displaying the crisp 64x64 3/4 pixel chest on the pedestal. */
+const BG_W = 96;
+const BG_H = 54;
+let cachedVaultBg = null;
+
+function buildVaultBackdrop32() {
+  if (cachedVaultBg) return cachedVaultBg;
+  const buf = new Uint32Array(BG_W * BG_H);
+  const r = makeSurface32(BG_W, BG_H, buf);
+  const C = col32;
+
+  // HabitArc twilight indigo sky transitioning down into warm volcanic caldera haze
+  const skyBands = [
+    [0, 7, '#151024'], [7, 15, '#1d1533'], [15, 23, '#271c45'],
+    [23, 30, '#36214a'], [30, 35, '#522238'], [35, 39, '#7a2a1e'],
+  ];
+  for (const [y0, y1, hex] of skyBands) r.rect(C(hex), 0, y0, BG_W, y1 - y0);
+
+  // Subtle stepped dither line along upper violet bands
+  for (let x = 0; x < BG_W; x++) {
+    if (x % 2 === 0) r.put(C('#1d1533'), x, 6);
+    if (x % 2 === 1) r.put(C('#271c45'), x, 14);
+    if (x % 2 === 0) r.put(C('#36214a'), x, 22);
+    if (x % 2 === 1) r.put(C('#522238'), x, 29);
+  }
+
+  // Twinkling twilight pixel stars matching HabitArc lavender & cream-gold palette
+  for (const [sx, sy, hex] of [
+    [6, 4, '#c4b5fd'], [15, 9, '#fef9c3'], [29, 5, '#c4b5fd'], [42, 7, '#ddd6fe'],
+    [55, 4, '#fef9c3'], [64, 10, '#c4b5fd'], [78, 6, '#ddd6fe'], [89, 11, '#fef9c3'],
+    [48, 13, '#a78bfa'], [69, 15, '#c4b5fd'], [10, 16, '#ddd6fe'],
+  ]) r.put(C(hex), sx, sy);
+
+  // Left volcanic caldera peak (visible cleanly beside the chest!) + glowing crater & lava stream
+  for (let row = 0; row < 27; row++) {
+    const y = 12 + row;
+    const xL = Math.max(0, 11 - Math.floor(row * 0.55));
+    const xR = Math.min(44, 21 + Math.floor(row * 0.85));
+    r.rect(C('#140f1f'), xL, y, xR - xL, 1);
+    if (xR - xL > 4) r.rect(C('#231833'), xL + 1, y, Math.min(5, Math.floor((xR - xL) / 3)), 1);
+    if (row > 3 && xR > xL + 8) r.put(C('#4c285e'), xL + 1, y);
+  }
+  // Volcano crater & rising glowing smoke plume
+  r.rect(C('#ea580c'), 12, 11, 8, 2);
+  r.rect(C('#facc15'), 13, 12, 6, 1);
+  r.rect(C('#fef08a'), 14, 12, 4, 1);
+  for (const [ex, ey, col] of [
+    [13, 8, '#3a2b52'], [15, 7, '#4c3869'], [18, 9, '#3a2b52'],
+    [14, 9, '#f97316'], [17, 6, '#facc15'], [11, 10, '#fb923c'],
+  ]) r.put(C(col), ex, ey);
+
+  // Winding molten lava river trickling down the volcano slope into distant magma moat
+  for (const [lx, ly, lw] of [
+    [15, 13, 3], [16, 14, 3], [16, 15, 2], [17, 16, 3], [18, 17, 2], [19, 18, 2],
+    [19, 19, 3], [20, 20, 3], [21, 21, 2], [22, 22, 3], [22, 23, 3], [23, 24, 3],
+    [24, 25, 3], [24, 26, 4], [25, 27, 4], [26, 28, 4], [27, 29, 4], [27, 30, 5],
+    [28, 31, 5], [29, 32, 5], [30, 33, 5], [30, 34, 6],
+  ]) {
+    r.rect(C('#c2410c'), lx, ly, lw, 1);
+    r.rect(C('#f97316'), lx + 1, ly, Math.max(1, lw - 1), 1);
+    if (lw >= 3) r.put(C('#facc15'), lx + 1, ly);
+  }
+
+  // Right distant obsidian mountain silhouette + small secondary spire
+  for (let row = 0; row < 22; row++) {
+    const y = 17 + row;
+    const xL = Math.max(54, 77 - Math.floor(row * 0.95));
+    const xR = Math.min(BG_W, 85 + Math.floor(row * 0.65));
+    r.rect(C('#140f1f'), xL, y, xR - xL, 1);
+    r.rect(C('#2a1d3d'), xL + 1, y, Math.max(1, Math.floor((xR - xL) * 0.25)), 1);
+  }
+  // Distant molten lava lake glowing cleanly behind the stone pedestal cliff
+  r.rect(C('#9a3412'), 0, 36, BG_W, 3);
+  r.rect(C('#ea580c'), 4, 37, BG_W - 8, 2);
+  for (let x = 8; x < BG_W - 8; x += 6) {
+    r.rect(C('#facc15'), x, 37, 3, 1);
+    if (x % 12 === 2) r.put(C('#fef08a'), x + 1, 38);
+  }
+
+  // Framing rugged basalt stone cliff pillars on far left & right corners
+  for (let row = 0; row < 38; row++) {
+    const lw = Math.max(2, 8 - Math.floor(row * 0.16) + ((row >> 2) % 2));
+    const rw = Math.max(2, 9 - Math.floor(row * 0.18) + ((row >> 1) % 2));
+    r.rect(C('#0e0b16'), 0, row, lw, 1);
+    r.rect(C('#1f182e'), 0, row, Math.max(1, lw - 2), 1);
+    r.put(C('#4a2c40'), lw - 1, row);
+    r.rect(C('#0e0b16'), BG_W - rw, row, rw, 1);
+    r.rect(C('#1f182e'), BG_W - rw + 2, row, Math.max(1, rw - 2), 1);
+    r.put(C('#4a2c40'), BG_W - rw, row);
+  }
+
+  // Drifting crisp 1px volcanic embers in the night air
+  for (const [px, py, col] of [
+    [10, 26, '#fb923c'], [28, 20, '#facc15'], [35, 31, '#f97316'],
+    [71, 24, '#facc15'], [84, 28, '#fb923c'], [62, 33, '#f97316'],
+    [80, 14, '#fb923c'], [5, 33, '#facc15'],
+  ]) r.put(C(col), px, py);
+
+  // Foreground 3/4 basalt altar stone dais (y = 39..50) over molten chasm floor (y = 51..53)
+  r.rect(C('#3a3052'), 0, 39, BG_W, 1);
+  r.rect(C('#282138'), 0, 40, BG_W, 9);
+  r.rect(C('#1b1626'), 0, 49, BG_W, 2);
+  // Perspective diagonal basalt flagstone seams
+  for (let i = -1; i <= 6; i++) {
+    const bx = 10 + i * 15;
+    for (let y = 39; y <= 48; y++) {
+      const sx = bx + Math.round((y - 39) * (i - 2.5) * 0.22);
+      r.put(C('#120e1a'), sx, y);
+      if (y === 40 && sx + 1 < BG_W) r.rect(C('#342a4a'), sx + 1, y, 4, 1);
+    }
+  }
+  r.rect(C('#120e1a'), 0, 44, BG_W, 1);
+  r.rect(C('#332947'), 0, 45, BG_W, 1);
+  // Subtle fiery magma under-glow bouncing onto front basalt cliff edge
+  for (let x = 2; x < BG_W - 2; x++) {
+    if (x % 3 !== 0) r.put(C('#7c2d12'), x, 50);
+  }
+  // Foreground glowing volcanic abyss edge at bottom
+  r.rect(C('#9a3412'), 0, 51, BG_W, 1);
+  r.rect(C('#ea580c'), 0, 52, BG_W, 2);
+  for (let x = 3; x < BG_W - 3; x += 5) {
+    r.rect(C('#facc15'), x, 52, 2, 1);
+    if (x % 10 === 3) r.put(C('#fef08a'), x, 53);
+  }
+
+  // Crisp pure pixel shadow oval on the basalt dais directly underneath chest center
+  const scx = 48, scy = 45;
+  for (let y = 42; y <= 48; y++) {
+    for (let x = 27; x <= 69; x++) {
+      const dx = (x - scx) / 18;
+      const dy = (y - scy) / 3.2;
+      if (dx * dx + dy * dy <= 1) r.put(C('#100c18'), x, y);
+    }
+  }
+
+  cachedVaultBg = buf;
+  return buf;
+}
+
+/** Build a Vault Card chest stage displaying the crisp 64x64 3/4 pixel chest on a pixel volcanic UI backdrop. */
 export function chestArt(chest, opened) {
   const tier = normTier(chest?.id);
   const stage = document.createElement('div');
@@ -979,7 +1117,20 @@ export function chestArt(chest, opened) {
     drawTierChest(makeSurface32(64, 64, buf32), tier, opened ? 10 : 0, 0, 0, 0);
     ctx.putImageData(img, 0, 0);
   }
-  stage.append(canvas);
+
+  const bg = document.createElement('canvas');
+  bg.className = 'lb-chest-bg';
+  bg.width = BG_W;
+  bg.height = BG_H;
+  const bgCtx = bg.getContext?.('2d');
+  if (bgCtx) {
+    bgCtx.imageSmoothingEnabled = false;
+    const bgImg = bgCtx.createImageData(BG_W, BG_H);
+    new Uint32Array(bgImg.data.buffer).set(buildVaultBackdrop32());
+    bgCtx.putImageData(bgImg, 0, 0);
+  }
+
+  stage.append(canvas, bg);
   return stage;
 }
 
