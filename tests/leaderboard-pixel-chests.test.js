@@ -7,12 +7,17 @@ import {
   REVEAL_FRAME_COUNT,
   STAGE_HEIGHT,
   STAGE_WIDTH,
+  TREASURE_SOUND_KEY,
   chestArt,
   computeStageDimensions,
   createRevealStage,
+  getTreasureSoundEnabled,
+  playChestEquipChime,
+  playChestRevealAudio,
   renderChestPixels,
   renderRevealFrame,
   sealedIdlePose,
+  setTreasureSoundEnabled,
 } from '../treasure-art.js';
 import { CHESTS } from '../runner-treasures.js';
 
@@ -200,6 +205,81 @@ test('Treasure scope, all-tier previews, and PWA refresh stay isolated', () => {
   }
   assert.doesNotMatch(js, /opened \|\| c\.id === 'wood'/);
   assert.match(js, /lb-chest-stage-btn/);
+  assert.match(js, /playChestRevealAudio\(/);
+  assert.match(js, /stopSound\(\)/);
+  assert.match(js, /playChestEquipChime\(/);
+  assert.match(js, /lb-sound-toggle/);
   assert.doesNotMatch(css, /\nbody\s*\{/);
   assert.doesNotMatch(css, /\ntable\s*\{/);
+});
+
+test('8-bit chest sound effects respect mute preference, play tier tracks, and clean up cleanly', () => {
+  const oldWin = globalThis.window;
+  const storage = new Map();
+  let oscCount = 0;
+  let disconnects = 0;
+  class MockAudioContext {
+    constructor() {
+      this.state = 'suspended';
+      this.currentTime = 0;
+      this.destination = {};
+    }
+    resume() {
+      this.state = 'running';
+      return Promise.resolve();
+    }
+    createGain() {
+      return {
+        gain: { value: 1, setValueAtTime() {}, exponentialRampToValueAtTime() {} },
+        connect() {},
+        disconnect() { disconnects += 1; },
+      };
+    }
+    createOscillator() {
+      oscCount += 1;
+      return {
+        type: 'square',
+        frequency: { setValueAtTime() {}, exponentialRampToValueAtTime() {} },
+        connect() {},
+        start() {},
+        stop() {},
+      };
+    }
+  }
+  globalThis.window = {
+    AudioContext: MockAudioContext,
+    localStorage: {
+      getItem: k => (storage.has(k) ? storage.get(k) : null),
+      setItem: (k, v) => storage.set(k, String(v)),
+    },
+  };
+  try {
+    assert.equal(getTreasureSoundEnabled(), true, 'sound defaults ON');
+    const woodStop = playChestRevealAudio('wood');
+    const woodOsc = oscCount;
+    assert.ok(woodOsc >= 15, 'wood reveal schedules multi-stage 8-bit chiptune tones');
+    woodStop();
+    assert.equal(disconnects, 1, 'stop() disconnects audio master node cleanly');
+
+    oscCount = 0;
+    const reducedStop = playChestRevealAudio('gold', { reducedMotion: true });
+    assert.ok(oscCount > 0 && oscCount < woodOsc, 'reduced motion skips buildup and plays climax fanfare only');
+    reducedStop();
+
+    oscCount = 0;
+    playChestEquipChime();
+    assert.equal(oscCount, 3, 'equip chime schedules 3 retro sparkle tones');
+
+    setTreasureSoundEnabled(false);
+    assert.equal(storage.get(TREASURE_SOUND_KEY), '0');
+    assert.equal(getTreasureSoundEnabled(), false);
+
+    oscCount = 0;
+    const mutedStop = playChestRevealAudio('iron');
+    playChestEquipChime();
+    assert.equal(oscCount, 0, 'muted preference skips scheduling any audio nodes');
+    mutedStop();
+  } finally {
+    globalThis.window = oldWin;
+  }
 });

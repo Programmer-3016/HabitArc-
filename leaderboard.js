@@ -1,5 +1,12 @@
 import { CHESTS, changeTreasure, clearedDays, inventory, leagueRunner } from './runner-treasures.js';
-import { chestArt, createRevealStage } from './treasure-art.js';
+import {
+  chestArt,
+  createRevealStage,
+  getTreasureSoundEnabled,
+  playChestEquipChime,
+  playChestRevealAudio,
+  setTreasureSoundEnabled,
+} from './treasure-art.js';
 // Public preview roster only. Never fetch or compare private habit documents here.
 export const COMPANION_META = Object.freeze({
   arcy: { label: 'Arcy', role: 'Classic Spark' },
@@ -164,6 +171,26 @@ export async function mountLeaderboard(root) {
 function mountTreasureRoom(root, find, redrawLeague) {
   let active = false, lastRenderKey = '';
   let showing = null;
+  const statsRow = root.querySelector('.lb-vault-stats');
+  if (statsRow && !statsRow.querySelector('#treasure-sound-toggle')) {
+    const soundBtn = el('button', 'lb-vault-stat lb-sound-toggle');
+    soundBtn.type = 'button';
+    soundBtn.id = 'treasure-sound-toggle';
+    const syncSoundBtn = () => {
+      const on = getTreasureSoundEnabled();
+      soundBtn.setAttribute('aria-pressed', String(on));
+      soundBtn.textContent = on ? '8-bit SFX: On' : '8-bit SFX: Off';
+      soundBtn.setAttribute('aria-label', on ? 'Mute chest sound effects' : 'Enable chest sound effects');
+    };
+    syncSoundBtn();
+    soundBtn.addEventListener('click', () => {
+      const next = !getTreasureSoundEnabled();
+      setTreasureSoundEnabled(next);
+      syncSoundBtn();
+      if (next) playChestEquipChime();
+    });
+    statsRow.append(soundBtn);
+  }
   // Keep the dialog inside the route root for SPA teardown. showModal() puts
   // it in the browser's top layer, above the header and bottom navigation.
   function reveal(chest, sample, trigger) {
@@ -197,7 +224,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const prevThemeColor = themeMeta?.getAttribute('content');
     docEl?.classList?.add('lb-reveal-active');
     themeMeta?.setAttribute('content', '#0a090e');
-    let finishTimer, typeTimer;
+    let finishTimer, typeTimer, stopSound = () => {};
     function typeHeadline(targetText) {
       clearInterval(typeTimer);
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -233,6 +260,8 @@ function mountTreasureRoom(root, find, redrawLeague) {
       dialog.focus({ preventScroll: true });
       typeHeadline(sample ? 'Preview Item' : 'New Item');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      stopSound();
+      stopSound = playChestRevealAudio(chest.id, { reducedMotion: reduced });
       stageCtrl.play({ reducedMotion: reduced, onClimax: finish });
       if (!reduced) finishTimer = setTimeout(finish, 1900);
     }
@@ -246,6 +275,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
       }
     });
     dialog.addEventListener('close', () => {
+      stopSound();
       stageCtrl.stop();
       clearTimeout(finishTimer);
       clearInterval(typeTimer);
@@ -388,6 +418,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
       button.addEventListener('click', () => {
         if (!opened) { reveal(c, false, button); return; }
         if (!applyTreasure(c, 'equip', scope, hero)) { render(); return; }
+        playChestEquipChime();
         find('announcement').textContent = `Equipped ${c.power}.`;
         const currentCard = find('treasure-cards').querySelector('[data-tier="' + c.id + '"]');
         currentCard.tabIndex = -1;

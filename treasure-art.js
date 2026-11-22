@@ -934,10 +934,7 @@ export function createRevealStage(chest, opened = false) {
       mode = 'opening';
       let notified = false;
       let lastDrawAt = -Infinity;
-      const RATTLE_END = 180;
-      const RISE_START = 540;
-      const RISE_DUR = 820;
-      const CLIMAX_MS = RISE_START + RISE_DUR;
+      const { rattleMs: RATTLE_END, riseStartMs: RISE_START, riseDurMs: RISE_DUR, climaxMs: CLIMAX_MS } = REVEAL_TIMING;
 
       startLoop((elapsed) => {
         if (elapsed - lastDrawAt < 14) return;
@@ -992,4 +989,163 @@ export function createRevealStage(chest, opened = false) {
       }
     },
   };
+}
+
+export const TREASURE_SOUND_KEY = 'habitarc_treasure_sound';
+
+const REVEAL_TIMING = Object.freeze({
+  rattleMs: 180,
+  riseStartMs: 540,
+  riseDurMs: 820,
+  climaxMs: 1360,
+});
+
+const CHEST_AUDIO_TRACKS = Object.freeze({
+  wood: {
+    climb: [392.0, 440.0, 493.88, 587.33, 659.25, 783.99, 880.0, 987.77],
+    fanfare: [[0, 783.99, 0.085], [85, 987.77, 0.085], [170, 1174.66, 0.085], [265, 1567.98, 0.34]],
+    chord: [392.0, 493.88],
+    chordAt: 265,
+  },
+  iron: {
+    climb: [440.0, 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66],
+    fanfare: [[0, 880.0, 0.08], [85, 1046.5, 0.08], [170, 1318.51, 0.08], [255, 1174.66, 0.08], [345, 1760.0, 0.38]],
+    chord: [440.0, 659.25],
+    chordAt: 345,
+  },
+  gold: {
+    climb: [440.0, 493.88, 554.37, 659.25, 739.99, 880.0, 1108.73, 1318.51],
+    fanfare: [[0, 783.99, 0.085], [90, 830.61, 0.085], [180, 880.0, 0.085], [280, 1174.66, 0.44], [510, 1760.0, 0.2]],
+    chord: [369.99, 440.0, 587.33],
+    chordAt: 280,
+  },
+});
+
+let treasureAudioCtx = null;
+let treasureAudioCtor = null;
+
+/** Check whether chest 8-bit sound effects are enabled (defaults ON unless muted). */
+export function getTreasureSoundEnabled() {
+  try {
+    return typeof window !== 'undefined' && window.localStorage?.getItem(TREASURE_SOUND_KEY) === '0' ? false : true;
+  } catch {
+    return true;
+  }
+}
+
+/** Persist the user's chest sound effect preference. */
+export function setTreasureSoundEnabled(enabled) {
+  try {
+    if (typeof window !== 'undefined') window.localStorage?.setItem(TREASURE_SOUND_KEY, enabled ? '1' : '0');
+  } catch {
+    // Optional preference storage.
+  }
+}
+
+function openAudioMaster() {
+  const win = typeof window !== 'undefined' ? window : null;
+  const AudioCtor = win && (win.AudioContext || win.webkitAudioContext);
+  if (!AudioCtor) return null;
+  try {
+    if (!treasureAudioCtx || treasureAudioCtx.state === 'closed' || treasureAudioCtor !== AudioCtor) {
+      treasureAudioCtor = AudioCtor;
+      treasureAudioCtx = new AudioCtor();
+    }
+    if (treasureAudioCtx.state === 'suspended') {
+      void treasureAudioCtx.resume?.().catch(() => {});
+    }
+    const master = treasureAudioCtx.createGain();
+    master.gain.value = 0.44;
+    master.connect(treasureAudioCtx.destination);
+    return { ctx: treasureAudioCtx, master };
+  } catch {
+    return null;
+  }
+}
+
+function scheduleChipTone(ctx, master, baseSec, atMs, freq, durSec, type = 'square', peakGain = 0.08, endFreq = null) {
+  const at = baseSec + atMs / 1000;
+  const d = Math.max(0.025, durSec);
+  const f0 = Math.max(40, freq);
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(f0, at);
+  if (endFreq && endFreq !== f0) {
+    osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq), at + d);
+  }
+  gain.gain.setValueAtTime(0.0001, at);
+  gain.gain.exponentialRampToValueAtTime(Math.max(0.001, peakGain), at + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + d);
+  osc.connect(gain);
+  gain.connect(master);
+  osc.start(at);
+  osc.stop(at + d + 0.02);
+}
+
+/**
+ * Play synchronized 8-bit chiptune chest SFX across lock rattle, lid pop, item rise, and relic fanfare.
+ * Returns a stop() handle that cleanly silences audio if the modal closes early.
+ */
+export function playChestRevealAudio(tierId, { reducedMotion = false } = {}) {
+  if (!getTreasureSoundEnabled()) return () => {};
+  const audio = openAudioMaster();
+  if (!audio) return () => {};
+
+  const { ctx, master } = audio;
+  const tier = normTier(tierId);
+  const track = CHEST_AUDIO_TRACKS[tier];
+  const baseSec = (Number(ctx.currentTime) || 0) + 0.015;
+  const play = (atMs, f, dur, type, g, to) => scheduleChipTone(ctx, master, baseSec, atMs, f, dur, type, g, to);
+
+  if (!reducedMotion) {
+    // 1. Tap rattle & lock unclasp (0..180ms)
+    play(0, 240, 0.045, 'square', 0.075, 145);
+    play(60, 290, 0.045, 'square', 0.075, 175);
+    play(120, 360, 0.055, 'square', 0.085, 560);
+
+    // 2. Chest lid swing & spark glint (180..540ms)
+    play(REVEAL_TIMING.rattleMs + 5, 150, 0.17, 'triangle', 0.12, 310);
+    play(REVEAL_TIMING.rattleMs + 95, 490, 0.065, 'square', 0.05, 740);
+    play(REVEAL_TIMING.rattleMs + 240, 987.77, 0.075, 'square', 0.048, 1318.51);
+
+    // 3. Rising magic item buildup arpeggio (540..1360ms)
+    const span = REVEAL_TIMING.riseDurMs - 65;
+    const stepMs = span / track.climb.length;
+    track.climb.forEach((f, idx) => {
+      const tMs = REVEAL_TIMING.riseStartMs + Math.round(idx * stepMs);
+      play(tMs, f, 0.095, 'square', 0.046);
+      if (idx % 2 === 0) play(tMs, f * 0.5, 0.12, 'triangle', 0.045);
+    });
+  }
+
+  // 4. Climax flash punch & tier-specific 8-bit loot fanfare
+  const climaxAt = reducedMotion ? 0 : REVEAL_TIMING.climaxMs;
+  play(climaxAt, 150, 0.19, 'sine', 0.17, 55);
+  for (const [offsetMs, freq, dur] of track.fanfare) {
+    play(climaxAt + offsetMs, freq, dur, 'square', 0.075);
+  }
+  for (const rootFreq of track.chord) {
+    play(climaxAt + track.chordAt, rootFreq, 0.36, 'triangle', 0.065);
+  }
+
+  return () => {
+    try {
+      master.disconnect();
+    } catch {
+      // Already disconnected.
+    }
+  };
+}
+
+/** Play a brief 8-bit equip sparkle chime when equipping a relic power. */
+export function playChestEquipChime() {
+  if (!getTreasureSoundEnabled()) return;
+  const audio = openAudioMaster();
+  if (!audio) return;
+  const { ctx, master } = audio;
+  const baseSec = (Number(ctx.currentTime) || 0) + 0.01;
+  scheduleChipTone(ctx, master, baseSec, 0, 587.33, 0.06, 'square', 0.065);
+  scheduleChipTone(ctx, master, baseSec, 55, 880.0, 0.06, 'square', 0.065);
+  scheduleChipTone(ctx, master, baseSec, 110, 1174.66, 0.16, 'square', 0.07);
 }

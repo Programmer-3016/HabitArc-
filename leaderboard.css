@@ -66,6 +66,10 @@ body > main.ha-leaderboard {
     font: 600 .75rem/1 var(--mono);
 }
 .lb-vault-stat strong { font-weight: 800; color: rgb(var(--ha-primary, 124 58 237)); }
+button.lb-sound-toggle { cursor: pointer; transition: transform 120ms ease, background-color 120ms ease, opacity 120ms ease; }
+button.lb-sound-toggle:active { transform: translateY(1px); }
+button.lb-sound-toggle[aria-pressed="false"] { opacity: .68; }
+button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary)); outline-offset: 2px; }
 .lb-runner-plaque {
     display: flex; gap: 12px; align-items: center;
     padding: 12px 14px; border-radius: 14px;
