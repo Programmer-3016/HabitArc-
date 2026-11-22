@@ -171,15 +171,12 @@ export async function mountLeaderboard(root) {
 function mountTreasureRoom(root, find, redrawLeague) {
   let active = false, lastRenderKey = '';
   let showing = null;
-  const statsRow = root.querySelector('.lb-vault-stats');
-  if (statsRow && !statsRow.querySelector('#treasure-sound-toggle')) {
-    const soundBtn = el('button', 'lb-vault-stat lb-sound-toggle');
-    soundBtn.type = 'button';
-    soundBtn.id = 'treasure-sound-toggle';
+  const soundBtn = find('treasure-sound-toggle');
+  if (soundBtn) {
     const syncSoundBtn = () => {
       const on = getTreasureSoundEnabled();
       soundBtn.setAttribute('aria-pressed', String(on));
-      soundBtn.textContent = on ? 'Sound: On' : 'Sound: Off';
+      soundBtn.title = on ? 'Chest sound on' : 'Chest sound muted';
       soundBtn.setAttribute('aria-label', on ? 'Mute chest sound effects' : 'Enable chest sound effects');
     };
     syncSoundBtn();
@@ -188,7 +185,6 @@ function mountTreasureRoom(root, find, redrawLeague) {
       setTreasureSoundEnabled(next);
       syncSoundBtn();
     });
-    statsRow.append(soundBtn);
   }
   // Keep the dialog inside the route root for SPA teardown. showModal() puts
   // it in the browser's top layer, above the header and bottom navigation.
@@ -334,14 +330,17 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const openedCountEl = find('treasure-opened-count');
     if (openedCountEl) openedCountEl.textContent = `${bag.opened.length} / ${CHESTS.length}`;
 
-    const next = CHESTS.find(c => !bag.opened.includes(c.id));
-    find('treasure-summary').textContent = !ready
-      ? 'Finish setup to track clear days and unlock milestone chests.'
-      : !next
-        ? `All ${CHESTS.length} milestone chests unlocked.`
-        : count >= next.days
-          ? `${next.name} is ready to open.`
-          : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name}.`;
+    const summaryEl = find('treasure-summary');
+    if (summaryEl) {
+      const next = CHESTS.find(c => !bag.opened.includes(c.id));
+      summaryEl.textContent = !ready
+        ? 'Finish setup to track clear days and unlock milestone chests.'
+        : !next
+          ? `All ${CHESTS.length} milestone chests unlocked.`
+          : count >= next.days
+            ? `${next.name} is ready to open.`
+            : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name}.`;
+    }
 
 function makeReplayIcon(opened) {
   const ns = 'http://www.w3.org/2000/svg';
@@ -497,6 +496,7 @@ function makeLockIcon() {
     if (!treasure && showing) showing.dialog.close();
     for (const id of ['league-view', 'league-footer', 'league-controls']) find(id).hidden = treasure;
     find('treasures').hidden = !treasure;
+    if (soundBtn) soundBtn.hidden = !treasure;
     find('show-treasures').setAttribute('aria-pressed', String(treasure));
     find('show-league').setAttribute('aria-pressed', String(!treasure));
     const scopeEl = find('lb-scope');

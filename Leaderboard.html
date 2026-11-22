@@ -188,9 +188,17 @@
     </div>
   </div>
 
-  <div class="lb-filters lb-view-switch" role="group" aria-label="Rewards and standings">
-    <button type="button" id="show-treasures" aria-pressed="true" aria-controls="treasures">Chests</button>
-    <button type="button" id="show-league" aria-pressed="false" aria-controls="league-view">League preview</button>
+  <div class="lb-view-row">
+    <div class="lb-filters lb-view-switch" role="group" aria-label="Rewards and standings">
+      <button type="button" id="show-treasures" aria-pressed="true" aria-controls="treasures">Chests</button>
+      <button type="button" id="show-league" aria-pressed="false" aria-controls="league-view">League preview</button>
+    </div>
+    <button type="button" id="treasure-sound-toggle" class="lb-sound-toggle" aria-pressed="true" aria-label="Mute chest sound effects" title="Chest sound on">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path class="lb-sound-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+    </button>
   </div>
   <div class="lb-grid" id="league-view" hidden>
     <div class="lb-feature">
@@ -242,17 +250,7 @@
     </section>
   </div>
 
-  <section id="treasures" class="lb-treasures" aria-labelledby="treasures-title">
-    <div class="lb-vault-head">
-      <div class="lb-vault-copy">
-        <h2 id="treasures-title">Milestone chests</h2>
-        <p id="treasure-summary" class="lb-vault-summary"></p>
-      </div>
-      <div class="lb-vault-stats" aria-label="Milestone summary">
-        <span class="lb-vault-stat"><strong id="treasure-clears">0</strong> clear days</span>
-        <span class="lb-vault-stat"><strong id="treasure-opened-count">0 / 4</strong> unlocked</span>
-      </div>
-    </div>
+  <section id="treasures" class="lb-treasures" aria-label="Milestone chests">
     <div id="treasure-cards" class="lb-vault-grid"></div>
     <p class="lb-foot">One clear day counts once all scheduled habits for that date are finished.</p>
   </section>
