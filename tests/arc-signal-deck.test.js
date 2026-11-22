@@ -177,7 +177,7 @@ test('Conversation layout renders one complete Markdown answer without duplicate
  const html = renderArcChatAnswer(answer, undefined, {habitCount:12,totalScheduled:220,totalLogged:0});
  assert.match(html,/class="ha-arc-chat-answer ha-md-prose"/);
  assert.match(html,/<strong>0 recorded completions<\/strong>/);
- assert.match(html,/<h3 class="ha-md-h">One small next step<\/h3>/);
+ assert.match(html,/<h4 class="ha-md-h">One small next step<\/h4>/);
  assert.match(html,/<ul class="ha-md-ul">/);
  assert.match(html,/A short closing thought/);
  assert.match(html,/SYNCED ACCOUNT SNAPSHOT/);
