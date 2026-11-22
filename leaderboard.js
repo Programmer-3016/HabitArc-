@@ -1,5 +1,5 @@
 import { CHESTS, changeTreasure, clearedDays, inventory, leagueRunner } from './runner-treasures.js';
-import { chestArt } from './treasure-art.js';
+import { chestArt, createRevealStage } from './treasure-art.js';
 // Public preview roster only. Never fetch or compare private habit documents here.
 export const COMPANION_META = Object.freeze({
   arcy: { label: 'Arcy', role: 'Classic Spark' },
@@ -173,19 +173,18 @@ function mountTreasureRoom(root, find, redrawLeague) {
     dialog.dataset.tier = chest.id;
     dialog.dataset.phase = 'sealed';
     dialog.setAttribute('aria-label', chest.name + (sample ? ' preview' : ' reward'));
-    const art = chestArt(chest, false);
+    const stageCtrl = createRevealStage(chest, false);
+    const art = stageCtrl.stage;
     const kicker = el('div', 'lb-reveal-kicker');
     const stateLabel = el('span', 'lb-reveal-badge', sample ? 'Opening preview' : 'Treasure unlocked');
     const headline = el('strong', 'lb-reveal-chest-name', chest.name);
     kicker.append(stateLabel, headline);
-    const orbit = el('div', 'lb-reveal-orbit');
-    orbit.setAttribute('aria-hidden', 'true');
-    const pulse = el('div', 'lb-reveal-wave');
-    pulse.setAttribute('aria-hidden', 'true');
     const open = el('button', 'lb-reveal-open');
     open.type = 'button'; open.autofocus = true;
     open.setAttribute('aria-label', 'Tap to open ' + chest.name);
     open.append(el('span', 'lb-reveal-prompt', 'Tap to open'));
+    const openingCue = el('p', 'lb-reveal-wait', 'Opening chest...');
+    openingCue.hidden = true;
     const close = el('button', 'lb-reveal-close', '×');
     close.type = 'button'; close.setAttribute('aria-label', 'Close treasure');
     const title = el('h2', 'lb-reveal-title', chest.power);
@@ -195,8 +194,10 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const copy = el('div', 'lb-reveal-copy');
     copy.append(title, detail);
     copy.hidden = done.hidden = true;
+    const slot = el('div', 'lb-reveal-slot');
+    slot.append(open, openingCue, copy, done);
     const announce = el('div', 'lb-sr'); announce.setAttribute('role', 'status');
-    dialog.append(orbit, kicker, pulse, art, open, copy, done, close, announce);
+    dialog.append(kicker, art, slot, close, announce);
     showing = { dialog, scope, ready };
     let finishTimer, typeTimer;
     function typeHeadline(targetText) {
@@ -217,11 +218,15 @@ function mountTreasureRoom(root, find, redrawLeague) {
       if (!dialog.open || dialog.dataset.phase !== 'opening') return;
       clearTimeout(finishTimer);
       dialog.dataset.phase = 'revealed';
+      openingCue.hidden = true;
       if (!sample) stateLabel.textContent = 'Reward unlocked';
       copy.hidden = done.hidden = false;
       announce.textContent = chest.power + '. ' + detail.textContent;
       if (document.activeElement === dialog) done.focus({ preventScroll: true });
     }
+    art.addEventListener('click', () => {
+      if (dialog.dataset.phase === 'sealed') open.click();
+    });
     open.addEventListener('click', () => {
       if (!dialog.open || dialog.dataset.phase !== 'sealed') return;
       if (!sample && !applyTreasure(chest, 'open', scope, hero)) {
@@ -233,15 +238,14 @@ function mountTreasureRoom(root, find, redrawLeague) {
       dialog.dataset.phase = 'opening';
       dialog.focus({ preventScroll: true });
       open.hidden = true;
-      art.dataset.open = 'true';
+      openingCue.hidden = false;
       typeHeadline(sample ? 'Preview Item' : 'New Item');
-      // The relic is the last animated beat. A bounded fallback also handles
-      // background tabs, cancelled animations and motion-preference changes.
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
-      art.querySelector('.lb-iron-sprite, .lb-chest-relic').addEventListener('animationend', finish, { once: true });
-      finishTimer = setTimeout(finish, 2400);
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      stageCtrl.play({ reducedMotion: reduced, onClimax: finish });
+      if (!reduced) finishTimer = setTimeout(finish, 3600);
     });
     dialog.addEventListener('close', () => {
+      stageCtrl.stop();
       clearTimeout(finishTimer);
       clearInterval(typeTimer);
       if (showing?.dialog === dialog) showing = null;

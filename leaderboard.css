@@ -129,8 +129,8 @@ body > main.ha-leaderboard {
     display: block; width: 100%; padding: 0; border: 0; background: transparent;
     cursor: pointer; border-radius: 13px; text-align: center;
 }
-.lb-chest-stage-btn:hover .lb-chest-art svg { transform: translateY(-3px) scale(1.03); }
-.lb-chest-stage-btn:active .lb-chest-art svg { transform: translateY(0) scale(0.98); }
+.lb-chest-stage-btn:hover .lb-chest-canvas { transform: translateY(-5px) scale(1.04); }
+.lb-chest-stage-btn:active .lb-chest-canvas { transform: translateY(-1px) scale(0.98); }
 .lb-chest-stage-btn:focus-visible { outline: 3px solid rgb(var(--ha-primary)); outline-offset: 2px; }
 /* Dungeon stone cave stage & mossy cobblestone ledge matching 16-bit pixel reference. */
 .lb-chest-art {
@@ -157,17 +157,16 @@ body > main.ha-leaderboard {
     background-repeat: repeat-x;
     image-rendering: pixelated;
 }
-.lb-chest-art svg { height:100%; width:auto; max-width:100%; display:block; image-rendering:pixelated; shape-rendering:crispEdges; transition: transform 150ms ease; }
-.lb-chest-relic, .lb-chest-well, .lb-chest-lining, .lb-loot-sparks, .lb-chest-light { opacity:0; }
-.lb-chest-art[data-open="true"] .lb-chest-lid { opacity:0; }
-.lb-chest-art[data-open="true"] .lb-chest-well { opacity:1; }
-/* Vault cards keep the clean dungeon chest silhouette; the loot reveal dialog plays the full celebration. */
-.lb-chest .lb-chest-art .lb-chest-ambient,
-.lb-chest .lb-chest-art .lb-loot-sparks,
-.lb-chest .lb-chest-art .lb-chest-relic,
-.lb-chest .lb-chest-art .lb-chest-lining { opacity:0; }
-.lb-reveal .lb-chest-art[data-open="true"] :is(.lb-chest-relic,.lb-chest-well,.lb-chest-lining,.lb-loot-sparks) { opacity:1; }
-.lb-chest-art[data-open="true"] .lb-chest-relic { transform:translateY(0); }
+.lb-chest-canvas {
+    display: block;
+    height: min(100%, 168px);
+    width: auto;
+    aspect-ratio: 1;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    transform: translateY(-2px);
+    transition: transform 150ms ease;
+}
 .lb-chest-progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .lb-chest-progress-meta small, .lb-chest-progress-meta span { font: 600 .74rem/1 var(--mono); color: var(--sub); }
 .lb-chest-actions { display:flex; flex-direction:column; gap:7px; margin-top: auto; padding-top: 4px; }
@@ -181,101 +180,87 @@ body > main.ha-leaderboard {
 }
 .lb-chest-preview:hover { border-color: var(--ink); background: rgb(var(--ha-surface-container)); }
 .lb-chest-preview:focus-visible { outline:3px solid rgb(var(--ha-primary)); outline-offset:2px; }
-/* Pixel-game retro dark stage inside reveal dialog, inspired by classic RPG loot popups. */
+/* Pixel-game retro dark stage inside reveal dialog: neutral while sealed, item backlight blooms after open. */
 .lb-reveal {
-    --loot-rgb:245 178 46; --case-trim:#f5b82e; --loot-size:min(68vw,41vh,320px);
-    position:fixed; inset:0; margin:0; padding:0; border:0; box-sizing:border-box;
+    --loot-rgb:249 115 22; --case-trim:#fbbf24;
+    position:fixed; inset:0; margin:0; border:0; box-sizing:border-box;
     width:100%; max-width:none; height:100%; height:100dvh; max-height:none;
-    overflow:hidden; isolation:isolate; background:rgba(10, 9, 14, .94); color:#ffffff;
+    overflow-x:hidden; overflow-y:auto; isolation:isolate;
+    background:rgba(10, 9, 14, .96); color:#ffffff;
     font-family:var(--head, system-ui); text-align:center; overscroll-behavior:contain;
 }
-.lb-reveal[data-tier="iron"] { --loot-rgb:88 196 246; --case-trim:#b6f3ff; }
+.lb-reveal[open] {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:clamp(12px, 2.2vh, 20px);
+    padding:max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+}
+.lb-reveal[data-tier="iron"] { --loot-rgb:56 189 248; --case-trim:#7dd3fc; }
 .lb-reveal[data-tier="gold"] { --loot-rgb:250 204 21; --case-trim:#fef08a; }
 .lb-reveal::backdrop { background:transparent; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
 html:has(.lb-reveal[open]) { overflow:hidden; }
-.lb-reveal::before, .lb-reveal::after { content:""; position:absolute; pointer-events:none; z-index:-1; }
 .lb-reveal::before {
-    inset:0;
-    background:radial-gradient(ellipse closest-side at center,rgb(var(--loot-rgb) / .34),rgb(var(--loot-rgb) / .10) 45%,transparent);
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:radial-gradient(ellipse closest-side at center, rgb(var(--loot-rgb) / .24), rgb(var(--loot-rgb) / .08) 48%, transparent 74%);
+    opacity:0; transition:opacity 550ms ease;
 }
-.lb-reveal::after {
-    left:50%; top:50%; width:min(155vmin,1000px); aspect-ratio:1; transform:translate(-50%,-50%);
-    background:repeating-conic-gradient(from -11deg,transparent 0 13deg,rgb(var(--loot-rgb) / .14) 18deg,transparent 25deg 39deg);
-    mask-image:radial-gradient(circle,#000 0%,rgb(0 0 0 / .65) 28%, transparent 68%);
-}
-.lb-reveal-kicker, .lb-reveal-copy, .lb-reveal-done, .lb-reveal .lb-chest-art {
-    position:absolute; left:50%; transform:translateX(-50%); margin:0;
-}
+.lb-reveal[data-phase="opening"]::before { opacity:1; transition-delay:950ms; }
+.lb-reveal[data-phase="revealed"]::before { opacity:1; transition-delay:0ms; }
 .lb-reveal-kicker {
-    bottom:calc(50% + var(--loot-size) * .42); width:max-content; max-width:92vw;
-    display:grid; justify-items:center; gap:.65rem;
+    max-width:92vw; display:grid; justify-items:center; gap:.55rem; margin:0;
 }
 .lb-reveal-badge {
     display:inline-flex; align-items:center; gap:.55em; padding:.28rem .65rem;
-    color:#fef08a; background:#1c1724; border:1.5px solid #f5b82e;
+    color:#fef08a; background:#1c1724; border:1.5px solid var(--case-trim);
     border-radius:8px; font:700 .72rem/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase;
 }
 .lb-reveal-badge::before { content:""; width:5px; height:5px; background:currentColor; }
 .lb-reveal-chest-name {
-    color:#ffffff; font:700 clamp(15px,4.4vw,26px)/1.3 "Press Start 2P", var(--head);
-    letter-spacing:.03em; text-shadow:0 3px 0 #000000;
+    color:#ffffff; font:700 clamp(14px,4vw,22px)/1.3 "Press Start 2P", var(--head);
+    letter-spacing:.03em; text-shadow:0 3px 0 #000000; min-height:1.3em;
 }
-/* The scan-lined disc echoes the Arc League podium, without obscuring the sprite. */
-.lb-reveal-orbit {
-    pointer-events:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:var(--loot-size); aspect-ratio:1; border-radius:50%;
-    background:repeating-linear-gradient(0deg,rgba(255,255,255,.16) 0 2px,transparent 2px 7px);
-    opacity:.35; mask-image:radial-gradient(circle,#000 33%,transparent 72%);
+.lb-reveal .lb-reveal-stage {
+    position:relative; display:grid; place-items:center;
+    width:min(88vw, 44dvh, 336px); height:auto; aspect-ratio:112 / 96;
+    padding:0; border:2px solid rgba(255, 255, 255, .14); border-radius:14px;
+    background:#0a090e; background-image:none; overflow:hidden;
+    box-shadow:0 16px 38px rgba(0,0,0,.62);
+    transition:border-color 260ms ease, box-shadow 260ms ease;
 }
-.lb-reveal .lb-chest-art {
-    top:50%; transform:translate(-50%,-50%); width:var(--loot-size); height:auto; aspect-ratio:88/78;
-    padding:0; border:0; background:none; overflow:visible; pointer-events:none; --case-shadow:rgba(0,0,0,.6);
+.lb-reveal[data-phase="sealed"] .lb-reveal-stage { cursor:pointer; }
+.lb-reveal[data-phase="revealed"] .lb-reveal-stage {
+    border-color:rgb(var(--loot-rgb) / .52);
+    box-shadow:0 0 38px rgb(var(--loot-rgb) / .24), 0 18px 40px rgba(0,0,0,.68);
 }
-.lb-reveal .lb-chest-art svg { width:100%; height:100%; overflow:visible; }
-.lb-reveal .lb-chest-object { transform-box:view-box; transform-origin:44px 47px; transform:translateY(20px) scale(.76); }
-.lb-reveal .lb-chest-art .lb-chest-relic {
-    transform-box:fill-box; transform-origin:center; opacity:1; transform:translateY(-2px) scale(1.45);
-    filter:drop-shadow(0 0 3px rgb(var(--loot-rgb) / .85));
+.lb-reveal-canvas {
+    display:block; width:100%; height:100%;
+    image-rendering:pixelated; image-rendering:crisp-edges;
 }
-.lb-reveal .lb-chest-light { opacity:.22; }
-.lb-reveal .lb-loot-sparks { opacity:.75; transform:translateY(4px); }
-.lb-reveal-copy { top:calc(50% + var(--loot-size) * .68); width:min(92%,34rem); }
-.lb-reveal-title { margin:0; font:700 clamp(1.5rem,4vw,2.45rem)/1.15 var(--head,system-ui); letter-spacing:-.03em; color:#ffffff; }
-.lb-reveal-detail { margin:.45rem 0 0; font:600 .88rem/1.4 var(--mono,monospace); color:#cbd5e1; }
+.lb-reveal-slot {
+    min-height:112px; width:min(92vw, 32rem);
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:12px;
+}
+.lb-reveal-wait {
+    margin:10px 0 0; font:600 .8rem/1.4 var(--mono, monospace); color:#cbd5e1;
+    letter-spacing:.04em; text-transform:uppercase;
+}
+.lb-reveal-copy { width:100%; }
+.lb-reveal-title { margin:0; font:700 clamp(1.4rem,4vw,2.2rem)/1.15 var(--head,system-ui); letter-spacing:-.03em; color:#ffffff; }
+.lb-reveal-detail { margin:.4rem 0 0; font:600 .86rem/1.4 var(--mono,monospace); color:#cbd5e1; }
 .lb-reveal-done {
-    top:calc(50% + var(--loot-size) * .68 + 5.15rem); min-height:44px; width:max-content; max-width:90%;
+    min-height:44px; width:max-content; max-width:90%;
     padding:.55rem 1.25rem; cursor:pointer;
 }
-@media (min-height:481px) and (max-height:650px) {
-    .lb-reveal { --loot-size:min(65vw,31vh,215px); }
-    .lb-reveal-title { font-size:1.55rem; }
+@media (max-height:540px) {
+    .lb-reveal[open] { gap:8px; }
+    .lb-reveal .lb-reveal-stage { width:min(76vw, 42dvh, 280px); }
+    .lb-reveal-slot { min-height:84px; gap:8px; }
+    .lb-reveal-title, .lb-reveal-chest-name { font-size:1.25rem; }
 }
-@media (max-height:480px) {
-    .lb-reveal { --loot-size:min(44vw,29vh,145px); }
-    .lb-reveal-done { top:auto; bottom:max(.6rem,env(safe-area-inset-bottom)); }
-    .lb-reveal-copy { top:calc(50% + var(--loot-size) * .68); }
-    .lb-reveal-title, .lb-reveal-chest-name { font-size:1.3rem; }
-    .lb-reveal-kicker { gap:.25rem; }
-    .lb-reveal-detail { margin-top:.15rem; }
-}
-@media (max-height:480px) and (min-width:520px) {
-    .lb-reveal-done { left:auto; right:max(1rem,env(safe-area-inset-right)); transform:none; }
-}
-/* The sealed pose waits indefinitely. Only the second tap starts the reward track. */
+/* The sealed pose waits indefinitely until tapped. */
 .lb-reveal [hidden] { display:none !important; }
-.lb-reveal[data-phase="sealed"]::after { opacity:.38; }
-.lb-reveal:not([data-phase="revealed"]) .lb-reveal-kicker { bottom:calc(50% + var(--loot-size) * .52); }
-.lb-reveal[data-phase="sealed"] .lb-chest-object { transform:translateY(-2px); }
-.lb-reveal[data-phase="sealed"] :is(.lb-chest-relic,.lb-chest-light,.lb-loot-sparks) { opacity:0; }
-.lb-reveal-wave {
-    pointer-events:none; width:var(--loot-size); aspect-ratio:1; position:absolute; top:50%; left:50%;
-    transform:translate(-50%,-50%); border:1px solid rgb(var(--loot-rgb) / .62); border-radius:50%;
-    box-shadow:0 0 22px rgb(var(--loot-rgb) / .24),inset 0 0 26px rgb(var(--loot-rgb) / .22); opacity:0;
-}
 .lb-reveal-open {
-    position:absolute; left:50%; top:calc(50% - var(--loot-size)*.42); transform:translateX(-50%);
-    width:max(145px,var(--loot-size)); height:calc(var(--loot-size)*.89 + 48px);
-    display:flex; justify-content:center; align-items:flex-end; background:transparent; border:0; padding:0;
+    display:inline-flex; justify-content:center; align-items:center;
+    background:transparent; border:0; padding:0;
     cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent;
 }
 .lb-reveal-prompt {
@@ -295,44 +280,14 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
 .lb-reveal-open:focus-visible { outline:none; }
 .lb-reveal-open:focus-visible .lb-reveal-prompt, .lb-reveal-close:focus-visible, .lb-reveal-done:focus-visible { outline:3px solid var(--case-trim, #f5b82e); outline-offset:4px; }
 .lb-reveal-close {
-    position:absolute; right:max(1rem,env(safe-area-inset-right)); top:max(1rem,env(safe-area-inset-top));
+    position:fixed; right:max(1rem,env(safe-area-inset-right)); top:max(1rem,env(safe-area-inset-top));
     width:44px; height:44px; padding:0; border:2px solid var(--case-trim, #f5b82e); border-radius:var(--ha-ctrl-radius);
     color:#ffffff; background:#1c1724; box-shadow:2px 2px 0 #000000; font:500 1.5rem/1 var(--head); cursor:pointer;
 }
+@keyframes lb-caption { from {opacity:0;translate:0 5px} to {opacity:1;translate:0 0} }
 @media (prefers-reduced-motion:no-preference) {
-    .lb-reveal[data-phase="sealed"] .lb-chest-entry { transform-box:view-box; transform-origin:44px 40px; animation:lb-arrive .48s cubic-bezier(.18,.82,.28,1.12) both; }
-    .lb-reveal[data-phase="sealed"] .lb-chest-object { animation:lb-hover 2.8s ease-in-out .48s infinite; }
-    .lb-reveal[data-phase="sealed"]::before { animation:lb-lantern 3.6s ease-in-out infinite alternate; }
-    .lb-reveal[data-phase="opening"] { --unseal:560ms; }
-    .lb-reveal[data-phase="opening"] .lb-chest-entry { transform-box:view-box; transform-origin:44px 62px; animation:lb-rattle var(--unseal) ease-in-out both; }
-    .lb-reveal[data-phase="opening"] .lb-chest-object { animation:lb-settle .78s cubic-bezier(.22,.82,.22,1) var(--unseal) both; }
-    .lb-reveal[data-phase="opening"] .lb-chest-lid { transform-box:fill-box; transform-origin:center 30%; animation:lb-unlatch .22s ease-in var(--unseal) both; }
-    .lb-reveal[data-phase="opening"] :is(.lb-chest-well,.lb-chest-lining) { animation:lb-lining .14s ease-out .68s both; }
-    .lb-reveal[data-phase="opening"]::before { animation:lb-ignite 1.6s ease-out both; }
-    .lb-reveal[data-phase="opening"]::after { animation:lb-rays 1.5s ease-out .54s both; }
-    .lb-reveal[data-phase="opening"] .lb-reveal-wave { animation:lb-wave .95s cubic-bezier(.12,.72,.21,1) .66s both; }
-    .lb-reveal[data-phase="opening"] .lb-chest-light { animation:lb-beam 1s ease-out .65s both; }
-    .lb-reveal[data-phase="opening"] .lb-loot-sparks { animation:lb-sparks 1.05s ease-out .76s both; }
-    .lb-reveal[data-phase="opening"] .lb-chest-relic { animation:lb-relic-rise 1.25s cubic-bezier(.18,.78,.22,1) .76s both; }
     .lb-reveal[data-phase="revealed"] .lb-reveal-copy { animation:lb-caption .28s ease-out both; }
 }
-@keyframes lb-arrive { from {opacity:0;transform:translateY(9px) scale(.65)} 75% {opacity:1;transform:translateY(-1px) scale(1.035)} to {transform:none} }
-@keyframes lb-hover { 0%,100% {transform:translateY(-2px)} 50% {transform:translateY(-3.5px)} }
-@keyframes lb-lantern { from {opacity:.72} to {opacity:1} }
-@keyframes lb-rattle {
-    0%,100% {transform:none} 27% {transform:translateY(1px) rotate(-2deg)} 46% {transform:rotate(2deg)}
-    66% {transform:rotate(-2.7deg)} 82% {transform:rotate(1.7deg)} 94% {transform:scale(1.025,.965)}
-}
-@keyframes lb-settle { from {transform:translateY(-2px)} to {transform:translateY(20px) scale(.76)} }
-@keyframes lb-unlatch { 0% {opacity:1;transform:none} 70% {opacity:1;transform:translateY(-6px) scaleY(.7)} 100% {opacity:0;transform:translateY(-11px) scaleY(.42)} }
-@keyframes lb-lining { from {opacity:0} to {opacity:1} }
-@keyframes lb-ignite { 0% {opacity:.82} 37% {opacity:.45} 64% {opacity:1;transform:scale(1.12)} 100% {opacity:1;transform:none} }
-@keyframes lb-rays { from {opacity:.32;transform:translate(-50%,-50%) rotate(-9deg) scale(.7)} 55% {opacity:1} to {opacity:1;transform:translate(-50%,-50%)} }
-@keyframes lb-wave { from {opacity:0;transform:translate(-50%,-50%) scale(.42)} 18% {opacity:.66} to {opacity:0;transform:translate(-50%,-50%) scale(1.65)} }
-@keyframes lb-beam { from {opacity:0} 30% {opacity:.82} to {opacity:.22} }
-@keyframes lb-sparks { from {opacity:0;transform:translateY(20px) scale(.92)} 55% {opacity:1} to {opacity:.75;transform:translateY(4px)} }
-@keyframes lb-relic-rise { from {opacity:0;transform:translateY(24px) scale(.35)} 30% {opacity:1} 65% {transform:translateY(-6px) scale(1.56)} to {opacity:1;transform:translateY(-2px) scale(1.45)} }
-@keyframes lb-caption { from {opacity:0;translate:0 5px} to {opacity:1;translate:0 0} }
 .lb-chest h3 { margin:0; font:700 1.2rem var(--head); line-height: 1.2; }
 .lb-power-name { font:700 .84rem var(--mono); color:var(--ink); }
 .lb-chest p { font-size:.88rem; color:var(--sub); line-height:1.45; margin:0; }
@@ -415,53 +370,6 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
 }
 .lb-reveal .lb-chest-art::after { display: none; }
 
-/* The Iron tier uses the approved 26-cell, 64px sprite sheet. Don't play a
-   looping GIF: the sealed pose waits for input and the reward stays on screen. */
-.lb-iron-sprite {
-  display:block; width:min(100%,clamp(164px,18vw,192px)); aspect-ratio:1;
-  background:url("./icons/iron-chest-sheet.png") 0% center / 2600% 100% no-repeat;
-  image-rendering:pixelated; transition:none;
-}
-.lb-chest-art[data-open="true"] .lb-iron-sprite { background-position-x:36%; } /* open, no reward */
-.lb-reveal[data-tier="iron"] .lb-chest-art { aspect-ratio:1; }
-.lb-reveal[data-tier="iron"][data-phase="revealed"] .lb-reveal-kicker {
-  bottom:calc(50% + var(--loot-size) * .52);
-}
-.lb-reveal .lb-iron-sprite { width:100%; }
-.lb-reveal .lb-chest-art[data-open="true"] .lb-iron-sprite { background-position-x:64%; } /* emerald */
-.lb-reveal[data-tier="iron"] .lb-reveal-open {
-  inset:0; transform:none; width:100%; height:100%;
-}
-.lb-reveal[data-tier="iron"] .lb-reveal-prompt {
-  position:absolute; top:calc(50% + var(--loot-size) * .47);
-}
-@media (prefers-reduced-motion:no-preference) {
-  .lb-reveal[data-phase="opening"] .lb-iron-sprite {
-    animation:lb-iron-unseal 1760ms steps(1,end) both;
-  }
-}
-/* A 26-cell rail advances exactly one frame per 4%. Retain the artist's
-   uneven holds for the latch, light leak, hinge stop and emerald rise. */
-@keyframes lb-iron-unseal {
-  0%    { background-position-x:0%; }
-  5.1%  { background-position-x:4%; }
-  10.8% { background-position-x:8%; }
-  18.2% { background-position-x:12%; }
-  26.7% { background-position-x:16%; }
-  32.4% { background-position-x:20%; }
-  37.2% { background-position-x:24%; }
-  41.8% { background-position-x:28%; }
-  46.6% { background-position-x:32%; }
-  52.8% { background-position-x:36%; }
-  60.5% { background-position-x:40%; }
-  65.6% { background-position-x:44%; }
-  71%   { background-position-x:48%; }
-  77%   { background-position-x:52%; }
-  83.2% { background-position-x:56%; }
-  89.8% { background-position-x:60%; }
-  100%  { background-position-x:64%; }
-}
-
 /* Always expose both Leaderboard views without horizontal tab clipping. */
 .lb-view-switch { max-width:100%; }
 .lb-view-switch button { white-space:nowrap; }
@@ -511,7 +419,7 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
     min-height:42px;padding-inline:6px;
     font-size:clamp(.74rem,3vw,.85rem);
   }
-  .lb-chest-art svg { width:min(55vw,196px); }
+  .lb-chest-canvas { height:min(100%, 168px); }
 }
 @media (max-width:480px) {
   .lb-controls { grid-template-columns:minmax(0,1fr); }
@@ -522,17 +430,15 @@ html:has(.lb-reveal[open]) { overflow:hidden; }
 @media (max-width:359px) {
   .lb-view-switch button { font-size:.8rem; padding-inline:4px; }
   .lb-controls .lb-filters button { padding-inline:4px; font-size:.78rem; }
-  .lb-chest-art svg { width:min(59vw,184px); }
+  .lb-chest-canvas { height:min(100%, 154px); }
   .lb-table-title, .lb-stage-head, .lb-personal-top { flex-wrap:wrap; }
   .lb-standings :is(th, td) { padding:9px 6px; }
   .lb-standings :is(th, td):first-child { padding-left:10px; width:52px; }
   .lb-standings :is(th, td):last-child { padding-right:10px; width:76px; }
   .lb-pts-bar { width:48px; }
-  .lb-reveal-copy { top:calc(50% + var(--loot-size) * .62); }
-  .lb-reveal-done { top:calc(50% + var(--loot-size) * .62 + 4.75rem); }
 }
 @media (prefers-reduced-motion:reduce) {
-  .lb-chest-art svg { transition:none; }
+  .lb-chest-canvas { transition:none; }
 }
 
 
