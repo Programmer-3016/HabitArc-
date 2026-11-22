@@ -967,95 +967,58 @@ function buildVaultBackdrop32() {
   const r = makeSurface32(BG_W, BG_H, buf);
   const C = col32;
 
-  // HabitArc twilight indigo sky transitioning down into warm volcanic caldera haze
+  // HabitArc twilight indigo sky transitioning cleanly into warm volcanic caldera glow
   const skyBands = [
-    [0, 7, '#151024'], [7, 15, '#1d1533'], [15, 23, '#271c45'],
-    [23, 30, '#36214a'], [30, 35, '#522238'], [35, 39, '#7a2a1e'],
+    [0, 8, '#151024'], [8, 17, '#1d1533'], [17, 25, '#271c45'],
+    [25, 31, '#36214a'], [31, 35, '#4c2035'], [35, 39, '#6e261b'],
   ];
   for (const [y0, y1, hex] of skyBands) r.rect(C(hex), 0, y0, BG_W, y1 - y0);
 
-  // Subtle stepped dither line along upper violet bands
+  // Crisp pixel dither transitions along sky bands
   for (let x = 0; x < BG_W; x++) {
-    if (x % 2 === 0) r.put(C('#1d1533'), x, 6);
-    if (x % 2 === 1) r.put(C('#271c45'), x, 14);
-    if (x % 2 === 0) r.put(C('#36214a'), x, 22);
-    if (x % 2 === 1) r.put(C('#522238'), x, 29);
+    if (x % 2 === 0) r.put(C('#1d1533'), x, 7);
+    if (x % 2 === 1) r.put(C('#271c45'), x, 16);
+    if (x % 2 === 0) r.put(C('#36214a'), x, 24);
+    if (x % 2 === 1) r.put(C('#4c2035'), x, 30);
   }
 
   // Twinkling twilight pixel stars matching HabitArc lavender & cream-gold palette
   for (const [sx, sy, hex] of [
-    [6, 4, '#c4b5fd'], [15, 9, '#fef9c3'], [29, 5, '#c4b5fd'], [42, 7, '#ddd6fe'],
-    [55, 4, '#fef9c3'], [64, 10, '#c4b5fd'], [78, 6, '#ddd6fe'], [89, 11, '#fef9c3'],
-    [48, 13, '#a78bfa'], [69, 15, '#c4b5fd'], [10, 16, '#ddd6fe'],
+    [10, 4, '#c4b5fd'], [18, 10, '#fef9c3'], [29, 5, '#c4b5fd'], [42, 8, '#ddd6fe'],
+    [55, 4, '#fef9c3'], [64, 11, '#c4b5fd'], [78, 6, '#ddd6fe'], [86, 12, '#fef9c3'],
+    [22, 18, '#a78bfa'], [73, 19, '#c4b5fd'], [12, 22, '#ddd6fe'], [84, 21, '#a78bfa'],
   ]) r.put(C(hex), sx, sy);
 
-  // Left volcanic caldera peak (visible cleanly beside the chest!) + glowing crater & lava stream
-  for (let row = 0; row < 27; row++) {
-    const y = 12 + row;
-    const xL = Math.max(0, 11 - Math.floor(row * 0.55));
-    const xR = Math.min(44, 21 + Math.floor(row * 0.85));
-    r.rect(C('#140f1f'), xL, y, xR - xL, 1);
-    if (xR - xL > 4) r.rect(C('#231833'), xL + 1, y, Math.min(5, Math.floor((xR - xL) / 3)), 1);
-    if (row > 3 && xR > xL + 8) r.put(C('#4c285e'), xL + 1, y);
-  }
-  // Volcano crater & rising glowing smoke plume
-  r.rect(C('#ea580c'), 12, 11, 8, 2);
-  r.rect(C('#facc15'), 13, 12, 6, 1);
-  r.rect(C('#fef08a'), 14, 12, 4, 1);
-  for (const [ex, ey, col] of [
-    [13, 8, '#3a2b52'], [15, 7, '#4c3869'], [18, 9, '#3a2b52'],
-    [14, 9, '#f97316'], [17, 6, '#facc15'], [11, 10, '#fb923c'],
-  ]) r.put(C(col), ex, ey);
+  // Calm glowing magma sea behind the basalt stone altar (no jagged mountains)
+  r.rect(C('#7c2d12'), 0, 35, BG_W, 4);
+  r.rect(C('#c2410c'), 0, 37, BG_W, 2);
+  for (const [rx, ry, rw, col] of [
+    [9, 37, 6, '#f97316'], [11, 37, 2, '#facc15'],
+    [23, 38, 8, '#ea580c'], [26, 38, 3, '#facc15'],
+    [66, 37, 9, '#f97316'], [70, 37, 3, '#fef08a'],
+    [80, 38, 7, '#ea580c'], [82, 38, 2, '#facc15'],
+  ]) r.rect(C(col), rx, ry, rw, 1);
 
-  // Winding molten lava river trickling down the volcano slope into distant magma moat
-  for (const [lx, ly, lw] of [
-    [15, 13, 3], [16, 14, 3], [16, 15, 2], [17, 16, 3], [18, 17, 2], [19, 18, 2],
-    [19, 19, 3], [20, 20, 3], [21, 21, 2], [22, 22, 3], [22, 23, 3], [23, 24, 3],
-    [24, 25, 3], [24, 26, 4], [25, 27, 4], [26, 28, 4], [27, 29, 4], [27, 30, 5],
-    [28, 31, 5], [29, 32, 5], [30, 33, 5], [30, 34, 6],
-  ]) {
-    r.rect(C('#c2410c'), lx, ly, lw, 1);
-    r.rect(C('#f97316'), lx + 1, ly, Math.max(1, lw - 1), 1);
-    if (lw >= 3) r.put(C('#facc15'), lx + 1, ly);
+  // Subtle dark basalt ruin pilasters framing far left & right edges
+  for (let row = 0; row < 39; row++) {
+    const bw = row < 6 ? 6 : 4;
+    r.rect(C('#120e1c'), 0, row, bw, 1);
+    r.rect(C('#211a30'), 0, row, bw - 1, 1);
+    if (row % 7 === 0) r.rect(C('#0c0914'), 0, row, bw, 1);
+    r.rect(C('#120e1c'), BG_W - bw, row, bw, 1);
+    r.rect(C('#211a30'), BG_W - bw + 1, row, bw - 1, 1);
+    if (row % 7 === 0) r.rect(C('#0c0914'), BG_W - bw, row, bw, 1);
   }
 
-  // Right distant obsidian mountain silhouette + small secondary spire
-  for (let row = 0; row < 22; row++) {
-    const y = 17 + row;
-    const xL = Math.max(54, 77 - Math.floor(row * 0.95));
-    const xR = Math.min(BG_W, 85 + Math.floor(row * 0.65));
-    r.rect(C('#140f1f'), xL, y, xR - xL, 1);
-    r.rect(C('#2a1d3d'), xL + 1, y, Math.max(1, Math.floor((xR - xL) * 0.25)), 1);
-  }
-  // Distant molten lava lake glowing cleanly behind the stone pedestal cliff
-  r.rect(C('#9a3412'), 0, 36, BG_W, 3);
-  r.rect(C('#ea580c'), 4, 37, BG_W - 8, 2);
-  for (let x = 8; x < BG_W - 8; x += 6) {
-    r.rect(C('#facc15'), x, 37, 3, 1);
-    if (x % 12 === 2) r.put(C('#fef08a'), x + 1, 38);
-  }
-
-  // Framing rugged basalt stone cliff pillars on far left & right corners
-  for (let row = 0; row < 38; row++) {
-    const lw = Math.max(2, 8 - Math.floor(row * 0.16) + ((row >> 2) % 2));
-    const rw = Math.max(2, 9 - Math.floor(row * 0.18) + ((row >> 1) % 2));
-    r.rect(C('#0e0b16'), 0, row, lw, 1);
-    r.rect(C('#1f182e'), 0, row, Math.max(1, lw - 2), 1);
-    r.put(C('#4a2c40'), lw - 1, row);
-    r.rect(C('#0e0b16'), BG_W - rw, row, rw, 1);
-    r.rect(C('#1f182e'), BG_W - rw + 2, row, Math.max(1, rw - 2), 1);
-    r.put(C('#4a2c40'), BG_W - rw, row);
-  }
-
-  // Drifting crisp 1px volcanic embers in the night air
+  // Drifting crisp 1px volcanic embers rising gently in the night air
   for (const [px, py, col] of [
-    [10, 26, '#fb923c'], [28, 20, '#facc15'], [35, 31, '#f97316'],
-    [71, 24, '#facc15'], [84, 28, '#fb923c'], [62, 33, '#f97316'],
-    [80, 14, '#fb923c'], [5, 33, '#facc15'],
+    [13, 28, '#fb923c'], [21, 24, '#facc15'], [17, 32, '#f97316'],
+    [74, 26, '#facc15'], [82, 30, '#fb923c'], [79, 21, '#f97316'],
+    [28, 30, '#fb923c'], [69, 32, '#facc15'],
   ]) r.put(C(col), px, py);
 
-  // Foreground 3/4 basalt altar stone dais (y = 39..50) over molten chasm floor (y = 51..53)
-  r.rect(C('#3a3052'), 0, 39, BG_W, 1);
+  // Foreground 3/4 basalt altar stone dais (y = 39..50) over warm magma chasm floor (y = 51..53)
+  r.rect(C('#3d3257'), 0, 39, BG_W, 1);
   r.rect(C('#282138'), 0, 40, BG_W, 9);
   r.rect(C('#1b1626'), 0, 49, BG_W, 2);
   // Perspective diagonal basalt flagstone seams
@@ -1069,17 +1032,18 @@ function buildVaultBackdrop32() {
   }
   r.rect(C('#120e1a'), 0, 44, BG_W, 1);
   r.rect(C('#332947'), 0, 45, BG_W, 1);
-  // Subtle fiery magma under-glow bouncing onto front basalt cliff edge
+  // Warm magma bounce pixels along lower basalt ledge
   for (let x = 2; x < BG_W - 2; x++) {
-    if (x % 3 !== 0) r.put(C('#7c2d12'), x, 50);
+    if (x % 4 === 1 || x % 7 === 0) r.put(C('#7c2d12'), x, 50);
   }
-  // Foreground glowing volcanic abyss edge at bottom
-  r.rect(C('#9a3412'), 0, 51, BG_W, 1);
-  r.rect(C('#ea580c'), 0, 52, BG_W, 2);
-  for (let x = 3; x < BG_W - 3; x += 5) {
-    r.rect(C('#facc15'), x, 52, 2, 1);
-    if (x % 10 === 3) r.put(C('#fef08a'), x, 53);
-  }
+  // Organic glowing volcanic fissure at bottom edge
+  r.rect(C('#7c2d12'), 0, 51, BG_W, 1);
+  r.rect(C('#c2410c'), 0, 52, BG_W, 2);
+  for (const [fx, fy, fw, col] of [
+    [6, 52, 9, '#ea580c'], [9, 52, 4, '#facc15'], [19, 53, 7, '#f97316'],
+    [32, 52, 11, '#ea580c'], [36, 53, 4, '#facc15'], [54, 52, 10, '#f97316'],
+    [58, 52, 3, '#fef08a'], [71, 53, 8, '#ea580c'], [83, 52, 6, '#facc15'],
+  ]) r.rect(C(col), fx, fy, fw, 1);
 
   // Crisp pure pixel shadow oval on the basalt dais directly underneath chest center
   const scx = 48, scy = 45;
