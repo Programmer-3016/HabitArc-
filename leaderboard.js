@@ -3,7 +3,6 @@ import {
   chestArt,
   createRevealStage,
   getTreasureSoundEnabled,
-  playChestEquipChime,
   playChestRevealAudio,
   setTreasureSoundEnabled,
   wakeCardChestAnimations,
@@ -180,7 +179,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const syncSoundBtn = () => {
       const on = getTreasureSoundEnabled();
       soundBtn.setAttribute('aria-pressed', String(on));
-      soundBtn.textContent = on ? '8-bit SFX: On' : '8-bit SFX: Off';
+      soundBtn.textContent = on ? 'Sound: On' : 'Sound: Off';
       soundBtn.setAttribute('aria-label', on ? 'Mute chest sound effects' : 'Enable chest sound effects');
     };
     syncSoundBtn();
@@ -188,7 +187,6 @@ function mountTreasureRoom(root, find, redrawLeague) {
       const next = !getTreasureSoundEnabled();
       setTreasureSoundEnabled(next);
       syncSoundBtn();
-      if (next) playChestEquipChime();
     });
     statsRow.append(soundBtn);
   }
@@ -205,12 +203,12 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const stageCtrl = createRevealStage(chest, false);
     const art = stageCtrl.stage;
     const kicker = el('div', 'lb-reveal-kicker');
-    const stateLabel = el('span', 'lb-reveal-badge', sample ? 'Opening preview' : 'Treasure unlocked');
+    const stateLabel = el('span', 'lb-reveal-badge', sample ? 'Opening preview' : 'Chest unlocked');
     const headline = el('strong', 'lb-reveal-chest-name', chest.name);
     kicker.append(stateLabel, headline);
-    const title = el('h2', 'lb-reveal-title', chest.power);
-    const detail = el('p', 'lb-reveal-detail', sample ? 'Preview only · No XP awarded' : '+' + chest.xp + ' XP · Power equipped');
-    const done = el('button', 'lb-reveal-done', 'Back to treasures');
+    const title = el('h2', 'lb-reveal-title', `${chest.days}-day milestone`);
+    const detail = el('p', 'lb-reveal-detail', sample ? 'Preview only' : `+${chest.xp} XP · Milestone unlocked`);
+    const done = el('button', 'lb-reveal-done', 'Back to chests');
     done.type = 'button';
     const copy = el('div', 'lb-reveal-copy');
     copy.append(title, detail);
@@ -244,9 +242,9 @@ function mountTreasureRoom(root, find, redrawLeague) {
       if (!dialog.open || dialog.dataset.phase !== 'opening') return;
       clearTimeout(finishTimer);
       dialog.dataset.phase = 'revealed';
-      if (!sample) stateLabel.textContent = 'Reward unlocked';
+      if (!sample) stateLabel.textContent = 'Unlocked';
       copy.hidden = done.hidden = false;
-      announce.textContent = chest.power + '. ' + detail.textContent;
+      announce.textContent = `${chest.name} ${detail.textContent}.`;
       if (document.activeElement === dialog) done.focus({ preventScroll: true });
     }
     function triggerOpen() {
@@ -259,7 +257,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
       }
       dialog.dataset.phase = 'opening';
       dialog.focus({ preventScroll: true });
-      typeHeadline(sample ? 'Preview Item' : 'New Item');
+      typeHeadline(sample ? 'Preview chest' : 'Chest unlocked');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       stopSound();
       stopSound = playChestRevealAudio(chest.id, { reducedMotion: reduced });
@@ -331,38 +329,19 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const focusNode = root.contains(document.activeElement) && document.activeElement;
     const focused = focusNode?.dataset?.chest, focusedCard = focusNode?.dataset?.tier;
 
-    const equippedChest = CHESTS.find(c => c.id === bag.equipped);
-    find('treasure-avatar').dataset.power = bag.equipped || '';
-    find('treasure-avatar').replaceChildren(sprite(hero, bag.equipped ? 'cheer' : 'run0'));
-    find('treasure-runner').textContent = ready ? COMPANION_META[hero].label : 'Your companion';
-    const maxXp = CHESTS.reduce((sum, c) => sum + c.xp, 0) || 500;
-    const level = bag.opened.length + 1;
-    const levelEl = find('treasure-level');
-    if (levelEl) levelEl.textContent = level > CHESTS.length ? `LVL ${level} MAX` : `LVL ${level}`;
-    const xpBarEl = find('treasure-xp-bar');
-    if (xpBarEl) {
-      xpBarEl.max = maxXp;
-      xpBarEl.value = Math.min(maxXp, bag.xp);
-    }
-    find('treasure-xp').textContent = String(bag.xp);
     const clearsEl = find('treasure-clears');
     if (clearsEl) clearsEl.textContent = String(count);
     const openedCountEl = find('treasure-opened-count');
     if (openedCountEl) openedCountEl.textContent = `${bag.opened.length} / ${CHESTS.length}`;
-    const powerLabelEl = find('treasure-power-label');
-    if (powerLabelEl) {
-      powerLabelEl.textContent = equippedChest ? `★ ${equippedChest.power} active` : 'No power equipped';
-      powerLabelEl.dataset.equipped = bag.equipped || '';
-    }
 
     const next = CHESTS.find(c => !bag.opened.includes(c.id));
     find('treasure-summary').textContent = !ready
-      ? 'Finish onboarding to track clear days and unlock chests — tap any chest below to preview its animation.'
+      ? 'Finish setup to track clear days and unlock milestone chests.'
       : !next
-        ? `Vault complete! All ${CHESTS.length} chests unlocked. Equip any runner power below.`
+        ? `All ${CHESTS.length} milestone chests unlocked.`
         : count >= next.days
-          ? `${next.name} is unlocked and ready to open! Tap it to claim +${next.xp} XP.`
-          : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name} unlocks.`;
+          ? `${next.name} is ready to open.`
+          : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name}.`;
 
 function makeReplayIcon(opened) {
   const ns = 'http://www.w3.org/2000/svg';
@@ -414,9 +393,8 @@ function makeLockIcon() {
     const shortNames = { wood: 'Wooden', iron: 'Iron', gold: 'Gold', ruby: 'Dragon' };
     const cards = CHESTS.map(c => {
       const opened = bag.opened.includes(c.id);
-      const equipped = bag.equipped === c.id;
       const canOpen = writable && !opened && count >= c.days;
-      const state = equipped ? 'equipped' : opened ? 'collected' : canOpen ? 'ready' : 'locked';
+      const state = opened ? 'collected' : canOpen ? 'ready' : 'locked';
       const isLocked = state === 'locked';
 
       const card = el('article', 'lb-chest');
@@ -425,7 +403,7 @@ function makeLockIcon() {
 
       const media = el('div', 'lb-chest-media');
       const shownDays = Math.min(count, c.days);
-      const stampText = equipped ? 'Active' : opened ? 'Opened' : canOpen ? 'Ready' : 'Locked';
+      const stampText = opened ? 'Opened' : canOpen ? 'Ready' : 'Locked';
       const stamp = el('span', 'lb-chest-stamp', stampText);
 
       const stageBtn = el('button', 'lb-chest-stage-btn');
@@ -445,7 +423,7 @@ function makeLockIcon() {
       preview.type = 'button';
       const previewLabel = opened ? 'Replay opening' : 'Preview chest';
       preview.title = previewLabel;
-      preview.setAttribute('aria-label', `${previewLabel}: ${c.name} (no XP awarded)`);
+      preview.setAttribute('aria-label', `${previewLabel}: ${c.name}`);
       preview.append(makeReplayIcon(opened));
       preview.addEventListener('click', () => reveal(c, true, preview));
 
@@ -459,13 +437,11 @@ function makeLockIcon() {
       const daysLabel = c.days === 1 ? '1 clear day' : `${c.days} clear days`;
       const pct = Math.max(0, Math.min(100, Math.round((shownDays / Math.max(1, c.days)) * 100)));
       const daysLeft = Math.max(0, c.days - shownDays);
-      const buttonLabel = equipped
-        ? '✓ Active'
-        : opened
-          ? 'Equip power'
-          : canOpen
-            ? 'Open now'
-            : `${daysLeft}d left`;
+      const buttonLabel = opened
+        ? '✓ Unlocked'
+        : canOpen
+          ? 'Open now'
+          : `${daysLeft}d left`;
 
       const button = el('button', isLocked ? 'lb-chest-action lb-chest-action-locked' : 'lb-chest-action');
       button.type = 'button';
@@ -481,29 +457,26 @@ function makeLockIcon() {
       } else {
         button.textContent = buttonLabel;
       }
-      button.disabled = equipped || (opened && !writable);
+      button.disabled = opened;
       button.setAttribute(
         'aria-label',
         isLocked
-          ? `${c.name} (${c.description}): Locked, ${daysLeft} clear ${daysLeft === 1 ? 'day' : 'days'} left to unlock at ${daysLabel}. Tap to preview.`
-          : `${c.name} (${c.description}): ${buttonLabel}`
+          ? `${c.name}: Locked, ${daysLeft} clear ${daysLeft === 1 ? 'day' : 'days'} left to unlock at ${daysLabel}. Tap to preview.`
+          : `${c.name}: ${buttonLabel}`
       );
       button.addEventListener('click', () => {
-        if (!opened) { reveal(c, !canOpen, button); return; }
-        if (!applyTreasure(c, 'equip', scope, hero)) { render(); return; }
-        playChestEquipChime();
-        find('announcement').textContent = `Equipped ${c.power}.`;
-        const currentCard = find('treasure-cards').querySelector('[data-tier="' + c.id + '"]');
-        currentCard.tabIndex = -1;
-        currentCard.focus({ preventScroll: true });
+        if (!opened) reveal(c, !canOpen, button);
       });
 
-      const powerLine = el('p', 'lb-power-name');
-      powerLine.append(el('span', 'lb-power-kicker', 'Power: '), el('strong', null, c.power));
+      const milestoneLine = el(
+        'p',
+        'lb-power-name',
+        `${c.days}-day milestone`
+      );
 
       body.append(
         heading,
-        powerLine,
+        milestoneLine,
         button
       );
 
@@ -526,9 +499,13 @@ function makeLockIcon() {
     find('treasures').hidden = !treasure;
     find('show-treasures').setAttribute('aria-pressed', String(treasure));
     find('show-league').setAttribute('aria-pressed', String(!treasure));
-    find('lb-scope').textContent = treasure ? 'Arc League · Your collection' : 'Arc League · Demo';
-    find('lb-intro-text').textContent = treasure ? 'Earn powers for your companion by showing up for your own routine.' :
-      'See how your runner stacks up against the league.';
+    const scopeEl = find('lb-scope');
+    if (scopeEl) scopeEl.hidden = treasure;
+    const titleEl = find('lb-page-title');
+    if (titleEl) titleEl.textContent = treasure ? 'Rewards' : 'Practice League';
+    find('lb-intro-text').textContent = treasure
+      ? 'Complete every scheduled habit on a day to count a clear day.'
+      : 'Sample weekly and all-time standings for reference.';
     if (treasure) { render(); wakeCardChestAnimations(); } else redrawLeague();
   }
   find('show-treasures').addEventListener('click', () => switchView(true));
@@ -544,5 +521,5 @@ function makeLockIcon() {
     });
   };
   for (const name of ['habitarc:data-changed', 'habitarc:sync-status-changed', 'habitarc-auth-state-changed']) window.addEventListener(name, refresh);
-  if (window.location.hash === '#treasures') switchView(true);
+  switchView(window.location.hash !== '#league');
 }

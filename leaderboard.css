@@ -44,26 +44,30 @@ body > main.ha-leaderboard {
     color: var(--ink);
 }
 .lb-vault-head {
-    position: relative; overflow: hidden;
-    padding: clamp(18px, 3vw, 30px); display: flex; gap: 20px;
-    justify-content: space-between; align-items: center; flex-wrap: wrap;
-    background: var(--ha-hero-bg, var(--paper));
-    color: var(--ha-hero-fg, var(--ink));
-    border-color: var(--ha-hero-border, var(--edge));
-    box-shadow: 4px 4px 0 var(--rpg-shadow-ink, #121215);
+    position: relative;
+    padding: 15px 18px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--edge);
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
 }
-.lb-vault-copy { flex: 1 1 340px; min-width: 0; }
-.lb-vault-copy .lb-terminal { color: var(--rpg-hero-eyebrow, rgb(var(--ha-primary))); }
-.lb-vault-head h2 { margin: .35rem 0; font: 700 clamp(1.45rem, 2.8vw, 2.15rem)/1.12 var(--head); color: var(--ha-hero-fg, var(--ink)); }
-.lb-vault-head p:not(.lb-terminal) { max-width: 52ch; color: var(--ha-hero-sub, var(--sub)); font-size: .92rem; line-height: 1.5; }
-.lb-vault-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.lb-vault-copy { flex: 1 1 260px; min-width: 0; }
+.lb-vault-head h2 { margin: 0 0 2px; font: 700 clamp(1.05rem, 2.2vw, 1.25rem)/1.2 var(--head); color: var(--ink); }
+.lb-vault-summary { margin: 0; color: var(--sub); font: 500 .875rem/1.4 "Hanken Grotesk", sans-serif; }
+.lb-vault-stats { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .lb-vault-stat {
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 10px; border-radius: 9999px;
-    border: 1.5px solid var(--ha-hero-border, var(--edge));
-    background: rgb(var(--ha-surface-container-lowest, 255 255 255));
-    color: rgb(var(--ha-on-surface, 18 18 21));
-    font: 600 .75rem/1 var(--mono);
+    padding: 6px 11px; border-radius: 9999px;
+    border: 1.5px solid var(--edge);
+    background: var(--paper-soft);
+    color: var(--ink);
+    font: 600 .76rem/1 var(--mono);
 }
 .lb-vault-stat strong { font-weight: 800; color: rgb(var(--ha-primary, 124 58 237)); }
 .lb-vault-xp-track { margin-top: 10px; display: grid; gap: 5px; max-width: 440px; }
@@ -154,7 +158,11 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 }
 .lb-chest[data-state="ready"] .lb-chest-stamp { background: var(--rpg-gold, #facc15); color: #121215; border-color: #121215; }
 .lb-chest[data-state="collected"] .lb-chest-stamp { background: rgba(19, 15, 34, .82); color: #e2e8f0; border-color: rgba(255,255,255,.24); }
-.lb-chest[data-state="equipped"] .lb-chest-stamp { background: var(--rpg-mint, #47e393); color: #121215; border-color: #121215; }
+.lb-chest[data-state="collected"] .lb-chest-action:disabled {
+    background: var(--rpg-mint, #47e393); color: #121215;
+    border: 2px solid #121215; box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+    opacity: 1; cursor: default;
+}
 .lb-chest-preview {
     position: absolute; top: 8px; right: 8px; z-index: 2;
     width: 28px; height: 28px; padding: 0;
@@ -477,15 +485,14 @@ html.lb-reveal-active body::-webkit-scrollbar {
 }
 @media (max-width: 639px) {
   body > main.ha-leaderboard { padding-inline: 12px; }
-  .lb-vault-head { padding: 14px; gap: 12px; }
-  .lb-vault-head h2 { font-size: 1.25rem; }
-  .lb-vault-stats { gap: 6px; margin-top: 10px; }
-  .lb-vault-stat { padding: 4px 8px; font-size: .7rem; }
-  .lb-runner-plaque { padding: 8px 10px; gap: 10px; width: 100%; }
-  .lb-power-avatar { width: 48px; height: 48px; }
-  .lb-power-avatar img { max-width: 38px; max-height: 38px; }
-  .lb-vault-summary { margin: .75rem 0 .6rem; font-size: .84rem; }
-  .lb-vault-grid { gap: 10px; }
+  .lb-intro { margin-bottom: 10px; gap: 8px; }
+  .lb-view-switch { margin-bottom: 10px; }
+  .lb-vault-head { padding: 11px 13px; gap: 8px; margin-bottom: 10px; }
+  .lb-vault-head h2 { font-size: 1.05rem; margin-bottom: 2px; }
+  .lb-vault-stats { gap: 6px; margin-top: 0; }
+  .lb-vault-stat { padding: 5px 8px; font-size: .7rem; }
+  .lb-vault-summary { margin: 0; font-size: .82rem; }
+  .lb-vault-grid { gap: 9px; }
   .lb-chest { padding: 0; gap: 0; border-radius: 14px; box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215); }
   .lb-chest-art { height: clamp(86px, 23vw, 110px); }
   .lb-chest-canvas { height: 100%; }

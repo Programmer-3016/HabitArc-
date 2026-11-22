@@ -359,8 +359,8 @@ try {
   }
   assert.equal(new Set(Object.values(themeColors)).size, ALL_THEMES.length, `Expected 8 distinct theme backgrounds: ${JSON.stringify(themeColors)}`);
 
-  // 7) Vault Quest Fill Pill + Open now cards at mobile 390px and preview safety check
-  await go(`${base}/Leaderboard.html#treasures`);
+  // 7) Rewards Chests (default tab) Quest Fill Pill + Open now + Unlocked cards at mobile 390px
+  await go(`${base}/Leaderboard.html`);
   await ev(`(() => {
     const d = JSON.parse(localStorage.getItem('habitarc_data'));
     const h = d.habits[0];
@@ -373,23 +373,27 @@ try {
     }
     d.habits = [h];
     d.settings.theme = 'light';
-    d.settings.treasureRoom = { runnerId: 'arcy', opened: ['wood', 'iron'], equipped: 'iron' };
+    d.settings.treasureRoom = { runnerId: 'arcy', opened: ['wood', 'iron'] };
     localStorage.setItem('habitarc_data', JSON.stringify(d));
     window.dispatchEvent(new CustomEvent('habitarc:data-changed', { detail: { source: 'storage' } }));
   })()`);
-  await go(`${base}/Leaderboard.html#treasures`);
+  await go(`${base}/Leaderboard.html`);
   const vaultCheck = await ev(`({
     overflow: document.documentElement.scrollWidth > innerWidth,
+    defaultTabPressed: document.querySelector('#show-treasures')?.getAttribute('aria-pressed'),
+    leagueHidden: document.querySelector('#league-view')?.hidden,
     wood: document.querySelector('[data-tier="wood"] .lb-chest-action')?.textContent.trim(),
     iron: document.querySelector('[data-tier="iron"] .lb-chest-action')?.textContent.trim(),
     gold: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim(),
     ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
     rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked')
   })`);
-  await saveShot('vault-390.png');
-  assert.equal(vaultCheck.overflow, false, 'Vault renders cleanly at 390px without overflow');
-  assert.equal(vaultCheck.wood, 'Equip power');
-  assert.equal(vaultCheck.iron, '✓ Active');
+  await saveShot('rewards-clean-390.png');
+  assert.equal(vaultCheck.overflow, false, 'Rewards renders cleanly at 390px without overflow');
+  assert.equal(vaultCheck.defaultTabPressed, 'true', 'Rewards opens to Chests view cleanly');
+  assert.equal(vaultCheck.leagueHidden, true, 'Demo standings stay hidden behind preview toggle');
+  assert.equal(vaultCheck.wood, '✓ Unlocked');
+  assert.equal(vaultCheck.iron, '✓ Unlocked');
   assert.equal(vaultCheck.gold, 'Open now');
   assert.equal(vaultCheck.rubyLockedClass, true);
   assert.ok(/d left$/.test(vaultCheck.ruby), `Expected countdown pill label on Dragon card, got: ${vaultCheck.ruby}`);

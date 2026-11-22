@@ -176,11 +176,11 @@
 <main id="board" class="ha-leaderboard lb-main w-full mx-auto">
   <div class="lb-intro">
     <div class="lb-intro-copy">
-      <p class="ha-insights-eyebrow" id="lb-scope">Arc League · Demo</p>
-      <h1>Leaderboard</h1>
-      <p class="ha-insights-intro" id="lb-intro-text">See how your runner stacks up against the league.</p>
+      <p class="ha-insights-eyebrow" id="lb-scope" hidden>Sample preview</p>
+      <h1 id="lb-page-title">Rewards</h1>
+      <p class="ha-insights-intro" id="lb-intro-text">Complete every scheduled habit on a day to count a clear day.</p>
     </div>
-    <div class="lb-controls" id="league-controls">
+    <div class="lb-controls" id="league-controls" hidden>
       <div class="lb-filters" role="group" aria-label="Ranking period">
         <button type="button" data-period="weekly" aria-pressed="true">This week</button>
         <button type="button" data-period="allTime" aria-pressed="false">All time</button>
@@ -188,11 +188,11 @@
     </div>
   </div>
 
-  <div class="lb-filters lb-view-switch" role="group" aria-label="League view">
-    <button type="button" id="show-league" aria-pressed="true" aria-controls="league-view">Standings</button>
-    <button type="button" id="show-treasures" aria-pressed="false" aria-controls="treasures">Treasures</button>
+  <div class="lb-filters lb-view-switch" role="group" aria-label="Rewards and standings">
+    <button type="button" id="show-treasures" aria-pressed="true" aria-controls="treasures">Chests</button>
+    <button type="button" id="show-league" aria-pressed="false" aria-controls="league-view">League preview</button>
   </div>
-  <div class="lb-grid" id="league-view">
+  <div class="lb-grid" id="league-view" hidden>
     <div class="lb-feature">
       <section class="lb-stage" aria-label="Top three runners">
         <div class="lb-stage-head">
@@ -242,38 +242,22 @@
     </section>
   </div>
 
-  <section id="treasures" class="lb-treasures" aria-labelledby="treasures-title" hidden>
+  <section id="treasures" class="lb-treasures" aria-labelledby="treasures-title">
     <div class="lb-vault-head">
       <div class="lb-vault-copy">
-        <p class="lb-terminal">Treasure vault · Relic room</p>
-        <h2 id="treasures-title">Pixel loot &amp; runner powers</h2>
-        <p>Clear every scheduled habit on a day to forge a clear day. Unlock wooden, iron, gold, and dragon chests to equip pixel powers on your companion.</p>
-        <div class="lb-vault-stats" aria-label="Treasure room stats">
-          <span class="lb-vault-stat"><strong id="treasure-level">LVL 1</strong></span>
-          <span class="lb-vault-stat"><strong id="treasure-xp">0</strong> / 500 XP</span>
-          <span class="lb-vault-stat"><strong id="treasure-clears">0</strong> clear days</span>
-          <span class="lb-vault-stat"><strong id="treasure-opened-count">0 / 4</strong> chests</span>
-        </div>
-        <div class="lb-vault-xp-track" aria-label="Vault level progression">
-          <progress id="treasure-xp-bar" max="500" value="0" aria-label="Vault XP"></progress>
-          <span class="lb-vault-xp-legend">Wood +30 · Iron +70 · Gold +140 · Dragon +260 XP</span>
-        </div>
+        <h2 id="treasures-title">Milestone chests</h2>
+        <p id="treasure-summary" class="lb-vault-summary"></p>
       </div>
-      <div class="lb-runner-plaque">
-        <div id="treasure-avatar" class="lb-power-avatar" aria-hidden="true"></div>
-        <div class="lb-runner-meta">
-          <small>Your runner</small>
-          <strong id="treasure-runner">—</strong>
-          <span id="treasure-power-label" class="lb-power-badge">No power equipped</span>
-        </div>
+      <div class="lb-vault-stats" aria-label="Milestone summary">
+        <span class="lb-vault-stat"><strong id="treasure-clears">0</strong> clear days</span>
+        <span class="lb-vault-stat"><strong id="treasure-opened-count">0 / 4</strong> unlocked</span>
       </div>
     </div>
-    <p id="treasure-summary" class="lb-vault-summary"></p>
     <div id="treasure-cards" class="lb-vault-grid"></div>
-    <p class="lb-foot">One clear per scheduled day. Sample check-ins and standings points don’t count.</p>
+    <p class="lb-foot">One clear day counts once all scheduled habits for that date are finished.</p>
   </section>
-  <footer class="lb-foot" id="league-footer">
-    <span>●</span> Demo league · Sample runners and points, not live account data.
+  <footer class="lb-foot" id="league-footer" hidden>
+    <span>●</span> Sample preview leaderboard for reference only; your own streaks stay private.
   </footer>
   <p class="lb-sr" id="announcement" role="status" aria-live="polite"></p>
   <noscript>Enable JavaScript to display sample standings.</noscript>

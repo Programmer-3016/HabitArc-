@@ -206,18 +206,18 @@ test('Treasure scope, all-tier previews, and PWA refresh stay isolated', () => {
   }
   const rev = worker.match(/const CACHE_NAME = 'habitarc-shell-v(\d+)'/);
   assert.ok(Number(rev?.[1]) >= 40, 'PWA shell cache bumped to v40 or newer');
-  for (const id of ['treasure-clears', 'treasure-opened-count', 'treasure-power-label']) {
+  for (const id of ['treasure-clears', 'treasure-opened-count']) {
     assert.ok(html.includes(`id="${id}"`), `missing #${id}`);
   }
+  assert.doesNotMatch(html, /Pixel loot|runner powers|Equip power|Relic room/);
   assert.doesNotMatch(js, /opened \|\| c\.id === 'wood'/);
   assert.match(js, /lb-chest-stage-btn/);
   assert.match(js, /lb-chest-action-locked/);
   assert.match(js, /'Open now'/);
-  assert.match(js, /'✓ Active'/);
+  assert.match(js, /'✓ Unlocked'/);
   assert.match(js, /reveal\(c, !canOpen, button\)/);
   assert.match(js, /playChestRevealAudio\(/);
   assert.match(js, /stopSound\(\)/);
-  assert.match(js, /playChestEquipChime\(/);
   assert.match(js, /lb-sound-toggle/);
   assert.doesNotMatch(css, /\nbody\s*\{/);
   assert.doesNotMatch(css, /\ntable\s*\{/);
