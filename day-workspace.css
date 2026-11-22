@@ -62,6 +62,11 @@
 .ha-day-peek-metrics{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:14px}
 .ha-day-peek-metrics span{display:flex;align-items:center;gap:5px;font-size:12px;background:rgb(var(--ha-primary-container,196 181 253)/.35);padding:7px 9px;border-radius:10px}
 .ha-day-peek-metrics strong{font-size:15px;font-weight:800}
+.ha-day-hero-strip{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-top:12px;padding-top:11px;border-top:1.5px solid var(--ha-hero-divider,rgba(18,18,21,.16))}
+.ha-day-hero-stats{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.ha-day-hero-stats span{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ha-hero-sub,#3b3556);background:var(--ha-hero-ring-track,rgba(18,18,21,.08));padding:4px 9px;border-radius:9px}
+.ha-day-hero-stats strong{font-size:13px;font-weight:800;color:var(--ha-hero-fg,#121215)}
+.ha-day-hero-strip .ha-day-peek-open{color:var(--ha-hero-fg,#121215)}
 @media(max-width:767px){
  .ha-day-bottom{grid-template-columns:1fr}
  .ha-day-datebar{gap:5px}

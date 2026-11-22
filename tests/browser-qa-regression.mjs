@@ -380,6 +380,9 @@ try {
   await go(`${base}/Leaderboard.html`);
   const vaultCheck = await ev(`({
     overflow: document.documentElement.scrollWidth > innerWidth,
+    fitsOneScreen: document.documentElement.scrollHeight <= innerHeight,
+    scrollHeight: document.documentElement.scrollHeight,
+    innerHeight,
     defaultTabPressed: document.querySelector('#show-treasures')?.getAttribute('aria-pressed'),
     leagueHidden: document.querySelector('#league-view')?.hidden,
     wood: document.querySelector('[data-tier="wood"] .lb-chest-action')?.textContent.trim(),
@@ -390,6 +393,7 @@ try {
   })`);
   await saveShot('rewards-clean-390.png');
   assert.equal(vaultCheck.overflow, false, 'Rewards renders cleanly at 390px without overflow');
+  assert.equal(vaultCheck.fitsOneScreen, true, `Rewards Chests view fits cleanly without trailing blank scroll: ${vaultCheck.scrollHeight} vs ${vaultCheck.innerHeight}`);
   assert.equal(vaultCheck.defaultTabPressed, 'true', 'Rewards opens to Chests view cleanly');
   assert.equal(vaultCheck.leagueHidden, true, 'Demo standings stay hidden behind preview toggle');
   assert.equal(vaultCheck.wood, '✓ Unlocked');
@@ -403,6 +407,30 @@ try {
   assert.equal(previewDetail.open, true, 'Tapping locked Dragon Quest Fill Pill opens safe preview modal');
   assert.equal(previewDetail.badge, 'Opening preview', 'Locked pill opens preview only without claiming XP');
   await ev(`document.querySelector('dialog.lb-reveal')?.close()`);
+
+  // 8) Dashboard unified progress+day strip above the fold + bottom dock fade scrim at 390px
+  await go(`${base}/Dashboard.html`);
+  const dashCheck = await ev(`(() => {
+    const hero = document.querySelector('.ha-progress-card');
+    const peek = document.getElementById('ha-day-dashboard-peek');
+    const firstHabit = document.querySelector('.ha-dashboard-habit');
+    const dock = document.querySelector('.ha-bottom-nav');
+    const scrimBg = getComputedStyle(document.body, '::after').backgroundImage;
+    const hRect = firstHabit ? firstHabit.getBoundingClientRect() : null;
+    const dRect = dock ? dock.getBoundingClientRect() : null;
+    return {
+      unified: Boolean(hero && peek && hero.contains(peek)),
+      noDuplicateHabitsChip: !document.getElementById('ha-day-dashboard-stats')?.textContent.includes('habits'),
+      firstPaintOpacity: getComputedStyle(document.querySelector('.fade-up')).opacity,
+      firstHabitVisibleAboveDock: Boolean(hRect && dRect && hRect.top < dRect.top - 40),
+      hasBottomScrim: Boolean(scrimBg && scrimBg.includes('linear-gradient'))
+    };
+  })()`);
+  assert.equal(dashCheck.unified, true, 'Dashboard merges Day at a Glance inside main progress card');
+  assert.equal(dashCheck.noDuplicateHabitsChip, true, 'Dashboard summary strip omits redundant habits chip');
+  assert.equal(dashCheck.firstPaintOpacity, '1', 'Dashboard cards render immediately without fade-up lag');
+  assert.equal(dashCheck.firstHabitVisibleAboveDock, true, 'First habit lifts cleanly above bottom dock on 390px phone');
+  assert.equal(dashCheck.hasBottomScrim, true, 'Mobile bottom dock renders smooth gradient fade scrim');
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);
 
   console.log(JSON.stringify({

@@ -243,7 +243,9 @@ export function mountDashboard(root=document.getElementById('ha-day-dashboard-pe
    const day=daySummary(localDay());
    const el=$('#ha-day-dashboard-stats',root);
    if(!el)return;
-   el.innerHTML='<span><strong>'+count(day.habitsDone,day.habits.length)+'</strong> habits</span><span><strong>'+count(day.tasksDone,day.tasks.length)+'</strong> tasks</span><span><strong>'+day.focus+'m</strong> focus</span>';
+   const isHeroStrip=root.classList.contains('ha-day-hero-strip');
+   el.innerHTML=(isHeroStrip?'':'<span><strong>'+count(day.habitsDone,day.habits.length)+'</strong> habits</span>')+
+    '<span><strong>'+count(day.tasksDone,day.tasks.length)+'</strong> tasks</span><span><strong>'+day.focus+'m</strong> focus</span>';
  };
  const unsubscribe=taskStore.subscribe(render);
  taskStore.start();

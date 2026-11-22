@@ -410,19 +410,32 @@ html.lb-reveal-active body::-webkit-scrollbar {
   .lb-view-switch { margin-top:2px; }
 }
 @media (max-width: 639px) {
+  body:has(> nav.ha-bottom-nav):has(main.ha-leaderboard #treasures:not([hidden])) {
+    padding-bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  }
+  body > main.ha-leaderboard:has(#treasures:not([hidden])) {
+    padding-top: 12px;
+    padding-bottom: 6px;
+  }
   body > main.ha-leaderboard { padding-inline: 12px; }
-  .lb-intro { margin-bottom: 10px; gap: 8px; }
+  .lb-intro { margin-bottom: 8px; gap: 6px; }
+  .lb-intro .ha-insights-intro { font-size: 13px; line-height: 1.35; margin-top: 2px; }
+  .lb-view-row { margin-bottom: 10px; }
+  .lb-view-switch { padding: 4px; gap: 4px; }
+  .lb-view-switch button { min-height: 40px; }
+  button.lb-sound-toggle { width: 42px; height: 42px; }
   .lb-vault-grid { gap: 9px; }
   .lb-chest { padding: 0; gap: 0; border-radius: 14px; box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215); }
-  .lb-chest-art { height: clamp(86px, 23vw, 110px); }
+  .lb-chest-art { height: clamp(78px, 20vw, 100px); }
   .lb-chest-canvas { height: 100%; }
   .lb-chest-stamp { top: 6px; left: 6px; font-size: .56rem; padding: 2.5px 6px; }
   .lb-chest-preview { top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 7px; }
   .lb-chest-preview svg { width: 12px; height: 12px; }
-  .lb-chest-body { padding: 9px 10px 10px; gap: 5px; }
+  .lb-chest-body { padding: 8px 10px 9px; gap: 4px; }
   .lb-chest-days { font-size: .66rem; }
   .lb-power-name { font-size: clamp(.64rem, 2.75vw, .75rem); }
   .lb-chest-action { min-height: 34px; font-size: clamp(.72rem, 3vw, .82rem); }
+  #treasures .lb-foot { margin-top: 10px; font-size: 12px; line-height: 1.35; }
 }
 @media (max-width:359px) {
   .lb-view-switch button { font-size:.8rem; padding-inline:4px; }

@@ -122,13 +122,8 @@
         @keyframes dash { 0% { stroke-dasharray: 0, 100; } 100% { stroke-dasharray: var(--target), 100; } }
         .progress-ring-circle { animation: dash 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
-        /* Subtle entrance animation */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-up { animation: fadeUp 0.5s ease-out forwards; opacity: 0; }
-        .fade-up-1 { animation-delay: 0.05s; }
-        .fade-up-2 { animation-delay: 0.1s; }
-        .fade-up-3 { animation-delay: 0.15s; }
-        .fade-up-4 { animation-delay: 0.2s; }
+        /* Immediate first-paint visibility without entry stagger delay */
+        .fade-up { opacity: 1; animation: none; }
 
         /* Habit card completion animation */
         @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
@@ -212,16 +207,16 @@
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- MAIN CONTENT -->
 <!-- ═══════════════════════════════════════════════════════ -->
-<main class="ha-dashboard flex-1 w-full max-w-5xl mx-auto px-5 md:px-8 pb-32 md:pb-12 pt-6 md:pt-8">
+<main class="ha-dashboard flex-1 w-full max-w-5xl mx-auto px-5 md:px-8 pt-6 md:pt-8">
 
     <!-- Greeting -->
-    <section class="ha-dashboard-greeting fade-up fade-up-1">
+    <section class="ha-dashboard-greeting fade-up">
         <p id="today-date" class="text-sm text-on-surface-variant geist font-medium">Loading...</p>
         <h1 id="greeting" class="text-on-surface"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></h1>
     </section>
 
-    <!-- Focused hero: Combined Lavender Progress Card -->
-    <section class="ha-progress-card ha-dashboard-hero fade-up fade-up-2" aria-labelledby="progress-title">
+    <!-- Focused hero: Unified Progress, Streaks & Day Peek Card -->
+    <section class="ha-progress-card ha-dashboard-hero fade-up" aria-labelledby="progress-title">
         <div class="ha-rpg-hero-toprow">
             <h2 id="progress-title" class="ha-dashboard-eyebrow">Today's progress</h2>
         </div>
@@ -251,20 +246,16 @@
                 <p><span id="longest-streak">0</span><span class="ha-dashboard-unit">days</span></p>
             </div>
         </div>
-    </section>
-
-    <section id="ha-day-dashboard-peek" class="ha-day-dashboard-peek" aria-label="Today at a glance">
-      <div class="ha-day-peek-header">
-        <div><p class="ha-plan-kicker">DAY AT A GLANCE</p><h2>Your day, simplified.</h2></div>
-        <a href="Habits.html?section=day" class="ha-day-peek-open">Open planner <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
-      </div>
-      <div id="ha-day-dashboard-stats" class="ha-day-peek-metrics" aria-live="polite">
-        <span><strong>—</strong> habits</span><span><strong>—</strong> tasks</span><span><strong>—</strong> focus</span>
-      </div>
+        <div id="ha-day-dashboard-peek" class="ha-day-hero-strip" aria-label="Today at a glance">
+            <div id="ha-day-dashboard-stats" class="ha-day-hero-stats" aria-live="polite">
+                <span><strong>—</strong> tasks</span><span><strong>—</strong> focus</span>
+            </div>
+            <a href="Habits.html?section=day" class="ha-day-peek-open">Open planner <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+        </div>
     </section>
 
     <!-- ─── Today's Habits ──────────────────────────── -->
-    <section class="ha-dashboard-habits fade-up fade-up-3" aria-labelledby="today-habits-title">
+    <section class="ha-dashboard-habits fade-up" aria-labelledby="today-habits-title">
         <div class="ha-section-heading flex items-center justify-between">
             <h2 id="today-habits-title" class="font-bold text-on-surface">Today's habits</h2>
             <span id="habits-remaining" class="text-on-surface-variant"></span>

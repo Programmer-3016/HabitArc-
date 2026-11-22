@@ -114,4 +114,7 @@ test('focused dashboard retains the five mobile navigation destinations and top-
     assert.ok(!mobileHeader.includes('href="Settings.html"'));
     assert.ok(mobileHeader.includes('>HabitArc<'));
     assert.ok(html.indexOf('class="ha-dashboard-view-all"') > html.indexOf('id="habits-container"'));
+    assert.doesNotMatch(html, /DAY AT A GLANCE|fadeUp|animation-delay/, 'duplicate Day At A Glance card and fade lag removed');
+    const heroMatch = html.match(/<section class="ha-progress-card[\s\S]*?<\/section>/);
+    assert.ok(heroMatch && heroMatch[0].includes('id="ha-day-dashboard-peek"'), 'Day summary strip lives inside unified hero card');
 });

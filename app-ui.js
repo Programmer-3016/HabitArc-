@@ -516,6 +516,10 @@
                     const leavingNotes = document.querySelector('main.notes-shell') && targetPage !== 'Notes.html';
                     if (leavingNotes) window.HabitArcNotesStudio?.unmount?.();
                     if (document.getElementById('ha-shield') && targetPage !== 'Insights.html') window.HabitArcConsistencyShield?.unmount?.();
+                    if (targetPage !== 'Leaderboard.html') {
+                        document.querySelector('dialog.lb-reveal[open]')?.close?.();
+                        document.documentElement?.classList?.remove('lb-reveal-active');
+                    }
                     pageAbortController?.abort();
                     pageAbortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
 

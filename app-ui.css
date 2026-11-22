@@ -2289,14 +2289,18 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-insights-spotlight { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
-    body > main { padding-top: 18px; padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
+    body > main { padding-top: 16px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
     body.ha-arc-body > main.ha-arc-ai { padding-top: 10px; }
     body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer:focus-within)) > nav.fixed { display: none !important; }
     body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer:focus-within)) > main.ha-arc-ai { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; }
-    body main .ha-progress-card.ha-dashboard-hero { padding: 16px; }
-    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 80px; gap: 12px; }
-    .ha-dashboard-ring { width: 80px; height: 80px; }
-    .ha-dashboard-count { font-size: 21px; }
+    .ha-dashboard .ha-dashboard-greeting { margin-bottom: 10px; }
+    body main .ha-progress-card.ha-dashboard-hero { padding: 14px 16px; }
+    .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 72px; gap: 12px; }
+    .ha-dashboard-ring { width: 72px; height: 72px; }
+    .ha-dashboard-count { font-size: 24px; }
+    .ha-dashboard .ha-progress-card #progress-msg { margin-top: 8px; font-size: 13px; }
+    .ha-dashboard-streaks { margin-top: 11px; padding-top: 10px; gap: 12px; }
+    .ha-dashboard-habits { margin-top: 16px; }
     .ha-dashboard #habits-container { padding-inline: 14px; }
     body main.ha-dashboard .ha-dashboard-habit { padding-block: 14px; }
     .ha-dashboard-history { margin-left: 0; flex-wrap: wrap; row-gap: 6px; }
@@ -2700,6 +2704,26 @@ html.ha-spa-navigated .animate-in {
   body:has(> nav.ha-bottom-nav) {
     padding-bottom:calc(105px + env(safe-area-inset-bottom,0px));
   }
+  body:has(> nav.ha-bottom-nav)::after {
+    content:"";
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    height:calc(122px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(
+      to top,
+      rgb(var(--ha-background,246 244 239)) calc(74px + env(safe-area-inset-bottom,0px)),
+      rgb(var(--ha-background,246 244 239) / 0.88) calc(92px + env(safe-area-inset-bottom,0px)),
+      rgb(var(--ha-background,246 244 239) / 0) 100%
+    );
+    pointer-events:none;
+    z-index:45;
+  }
+  html.lb-reveal-active body:has(> nav.ha-bottom-nav)::after,
+  body.ha-arc-body:is(.is-arc-typing,:has(.ha-arc-composer:focus-within))::after {
+    display:none;
+  }
   body > nav.ha-bottom-nav {
     display:grid !important;
     grid-template-columns:repeat(5,minmax(0,1fr)) !important;
@@ -2868,6 +2892,15 @@ html.ha-spa-navigated .animate-in {
   .ha-arc-rescue-shortcut-copy strong {font-size:13px}
 }
 @media (max-width:767px) and (max-height:520px) {
+  body:has(> nav.ha-bottom-nav)::after {
+    height:calc(98px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(
+      to top,
+      rgb(var(--ha-background,246 244 239)) calc(58px + env(safe-area-inset-bottom,0px)),
+      rgb(var(--ha-background,246 244 239) / 0.88) calc(74px + env(safe-area-inset-bottom,0px)),
+      rgb(var(--ha-background,246 244 239) / 0) 100%
+    );
+  }
   body > nav.ha-bottom-nav {min-height:64px !important;padding:5px !important;bottom:6px !important}
   body > nav.ha-bottom-nav > a.ha-bottom-nav-link {min-height:49px !important;gap:2px !important}
   body > nav.ha-bottom-nav > a.ha-bottom-nav-link > .material-symbols-outlined {font-size:19px !important}
