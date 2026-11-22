@@ -355,6 +355,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
           : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name} unlocks.`;
 
     const shortNames = { wood: 'Wooden', iron: 'Iron', gold: 'Gold', ruby: 'Dragon' };
+    const questTags = { wood: 'LVL 1', iron: 'LVL 2', gold: 'LVL 3', ruby: 'BOSS' };
     const cards = CHESTS.map(c => {
       const opened = bag.opened.includes(c.id);
       const equipped = bag.equipped === c.id;
@@ -381,13 +382,19 @@ function mountTreasureRoom(root, find, redrawLeague) {
             ? `Replay ${c.name} opening`
             : `Preview ${c.name} opening`
       );
-      stageBtn.append(chestArt(c, opened));
+      const questChip = el('span', 'lb-quest-chip', questTags[c.id] || `${c.days}D`);
+      questChip.setAttribute('aria-hidden', 'true');
+      const lootChip = el('span', 'lb-loot-chip', `+${c.xp} XP`);
+      lootChip.setAttribute('aria-hidden', 'true');
+      stageBtn.append(chestArt(c, opened), questChip, lootChip);
       stageBtn.addEventListener('click', () => reveal(c, !canOpen, stageBtn));
 
+      const progressWrap = el('div', 'lb-xp-bar');
       const progress = el('progress');
       progress.max = c.days;
       progress.value = opened ? c.days : shownDays;
       progress.setAttribute('aria-label', `${c.name} clear days`);
+      progressWrap.append(progress);
 
       const daysLabel = c.days === 1 ? '1 clear day' : `${c.days} clear days`;
       const button = el(
@@ -396,10 +403,10 @@ function mountTreasureRoom(root, find, redrawLeague) {
         equipped
           ? '★ Equipped'
           : opened
-            ? 'Equip'
+            ? 'Equip relic'
             : canOpen
-              ? `Open +${c.xp} XP`
-              : `${c.days}d goal`
+              ? 'Open chest'
+              : `${c.days}d quest`
       );
       button.type = 'button';
       button.dataset.chest = c.id;
@@ -415,21 +422,9 @@ function mountTreasureRoom(root, find, redrawLeague) {
         currentCard.focus({ preventScroll: true });
       });
 
-      const preview = el('button', 'lb-chest-preview');
+      const preview = el('button', 'lb-chest-preview', opened ? 'Replay opening' : 'Preview chest');
       preview.type = 'button';
-      preview.title = opened ? 'Replay opening' : 'Preview opening';
-      preview.setAttribute('aria-label', `${preview.title}: ${c.name} (no XP awarded)`);
-      const svgNs = 'http://www.w3.org/2000/svg';
-      const icon = document.createElementNS(svgNs, 'svg');
-      icon.setAttribute('width', '14');
-      icon.setAttribute('height', '14');
-      icon.setAttribute('viewBox', '0 0 16 16');
-      icon.setAttribute('fill', 'currentColor');
-      icon.setAttribute('aria-hidden', 'true');
-      const path = document.createElementNS(svgNs, 'path');
-      path.setAttribute('d', 'M4.5 3.2v9.6l7.5-4.8-7.5-4.8z');
-      icon.append(path);
-      preview.append(icon);
+      preview.setAttribute('aria-label', `${preview.textContent}: ${c.name} (no XP awarded)`);
       preview.addEventListener('click', () => reveal(c, true, preview));
 
       const actions = el('div', 'lb-chest-actions');
@@ -438,8 +433,8 @@ function mountTreasureRoom(root, find, redrawLeague) {
       card.append(
         heading,
         stageBtn,
-        el('strong', 'lb-power-name', `${c.power} · +${c.xp} XP`),
-        progress,
+        el('strong', 'lb-power-name', `★ ${c.power}`),
+        progressWrap,
         actions
       );
       return card;
