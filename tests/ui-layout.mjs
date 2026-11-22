@@ -121,6 +121,8 @@ try {
     for (const theme of ['light', 'dark', 'forest', 'midnight']) {
         await page.locator(`[data-theme-val="${theme}"]`).click();
         assert.equal(await page.locator(`[data-theme-val="${theme}"]`).getAttribute('aria-pressed'), 'true');
+        await page.waitForFunction(expected => document.documentElement.getAttribute('data-theme') === expected, theme);
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         backgrounds.add(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor));
         await page.goto(`${base}/Dashboard.html`, { waitUntil: 'networkidle' });
         assert.equal(await page.locator('html').getAttribute('data-theme'), theme, `${theme}: persistence across navigation`);

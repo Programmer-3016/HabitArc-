@@ -742,7 +742,20 @@ body > main { padding-top: 22px; padding-bottom: calc(120px + env(safe-area-inse
 body > main > *, body > main :is(.flex-1, .flex-grow) { min-width: 0; }
 h1, h2, h3 { text-wrap: balance; }
 p, h1, h2, h3 { overflow-wrap: anywhere; }
-.material-symbols-outlined { flex-shrink: 0; user-select: none; }
+.material-symbols-outlined {
+    display: inline-block;
+    box-sizing: content-box;
+    width: 1em;
+    max-width: 1em;
+    height: 1em;
+    overflow: hidden;
+    flex-shrink: 0;
+    user-select: none;
+    line-height: 1;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+}
 .ha-skip-link {
     position: fixed; left: 16px; top: -100px; z-index: 100;
     padding: 12px 18px; border-radius: 12px;
@@ -1363,7 +1376,7 @@ body main.ha-habits .ha-library-card { display: flex; flex-direction: column; pa
     box-shadow: var(--ha-card-shadow); border-radius: var(--ha-card-radius, 16px);
 }
 .ha-library-empty > .material-symbols-outlined {
-    display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px;
+    display: inline-flex; align-items: center; justify-content: center; width: 60px; max-width: 60px; height: 60px;
     border-radius: 14px; border: 2px solid #121215;
     font-size: 28px; color: #121215; background: var(--rpg-mint); margin-bottom: 18px;
 }

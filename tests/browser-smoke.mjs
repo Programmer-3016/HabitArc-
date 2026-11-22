@@ -47,6 +47,11 @@ try {
     await page.goto(`${base}/Habit_Detail.html?id=${id}`, { waitUntil: 'networkidle' });
     await page.locator('#complete-today-btn').click();
     assert.equal(await page.evaluate(id => HabitArc.isCompletedToday(id), id), true);
+    const celebrationOverlay = page.locator('.ha-sr-overlay');
+    if (await celebrationOverlay.count()) {
+        await page.locator('.ha-sr-overlay #haSrCtaBtn').click();
+        await celebrationOverlay.waitFor({ state: 'detached' });
+    }
     await page.locator('#edit-habit-btn').click();
     await page.waitForURL('**/Add_Habit.html?edit=*');
     await page.locator('#habit-name-input').fill('Read 20 pages');

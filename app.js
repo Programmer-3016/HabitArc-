@@ -196,42 +196,64 @@ const HabitArc = (() => {
         return Object.keys(_getPendingCompletionHistoryOperations(userId)).length > 0;
     }
 
+    let sharedChimeCtx = null;
+
+    function _getChimeAudioContext() {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return null;
+        if (sharedChimeCtx && sharedChimeCtx.state !== 'closed') return sharedChimeCtx;
+        sharedChimeCtx = new AudioCtx();
+        return sharedChimeCtx;
+    }
+
     // ─── Audio Chime Synthesizer (Option 3) ─────────
     function playCompletionSound() {
         try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
-            const ctx = new AudioContext();
-            if (ctx.state === 'suspended') ctx.resume();
+            const ctx = _getChimeAudioContext();
+            if (!ctx) return;
 
-            const now = ctx.currentTime;
-            
-            // Primary tone (D5 ~587.33Hz -> A5 880Hz)
-            const osc1 = ctx.createOscillator();
-            const gain1 = ctx.createGain();
-            osc1.type = 'sine';
-            osc1.frequency.setValueAtTime(587.33, now);
-            osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
-            gain1.gain.setValueAtTime(0.14, now);
-            gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            const schedule = () => {
+                if (ctx.state === 'closed') return;
+                const now = ctx.currentTime;
 
-            osc1.connect(gain1);
-            gain1.connect(ctx.destination);
-            osc1.start(now);
-            osc1.stop(now + 0.35);
+                // Primary tone (D5 ~587.33Hz -> A5 880Hz)
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(587.33, now);
+                osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+                gain1.gain.setValueAtTime(0.14, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
-            // Harmonic chime accent (F#5 ~739.99Hz)
-            const osc2 = ctx.createOscillator();
-            const gain2 = ctx.createGain();
-            osc2.type = 'triangle';
-            osc2.frequency.setValueAtTime(739.99, now + 0.05);
-            gain2.gain.setValueAtTime(0.08, now + 0.05);
-            gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.onended = () => {
+                    try { osc1.disconnect(); gain1.disconnect(); } catch {}
+                };
+                osc1.start(now);
+                osc1.stop(now + 0.35);
 
-            osc2.connect(gain2);
-            gain2.connect(ctx.destination);
-            osc2.start(now + 0.05);
-            osc2.stop(now + 0.4);
+                // Harmonic chime accent (F#5 ~739.99Hz)
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(739.99, now + 0.05);
+                gain2.gain.setValueAtTime(0.08, now + 0.05);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.onended = () => {
+                    try { osc2.disconnect(); gain2.disconnect(); } catch {}
+                };
+                osc2.start(now + 0.05);
+                osc2.stop(now + 0.4);
+            };
+
+            if (ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+                void Promise.resolve(ctx.resume()).catch(() => {});
+            }
+            schedule();
         } catch (e) {
             console.warn('Audio play skipped:', e);
         }
@@ -592,8 +614,12 @@ const HabitArc = (() => {
         }
     }
 
+    let lastKnownStorageRaw = _readStorageValue(activeStorageKey);
+
     function _writeStorageData(storageKey, data) {
-        return _writeStorageValue(storageKey, JSON.stringify(_normaliseData(data)));
+        const serialized = JSON.stringify(_normaliseData(data));
+        if (storageKey === activeStorageKey) lastKnownStorageRaw = serialized;
+        return _writeStorageValue(storageKey, serialized);
     }
 
     function _load() {
@@ -1834,6 +1860,7 @@ const HabitArc = (() => {
         const storageChanged = activeStorageKey !== nextStorageKey;
         activeUserId = userId;
         activeStorageKey = nextStorageKey;
+        lastKnownStorageRaw = _readStorageValue(activeStorageKey);
 
         if (_loadStorageData(activeStorageKey)) return storageChanged;
 
@@ -1877,6 +1904,7 @@ const HabitArc = (() => {
         activeUserId = null;
         activeStorageKey = STORAGE_KEY;
         _removeStorageValue(ACTIVE_USER_KEY);
+        lastKnownStorageRaw = _readStorageValue(activeStorageKey);
         _emitDataChange('signed-out', true);
 
         if (_isProtectedAppPage()) {
@@ -2047,6 +2075,45 @@ const HabitArc = (() => {
             cloudRetryAttempts = 0;
             _scheduleCloudRetry(user);
         });
+
+        const checkCrossTabForegroundSync = (source = 'visibility') => {
+            const nextUid = _readStorageValue(ACTIVE_USER_KEY);
+            if (!cloudClient?.getCurrentUser?.() && nextUid !== activeUserId) {
+                activeUserId = nextUid;
+                activeStorageKey = activeUserId ? `${USER_STORAGE_PREFIX}${activeUserId}` : STORAGE_KEY;
+            }
+            const latestRaw = _readStorageValue(activeStorageKey);
+            if (latestRaw !== lastKnownStorageRaw) {
+                lastKnownStorageRaw = latestRaw;
+                _emitDataChange(source);
+            }
+        };
+
+        if (typeof window?.addEventListener === 'function') {
+            window.addEventListener('storage', (event) => {
+                if (
+                    event.key === null ||
+                    event.key === activeStorageKey ||
+                    event.key === ACTIVE_USER_KEY ||
+                    (typeof event.key === 'string' && event.key.startsWith(USER_STORAGE_PREFIX))
+                ) {
+                    const nextUid = _readStorageValue(ACTIVE_USER_KEY);
+                    if (!cloudClient?.getCurrentUser?.() && nextUid !== activeUserId) {
+                        activeUserId = nextUid;
+                        activeStorageKey = activeUserId ? `${USER_STORAGE_PREFIX}${activeUserId}` : STORAGE_KEY;
+                    }
+                    lastKnownStorageRaw = _readStorageValue(activeStorageKey);
+                    _emitDataChange('storage');
+                }
+            });
+            window.addEventListener('focus', () => checkCrossTabForegroundSync('visibility'));
+            window.addEventListener('pageshow', () => checkCrossTabForegroundSync('visibility'));
+        }
+        if (typeof document?.addEventListener === 'function') {
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) checkCrossTabForegroundSync('visibility');
+            });
+        }
     }
 
     function getAuthUser() {

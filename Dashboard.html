@@ -446,24 +446,32 @@
             container.appendChild(card);
         });
 
-        // Attach toggle handlers
+        // Attach toggle handlers using explicit button intent so stale tabs never invert another tab's completion.
         document.querySelectorAll('.habit-toggle').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const id = this.dataset.id;
-                const completedNow = !HabitArc.isCompletedToday(id);
-                if (!completedNow) {
-                    HabitArc.uncompleteHabit(id);
+                const pressedAttr = typeof this.getAttribute === 'function' ? this.getAttribute('aria-pressed') : this.attrs?.['aria-pressed'];
+                const shouldComplete = (pressedAttr === 'true' || pressedAttr === 'false')
+                    ? pressedAttr !== 'true'
+                    : !HabitArc.isCompletedToday(id);
+                if (shouldComplete) {
+                    if (!HabitArc.isCompletedToday(id)) {
+                        HabitArc.completeHabit(id);
+                        this.classList.add('pop');
+                        setTimeout(() => this.classList.remove('pop'), 300);
+                    }
                 } else {
-                    HabitArc.completeHabit(id);
-                    this.classList.add('pop');
-                    setTimeout(() => this.classList.remove('pop'), 300);
+                    if (HabitArc.isCompletedToday(id)) {
+                        HabitArc.uncompleteHabit(id);
+                    }
                 }
                 render();
+                if (typeof syncStateSig === 'function') syncStateSig();
                 // Rendering replaces the button; retain keyboard focus on it.
                 const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
                 refocusedBtn?.focus({ preventScroll: true });
-                if (completedNow) {
+                if (shouldComplete) {
                     window.HabitArcStreak?.maybeCelebrate?.();
                 }
             });
@@ -480,12 +488,30 @@
     window.addEventListener('habitarc-auth-state-changed', (event) => {
         applyAuthenticatedUser(event.detail?.user || null);
     });
+    const stateSig = () => JSON.stringify([typeof HabitArc.today === 'function' ? HabitArc.today() : '', HabitArc.getTodayHabits?.()]);
+    let lastSig = stateSig();
+    function syncStateSig() {
+        lastSig = stateSig();
+    }
+    const syncForeground = () => {
+        const nextSig = stateSig();
+        if (nextSig !== lastSig) {
+            lastSig = nextSig;
+            render();
+        }
+    };
     window.addEventListener('habitarc:data-changed', (event) => {
         const source = event.detail?.source;
-        if (source === 'cloud' || source === 'user-cache') {
+        lastSig = stateSig();
+        if (source === 'cloud' || source === 'user-cache' || source === 'storage' || source === 'visibility') {
             render();
         }
     });
+    document.addEventListener?.('visibilitychange', () => {
+        if (!document.hidden) syncForeground();
+    });
+    window.addEventListener?.('focus', syncForeground);
+    window.addEventListener?.('pageshow', syncForeground);
     void HabitArc.whenAuthReady().then(applyAuthenticatedUser).catch(() => {
         // Keep the local profile name available when Firebase is offline.
     });

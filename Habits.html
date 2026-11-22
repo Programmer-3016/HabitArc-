@@ -418,14 +418,15 @@
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const id = this.dataset.id;
-                const completedNow = !HabitArc.isCompletedToday(id);
+                const pressedAttr = typeof this.getAttribute === 'function' ? this.getAttribute('aria-pressed') : this.attrs?.['aria-pressed']; const completedNow = (pressedAttr === 'true' || pressedAttr === 'false') ? pressedAttr !== 'true' : !HabitArc.isCompletedToday(id);
                 if (!completedNow) {
-                    HabitArc.uncompleteHabit(id);
+                    if (HabitArc.isCompletedToday(id)) HabitArc.uncompleteHabit(id);
                 } else {
-                    HabitArc.completeHabit(id);
+                    if (!HabitArc.isCompletedToday(id)) HabitArc.completeHabit(id);
                 }
                 render();
-                // Rendering replaces the button; keep keyboard focus on the same habit.
+
+                syncStateSig();
                 const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
                 refocusedBtn?.focus({ preventScroll: true });
                 if (completedNow) {
@@ -446,14 +447,27 @@
             this.className = 'cat-filter px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform';
             currentFilter = this.dataset.cat;
             render();
+            if (typeof syncStateSig === 'function') syncStateSig();
         });
     });
 
     render();
+    const stateSig = () => JSON.stringify([typeof HabitArc.today === 'function' ? HabitArc.today() : '', currentFilter, HabitArc.getHabits?.()]);
+    let lastSig = stateSig();
+    function syncStateSig() { lastSig = stateSig(); }
+    const syncForeground = () => {
+        const nextSig = stateSig();
+        if (nextSig !== lastSig) { lastSig = nextSig; render(); }
+    };
+    document.addEventListener?.('visibilitychange', () => { if (!document.hidden) syncForeground(); });
+    window.addEventListener?.('focus', syncForeground);
+    window.addEventListener?.('pageshow', syncForeground);
     window.addEventListener('habitarc:data-changed', (event) => {
+        lastSig = stateSig();
         const source = event.detail?.source;
-        if (source === 'cloud' || source === 'user-cache') {
+        if (source === 'cloud' || source === 'user-cache' || source === 'storage' || source === 'visibility') {
             render();
+            if (typeof syncStateSig === 'function') syncStateSig();
         }
     });
 })();

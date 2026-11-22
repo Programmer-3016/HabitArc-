@@ -305,39 +305,71 @@
     if (!habit) {
         const main = document.querySelector('main');
         const loading = document.createElement('p');
-        loading.className = 'w-full max-w-3xl mx-auto px-container-padding py-section-margin text-on-surface-variant';
+        loading.className = 'w-full max-w-3xl mx-auto px-container-padding pt-section-margin pb-3 text-on-surface-variant font-body-lg';
         loading.setAttribute('role', 'status');
-        loading.textContent = 'Loading your saved habit…';
+        loading.textContent = 'Checking your saved habit…';
         main.hidden = true;
         main.before(loading);
+
+        const backWrap = document.createElement('div');
+        backWrap.className = 'w-full max-w-3xl mx-auto px-container-padding pb-section-margin';
+        const backBtn = document.createElement('a');
+        backBtn.href = 'Habits.html';
+        backBtn.className = 'inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface font-semibold text-sm hover:opacity-90';
+        backBtn.textContent = 'Back to Habits';
+        backWrap.appendChild(backBtn);
+        main.parentNode?.insertBefore?.(backWrap, main);
+
         document.getElementById('edit-habit-btn').hidden = true;
         document.getElementById('delete-btn').disabled = true;
-        habit = await new Promise((resolve) => {
-            let timeout;
-            function finish(loadedHabit) {
-                window.clearTimeout(timeout);
-                window.removeEventListener('habitarc:data-changed', check);
-                window.removeEventListener('habitarc:cloud-sync-error', failed);
-                resolve(loadedHabit);
-            }
-            function check(event) {
-                const loadedHabit = HabitArc.getHabitById(habitId);
-                if (loadedHabit || event?.detail?.source === 'cloud' || HabitArc.getCloudSyncStatus().connected) {
-                    finish(loadedHabit);
-                }
-            }
-            function failed() { finish(null); }
-            window.addEventListener('habitarc:data-changed', check);
-            window.addEventListener('habitarc:cloud-sync-error', failed);
-            timeout = window.setTimeout(failed, 12000);
-            check();
-        });
+
+        let authUser = typeof HabitArc.getAuthUser === 'function' ? HabitArc.getAuthUser() : null;
+        if (!authUser && typeof HabitArc.whenAuthReady === 'function') {
+            authUser = await Promise.race([
+                HabitArc.whenAuthReady().catch(() => null),
+                new Promise((resolve) => window.setTimeout(() => resolve(typeof HabitArc.getAuthUser === 'function' ? HabitArc.getAuthUser() : null), 1200))
+            ]);
+        }
+        habit = HabitArc.getHabitById(habitId);
+
         if (!habit) {
-            loading.setAttribute('role', 'alert');
-            loading.textContent = 'This habit could not be loaded. Check your connection and reload, or use Back to habits.';
-            return;
+            const sync = typeof HabitArc.getCloudSyncStatus === 'function' ? HabitArc.getCloudSyncStatus() : {};
+            const isLocalOnly = !authUser && !sync.userId && !sync.connected;
+            const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+            if (!isLocalOnly && !isOffline && !sync.connected) {
+                habit = await new Promise((resolve) => {
+                    let timeout;
+                    function finish(loadedHabit) {
+                        window.clearTimeout(timeout);
+                        window.removeEventListener('habitarc:data-changed', check);
+                        window.removeEventListener('habitarc:cloud-sync-error', failed);
+                        window.removeEventListener?.('offline', failed);
+                        resolve(loadedHabit);
+                    }
+                    function check(event) {
+                        const loadedHabit = HabitArc.getHabitById(habitId);
+                        if (loadedHabit || event?.detail?.source === 'cloud' || HabitArc.getCloudSyncStatus().connected) {
+                            finish(loadedHabit);
+                        }
+                    }
+                    function failed() { finish(null); }
+                    window.addEventListener('habitarc:data-changed', check);
+                    window.addEventListener('habitarc:cloud-sync-error', failed);
+                    window.addEventListener?.('offline', failed);
+                    timeout = window.setTimeout(failed, 6000);
+                    check();
+                });
+            }
+            if (!habit) {
+                loading.setAttribute('role', 'alert');
+                loading.textContent = isOffline
+                    ? 'This habit could not be loaded offline. Use Back to Habits to pick a saved habit.'
+                    : 'This habit could not be loaded on this device. Check your connection or use Back to Habits.';
+                return;
+            }
         }
         loading.remove();
+        backWrap.remove?.();
         main.hidden = false;
         document.getElementById('edit-habit-btn').hidden = false;
         document.getElementById('delete-btn').disabled = false;
@@ -394,11 +426,14 @@
     }
 
     document.getElementById('complete-today-btn').addEventListener('click', function() {
-        const completedNow = !HabitArc.isCompletedToday(habitId);
-        if (!completedNow) {
-            HabitArc.uncompleteHabit(habitId);
+        const pressedAttr = typeof this.getAttribute === 'function' ? this.getAttribute('aria-pressed') : this.attrs?.['aria-pressed'];
+        const shouldComplete = (pressedAttr === 'true' || pressedAttr === 'false')
+            ? pressedAttr !== 'true'
+            : !HabitArc.isCompletedToday(habitId);
+        if (shouldComplete) {
+            if (!HabitArc.isCompletedToday(habitId)) HabitArc.completeHabit(habitId);
         } else {
-            HabitArc.completeHabit(habitId);
+            if (HabitArc.isCompletedToday(habitId)) HabitArc.uncompleteHabit(habitId);
         }
         // The store returns snapshots. Refresh ours before rendering totals
         // and calendar dates, including when the browser is offline.
@@ -407,7 +442,7 @@
         renderStats();
         renderCalendar();
         renderMonthlyBars();
-        if (completedNow) {
+        if (shouldComplete) {
             window.HabitArcStreak?.maybeCelebrate?.();
         }
     });
@@ -610,10 +645,16 @@
 
     window.addEventListener('habitarc:data-changed', (event) => {
         const source = event.detail?.source;
-        if (source === 'cloud' || source === 'user-cache') {
+        if (source === 'cloud' || source === 'user-cache' || source === 'storage' || source === 'visibility') {
             refreshCompletionData(source);
         }
     });
+    const syncDetailForeground = () => refreshCompletionData('visibility');
+    document.addEventListener?.('visibilitychange', () => {
+        if (!document.hidden) syncDetailForeground();
+    });
+    window.addEventListener('focus', syncDetailForeground);
+    window.addEventListener('pageshow', syncDetailForeground);
 
     // ─── Delete ─────────────────────────────────
     document.getElementById('delete-btn').addEventListener('click', function() {
