@@ -463,6 +463,132 @@ async function generateWithGemini({ model, system, prompt, maxOutputTokens, abor
     throw Object.assign(new Error('Gemini request failed.'), { status: lastStatus });
 }
 
+
+/**
+ * Relay Gemini's real SSE text deltas, with identical server-only credentials,
+ * prompt and model fallback rules as the existing JSON generation path.
+ * A fragment may split a UTF-8 code point, JSON object, or SSE delimiter.
+ */
+export async function streamWithGemini({ model, system, prompt, maxOutputTokens, abortSignal, onDelta, fetchImpl = fetch }) {
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) throw new CoachRequestError(503, 'coach-not-configured', 'HabitArc Coach is being connected securely. Please try again after setup is complete.');
+    const candidates = [...new Set([model, ...FALLBACK_MODELS])];
+    let lastStatus = 502;
+    for (const candidate of candidates) {
+        const url = 'https://generativelanguage.googleapis.com/v1beta/models/' +
+            encodeURIComponent(candidate) + ':streamGenerateContent?alt=sse';
+        const upstream = await fetchImpl(url, {
+            method: 'POST',
+            headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
+            body: JSON.stringify({
+                systemInstruction: { parts: [{ text: system }] },
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: { maxOutputTokens, temperature: 0.35 }
+            }),
+            signal: abortSignal
+        });
+        if (upstream.status === 404) {
+            lastStatus = 404;
+            await upstream.body?.cancel?.().catch(() => {});
+            continue;
+        }
+        if (upstream.status === 429) {
+            await upstream.body?.cancel?.().catch(() => {});
+            throw new CoachRequestError(429, 'provider-rate-limit', 'HabitArc AI is briefly busy. Please wait a few seconds and try again.', 15);
+        }
+        if (!upstream.ok || !upstream.body) {
+            throw Object.assign(new Error('Gemini streaming request failed.'), { status: upstream.status });
+        }
+        const decoder = new TextDecoder();
+        const reader = upstream.body.getReader();
+        let buffer = '';
+        let fullLength = 0;
+        let sawText = false;
+        let finishReason = '';
+        function processBlock(block) {
+            const data = block.split('\n')
+                .filter(line => line.startsWith('data:'))
+                .map(line => line.slice(5).trimStart()).join('\n');
+            if (!data || data === '[DONE]') return;
+            let item;
+            try { item = JSON.parse(data); }
+            catch { throw new Error('Invalid Gemini streaming event.'); }
+            if (item.error) throw new Error('Gemini streaming request failed.');
+            const first = item?.candidates?.[0];
+            if (typeof first?.finishReason === 'string') finishReason = first.finishReason;
+            const parts = first?.content?.parts;
+            if (!Array.isArray(parts)) return;
+            for (const part of parts) {
+                if (part?.thought || typeof part?.text !== 'string' || !part.text) continue;
+                fullLength += part.text.length;
+                if (fullLength > 12000) throw new Error('Gemini response exceeded the permitted length.');
+                sawText = true;
+                onDelta(part.text);
+            }
+        }
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                buffer = buffer.replace(/\r\n/g, '\n');
+                if (buffer.length > 160000) throw new Error('Gemini streaming event was too large.');
+                let boundary;
+                while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+                    const block = buffer.slice(0, boundary);
+                    buffer = buffer.slice(boundary + 2);
+                    processBlock(block);
+                }
+            }
+            buffer += decoder.decode();
+            buffer = buffer.replace(/\r\n/g, '\n').trim();
+            if (buffer) processBlock(buffer);
+            if (!sawText || (finishReason && finishReason !== 'STOP')) {
+                throw new Error('Gemini did not finish a usable streamed reply.');
+            }
+            return;
+        } finally {
+            reader.releaseLock();
+        }
+    }
+    throw Object.assign(new Error('Gemini streaming model unavailable.'), { status: lastStatus });
+}
+
+/* Withhold enough trailing characters to detect a split action tag. Machine-
+ * readable habit actions are validated server-side and sent only in "done". */
+export function createCoachStreamCollector(onVisible) {
+    const marker = '<habitarc_action';
+    let raw = '';
+    let pending = '';
+    let hidden = false;
+    const emit = text => { if (text) onVisible(text); };
+    return {
+        push(delta) {
+            if (typeof delta !== 'string' || !delta) return;
+            raw += delta;
+            if (hidden) return;
+            pending += delta;
+            const tagStart = pending.indexOf(marker);
+            if (tagStart !== -1) {
+                emit(pending.slice(0, tagStart));
+                pending = '';
+                hidden = true;
+                return;
+            }
+            const visible = Math.max(0, pending.length - marker.length + 1);
+            emit(pending.slice(0, visible));
+            pending = pending.slice(visible);
+        },
+        flush() { if (!hidden) emit(pending); pending = ''; },
+        get raw() { return raw; }
+    };
+}
+
+function writeCoachEvent(response, event, data) {
+    if (response.writableEnded || response.destroyed) return;
+    response.write('event: ' + event + '\n' + 'data: ' + JSON.stringify(data) + '\n\n');
+}
+
 function dateOffset(now, days) {
     const date = new Date(now);
     date.setUTCDate(date.getUTCDate() + days);
@@ -585,6 +711,7 @@ function safeLogError(error) {
 export function createCoachHandler({
     getAdmin = getFirebaseAdmin,
     generate = generateWithGemini,
+    streamGenerate = streamWithGemini,
     configured = geminiIsConfigured,
     now = () => new Date(),
     timestamp,
@@ -593,6 +720,8 @@ export function createCoachHandler({
     logError = safeLogError
 } = {}) {
     return async function handler(request, response) {
+        const wantsStream = /text\/event-stream/i.test(String(request.headers?.accept || ''));
+        let streamOpened = false;
         if (request.method !== 'POST') {
             response.setHeader('Allow', 'POST');
             return json(response, 405, { error: { code: 'method-not-allowed', message: 'Use POST to ask the HabitArc Coach.' } });
@@ -664,15 +793,44 @@ export function createCoachHandler({
                     timeZone: body.timeZone ? timeZone : undefined
                 });
                 metrics = context.metrics;
-                const result = await generate({
-                    model,
-                    system: COACH_SYSTEM_PROMPT,
-                    prompt: JSON.stringify({ habitArcSnapshot: context.snapshot, ...(workspaceContext ? { workspaceContext } : {}), recentConversation, memberQuestion: question }),
-                    maxOutputTokens: 1350,
-                    maxRetries: 0,
-                    abortSignal: AbortSignal.timeout(25000)
+                const prompt = JSON.stringify({
+                    habitArcSnapshot: context.snapshot,
+                    ...(workspaceContext ? { workspaceContext } : {}),
+                    recentConversation,
+                    memberQuestion: question
                 });
-                const parsed = extractAndValidateCoachAction(result.text, context.snapshot.habits);
+                let resultText;
+                if (wantsStream) {
+                    response.statusCode = 200;
+                    response.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+                    response.setHeader('Cache-Control', 'no-store, no-transform');
+                    response.setHeader('X-Content-Type-Options', 'nosniff');
+                    response.setHeader('X-Accel-Buffering', 'no');
+                    streamOpened = true;
+                    response.flushHeaders?.();
+                    writeCoachEvent(response, 'start', { ready: true });
+                    const disconnect = new AbortController();
+                    response.once?.('close', () => disconnect.abort());
+                    const collector = createCoachStreamCollector(
+                        text => writeCoachEvent(response, 'delta', { text })
+                    );
+                    await streamGenerate({
+                        model, system: COACH_SYSTEM_PROMPT, prompt,
+                        maxOutputTokens: 1350, maxRetries: 0,
+                        abortSignal: AbortSignal.any([AbortSignal.timeout(25000), disconnect.signal]),
+                        onDelta: text => collector.push(text)
+                    });
+                    collector.flush();
+                    resultText = collector.raw;
+                } else {
+                    const result = await generate({
+                        model, system: COACH_SYSTEM_PROMPT, prompt,
+                        maxOutputTokens: 1350, maxRetries: 0,
+                        abortSignal: AbortSignal.timeout(25000)
+                    });
+                    resultText = result.text;
+                }
+                const parsed = extractAndValidateCoachAction(resultText, context.snapshot.habits);
                 answer = parsed.answer;
                 suggestedAction = parsed.suggestedAction;
                 if (!answer) throw new Error('Empty model response.');
@@ -686,7 +844,7 @@ export function createCoachHandler({
                     logError(error);
                 }
             }
-            return json(response, 200, {
+            const payload = {
                 answer,
                 suggestedAction,
                 usage: { remaining: quota.remaining, limit: quota.limit, resetAt: quota.resetAt },
@@ -697,8 +855,26 @@ export function createCoachHandler({
                     dateWindow: metrics.dateWindow, timeZone: metrics.timeZone,
                     insufficientData: metrics.insufficientData, truncated: metrics.truncated
                 }
-            });
+            };
+            if (wantsStream) {
+                writeCoachEvent(response, 'done', payload);
+                response.end();
+                return;
+            }
+            return json(response, 200, payload);
         } catch (error) {
+            if (streamOpened) {
+                if (!response.writableEnded && !response.destroyed) {
+                    writeCoachEvent(response, 'error', {
+                        code: error instanceof CoachRequestError ? error.code : 'coach-unavailable',
+                        message: error instanceof CoachRequestError
+                            ? error.message : 'ARC AI response was interrupted. Please try again.'
+                    });
+                    response.end();
+                }
+                if (!(error instanceof CoachRequestError) && error?.name !== 'AbortError') logError(error);
+                return;
+            }
             if (error instanceof CoachRequestError) {
                 if (error.retryAfter) response.setHeader('Retry-After', String(error.retryAfter));
                 return json(response, error.status, { error: { code: error.code, message: error.message } });
