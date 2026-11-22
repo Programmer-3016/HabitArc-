@@ -198,7 +198,25 @@ body > main.ha-leaderboard {
 .lb-reveal[data-tier="iron"] { --loot-rgb:56 189 248; --case-trim:#7dd3fc; }
 .lb-reveal[data-tier="gold"] { --loot-rgb:250 204 21; --case-trim:#fef08a; }
 .lb-reveal::backdrop { background:#0a090e; }
-html:has(.lb-reveal[open]) { overflow:hidden; }
+html.lb-reveal-active,
+html.lb-reveal-active body,
+html:has(.lb-reveal[open]),
+html:has(.lb-reveal[open]) body {
+    overflow:hidden !important;
+    background:#0a090e !important;
+    scrollbar-width:none;
+}
+.lb-reveal,
+.lb-reveal::-webkit-scrollbar,
+html.lb-reveal-active::-webkit-scrollbar,
+html.lb-reveal-active body::-webkit-scrollbar {
+    scrollbar-width:none;
+}
+.lb-reveal::-webkit-scrollbar,
+html.lb-reveal-active::-webkit-scrollbar,
+html.lb-reveal-active body::-webkit-scrollbar {
+    display:none;
+}
 .lb-reveal-kicker {
     position:relative; z-index:1; max-width:92vw;
     display:grid; justify-items:center; gap:.55rem; margin:0;

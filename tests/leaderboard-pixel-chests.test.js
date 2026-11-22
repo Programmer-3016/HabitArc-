@@ -12,6 +12,7 @@ import {
   createRevealStage,
   renderChestPixels,
   renderRevealFrame,
+  sealedIdlePose,
 } from '../treasure-art.js';
 import { CHESTS } from '../runner-treasures.js';
 
@@ -74,7 +75,9 @@ test('56-frame 112x96 reveal stage keeps neutral dark background behind chest an
   assert.equal(REVEAL_FRAME_COUNT, 56);
   assert.ok(REVEAL_CLIMAX_FRAME >= 28 && REVEAL_CLIMAX_FRAME < 56);
 
-  const stageWrap = render(c => createRevealStage(c, false).stage, 'gold');
+  const stageCtrl = render(c => createRevealStage(c, false), 'gold');
+  const stageWrap = stageCtrl.stage;
+  stageCtrl.stop();
   assert.equal(stageWrap.dataset.style, 'pixel-reveal');
   assert.equal(stageWrap.children[0].className, 'lb-reveal-canvas');
   assert.equal(stageWrap.children[0].width, 112);
@@ -113,9 +116,17 @@ test('Modal reveal uses fullscreen tap-anywhere UX without Tap to open button or
   assert.match(js, /stageCtrl\.play\(/);
   assert.match(js, /stageCtrl\.stop\(/);
   assert.match(js, /dialog\.addEventListener\('click'/);
+  assert.match(js, /meta\[name="theme-color"\]/);
+  assert.match(js, /lb-reveal-active/);
   assert.match(js, /changeTreasure\(/);
   assert.doesNotMatch(js, /lb-reveal-open|lb-reveal-close|Tap to open/);
   assert.match(css, /\.lb-reveal \.lb-reveal-stage\s*\{[^}]*position:\s*fixed;\s*inset:\s*0/);
+  assert.match(css, /html\.lb-reveal-active/);
+
+  // Sealed idle chest produces an upward jump + wiggle motion across its cycle
+  const idlePoses = Array.from({ length: 12 }, (_, k) => sealedIdlePose(k * 95));
+  assert.ok(idlePoses.some(p => p.jumpY < 0), 'idle chest jumps upward');
+  assert.ok(idlePoses.some(p => p.shakeX !== 0), 'idle chest wiggles gently');
   const rewards = read('runner-treasures.js');
   assert.match(rewards, /days: 1, xp: 30/);
   assert.match(rewards, /days: 7, xp: 70/);

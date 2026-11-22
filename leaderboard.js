@@ -192,6 +192,11 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const announce = el('div', 'lb-sr'); announce.setAttribute('role', 'status');
     dialog.append(art, kicker, slot, announce);
     showing = { dialog, scope, ready };
+    const docEl = document.documentElement;
+    const themeMeta = document.querySelector?.('meta[name="theme-color"]');
+    const prevThemeColor = themeMeta?.getAttribute('content');
+    docEl?.classList?.add('lb-reveal-active');
+    themeMeta?.setAttribute('content', '#0a090e');
     let finishTimer, typeTimer;
     function typeHeadline(targetText) {
       clearInterval(typeTimer);
@@ -205,7 +210,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
         idx += 1;
         headline.textContent = targetText.slice(0, idx);
         if (idx >= targetText.length) clearInterval(typeTimer);
-      }, 55);
+      }, 45);
     }
     function finish() {
       if (!dialog.open || dialog.dataset.phase !== 'opening') return;
@@ -229,7 +234,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
       typeHeadline(sample ? 'Preview Item' : 'New Item');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       stageCtrl.play({ reducedMotion: reduced, onClimax: finish });
-      if (!reduced) finishTimer = setTimeout(finish, 3600);
+      if (!reduced) finishTimer = setTimeout(finish, 2600);
     }
     dialog.addEventListener('click', () => {
       if (dialog.dataset.phase === 'sealed') triggerOpen();
@@ -244,6 +249,10 @@ function mountTreasureRoom(root, find, redrawLeague) {
       stageCtrl.stop();
       clearTimeout(finishTimer);
       clearInterval(typeTimer);
+      docEl?.classList?.remove('lb-reveal-active');
+      if (themeMeta && prevThemeColor !== null && prevThemeColor !== undefined) {
+        themeMeta.setAttribute('content', prevThemeColor);
+      }
       if (showing?.dialog === dialog) showing = null;
       dialog.remove();
       if (!root.isConnected || !active) return;

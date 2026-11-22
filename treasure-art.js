@@ -125,6 +125,26 @@ export const REVEAL_LOOP_START = 28;
 const STAGE_BG = '#0a090e';
 const SHADOW_BG = '#12111a';
 
+const IS_LITTLE_ENDIAN = new Uint8Array(new Uint32Array([0x01020304]).buffer)[0] === 0x04;
+const packedColorCache = new Map();
+function col32(hex) {
+  if (!hex) return 0;
+  let v = packedColorCache.get(hex);
+  if (v === undefined) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    v = (IS_LITTLE_ENDIAN
+      ? (0xff000000 | (b << 16) | (g << 8) | r)
+      : ((r << 24) | (g << 16) | (b << 8) | 0xff)) >>> 0;
+    packedColorCache.set(hex, v);
+  }
+  return v;
+}
+const STAGE_BG_32 = col32(STAGE_BG);
+const SHADOW_BG_32 = col32(SHADOW_BG);
+const WHITE_32 = col32('#ffffff');
+
 const FONT = {
   A:['01110','10001','10001','11111','10001','10001','10001'],
   C:['01111','10000','10000','10000','10000','10000','01111'],
@@ -294,21 +314,10 @@ function makeSurface(w, h, fill) {
   return { w, h, g, put, rect };
 }
 
-function drawTierChest(r, tier, fIdx, ox, oy, dropY = 0) {
-  const pal = CHEST_THEMES[tier].pal;
-  const arr = RAW_FRAMES[fIdx];
-  for (let y = 0; y < 64; y++) {
-    const dy = oy + y + dropY;
-    if (dy < 0 || dy >= r.h) continue;
-    for (let x = 0; x < 64; x++) {
-      const p = arr[y * 64 + x];
-      if (p !== 0) r.put(pal[p], ox + x, dy);
-    }
-  }
-
+function paintTierChestOverlay(r, tier, fIdx, ox, oy, dropY = 0) {
   const px = (col, sx, sy) => {
     const dy = oy + sy + dropY;
-    if (dy >= 0 && dy < r.h) r.put(col, ox + sx, dy);
+    if (dy >= 0 && dy < r.h) r.put(r.is32 ? col32(col) : col, ox + sx, dy);
   };
 
   if (tier === 'iron') {
@@ -368,8 +377,25 @@ function drawTierChest(r, tier, fIdx, ox, oy, dropY = 0) {
   }
 }
 
+function drawTierChest(r, tier, fIdx, ox, oy, dropY = 0) {
+  const pal = r.is32
+    ? (CHEST_THEMES[tier].pal32 || (CHEST_THEMES[tier].pal32 = CHEST_THEMES[tier].pal.map(col32)))
+    : CHEST_THEMES[tier].pal;
+  const arr = RAW_FRAMES[fIdx];
+  for (let y = 0; y < 64; y++) {
+    const dy = oy + y + dropY;
+    if (dy < 0 || dy >= r.h) continue;
+    for (let x = 0; x < 64; x++) {
+      const p = arr[y * 64 + x];
+      if (p !== 0) r.put(pal[p], ox + x, dy);
+    }
+  }
+  paintTierChestOverlay(r, tier, fIdx, ox, oy, dropY);
+}
+
 function drawScaledArt(r, art, palMap, cx, cy, scale) {
   const h = art.length, w = art[0].length;
+  const resolveCol = ch => r.is32 ? col32(palMap[ch]) : palMap[ch];
   if (Number.isInteger(scale)) {
     const dw = w * scale, dh = h * scale;
     const x0 = Math.round(cx - dw / 2), y0 = Math.round(cy - dh / 2);
@@ -377,7 +403,7 @@ function drawScaledArt(r, art, palMap, cx, cy, scale) {
       const row = art[sy];
       for (let sx = 0; sx < w; sx++) {
         const ch = row[sx];
-        if (ch !== '.') r.rect(palMap[ch], x0 + sx * scale, y0 + sy * scale, scale, scale);
+        if (ch !== '.') r.rect(resolveCol(ch), x0 + sx * scale, y0 + sy * scale, scale, scale);
       }
     }
     return;
@@ -388,91 +414,272 @@ function drawScaledArt(r, art, palMap, cx, cy, scale) {
     const row = art[Math.min(h - 1, Math.floor(py / scale))];
     for (let px = 0; px < dw; px++) {
       const ch = row[Math.min(w - 1, Math.floor(px / scale))];
-      if (ch !== '.') r.put(palMap[ch], x0 + px, y0 + py);
+      if (ch !== '.') r.put(resolveCol(ch), x0 + px, y0 + py);
     }
   }
 }
 
-function drawFloorShadow(r, ox, oy, dropY) {
+function drawFloorShadow(r, ox, oy, dropY, shrink = 0) {
   const cy = oy + 52 + dropY, cx = ox + 32;
   if (cy - 5 >= r.h) return;
-  for (let y = Math.max(0, cy - 5); y <= Math.min(r.h - 1, cy + 6); y++) {
-    for (let x = cx - 24; x <= cx + 24; x++) {
-      const dx = (x - cx) / 24, dy = (y - cy) / 5.5;
-      if (dx * dx + dy * dy <= 1) r.put(SHADOW_BG, x, y);
+  const rx = Math.max(12, 24 - shrink);
+  const ry = Math.max(2.5, 5.5 - shrink * 0.25);
+  const invRx2 = 1 / (rx * rx), invRy2 = 1 / (ry * ry);
+  const shadowCol = r.is32 ? SHADOW_BG_32 : SHADOW_BG;
+  const xMin = Math.max(0, Math.floor(cx - rx)), xMax = Math.min(r.w - 1, Math.ceil(cx + rx));
+  const yMin = Math.max(0, Math.floor(cy - ry)), yMax = Math.min(r.h - 1, Math.ceil(cy + ry));
+  for (let y = yMin; y <= yMax; y++) {
+    const dy2 = (y - cy) * (y - cy) * invRy2;
+    for (let x = xMin; x <= xMax; x++) {
+      const dx = x - cx;
+      if (dx * dx * invRx2 + dy2 <= 1) r.put(shadowCol, x, y);
     }
   }
 }
 
-function drawItemBacklight(r, tier, cx, cy, reach, phase, t, climax = 0) {
-  const unit = Math.min(r.w, r.h) / STAGE_HEIGHT;
-  const maxCorner = Math.ceil(Math.hypot(Math.max(cx, r.w - cx), Math.max(cy, r.h - cy))) + 6;
-  for (let y = 0; y < r.h; y++) {
-    for (let x = 0; x < r.w; x++) {
-      const dx = x - cx, dy = y - cy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const dEll = Math.sqrt(dx * dx + (dy * 1.25) * (dy * 1.25));
+const polarLutCache = new Map();
+function getPolarLut(gw, gh, heroY) {
+  const key = gw + 'x' + gh + ':' + heroY;
+  let lut = polarLutCache.get(key);
+  if (lut) return lut;
+  const padX = 12, padY = 32;
+  const lutW = gw + padX * 2, lutH = gh + padY * 2;
+  const cxL = Math.round(gw / 2) + padX, cyL = heroY + padY;
+  const len = lutW * lutH;
+  const dist = new Float32Array(len);
+  const dEll = new Float32Array(len);
+  const angUnit = new Float32Array(len);
+  const inv2Pi = 1 / (Math.PI * 2);
+  for (let y = 0; y < lutH; y++) {
+    const dy = y - cyL;
+    const dyE = dy * 1.25;
+    for (let x = 0; x < lutW; x++) {
+      const dx = x - cxL;
+      const idx = y * lutW + x;
+      dist[idx] = Math.sqrt(dx * dx + dy * dy);
+      dEll[idx] = Math.sqrt(dx * dx + dyE * dyE);
+      angUnit[idx] = (Math.atan2(dy, dx) + Math.PI) * inv2Pi;
+    }
+  }
+  lut = { gw, gh, heroY, cx0: Math.round(gw / 2), padX, padY, lutW, dist, dEll, angUnit };
+  if (polarLutCache.size > 4) polarLutCache.clear();
+  polarLutCache.set(key, lut);
+  return lut;
+}
 
-      if (tier === 'wood') {
-        let col = STAGE_BG;
-        if (reach > 0.02) {
-          if (dist < (6 + reach * 38) * unit) col = '#17100e';
-          if (dist < (4 + reach * 26 + phase * 2) * unit) col = '#291710';
-          if (reach > 0.35 && Math.abs(dx) < (3 + reach * 9) * unit && y < cy + 36 * unit) {
-            col = Math.abs(dx) < 5 * unit ? '#572814' : '#3b1d10';
+const BACKLIGHT_COLS_HEX = {
+  wood: ['#17100e', '#291710', '#3b1d10', '#572814', '#6b3214', '#9a4718', '#fb923c'],
+  iron: ['#08152b', '#0b2547', '#113c6e', '#0b355e', '#0e7490', '#0284c7', '#38bdf8', '#0369a1', '#e0f2fe'],
+  gold: ['#1b0d26', '#2e1065', '#4c1d95', '#612c09', '#b45309', '#7e22ce', '#eab308', '#fde047', '#fef9c3', '#ffffff'],
+};
+const BACKLIGHT_COLS_32 = Object.fromEntries(
+  Object.entries(BACKLIGHT_COLS_HEX).map(([k, arr]) => [k, arr.map(col32)])
+);
+
+function drawItemBacklight(r, tier, cx, cy, reach, phase, t, climax = 0, lut = null) {
+  if (reach <= 0.02) {
+    if (r.is32) r.buf.fill(STAGE_BG_32);
+    return;
+  }
+  const gw = r.w, gh = r.h;
+  const heroY = gh === STAGE_HEIGHT ? 41 : Math.round(gh * 0.43);
+  const polar = lut || getPolarLut(gw, gh, heroY);
+  const offX = polar.padX - (cx - polar.cx0);
+  const offY = polar.padY - (cy - polar.heroY);
+  const lutW = polar.lutW, distArr = polar.dist, dEllArr = polar.dEll, angArr = polar.angUnit;
+  const unit = Math.min(gw, gh) / STAGE_HEIGHT;
+  const maxCorner = Math.ceil(Math.hypot(Math.max(cx, gw - cx), Math.max(cy, gh - cy))) + 6;
+  const cols = r.is32 ? BACKLIGHT_COLS_32[tier] : BACKLIGHT_COLS_HEX[tier];
+  const bg = r.is32 ? STAGE_BG_32 : STAGE_BG;
+  const dst = r.is32 ? r.buf : r.g;
+
+  if (tier === 'wood') {
+    const rOuter = (6 + reach * 38) * unit;
+    const rMid = (4 + reach * 26 + phase * 2) * unit;
+    const pilHalf = (3 + reach * 9) * unit, pilInner = 5 * unit, pilBot = cy + 36 * unit;
+    const rEll = (3 + reach * 14 + phase * 3) * unit;
+    const flash = climax > 0 ? 16 * unit : 0;
+    const cross = reach > 0.75 && phase > 0.65;
+    const crossR = 22 * unit, crossX = 3 * unit, crossY = 2 * unit;
+
+    for (let y = 0; y < gh; y++) {
+      const dyAbs = Math.abs(y - cy), dyOk = y < pilBot;
+      const rowL = (y + offY) * lutW + offX, rowD = y * gw;
+      for (let x = 0; x < gw; x++) {
+        const li = rowL + x, d = distArr[li], dE = dEllArr[li], dxAbs = Math.abs(x - cx);
+        let c = bg;
+        if (d < rOuter) c = cols[0];
+        if (d < rMid) c = cols[1];
+        if (reach > 0.35 && dxAbs < pilHalf && dyOk) c = dxAbs < pilInner ? cols[3] : cols[2];
+        if (dE < rEll) c = cols[4];
+        if (flash > 0 && d < flash) c = cols[6];
+        else if (cross && d < crossR && (dxAbs < crossX || dyAbs < crossY)) c = cols[5];
+        dst[rowD + x] = c;
+      }
+    }
+  } else if (tier === 'iron') {
+    const maxFrost = Math.max((8 + reach * 46) * unit, reach * maxCorner * 0.85);
+    const r2 = (5 + reach * 32 + phase * 3) * unit;
+    const r3 = (3 + reach * 20 + phase * 4) * unit;
+    const rWedgeMax = Math.max((8 + reach * 44) * unit, reach * maxCorner * 0.92);
+    const rRingMax = (8 + reach * 44) * unit;
+    const u4 = 4 * unit, u26 = 26 * unit, u34 = 34 * unit;
+    const rotW = (t * 0.04 * 8) / (Math.PI * 2);
+    const span = 42 * unit;
+    const ring1 = 12 * unit + ((t * 2.2 * unit) % span);
+    const ring2 = 12 * unit + (((t * 2.2 + 19) * unit) % span);
+    const r1Tol = 1.25 * unit, r2Tol = 1.05 * unit, r2Lim = 48 * unit;
+    const flash = climax > 0 ? 20 * unit : 0, flashCol = climax > 1 ? cols[8] : cols[6];
+    const core = reach > 0.7 && phase > 0.5 ? 13 * unit : 0;
+
+    for (let y = 0; y < gh; y++) {
+      const rowL = (y + offY) * lutW + offX, rowD = y * gw;
+      for (let x = 0; x < gw; x++) {
+        const li = rowL + x, d = distArr[li];
+        let c = bg;
+        if (d < maxFrost) c = cols[0];
+        if (d < r2) c = cols[1];
+        if (d < r3) c = cols[2];
+        if (reach > 0.25) {
+          let w = angArr[li] * 8 + rotW;
+          w -= Math.floor(w);
+          if (d > u4 && d < rWedgeMax && Math.abs(w - 0.5) < 0.115) c = d < u26 ? cols[4] : cols[3];
+          if (reach > 0.5) {
+            if (Math.abs(d - ring1) < r1Tol && d < rRingMax) c = d < u34 ? cols[6] : cols[5];
+            else if (reach > 0.75 && ring2 < r2Lim && Math.abs(d - ring2) < r2Tol) c = cols[5];
           }
-          if (dEll < (3 + reach * 14 + phase * 3) * unit) col = '#6b3214';
-          if (climax > 0 && dist < 16 * unit) col = '#fb923c';
-          else if (reach > 0.75 && phase > 0.65 && dist < 22 * unit && (Math.abs(dx) < 3 * unit || Math.abs(dy) < 2 * unit)) col = '#9a4718';
         }
-        r.put(col, x, y);
-      } else if (tier === 'iron') {
-        let col = STAGE_BG;
-        if (reach > 0.02) {
-          const maxFrost = Math.max(8 + reach * 46, reach * maxCorner * 0.85);
-          if (dist < maxFrost) col = '#08152b';
-          if (dist < (5 + reach * 32 + phase * 3) * unit) col = '#0b2547';
-          if (dist < (3 + reach * 20 + phase * 4) * unit) col = '#113c6e';
-          if (reach > 0.25) {
-            const ang = Math.atan2(dy, dx);
-            const wedge = Math.abs(((ang + t * 0.04) % (Math.PI / 4)) - Math.PI / 8);
-            if (dist > 4 * unit && dist < Math.max((8 + reach * 44) * unit, reach * maxCorner * 0.92) && wedge < 0.09) {
-              col = dist < 26 * unit ? '#0e7490' : '#0b355e';
-            }
-            if (reach > 0.5) {
-              const span = 42 * unit;
-              const ring1 = 12 * unit + ((t * 2.2 * unit) % span);
-              const ring2 = 12 * unit + (((t * 2.2 + 19) * unit) % span);
-              if (Math.abs(dist - ring1) < 1.25 * unit && dist < (8 + reach * 44) * unit) col = dist < 34 * unit ? '#38bdf8' : '#0284c7';
-              else if (reach > 0.75 && ring2 < 48 * unit && Math.abs(dist - ring2) < 1.05 * unit) col = '#0284c7';
-            }
-          }
-          if (climax > 0 && dist < 20 * unit) col = climax > 1 ? '#e0f2fe' : '#38bdf8';
-          else if (reach > 0.7 && dist < 13 * unit && phase > 0.5) col = '#0369a1';
+        if (flash > 0 && d < flash) c = flashCol;
+        else if (core > 0 && d < core) c = cols[7];
+        dst[rowD + x] = c;
+      }
+    }
+  } else {
+    const maxR = 8 + reach * maxCorner;
+    const rCore = (4 + reach * 24 + phase * 4) * unit;
+    const rSun = (2 + reach * 15 + phase * 4) * unit;
+    const rot1 = (t * 0.10 * 5) / (Math.PI * 2);
+    const rot2 = (t * 0.06 * 6) / (Math.PI * 2);
+    const u3 = 3 * unit, u4 = 4 * unit, u36 = 36 * unit, u44 = 44 * unit;
+    const flash = climax > 0 ? 24 * unit : 0, flashCol = climax > 1 ? cols[9] : cols[8];
+    const hotCore = reach > 0.8 && phase > 0.7 ? 12 * unit : 0;
+
+    for (let y = 0; y < gh; y++) {
+      const rowL = (y + offY) * lutW + offX, rowD = y * gw;
+      for (let x = 0; x < gw; x++) {
+        const li = rowL + x, d = distArr[li];
+        let c = bg;
+        if (d < maxR) c = cols[0];
+        if (reach > 0.2) {
+          let m1 = angArr[li] * 5 + rot1;
+          let m2 = angArr[li] * 6 - rot2;
+          m1 -= Math.floor(m1);
+          m2 -= Math.floor(m2);
+          if (m2 < 0.401 && d > u4 && d < maxR) c = d < u44 ? cols[2] : cols[1];
+          if (m1 < 0.382 && d > u3 && d < maxR) c = d < u36 ? cols[4] : cols[3];
+          if (d < rCore) c = m1 < 0.35 ? cols[6] : cols[5];
         }
-        r.put(col, x, y);
-      } else {
-        let col = STAGE_BG;
-        if (reach > 0.02) {
-          const maxR = 8 + reach * maxCorner;
-          if (dist < maxR) col = '#1b0d26';
-          if (reach > 0.2) {
-            const a1 = Math.atan2(dy, dx) + t * 0.10;
-            const a2 = Math.atan2(dy, dx) - t * 0.06;
-            const m1 = ((a1 % (Math.PI / 5)) + (Math.PI / 5)) % (Math.PI / 5);
-            const m2 = ((a2 % (Math.PI / 6)) + (Math.PI / 6)) % (Math.PI / 6);
-            if (m2 < 0.21 && dist > 4 * unit && dist < maxR) col = dist < 44 * unit ? '#4c1d95' : '#2e1065';
-            if (m1 < 0.24 && dist > 3 * unit && dist < maxR) col = dist < 36 * unit ? '#b45309' : '#612c09';
-            if (dist < (4 + reach * 24 + phase * 4) * unit) col = (m1 < 0.22) ? '#eab308' : '#7e22ce';
-          }
-          if (dist < (2 + reach * 15 + phase * 4) * unit) col = '#fde047';
-          if (climax > 0 && dist < 24 * unit) col = climax > 1 ? '#ffffff' : '#fef9c3';
-          else if (reach > 0.8 && dist < 12 * unit && phase > 0.7) col = '#fef9c3';
-        }
-        r.put(col, x, y);
+        if (d < rSun) c = cols[7];
+        if (flash > 0 && d < flash) c = flashCol;
+        else if (hotCore > 0 && d < hotCore) c = cols[8];
+        dst[rowD + x] = c;
       }
     }
   }
+}
+
+function paintRevealScene(r, tier, state, lut = null) {
+  const { art, artPal, label, fg, shadow } = CHEST_THEMES[tier];
+  const gw = r.w, gh = r.h;
+  const cx = Math.round(gw / 2);
+  const heroY = gh === STAGE_HEIGHT ? 41 : Math.round(gh * 0.43);
+  const ox = cx - 32;
+  const oy = heroY - 21;
+  const mouthY = oy + 32;
+  const unit = Math.min(gw, gh) / STAGE_HEIGHT;
+  const C = (hex) => (r.is32 ? col32(hex) : hex);
+
+  if (state.mode === 'idle') {
+    if (r.is32) r.buf.fill(STAGE_BG_32);
+    const jumpY = state.jumpY || 0;
+    const shakeX = state.shakeX || 0;
+    drawFloorShadow(r, ox, oy, 0, Math.abs(jumpY));
+    drawTierChest(r, tier, 0, ox + shakeX, oy + jumpY, 0);
+    return;
+  }
+
+  if (state.mode === 'open-lid') {
+    if (r.is32) r.buf.fill(STAGE_BG_32);
+    drawFloorShadow(r, ox, oy, 0, 0);
+    drawTierChest(r, tier, state.chestIdx, ox + (state.shakeX || 0), oy, 0);
+    if (state.spark > 0) {
+      const glowCol = tier === 'iron' ? '#7dd3fc' : tier === 'gold' ? '#fde047' : '#fbbf24';
+      drawSparkle(r, C(glowCol), C('#ffffff'), cx - 4, mouthY + 2 - state.spark, 1);
+    }
+    return;
+  }
+
+  if (state.mode === 'rising') {
+    const p = state.p;
+    const itemX = Math.round((cx - 4) + Math.min(1, p * 1.4) * 4);
+    const itemY = Math.round(mouthY - Math.sin(p * Math.PI * 0.5) * (mouthY - heroY));
+    const reach = Math.pow(p, 1.35) * 0.88;
+    const dropSpan = Math.max(34, gh - (oy + 16));
+    const chestDrop = p < 0.30 ? 0 : Math.round(Math.pow((p - 0.30) / 0.70, 1.4) * dropSpan);
+    const chestFrame = p < 0.30 ? 10 : 9;
+
+    drawItemBacklight(r, tier, itemX, itemY, reach, p * 0.8, 15 + p * 12, state.climax || 0, lut);
+    if (chestDrop < dropSpan - 2) {
+      drawFloorShadow(r, ox, oy, chestDrop, 0);
+      drawTierChest(r, tier, chestFrame, ox, oy, chestDrop);
+    }
+
+    if (p < 0.14) {
+      const budCol = tier === 'iron' ? '#38bdf8' : tier === 'gold' ? '#facc15' : '#ea580c';
+      drawSparkle(r, C(budCol), C('#ffffff'), itemX, itemY, 2 + (p > 0.07 ? 1 : 0));
+    } else {
+      const scale = p < 0.48 ? 1.0 : p < 0.82 ? 1.5 : 2;
+      drawScaledArt(r, art, artPal, itemX, itemY, scale);
+    }
+    return;
+  }
+
+  const t = state.t;
+  const climax = t < 1 ? 2 : t < 2 ? 1 : 0;
+  const phase = t < 5 ? 1.0 - t * 0.04 : 0.74 + Math.sin(t * 0.45) * 0.14;
+  const bobY = t >= 2 ? Math.round(Math.sin(t * 0.5) * 1.5) : 0;
+
+  drawItemBacklight(r, tier, cx, heroY, 1.0, phase, 28 + t, climax, lut);
+  drawScaledArt(r, art, artPal, cx, heroY + bobY, 2);
+
+  const ti = Math.floor(t);
+  if (tier === 'wood') {
+    const pts = [
+      [cx - Math.round(32 * unit), heroY + 13 - (ti % 12), 1],
+      [cx + Math.round(30 * unit), heroY + 7 - ((ti + 4) % 14), 1],
+      [cx - Math.round(24 * unit), heroY - 17 - (ti % 8), 1],
+    ];
+    for (const [sx, sy, ss] of pts) drawSparkle(r, C('#ea580c'), C('#fde047'), sx, sy, ss);
+  } else if (tier === 'iron') {
+    for (let k = 0; k < 4; k++) {
+      const a = t * 0.32 + (k * Math.PI) / 2;
+      drawSparkle(r, C('#38bdf8'), C('#ffffff'), cx + Math.cos(a) * (34 * unit), heroY + Math.sin(a) * (26 * unit), 2);
+    }
+  } else {
+    const dx = 36 * unit, dy = 24 * unit;
+    const sparks = [
+      [cx - dx, heroY - dy, '#fde047', 2], [cx + dx, heroY - dy, '#c084fc', 2],
+      [cx - dx - 4, heroY + dy, '#38bdf8', 2], [cx + dx + 4, heroY + dy, '#fde047', 2],
+      [cx - dx * 0.7, heroY - 4, '#f472b6', 1], [cx + dx * 0.7, heroY - 6, '#fef08a', 2],
+      [cx - dx * 0.85, heroY + dy + 10, '#fde047', 1], [cx + dx * 0.85, heroY + dy + 11, '#c084fc', 1],
+    ];
+    sparks.forEach(([sx, sy, col, ss], idx) => {
+      if ((ti + idx) % 3 !== 0) drawSparkle(r, C(col), C('#ffffff'), sx, sy, ss);
+    });
+  }
+
+  const labelY = gh === STAGE_HEIGHT ? 82 : Math.min(gh - 10, heroY + 29);
+  if (t >= 2) drawLabel(r, label, labelY, C(fg), C(shadow));
 }
 
 function drawSparkle(r, col, core, x, y, s = 2) {
@@ -517,125 +724,61 @@ export function renderChestPixels(tierId, fIdx = 0) {
   return r.g;
 }
 
-/** Render a reveal stage frame (0..55) at either default 112x96 or fullscreen (gw x gh). */
+/** Render a deterministic reveal stage frame (0..55) for tests and static checks. */
 export function renderRevealFrame(tierId, frameIndex, gw = STAGE_WIDTH, gh = STAGE_HEIGHT) {
   const tier = normTier(tierId);
-  const { art, artPal, label, fg, shadow } = CHEST_THEMES[tier];
   const i = Math.max(0, Math.min(REVEAL_FRAME_COUNT - 1, frameIndex | 0));
   const r = makeSurface(gw, gh, STAGE_BG);
-  const cx = Math.round(gw / 2);
-  const heroY = gh === STAGE_HEIGHT ? 41 : Math.round(gh * 0.43);
-  const ox = cx - 32;
-  const oy = heroY - 21;
-  const mouthY = oy + 32;
-  const unit = Math.min(gw, gh) / STAGE_HEIGHT;
-
+  let state;
   if (i <= 14) {
-    drawFloorShadow(r, ox, oy, 0);
-    const shake = (i >= 3 && i <= 6) ? (i % 2 === 1 ? -1 : 1) : 0;
-    const chestIdx = i <= 2 ? 0 : Math.min(11, i - 1);
-    drawTierChest(r, tier, chestIdx, ox + shake, oy, 0);
-    if (i >= 11) {
-      const glowCol = tier === 'iron' ? '#7dd3fc' : tier === 'gold' ? '#fde047' : '#fbbf24';
-      drawSparkle(r, glowCol, '#ffffff', cx - 4, mouthY + 2 - (i - 11), 1);
-    }
+    state = {
+      mode: 'open-lid',
+      chestIdx: i <= 2 ? 0 : Math.min(11, i - 1),
+      shakeX: (i >= 3 && i <= 6) ? (i % 2 === 1 ? -1 : 1) : 0,
+      spark: i >= 11 ? i - 10 : 0,
+    };
   } else if (i <= 27) {
-    const p = (i - 15) / 12;
-    const itemX = Math.round((cx - 4) + Math.min(1, p * 1.4) * 4);
-    const itemY = Math.round(mouthY - Math.sin(p * Math.PI * 0.5) * (mouthY - heroY));
-    const reach = Math.pow(p, 1.35) * 0.88;
-    const dropSpan = Math.max(34, gh - (oy + 16));
-    const chestDrop = i < 19 ? 0 : Math.round(Math.pow((i - 19) / 8, 1.4) * dropSpan);
-    const chestFrame = i <= 18 ? 10 : 9;
-
-    drawItemBacklight(r, tier, itemX, itemY, reach, p * 0.8, i, i === 27 ? 1 : 0);
-    if (chestDrop < dropSpan - 2) {
-      drawFloorShadow(r, ox, oy, chestDrop);
-      drawTierChest(r, tier, chestFrame, ox, oy, chestDrop);
-    }
-
-    if (i <= 16) {
-      const budCol = tier === 'iron' ? '#38bdf8' : tier === 'gold' ? '#facc15' : '#ea580c';
-      drawSparkle(r, budCol, '#ffffff', itemX, itemY, 2 + (i - 15));
-    } else {
-      const scale = i <= 21 ? 1.0 : i <= 25 ? 1.5 : 2;
-      drawScaledArt(r, art, artPal, itemX, itemY, scale);
-    }
+    state = { mode: 'rising', p: (i - 15) / 12, climax: i === 27 ? 1 : 0 };
   } else {
-    const t = i - 28;
-    const climax = t === 0 ? 2 : t === 1 ? 1 : 0;
-    const phase = t < 5 ? 1.0 - t * 0.04 : 0.74 + Math.sin(t * 0.45) * 0.14;
-    const bobY = t >= 2 ? Math.round(Math.sin(t * 0.5) * 1.5) : 0;
-
-    drawItemBacklight(r, tier, cx, heroY, 1.0, phase, i, climax);
-    drawScaledArt(r, art, artPal, cx, heroY + bobY, 2);
-
-    if (tier === 'wood') {
-      const pts = [
-        [cx - Math.round(32 * unit), heroY + 13 - (t % 12), 1],
-        [cx + Math.round(30 * unit), heroY + 7 - ((t + 4) % 14), 1],
-        [cx - Math.round(24 * unit), heroY - 17 - (t % 8), 1],
-      ];
-      for (const [sx, sy, ss] of pts) drawSparkle(r, '#ea580c', '#fde047', sx, sy, ss);
-    } else if (tier === 'iron') {
-      for (let k = 0; k < 4; k++) {
-        const a = t * 0.32 + (k * Math.PI) / 2;
-        drawSparkle(r, '#38bdf8', '#ffffff', cx + Math.cos(a) * (34 * unit), heroY + Math.sin(a) * (26 * unit), 2);
-      }
-    } else {
-      const dx = 36 * unit, dy = 24 * unit;
-      const sparks = [
-        [cx - dx, heroY - dy, '#fde047', 2], [cx + dx, heroY - dy, '#c084fc', 2],
-        [cx - dx - 4, heroY + dy, '#38bdf8', 2], [cx + dx + 4, heroY + dy, '#fde047', 2],
-        [cx - dx * 0.7, heroY - 4, '#f472b6', 1], [cx + dx * 0.7, heroY - 6, '#fef08a', 2],
-        [cx - dx * 0.85, heroY + dy + 10, '#fde047', 1], [cx + dx * 0.85, heroY + dy + 11, '#c084fc', 1],
-      ];
-      sparks.forEach(([sx, sy, col, ss], idx) => {
-        if ((t + idx) % 3 !== 0) drawSparkle(r, col, '#ffffff', sx, sy, ss);
-      });
-    }
-
-    const labelY = gh === STAGE_HEIGHT ? 82 : Math.min(gh - 10, heroY + 29);
-    if (t >= 2) drawLabel(r, label, labelY, fg, shadow);
+    state = { mode: 'showcase', t: i - 28 };
   }
-
+  paintRevealScene(r, tier, state);
   return r.g;
 }
 
-const colorCache = new Map();
-function hexToRgbaTuple(hex) {
-  if (!hex) return [0, 0, 0, 0];
-  let cached = colorCache.get(hex);
-  if (!cached) {
-    cached = [
-      parseInt(hex.slice(1, 3), 16),
-      parseInt(hex.slice(3, 5), 16),
-      parseInt(hex.slice(5, 7), 16),
-      255,
-    ];
-    colorCache.set(hex, cached);
+/** Map sealed idle elapsed ms to a lively hop-and-wiggle chest pose. */
+export function sealedIdlePose(elapsedMs) {
+  const cycle = 1150;
+  const p = ((elapsedMs % cycle) + cycle) % cycle / cycle;
+  if (p < 0.28) return { mode: 'idle', jumpY: 0, shakeX: 0 };
+  if (p < 0.36) return { mode: 'idle', jumpY: 0, shakeX: p < 0.32 ? -1 : 1 };
+  if (p < 0.44) return { mode: 'idle', jumpY: 1, shakeX: p < 0.40 ? -1 : 0 };
+  if (p < 0.80) {
+    const s = (p - 0.44) / 0.36;
+    const jumpY = -Math.round(Math.sin(s * Math.PI) * 5);
+    const shakeX = (s > 0.22 && s < 0.78) ? (s < 0.5 ? -1 : 1) : 0;
+    return { mode: 'idle', jumpY, shakeX };
   }
-  return cached;
+  if (p < 0.90) return { mode: 'idle', jumpY: 1, shakeX: 0 };
+  return { mode: 'idle', jumpY: 0, shakeX: 0 };
 }
 
-function paintPixels(canvas, pixels, w, h) {
-  const ctx = canvas?.getContext?.('2d');
-  if (!ctx) return;
-  ctx.imageSmoothingEnabled = false;
-  const img = ctx.createImageData(w, h);
-  const data = img.data;
-  for (let i = 0; i < pixels.length; i++) {
-    const [r, g, b, a] = hexToRgbaTuple(pixels[i]);
-    const off = i * 4;
-    data[off] = r;
-    data[off + 1] = g;
-    data[off + 2] = b;
-    data[off + 3] = a;
-  }
-  ctx.putImageData(img, 0, 0);
+function makeSurface32(w, h, buf32) {
+  const put = (c32, x, y) => {
+    const px = Math.round(x), py = Math.round(y);
+    if (px >= 0 && px < w && py >= 0 && py < h) buf32[py * w + px] = c32;
+  };
+  const rect = (c32, x, y, rw, rh) => {
+    const x0 = Math.round(x), y0 = Math.round(y), x1 = Math.round(x + rw), y1 = Math.round(y + rh);
+    for (let py = Math.max(0, y0); py < Math.min(h, y1); py++) {
+      const row = py * w;
+      for (let px = Math.max(0, x0); px < Math.min(w, x1); px++) buf32[row + px] = c32;
+    }
+  };
+  return { is32: true, w, h, buf: buf32, put, rect };
 }
 
-/** Per-frame millisecond cadence matching the approved 56-frame slow-buildup reveal. */
+/** Per-frame millisecond cadence matching the 56-frame buildup timing reference. */
 export function revealFrameDelay(frameIndex) {
   if (frameIndex <= 9) return frameIndex === 0 ? 80 : 95;
   if (frameIndex <= 21) return 95;
@@ -658,15 +801,22 @@ export function chestArt(chest, opened) {
   canvas.className = 'lb-chest-canvas';
   canvas.width = 64;
   canvas.height = 64;
-  paintPixels(canvas, renderChestPixels(tier, opened ? 10 : 0), 64, 64);
+  const ctx = canvas.getContext?.('2d');
+  if (ctx) {
+    ctx.imageSmoothingEnabled = false;
+    const img = ctx.createImageData(64, 64);
+    const buf32 = new Uint32Array(img.data.buffer);
+    drawTierChest(makeSurface32(64, 64, buf32), tier, opened ? 10 : 0, 0, 0, 0);
+    ctx.putImageData(img, 0, 0);
+  }
   stage.append(canvas);
   return stage;
 }
 
 /**
- * Create the 112x96 pixel reveal stage controller for the full-screen modal.
- * Starts sealed at frame 0, advances smoothly through opening buildup into a
- * continuous center-item aura showcase (frames 28..55), and cleans up timers on stop().
+ * Create the zero-lag 60fps requestAnimationFrame fullscreen pixel reveal stage.
+ * Plays an alive hop-and-wiggle idle loop while sealed, smoothly animates opening buildup
+ * and center takeover on tap, and cleans up all loops/listeners on stop().
  */
 export function createRevealStage(chest, opened = false) {
   const tier = normTier(chest?.id);
@@ -679,65 +829,163 @@ export function createRevealStage(chest, opened = false) {
 
   const canvas = document.createElement('canvas');
   canvas.className = 'lb-reveal-canvas';
+  stage.append(canvas);
+
+  const ctx = canvas.getContext?.('2d') || null;
+  if (ctx) ctx.imageSmoothingEnabled = false;
+
   let gw = STAGE_WIDTH, gh = STAGE_HEIGHT;
-  const syncSize = () => {
+  let img = null, buf32 = null, surface = null, lut = null;
+  let lastPaintKey = '';
+
+  const initSurface = () => {
     const win = typeof window !== 'undefined' ? window : null;
     const dims = computeStageDimensions(win?.innerWidth || 0, win?.innerHeight || 0);
+    if (gw === dims.width && gh === dims.height && surface) return;
     gw = dims.width;
     gh = dims.height;
     canvas.width = gw;
     canvas.height = gh;
+    if (ctx) {
+      img = ctx.createImageData(gw, gh);
+      buf32 = new Uint32Array(img.data.buffer);
+      surface = makeSurface32(gw, gh, buf32);
+      lut = getPolarLut(gw, gh, Math.round(gh * 0.43));
+    }
+    lastPaintKey = '';
   };
-  syncSize();
-  stage.append(canvas);
 
-  let timer = 0;
+  const paintState = (state, paintKey = '') => {
+    if (!ctx || !surface) return;
+    if (paintKey && paintKey === lastPaintKey) return;
+    lastPaintKey = paintKey;
+    paintRevealScene(surface, tier, state, lut);
+    ctx.putImageData(img, 0, 0);
+  };
+
+  initSurface();
+
+  let rafId = 0;
+  let fallbackTimer = 0;
   let stopped = false;
-  let currentFrame = opened ? 34 : 0;
+  let mode = opened ? 'revealed' : 'idle';
+  let startMs = 0;
+  const raf = typeof requestAnimationFrame === 'function'
+    ? requestAnimationFrame
+    : (fn => setTimeout(() => fn(performance.now()), 16));
+  const cancelRaf = typeof cancelAnimationFrame === 'function' ? cancelAnimationFrame : clearTimeout;
 
-  const draw = idx => {
-    currentFrame = idx;
-    paintPixels(canvas, renderRevealFrame(tier, idx, gw, gh), gw, gh);
+  const paintIdleAt = (elapsedMs) => {
+    const pose = sealedIdlePose(elapsedMs);
+    paintState(pose, 'idle:' + pose.jumpY + ':' + pose.shakeX);
   };
+
+  const startLoop = (stepFn) => {
+    cancelRaf(rafId);
+    clearTimeout(fallbackTimer);
+    startMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const tick = (now) => {
+      if (stopped) return;
+      const elapsed = Math.max(0, (now || Date.now()) - startMs);
+      stepFn(elapsed);
+      if (!stopped) rafId = raf(tick);
+    };
+    stepFn(0);
+    rafId = raf(tick);
+  };
+
+  const startIdle = () => {
+    if (!ctx || opened || stopped) return;
+    const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    if (reduced) {
+      paintState({ mode: 'idle', jumpY: 0, shakeX: 0 }, 'idle-static');
+      return;
+    }
+    startLoop(paintIdleAt);
+  };
+
   const onResize = () => {
-    syncSize();
-    draw(currentFrame);
+    initSurface();
+    if (mode === 'idle') paintState({ mode: 'idle', jumpY: 0, shakeX: 0 });
+    else if (mode === 'revealed') paintState({ mode: 'showcase', t: 6 });
   };
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
     window.addEventListener('resize', onResize);
   }
-  draw(currentFrame);
+
+  if (opened) paintState({ mode: 'showcase', t: 6 }, 'opened-static');
+  else startIdle();
 
   return {
     stage,
     play({ reducedMotion = false, onClimax } = {}) {
-      clearTimeout(timer);
+      cancelRaf(rafId);
+      clearTimeout(fallbackTimer);
       stopped = false;
       stage.dataset.open = 'true';
-      syncSize();
+      initSurface();
       if (reducedMotion) {
-        draw(34);
+        mode = 'revealed';
+        paintState({ mode: 'showcase', t: 6 }, 'reduced');
         onClimax?.();
         return;
       }
-      let frame = 1;
+
+      mode = 'opening';
       let notified = false;
-      const tick = () => {
-        if (stopped) return;
-        draw(frame);
-        if (!notified && frame >= REVEAL_CLIMAX_FRAME) {
+      let lastDrawAt = -Infinity;
+      const RISE_START = 920;
+      const RISE_DUR = 980;
+      const CLIMAX_MS = RISE_START + RISE_DUR;
+
+      startLoop((elapsed) => {
+        if (elapsed - lastDrawAt < 14) return;
+        lastDrawAt = elapsed;
+
+        if (elapsed < RISE_START) {
+          if (elapsed < 340) {
+            const k = Math.floor(elapsed / 85);
+            const shakeX = k >= 1 ? (k % 2 === 1 ? -1 : 1) : 0;
+            const chestIdx = k < 2 ? 0 : Math.min(3, k);
+            paintState({ mode: 'open-lid', chestIdx, shakeX, spark: 0 }, 'lid:' + chestIdx + ':' + shakeX);
+          } else {
+            const p = (elapsed - 340) / 580;
+            const step = Math.min(7, Math.floor(p * 8));
+            const chestIdx = Math.min(11, 4 + step);
+            const spark = step >= 5 ? step - 4 : 0;
+            paintState({ mode: 'open-lid', chestIdx, shakeX: 0, spark }, 'lid:' + chestIdx + ':sp' + spark);
+          }
+          return;
+        }
+
+        if (elapsed < CLIMAX_MS) {
+          const p = (elapsed - RISE_START) / RISE_DUR;
+          paintState({ mode: 'rising', p, climax: p > 0.93 ? 1 : 0 });
+          return;
+        }
+
+        mode = 'revealed';
+        const t = ((elapsed - CLIMAX_MS) % 3080) / 95;
+        paintState({ mode: 'showcase', t });
+        if (!notified && elapsed >= CLIMAX_MS + 110) {
           notified = true;
           onClimax?.();
         }
-        const delay = revealFrameDelay(frame);
-        frame = frame >= REVEAL_FRAME_COUNT - 1 ? REVEAL_LOOP_START : frame + 1;
-        timer = setTimeout(tick, delay);
-      };
-      tick();
+      });
+
+      // Background-tab safety net if requestAnimationFrame is suspended
+      fallbackTimer = setTimeout(() => {
+        if (stopped || notified) return;
+        notified = true;
+        mode = 'revealed';
+        paintState({ mode: 'showcase', t: 6 });
+        onClimax?.();
+      }, CLIMAX_MS + 350);
     },
     stop() {
       stopped = true;
-      clearTimeout(timer);
+      cancelRaf(rafId);
+      clearTimeout(fallbackTimer);
       if (typeof window !== 'undefined' && typeof window.removeEventListener === 'function') {
         window.removeEventListener('resize', onResize);
       }
