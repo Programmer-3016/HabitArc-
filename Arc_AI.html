@@ -810,10 +810,49 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             });
 
             let payload = null;
-            try { payload = await response.json(); } catch {}
-
-            if (!response.ok || !payload?.answer) {
+            if (!response.ok) {
+                try { payload = await response.json(); } catch {}
                 throw new Error(payload?.error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.');
+            }
+            const contentType = response.headers?.get?.('content-type') || '';
+            if (/text\/event-stream/i.test(contentType)) {
+                await consumeArcCoachStream(response, (event, value) => {
+                    if (controller !== requestController || controller.signal.aborted ||
+                        HabitArc.getAuthUser()?.uid !== owner) {
+                        controller.abort();
+                        throw new Error('ARC AI conversation changed during streaming.');
+                    }
+                    if (event === 'delta' && typeof value?.text === 'string') {
+                        streamedDraft += value.text;
+                        if (streamedDraft.length > 12000) {
+                            throw new Error('ARC AI reply exceeded the display limit.');
+                        }
+                        scheduleDraft();
+                        setStatus('ARC is responding…');
+                    } else if (event === 'reset') {
+                        // Provider streaming failed, but the same authenticated
+                        // request is completing through the stable JSON path.
+                        streamedDraft = '';
+                        if (draftTimer !== null) {
+                            clearTimeout(draftTimer);
+                            draftTimer = null;
+                        }
+                        if (answerEl) answerEl.innerHTML = '<div class="ha-arc-skeleton" aria-hidden="true"><span class="ha-arc-skel-line"></span><span class="ha-arc-skel-line is-short"></span></div>';
+                        setStatus('Finishing your response…');
+                    } else if (event === 'done') {
+                        payload = value;
+                    }
+                });
+            } else {
+                // Older server build / test fixture: preserve JSON support.
+                try { payload = await response.json(); } catch {}
+            }
+            if (draftTimer !== null) {
+                clearTimeout(draftTimer);
+                draftTimer = null;
+            }
+            if (!payload?.answer) {
+                throw new Error('ARC AI did not finish a response. Please retry.');
             }
             if (controller !== requestController || HabitArc.getAuthUser()?.uid !== owner) return;
 
