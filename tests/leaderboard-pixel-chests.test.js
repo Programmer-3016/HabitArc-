@@ -127,6 +127,43 @@ test('Modal reveal uses fullscreen tap-anywhere UX without Tap to open button or
   const idlePoses = Array.from({ length: 12 }, (_, k) => sealedIdlePose(k * 95));
   assert.ok(idlePoses.some(p => p.jumpY < 0), 'idle chest jumps upward');
   assert.ok(idlePoses.some(p => p.shakeX !== 0), 'idle chest wiggles gently');
+
+  // Opening timeline reacts immediately on tap and reaches climax ~1.43s
+  const oldRaf = globalThis.requestAnimationFrame;
+  const oldCancelRaf = globalThis.cancelAnimationFrame;
+  const oldDoc = globalThis.document;
+  let queuedTick = null;
+  let paints = 0;
+  globalThis.requestAnimationFrame = cb => { queuedTick = cb; return 1; };
+  globalThis.cancelAnimationFrame = () => { queuedTick = null; };
+  globalThis.document = {
+    createElement(tag) {
+      const n = fakeNode(tag);
+      if (tag === 'canvas') {
+        n.getContext = () => ({
+          createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4) }),
+          putImageData: () => { paints += 1; },
+        });
+      }
+      return n;
+    },
+  };
+  try {
+    const ctrl = createRevealStage({ id: 'wood' }, false);
+    const baseMs = performance.now();
+    let climaxCount = 0;
+    ctrl.play({ onClimax: () => { climaxCount += 1; } });
+    assert.ok(paints >= 1 && queuedTick, 'paints immediate tap rattle without waiting');
+    for (const dt of [60, 220, 560, 950, 1360, 1450]) {
+      if (queuedTick) queuedTick(baseMs + dt);
+    }
+    assert.equal(climaxCount, 1, 'triggers climax promptly once after snappy open');
+    ctrl.stop();
+  } finally {
+    globalThis.requestAnimationFrame = oldRaf;
+    globalThis.cancelAnimationFrame = oldCancelRaf;
+    globalThis.document = oldDoc;
+  }
   const rewards = read('runner-treasures.js');
   assert.match(rewards, /days: 1, xp: 30/);
   assert.match(rewards, /days: 7, xp: 70/);

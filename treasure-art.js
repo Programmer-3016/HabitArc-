@@ -934,8 +934,9 @@ export function createRevealStage(chest, opened = false) {
       mode = 'opening';
       let notified = false;
       let lastDrawAt = -Infinity;
-      const RISE_START = 920;
-      const RISE_DUR = 980;
+      const RATTLE_END = 180;
+      const RISE_START = 540;
+      const RISE_DUR = 820;
       const CLIMAX_MS = RISE_START + RISE_DUR;
 
       startLoop((elapsed) => {
@@ -943,13 +944,13 @@ export function createRevealStage(chest, opened = false) {
         lastDrawAt = elapsed;
 
         if (elapsed < RISE_START) {
-          if (elapsed < 340) {
-            const k = Math.floor(elapsed / 85);
-            const shakeX = k >= 1 ? (k % 2 === 1 ? -1 : 1) : 0;
-            const chestIdx = k < 2 ? 0 : Math.min(3, k);
+          if (elapsed < RATTLE_END) {
+            const k = Math.floor(elapsed / 60);
+            const shakeX = k % 2 === 0 ? -1 : 1;
+            const chestIdx = Math.min(3, k + 1);
             paintState({ mode: 'open-lid', chestIdx, shakeX, spark: 0 }, 'lid:' + chestIdx + ':' + shakeX);
           } else {
-            const p = (elapsed - 340) / 580;
+            const p = (elapsed - RATTLE_END) / (RISE_START - RATTLE_END);
             const step = Math.min(7, Math.floor(p * 8));
             const chestIdx = Math.min(11, 4 + step);
             const spark = step >= 5 ? step - 4 : 0;
@@ -967,7 +968,7 @@ export function createRevealStage(chest, opened = false) {
         mode = 'revealed';
         const t = ((elapsed - CLIMAX_MS) % 3080) / 95;
         paintState({ mode: 'showcase', t });
-        if (!notified && elapsed >= CLIMAX_MS + 110) {
+        if (!notified && elapsed >= CLIMAX_MS + 70) {
           notified = true;
           onClimax?.();
         }

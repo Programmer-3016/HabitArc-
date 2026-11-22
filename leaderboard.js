@@ -210,7 +210,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
         idx += 1;
         headline.textContent = targetText.slice(0, idx);
         if (idx >= targetText.length) clearInterval(typeTimer);
-      }, 45);
+      }, 34);
     }
     function finish() {
       if (!dialog.open || dialog.dataset.phase !== 'opening') return;
@@ -234,7 +234,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
       typeHeadline(sample ? 'Preview Item' : 'New Item');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       stageCtrl.play({ reducedMotion: reduced, onClimax: finish });
-      if (!reduced) finishTimer = setTimeout(finish, 2600);
+      if (!reduced) finishTimer = setTimeout(finish, 1900);
     }
     dialog.addEventListener('click', () => {
       if (dialog.dataset.phase === 'sealed') triggerOpen();
