@@ -118,7 +118,7 @@ try {
     await page.setViewportSize({width:1366,height:900});
     await page.goto(`${base}/Settings.html`, { waitUntil: 'networkidle' });
     const backgrounds = new Set();
-    for (const theme of ['light', 'dark', 'forest', 'midnight']) {
+    for (const theme of ['light', 'dark', 'sage', 'forest', 'midnight', 'ocean', 'purple', 'sunset']) {
         await page.locator(`[data-theme-val="${theme}"]`).click();
         assert.equal(await page.locator(`[data-theme-val="${theme}"]`).getAttribute('aria-pressed'), 'true');
         await page.waitForFunction(expected => document.documentElement.getAttribute('data-theme') === expected, theme);
@@ -138,7 +138,7 @@ try {
         }
         await page.goto(`${base}/Settings.html`, { waitUntil: 'networkidle' });
     }
-    assert.equal(backgrounds.size, 4, 'Every existing theme has a distinct palette');
+    assert.equal(backgrounds.size, 8, 'Every existing theme has a distinct palette');
     await page.locator('[data-theme-val="light"]').click();
     await page.setViewportSize({ width: 320, height: 900 });
     await page.evaluate(() => HabitArc.updateHabit('ui-0', { name: 'A very long habit name that must wrap without hiding completion controls or pushing anything offscreen' }));
@@ -164,7 +164,7 @@ try {
         if (output) await page.screenshot({ path: resolve(output, `${name}-empty.png`), fullPage: true });
     }
     assert.deepEqual(errors, []);
-    console.log('PASS: 7 pages at 320/390/768/1366px, 4 saved themes, mobile touch targets, long names, keyboard skip link, reduced motion; no page errors or cloud writes.');
+    console.log('PASS: 10 pages at 320/390/768/1024/1366px, 8 saved themes, mobile touch targets, long names, keyboard skip link, reduced motion; no page errors or cloud writes.');
 } finally {
     await browser?.close();
     server.close();
