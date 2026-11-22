@@ -125,8 +125,7 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 .lb-vault-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 1039px) { .lb-vault-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; } }
 .lb-chest {
-    display: flex; flex-direction: column; gap: 8px;
-    padding: clamp(12px, 1.6vw, 16px);
+    display: flex; flex-direction: column; padding: 0; overflow: hidden;
     background: var(--paper);
     border: 2px solid var(--edge);
     border-radius: var(--ha-card-radius, 16px);
@@ -137,36 +136,52 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     box-shadow: 4px 4px 0 var(--rpg-shadow-ink, #121215);
 }
 .lb-chest[data-state="equipped"] {
-    background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 14%, var(--paper));
+    background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 12%, var(--paper));
     border-color: var(--ha-hero-border, var(--edge));
     box-shadow: 4px 4px 0 var(--rpg-shadow-ink, #121215);
 }
 @media (hover: hover) {
   .lb-chest:hover { transform: translate(-1px, -2px); box-shadow: 5px 5px 0 var(--rpg-shadow-ink, #121215); }
 }
-.lb-chest-kicker { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; }
+.lb-chest-media { position: relative; background: #130f22; }
 .lb-chest-stamp {
-    border: 1.5px solid var(--edge); border-radius: 9999px;
-    padding: 3px 8px; color: var(--sub); background: var(--paper-soft);
-    font: 700 .62rem/1 var(--mono); text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
+    position: absolute; top: 8px; left: 8px; z-index: 2; pointer-events: none;
+    border: 1.5px solid rgba(255,255,255,.22); border-radius: 9999px;
+    padding: 3px 8px; color: #f8fafc; background: rgba(19, 15, 34, .76);
+    backdrop-filter: blur(4px);
+    font: 700 .6rem/1 var(--mono); text-transform: uppercase; letter-spacing: .04em;
+    white-space: nowrap;
 }
 .lb-chest[data-state="ready"] .lb-chest-stamp { background: var(--rpg-gold, #facc15); color: #121215; border-color: #121215; }
-.lb-chest[data-state="collected"] .lb-chest-stamp { background: var(--paper-soft); color: var(--ink); border-color: var(--edge); }
-.lb-chest[data-state="equipped"] .lb-chest-stamp { background: var(--rpg-cta); color: var(--rpg-cta-fg); border-color: var(--rpg-shadow-ink, #121215); }
+.lb-chest[data-state="collected"] .lb-chest-stamp { background: rgba(19, 15, 34, .82); color: #e2e8f0; border-color: rgba(255,255,255,.24); }
+.lb-chest[data-state="equipped"] .lb-chest-stamp { background: var(--rpg-mint, #47e393); color: #121215; border-color: #121215; }
+.lb-chest-preview {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    width: 28px; height: 28px; padding: 0;
+    display: grid; place-items: center;
+    background: rgba(19, 15, 34, .76); color: #f8fafc;
+    border: 1.5px solid rgba(255,255,255,.24); border-radius: 8px;
+    backdrop-filter: blur(4px); cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+.lb-chest-preview svg { width: 14px; height: 14px; display: block; }
+.lb-chest-preview:hover { background: rgba(19, 15, 34, .95); border-color: #ffffff; transform: translateY(-1px); }
+.lb-chest-preview:active { transform: translateY(1px); }
+.lb-chest-preview:focus-visible { outline: 2.5px solid #facc15; outline-offset: 2px; }
 .lb-chest-stage-btn {
     position: relative;
     display: block; width: 100%; padding: 0; border: 0; background: transparent;
-    cursor: pointer; border-radius: 11px; text-align: center;
+    cursor: pointer; border-radius: 0; text-align: center;
 }
 .lb-chest-stage-btn:hover .lb-chest-canvas { transform: translateY(-4px) scale(1.04); }
 .lb-chest-stage-btn:active .lb-chest-canvas { transform: translateY(-1px) scale(0.98); }
-.lb-chest-stage-btn:focus-visible { outline: 3px solid rgb(var(--ha-primary)); outline-offset: 2px; }
-/* Crisp 100% pixel-art volcanic caldera & HabitArc violet twilight dais scene behind each chest. */
+.lb-chest-stage-btn:focus-visible { outline: 3px solid rgb(var(--ha-primary)); outline-offset: -3px; }
+/* Edge-to-edge crisp pixel stage grounded on a twilight stone dais. */
 .lb-chest-art {
     position:relative; isolation:isolate; overflow:hidden; display:grid; place-items:end center;
-    height:clamp(84px, 21vw, 138px); padding-bottom:0; border-radius:11px;
-    border: 2px solid var(--rpg-shadow-ink, #121215);
-    background-color: #151024;
+    height:clamp(96px, 15vw, 134px); padding-bottom:0; border-radius:0;
+    border: 0; border-bottom: 2px solid var(--edge);
+    background-color: #130f22;
     image-rendering: pixelated;
 }
 .lb-chest-bg {
@@ -193,20 +208,12 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     transform: translateY(-3px);
     transition: transform 150ms ease;
 }
-.lb-chest-progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.lb-chest-progress-meta small, .lb-chest-progress-meta span { font: 600 .74rem/1 var(--mono); color: var(--sub); }
-.lb-chest-actions { display:flex; flex-direction:column; gap:6px; margin-top: auto; padding-top: 2px; }
-.lb-chest-preview {
-    align-self: stretch; min-height: 36px; padding: 5px 10px;
-    background: var(--paper-soft); color: var(--ink);
-    border: 1.5px solid rgb(var(--ha-outline-variant) / .45);
-    border-radius: 10px; cursor: pointer;
-    font: 700 .78rem/1.15 var(--head);
-    transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+.lb-chest-body {
+    display: flex; flex-direction: column; gap: 7px; flex: 1;
+    padding: 12px 13px 13px; min-width: 0;
 }
-.lb-chest-preview:hover { border-color: var(--ink); background: rgb(var(--ha-surface-container)); }
-.lb-chest-preview:active { transform: translateY(1px); }
-.lb-chest-preview:focus-visible { outline:3px solid rgb(var(--ha-primary)); outline-offset:2px; }
+.lb-chest-kicker { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
+.lb-chest-days { font: 600 .72rem/1 var(--mono); color: var(--sub); white-space: nowrap; flex-shrink: 0; }
 /* Fullscreen seamless dark pixel stage: tap anywhere to open, zero border box or close cross clutter. */
 .lb-reveal {
     --loot-rgb:249 115 22; --case-trim:#fbbf24;
@@ -305,23 +312,18 @@ html.lb-reveal-active body::-webkit-scrollbar {
 @media (prefers-reduced-motion:no-preference) {
     .lb-reveal[data-phase="revealed"] .lb-reveal-copy { animation:lb-caption .28s ease-out both; }
 }
-.lb-chest h3 { margin:0; font:700 clamp(.92rem, 2.4vw, 1.06rem)/1.2 var(--head); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.lb-power-name { font:700 clamp(.7rem, 1.9vw, .78rem)/1.25 var(--mono); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lb-chest h3 { margin:0; font:700 clamp(.94rem, 2.4vw, 1.08rem)/1.2 var(--head); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lb-power-name { font:600 clamp(.72rem, 1.9vw, .8rem)/1.25 var(--head); color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .lb-xp-bar { position:relative; width:100%; }
-.lb-xp-bar::after {
-    content:""; position:absolute; inset:1.5px; border-radius:4px; pointer-events:none;
-    background: repeating-linear-gradient(90deg, transparent 0 calc(20% - 2px), var(--paper) calc(20% - 2px) 20%);
-    opacity:.72;
-}
 .lb-chest progress {
-    appearance:none; display:block; width:100%; height:9px;
-    border:1.5px solid var(--edge); border-radius:6px;
+    appearance:none; display:block; width:100%; height:7px;
+    border:1.5px solid var(--edge); border-radius:9999px;
     overflow:hidden; background:var(--rpg-bar-off, var(--paper-soft)); color:var(--rpg-bar-on, rgb(var(--ha-primary)));
 }
-.lb-chest progress::-webkit-progress-bar { background:var(--rpg-bar-off, var(--paper-soft)); }
-.lb-chest progress::-webkit-progress-value { background:var(--rpg-bar-on, rgb(var(--ha-primary))); }
-.lb-chest progress::-moz-progress-bar { background:var(--rpg-bar-on, rgb(var(--ha-primary))); }
-.lb-chest-action { width:100%; min-height:38px; padding:5px 10px; border-radius:10px; font:700 clamp(.75rem, 2vw, .85rem)/1.15 var(--head); background:var(--rpg-cta, rgb(var(--ha-primary))); color:var(--rpg-cta-fg,rgb(var(--ha-on-primary))); cursor:pointer; }
+.lb-chest progress::-webkit-progress-bar { background:var(--rpg-bar-off, var(--paper-soft)); border-radius:9999px; }
+.lb-chest progress::-webkit-progress-value { background:var(--rpg-bar-on, rgb(var(--ha-primary))); border-radius:9999px; }
+.lb-chest progress::-moz-progress-bar { background:var(--rpg-bar-on, rgb(var(--ha-primary))); border-radius:9999px; }
+.lb-chest-action { margin-top:auto; width:100%; min-height:36px; padding:5px 10px; border-radius:10px; font:700 clamp(.75rem, 2vw, .84rem)/1.15 var(--head); background:var(--rpg-cta, rgb(var(--ha-primary))); color:var(--rpg-cta-fg,rgb(var(--ha-on-primary))); cursor:pointer; }
 .lb-chest-action:disabled { background:var(--paper-soft); color:var(--sub); border:1.5px solid rgb(var(--ha-outline-variant) / .45); cursor:not-allowed; }
 .lb-chest[data-state="ready"] .lb-chest-action:enabled {
     background: var(--rpg-gold, #facc15);
@@ -467,25 +469,30 @@ html.lb-reveal-active body::-webkit-scrollbar {
   .lb-power-avatar img { max-width: 38px; max-height: 38px; }
   .lb-vault-summary { margin: .75rem 0 .6rem; font-size: .84rem; }
   .lb-vault-grid { gap: 10px; }
-  .lb-chest { padding: 9px; gap: 6px; border-radius: 14px; box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215); }
-  .lb-chest-art { height: clamp(82px, 21vw, 108px); }
+  .lb-chest { padding: 0; gap: 0; border-radius: 14px; box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215); }
+  .lb-chest-art { height: clamp(86px, 23vw, 110px); }
   .lb-chest-canvas { height: 100%; }
+  .lb-chest-stamp { top: 6px; left: 6px; font-size: .56rem; padding: 2.5px 6px; }
+  .lb-chest-preview { top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 7px; }
+  .lb-chest-preview svg { width: 12px; height: 12px; }
+  .lb-chest-body { padding: 9px 10px 10px; gap: 5px; }
+  .lb-chest-days { font-size: .66rem; }
   .lb-vault-xp-legend { font-size: .64rem; }
-  .lb-power-name { font-size: clamp(.65rem, 2.75vw, .76rem); }
+  .lb-power-name { font-size: clamp(.66rem, 2.75vw, .76rem); }
   .lb-chest-action { min-height: 34px; font-size: clamp(.72rem, 3vw, .82rem); }
-  .lb-chest-preview { min-height: 32px; font-size: clamp(.68rem, 2.8vw, .76rem); }
 }
 @media (max-width:359px) {
   .lb-view-switch button { font-size:.8rem; padding-inline:4px; }
   .lb-controls .lb-filters button { padding-inline:4px; font-size:.78rem; }
   .lb-vault-grid { gap: 8px; }
-  .lb-chest { padding: 8px; gap: 5px; }
+  .lb-chest { padding: 0; gap: 0; }
+  .lb-chest-body { padding: 8px; gap: 4px; }
   .lb-chest h3 { font-size: .84rem; }
-  .lb-chest-stamp { font-size: .56rem; padding: 2px 5px; }
-  .lb-chest-art { height: 74px; }
-  .lb-power-name { font-size: .62rem; }
+  .lb-chest-stamp { font-size: .53rem; padding: 2px 5px; }
+  .lb-chest-preview { width: 24px; height: 24px; }
+  .lb-chest-art { height: 78px; }
+  .lb-power-name { font-size: .64rem; }
   .lb-chest-action { min-height: 32px; font-size: .68rem; }
-  .lb-chest-preview { min-height: 30px; font-size: .65rem; }
   .lb-table-title, .lb-stage-head, .lb-personal-top { flex-wrap:wrap; }
   .lb-standings :is(th, td) { padding:9px 6px; }
   .lb-standings :is(th, td):first-child { padding-left:10px; width:52px; }

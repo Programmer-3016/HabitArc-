@@ -363,6 +363,31 @@ function mountTreasureRoom(root, find, redrawLeague) {
           ? `${next.name} is unlocked and ready to open! Tap it to claim +${next.xp} XP.`
           : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name} unlocks.`;
 
+function makeReplayIcon(opened) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  if (opened) {
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2.2');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', 'M3 12a9 9 0 1 0 3-6.7L3 8');
+    const arrow = document.createElementNS(ns, 'polyline');
+    arrow.setAttribute('points', '3 3 3 8 8 8');
+    svg.append(path, arrow);
+  } else {
+    svg.setAttribute('fill', 'currentColor');
+    const poly = document.createElementNS(ns, 'polygon');
+    poly.setAttribute('points', '7 5 19 12 7 19 7 5');
+    svg.append(poly);
+  }
+  return svg;
+}
+
     const shortNames = { wood: 'Wooden', iron: 'Iron', gold: 'Gold', ruby: 'Dragon' };
     const cards = CHESTS.map(c => {
       const opened = bag.opened.includes(c.id);
@@ -374,11 +399,10 @@ function mountTreasureRoom(root, find, redrawLeague) {
       card.dataset.tier = c.id;
       card.dataset.state = state;
 
-      const heading = el('div', 'lb-chest-kicker');
-      heading.append(el('h3', null, shortNames[c.id] || c.name));
+      const media = el('div', 'lb-chest-media');
       const shownDays = Math.min(count, c.days);
-      const stampText = equipped ? 'Active' : opened ? 'Opened' : canOpen ? 'Ready' : `${shownDays}/${c.days}d`;
-      heading.append(el('span', 'lb-chest-stamp', stampText));
+      const stampText = equipped ? 'Active' : opened ? 'Opened' : canOpen ? 'Ready' : 'Locked';
+      const stamp = el('span', 'lb-chest-stamp', stampText);
 
       const stageBtn = el('button', 'lb-chest-stage-btn');
       stageBtn.type = 'button';
@@ -392,6 +416,21 @@ function mountTreasureRoom(root, find, redrawLeague) {
       );
       stageBtn.append(chestArt(c, opened));
       stageBtn.addEventListener('click', () => reveal(c, !canOpen, stageBtn));
+
+      const preview = el('button', 'lb-chest-preview');
+      preview.type = 'button';
+      const previewLabel = opened ? 'Replay opening' : 'Preview chest';
+      preview.title = previewLabel;
+      preview.setAttribute('aria-label', `${previewLabel}: ${c.name} (no XP awarded)`);
+      preview.append(makeReplayIcon(opened));
+      preview.addEventListener('click', () => reveal(c, true, preview));
+
+      media.append(stageBtn, stamp, preview);
+
+      const body = el('div', 'lb-chest-body');
+      const heading = el('div', 'lb-chest-kicker');
+      heading.append(el('h3', null, shortNames[c.id] || c.name));
+      heading.append(el('span', 'lb-chest-days', opened ? `${c.days}d` : `${shownDays}/${c.days}d`));
 
       const progressWrap = el('div', 'lb-xp-bar');
       const progress = el('progress');
@@ -410,7 +449,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
             ? 'Equip relic'
             : canOpen
               ? 'Open chest'
-              : `${c.days}d quest`
+              : `Locked · ${c.days}d`
       );
       button.type = 'button';
       button.dataset.chest = c.id;
@@ -426,21 +465,14 @@ function mountTreasureRoom(root, find, redrawLeague) {
         currentCard.focus({ preventScroll: true });
       });
 
-      const preview = el('button', 'lb-chest-preview', opened ? 'Replay opening' : 'Preview chest');
-      preview.type = 'button';
-      preview.setAttribute('aria-label', `${preview.textContent}: ${c.name} (no XP awarded)`);
-      preview.addEventListener('click', () => reveal(c, true, preview));
-
-      const actions = el('div', 'lb-chest-actions');
-      actions.append(button, preview);
-
-      card.append(
+      body.append(
         heading,
-        stageBtn,
         el('strong', 'lb-power-name', `★ ${c.power}`),
         progressWrap,
-        actions
+        button
       );
+
+      card.append(media, body);
       return card;
     });
 

@@ -967,91 +967,67 @@ function buildVaultBackdrop32() {
   const r = makeSurface32(BG_W, BG_H, buf);
   const C = col32;
 
-  // HabitArc twilight indigo sky transitioning cleanly into warm volcanic caldera glow
+  // Clean HabitArc midnight-violet sky transitioning softly into dusk horizon glow
   const skyBands = [
-    [0, 8, '#151024'], [8, 17, '#1d1533'], [17, 25, '#271c45'],
-    [25, 31, '#36214a'], [31, 35, '#4c2035'], [35, 39, '#6e261b'],
+    [0, 10, '#130f22'],
+    [10, 19, '#191330'],
+    [19, 27, '#221840'],
+    [27, 33, '#2b1e50'],
+    [33, 38, '#372663'],
   ];
   for (const [y0, y1, hex] of skyBands) r.rect(C(hex), 0, y0, BG_W, y1 - y0);
 
-  // Crisp pixel dither transitions along sky bands
+  // Subtle checkerboard pixel dither softening sky horizon steps
   for (let x = 0; x < BG_W; x++) {
-    if (x % 2 === 0) r.put(C('#1d1533'), x, 7);
-    if (x % 2 === 1) r.put(C('#271c45'), x, 16);
-    if (x % 2 === 0) r.put(C('#36214a'), x, 24);
-    if (x % 2 === 1) r.put(C('#4c2035'), x, 30);
+    if (x % 2 === 0) r.put(C('#191330'), x, 9);
+    if (x % 2 === 1) r.put(C('#221840'), x, 18);
+    if (x % 2 === 0) r.put(C('#2b1e50'), x, 26);
+    if (x % 2 === 1) r.put(C('#372663'), x, 32);
   }
 
-  // Twinkling twilight pixel stars matching HabitArc lavender & cream-gold palette
+  // Calm twinkling twilight stars placed away from top corners so corner pills stay legible
   for (const [sx, sy, hex] of [
-    [10, 4, '#c4b5fd'], [18, 10, '#fef9c3'], [29, 5, '#c4b5fd'], [42, 8, '#ddd6fe'],
-    [55, 4, '#fef9c3'], [64, 11, '#c4b5fd'], [78, 6, '#ddd6fe'], [86, 12, '#fef9c3'],
-    [22, 18, '#a78bfa'], [73, 19, '#c4b5fd'], [12, 22, '#ddd6fe'], [84, 21, '#a78bfa'],
+    [28, 7, '#c4b5fd'], [40, 5, '#fef9c3'], [53, 8, '#ddd6fe'], [66, 6, '#c4b5fd'],
+    [14, 17, '#a78bfa'], [34, 15, '#ddd6fe'], [61, 14, '#fef9c3'], [80, 18, '#c4b5fd'],
+    [21, 24, '#c4b5fd'], [47, 20, '#a78bfa'], [73, 25, '#ddd6fe'], [88, 22, '#a78bfa'],
+    [9, 29, '#c4b5fd'], [85, 31, '#c4b5fd'],
   ]) r.put(C(hex), sx, sy);
-
-  // Calm glowing magma sea behind the basalt stone altar (no jagged mountains)
-  r.rect(C('#7c2d12'), 0, 35, BG_W, 4);
-  r.rect(C('#c2410c'), 0, 37, BG_W, 2);
-  for (const [rx, ry, rw, col] of [
-    [9, 37, 6, '#f97316'], [11, 37, 2, '#facc15'],
-    [23, 38, 8, '#ea580c'], [26, 38, 3, '#facc15'],
-    [66, 37, 9, '#f97316'], [70, 37, 3, '#fef08a'],
-    [80, 38, 7, '#ea580c'], [82, 38, 2, '#facc15'],
-  ]) r.rect(C(col), rx, ry, rw, 1);
-
-  // Subtle dark basalt ruin pilasters framing far left & right edges
-  for (let row = 0; row < 39; row++) {
-    const bw = row < 6 ? 6 : 4;
-    r.rect(C('#120e1c'), 0, row, bw, 1);
-    r.rect(C('#211a30'), 0, row, bw - 1, 1);
-    if (row % 7 === 0) r.rect(C('#0c0914'), 0, row, bw, 1);
-    r.rect(C('#120e1c'), BG_W - bw, row, bw, 1);
-    r.rect(C('#211a30'), BG_W - bw + 1, row, bw - 1, 1);
-    if (row % 7 === 0) r.rect(C('#0c0914'), BG_W - bw, row, bw, 1);
+  // Two crisp tiny 4-pixel star glints flanking center sky
+  for (const [gx, gy] of [[25, 13], [70, 12]]) {
+    r.put(C('#fef9c3'), gx, gy);
+    r.put(C('#c4b5fd'), gx - 1, gy);
+    r.put(C('#c4b5fd'), gx + 1, gy);
+    r.put(C('#c4b5fd'), gx, gy - 1);
+    r.put(C('#c4b5fd'), gx, gy + 1);
   }
 
-  // Drifting crisp 1px volcanic embers rising gently in the night air
-  for (const [px, py, col] of [
-    [13, 28, '#fb923c'], [21, 24, '#facc15'], [17, 32, '#f97316'],
-    [74, 26, '#facc15'], [82, 30, '#fb923c'], [79, 21, '#f97316'],
-    [28, 30, '#fb923c'], [69, 32, '#facc15'],
-  ]) r.put(C(col), px, py);
-
-  // Foreground 3/4 basalt altar stone dais (y = 39..50) over warm magma chasm floor (y = 51..53)
-  r.rect(C('#3d3257'), 0, 39, BG_W, 1);
-  r.rect(C('#282138'), 0, 40, BG_W, 9);
-  r.rect(C('#1b1626'), 0, 49, BG_W, 2);
-  // Perspective diagonal basalt flagstone seams
-  for (let i = -1; i <= 6; i++) {
-    const bx = 10 + i * 15;
-    for (let y = 39; y <= 48; y++) {
-      const sx = bx + Math.round((y - 39) * (i - 2.5) * 0.22);
-      r.put(C('#120e1a'), sx, y);
-      if (y === 40 && sx + 1 < BG_W) r.rect(C('#342a4a'), sx + 1, y, 4, 1);
-    }
+  // Smooth carved twilight stone platform & beveled dais (zero harsh stripes or busy grids)
+  r.rect(C('#54447d'), 0, 38, BG_W, 1);
+  r.rect(C('#3c305c'), 0, 39, BG_W, 1);
+  r.rect(C('#2d2446'), 0, 40, BG_W, 4);
+  r.rect(C('#251e3b'), 0, 44, BG_W, 3);
+  // Subtle wide outer chamfer highlights near edges of dais slab
+  r.rect(C('#47396b'), 4, 38, 18, 1);
+  r.rect(C('#47396b'), BG_W - 22, 38, 18, 1);
+  // Crisp stone front plinth riser & base grounding
+  r.rect(C('#171226'), 0, 47, BG_W, 1);
+  r.rect(C('#201933'), 0, 48, BG_W, 3);
+  r.rect(C('#191329'), 0, 51, BG_W, 2);
+  r.rect(C('#130e20'), 0, 53, BG_W, 1);
+  // Restrained architectural joint marks far left & right only
+  for (const jx of [18, BG_W - 19]) {
+    r.rect(C('#171226'), jx, 48, 1, 5);
   }
-  r.rect(C('#120e1a'), 0, 44, BG_W, 1);
-  r.rect(C('#332947'), 0, 45, BG_W, 1);
-  // Warm magma bounce pixels along lower basalt ledge
-  for (let x = 2; x < BG_W - 2; x++) {
-    if (x % 4 === 1 || x % 7 === 0) r.put(C('#7c2d12'), x, 50);
-  }
-  // Organic glowing volcanic fissure at bottom edge
-  r.rect(C('#7c2d12'), 0, 51, BG_W, 1);
-  r.rect(C('#c2410c'), 0, 52, BG_W, 2);
-  for (const [fx, fy, fw, col] of [
-    [6, 52, 9, '#ea580c'], [9, 52, 4, '#facc15'], [19, 53, 7, '#f97316'],
-    [32, 52, 11, '#ea580c'], [36, 53, 4, '#facc15'], [54, 52, 10, '#f97316'],
-    [58, 52, 3, '#fef08a'], [71, 53, 8, '#ea580c'], [83, 52, 6, '#facc15'],
-  ]) r.rect(C(col), fx, fy, fw, 1);
 
-  // Crisp pure pixel shadow oval on the basalt dais directly underneath chest center
-  const scx = 48, scy = 45;
-  for (let y = 42; y <= 48; y++) {
-    for (let x = 27; x <= 69; x++) {
+  // Crisp feathered 2-tone pixel shadow oval beneath chest center
+  const scx = 48, scy = 43;
+  for (let y = 40; y <= 46; y++) {
+    for (let x = 28; x <= 68; x++) {
       const dx = (x - scx) / 18;
-      const dy = (y - scy) / 3.2;
-      if (dx * dx + dy * dy <= 1) r.put(C('#100c18'), x, y);
+      const dy = (y - scy) / 3.1;
+      const dist = dx * dx + dy * dy;
+      if (dist <= 0.62) r.put(C('#100c1b'), x, y);
+      else if (dist <= 1) r.put(C('#191329'), x, y);
     }
   }
 
