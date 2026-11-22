@@ -389,12 +389,35 @@ function makeReplayIcon(opened) {
   return svg;
 }
 
+function makeLockIcon() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2.3');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  const body = document.createElementNS(ns, 'rect');
+  body.setAttribute('x', '4');
+  body.setAttribute('y', '11');
+  body.setAttribute('width', '16');
+  body.setAttribute('height', '10');
+  body.setAttribute('rx', '2');
+  const shackle = document.createElementNS(ns, 'path');
+  shackle.setAttribute('d', 'M8 11V7a4 4 0 0 1 8 0v4');
+  svg.append(body, shackle);
+  return svg;
+}
+
     const shortNames = { wood: 'Wooden', iron: 'Iron', gold: 'Gold', ruby: 'Dragon' };
     const cards = CHESTS.map(c => {
       const opened = bag.opened.includes(c.id);
       const equipped = bag.equipped === c.id;
       const canOpen = writable && !opened && count >= c.days;
       const state = equipped ? 'equipped' : opened ? 'collected' : canOpen ? 'ready' : 'locked';
+      const isLocked = state === 'locked';
 
       const card = el('article', 'lb-chest');
       card.dataset.tier = c.id;
@@ -433,31 +456,40 @@ function makeReplayIcon(opened) {
       heading.append(el('h3', null, shortNames[c.id] || c.name));
       heading.append(el('span', 'lb-chest-days', opened ? `${c.days}d` : `${shownDays}/${c.days}d`));
 
-      const progressWrap = el('div', 'lb-xp-bar');
-      const progress = el('progress');
-      progress.max = c.days;
-      progress.value = opened ? c.days : shownDays;
-      progress.setAttribute('aria-label', `${c.name} clear days`);
-      progressWrap.append(progress);
-
       const daysLabel = c.days === 1 ? '1 clear day' : `${c.days} clear days`;
-      const button = el(
-        'button',
-        'lb-chest-action',
-        equipped
-          ? '✓ Equipped'
-          : opened
-            ? 'Equip power'
-            : canOpen
-              ? 'Open chest'
-              : `Locked · ${c.days}d`
-      );
+      const pct = Math.max(0, Math.min(100, Math.round((shownDays / Math.max(1, c.days)) * 100)));
+      const daysLeft = Math.max(0, c.days - shownDays);
+      const buttonLabel = equipped
+        ? '✓ Active'
+        : opened
+          ? 'Equip power'
+          : canOpen
+            ? 'Open now'
+            : `${daysLeft}d left`;
+
+      const button = el('button', isLocked ? 'lb-chest-action lb-chest-action-locked' : 'lb-chest-action');
       button.type = 'button';
       button.dataset.chest = c.id;
-      button.disabled = !writable || equipped || (!opened && count < c.days);
-      button.setAttribute('aria-label', `${c.name} (${c.description}): ${button.textContent}${!opened && count < c.days ? `, unlock at ${daysLabel}` : ''}`);
+      if (isLocked) {
+        button.style.setProperty('--quest-fill', `${pct}%`);
+        if (pct === 0) button.dataset.zero = 'true';
+        const fill = el('span', 'lb-quest-fill');
+        fill.setAttribute('aria-hidden', 'true');
+        const labelWrap = el('span', 'lb-quest-label');
+        labelWrap.append(makeLockIcon(), el('span', null, buttonLabel));
+        button.append(fill, labelWrap);
+      } else {
+        button.textContent = buttonLabel;
+      }
+      button.disabled = equipped || (opened && !writable);
+      button.setAttribute(
+        'aria-label',
+        isLocked
+          ? `${c.name} (${c.description}): Locked, ${daysLeft} clear ${daysLeft === 1 ? 'day' : 'days'} left to unlock at ${daysLabel}. Tap to preview.`
+          : `${c.name} (${c.description}): ${buttonLabel}`
+      );
       button.addEventListener('click', () => {
-        if (!opened) { reveal(c, false, button); return; }
+        if (!opened) { reveal(c, !canOpen, button); return; }
         if (!applyTreasure(c, 'equip', scope, hero)) { render(); return; }
         playChestEquipChime();
         find('announcement').textContent = `Equipped ${c.power}.`;
@@ -472,7 +504,6 @@ function makeReplayIcon(opened) {
       body.append(
         heading,
         powerLine,
-        progressWrap,
         button
       );
 

@@ -358,6 +358,47 @@ try {
     await go(`${base}/Settings.html`);
   }
   assert.equal(new Set(Object.values(themeColors)).size, ALL_THEMES.length, `Expected 8 distinct theme backgrounds: ${JSON.stringify(themeColors)}`);
+
+  // 7) Vault Quest Fill Pill + Open now cards at mobile 390px and preview safety check
+  await go(`${base}/Leaderboard.html#treasures`);
+  await ev(`(() => {
+    const d = JSON.parse(localStorage.getItem('habitarc_data'));
+    const h = d.habits[0];
+    d.completionHistory = d.completionHistory || {};
+    for (let i = 1; i <= 14; i++) {
+      const dt = new Date(); dt.setDate(dt.getDate() - i);
+      const key = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+      h.completions[key] = true;
+      d.completionHistory[h.id + '_' + key] = { id: h.id + '_' + key, habitId: h.id, date: key, status: 'completed', completedAt: key + 'T10:00:00.000Z', updatedAt: key + 'T10:00:00.000Z' };
+    }
+    d.habits = [h];
+    d.settings.theme = 'light';
+    d.settings.treasureRoom = { runnerId: 'arcy', opened: ['wood', 'iron'], equipped: 'iron' };
+    localStorage.setItem('habitarc_data', JSON.stringify(d));
+    window.dispatchEvent(new CustomEvent('habitarc:data-changed', { detail: { source: 'storage' } }));
+  })()`);
+  await go(`${base}/Leaderboard.html#treasures`);
+  const vaultCheck = await ev(`({
+    overflow: document.documentElement.scrollWidth > innerWidth,
+    wood: document.querySelector('[data-tier="wood"] .lb-chest-action')?.textContent.trim(),
+    iron: document.querySelector('[data-tier="iron"] .lb-chest-action')?.textContent.trim(),
+    gold: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim(),
+    ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
+    rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked')
+  })`);
+  await saveShot('vault-390.png');
+  assert.equal(vaultCheck.overflow, false, 'Vault renders cleanly at 390px without overflow');
+  assert.equal(vaultCheck.wood, 'Equip power');
+  assert.equal(vaultCheck.iron, '✓ Active');
+  assert.equal(vaultCheck.gold, 'Open now');
+  assert.equal(vaultCheck.rubyLockedClass, true);
+  assert.ok(/d left$/.test(vaultCheck.ruby), `Expected countdown pill label on Dragon card, got: ${vaultCheck.ruby}`);
+  await ev(`document.querySelector('[data-tier="ruby"] .lb-chest-action').click()`);
+  await sleep(150);
+  const previewDetail = await ev(`({ open: !!document.querySelector('dialog.lb-reveal[open]'), badge: document.querySelector('.lb-reveal-badge')?.textContent })`);
+  assert.equal(previewDetail.open, true, 'Tapping locked Dragon Quest Fill Pill opens safe preview modal');
+  assert.equal(previewDetail.badge, 'Opening preview', 'Locked pill opens preview only without claiming XP');
+  await ev(`document.querySelector('dialog.lb-reveal')?.close()`);
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);
 
   console.log(JSON.stringify({
