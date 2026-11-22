@@ -159,6 +159,7 @@ const FONT = {
   O:['01110','10001','10001','10001','10001','10001','01110'],
   R:['11110','10001','10001','11110','10100','10010','10001'],
   S:['01111','10000','10000','01110','00001','00001','11110'],
+  T:['11111','00100','00100','00100','00100','00100','00100'],
   Y:['10001','10001','01010','00100','00100','00100','00100'],
   '*':['00100','10101','01110','11111','01110','10101','00100'],
   ' ':['000','000','000','000','000','000','000'],
@@ -250,6 +251,31 @@ const LEGENDARY_PAL = {
   M:'#c084fc', R:'#ef4444', G:'#fde047', B:'#38bdf8',
 };
 
+const PHOENIX_WINGS = [
+  '.kk..................kk.',
+  'kWWk................kWWk',
+  'kYWWkk............kkWWYk',
+  'kOYYWWkk........kkWWYYOk',
+  'kROOYYWWk......kWWYYOORk',
+  '.kRROOYYWk.kk.kWYYOORRk.',
+  '.kDRROOYYWkCCkWYYOORRDk.',
+  '.kkDRROOYYCMMCYYOORRDkk.',
+  '..kDDRROYYCMMCYYORRDDk..',
+  '..kkDDRROOYYYYOORRDDkk..',
+  '...kDRROOOYWWYOOORRDk...',
+  '...kkDDRROYYYYORRDDkk...',
+  '....kDRRkkROORkkRRDk....',
+  '....kkDk.kRYYRk.kDkk....',
+  '.........kOYYOk.........',
+  '........kDRYYRDk........',
+  '........kDDkkDDk........',
+  '.........kk..kk.........',
+];
+const PHOENIX_PAL = {
+  k:'#1f0610', Y:'#facc15', W:'#fef9c3', O:'#f97316',
+  R:'#ef4444', D:'#991b1b', M:'#f43f5e', C:'#fff1f2',
+};
+
 export const CHEST_THEMES = Object.freeze({
   wood: {
     pal: [
@@ -293,10 +319,24 @@ export const CHEST_THEMES = Object.freeze({
     shadow: '#2a1004',
     glowName: 'Cosmic Gold & Violet Rays',
   },
+  ruby: {
+    pal: [
+      '#000000','#12050b','#260714','#3d0b1f','#56102d',
+      '#181024','#2d1b44','#4c2b73','#7e47b5','#d8b4fe',
+      '#45060b','#730c15','#99131e','#b91c1c','#dc2626','#f87171',
+      '#92400e','#f59e0b','#fef08a','#7f1d1d','#e11d48','#fb7185','#fef08a',
+    ],
+    art: PHOENIX_WINGS,
+    artPal: PHOENIX_PAL,
+    label: '* MYTHIC *',
+    fg: '#fef08a',
+    shadow: '#2b0612',
+    glowName: 'Crimson-Gold Supernova Rays + Nova Ring',
+  },
 });
 
 function normTier(id) {
-  return id === 'iron' || id === 'gold' ? id : 'wood';
+  return id === 'iron' || id === 'gold' || id === 'ruby' ? id : 'wood';
 }
 
 function makeSurface(w, h, fill) {
@@ -312,6 +352,16 @@ function makeSurface(w, h, fill) {
     }
   };
   return { w, h, g, put, rect };
+}
+
+function drawPatternRows(px, rows, cmap, sx, sy) {
+  for (let ry = 0; ry < rows.length; ry++) {
+    const row = rows[ry];
+    for (let rx = 0; rx < row.length; rx++) {
+      const col = cmap[row[rx]];
+      if (col) px(col, sx + rx, sy + ry);
+    }
+  }
 }
 
 function paintTierChestOverlay(r, tier, fIdx, ox, oy, dropY = 0) {
@@ -334,32 +384,21 @@ function paintTierChestOverlay(r, tier, fIdx, ox, oy, dropY = 0) {
     }
     px('#e2e8f0', 10, 41); px('#e2e8f0', 38, 41);
   } else if (tier === 'gold') {
-    const drawMiniSkull = (sx, sy) => {
-      const C = { k:'#140509', g1:'#c98114', g2:'#f5ba2e', g3:'#fef08a', R:'#ff4d6d' };
-      const rows = [
-        '..k......k..',
-        '.k3k....k3k.',
-        '.k22k33k22k.',
-        '..k233332k..',
-        '..k2RkkR2k..',
-        '..k1k22k1k..',
-        '...k2kk2k...',
-        '...k1111k...',
-        '....kkkk....',
-      ];
-      rows.forEach((row, ry) => {
-        for (let rx = 0; rx < row.length; rx++) {
-          const ch = row[rx];
-          if (ch === '.') continue;
-          const col = ch === 'k' ? C.k : ch === '1' ? C.g1 : ch === '2' ? C.g2 : ch === '3' ? C.g3 : C.R;
-          px(col, sx + rx, sy + ry);
-        }
-      });
-    };
-
+    const cmap = { k:'#140509', 1:'#c98114', 2:'#f5ba2e', 3:'#fef08a', R:'#ff4d6d' };
+    const skullRows = [
+      '..k......k..',
+      '.k3k....k3k.',
+      '.k22k33k22k.',
+      '..k233332k..',
+      '..k2RkkR2k..',
+      '..k1k22k1k..',
+      '...k2kk2k...',
+      '...k1111k...',
+      '....kkkk....',
+    ];
     if (fIdx <= 3) {
       const lift = fIdx <= 1 ? 0 : -1;
-      drawMiniSkull(18, 39 + lift);
+      drawPatternRows(px, skullRows, cmap, 18, 39 + lift);
     } else {
       px('#ef4444', 23, 44); px('#ff6b8b', 24, 44);
       px('#991b1b', 23, 45); px('#ef4444', 24, 45);
@@ -374,6 +413,93 @@ function paintTierChestOverlay(r, tier, fIdx, ox, oy, dropY = 0) {
     }
     px('#ef4444', 10, 41); px('#ef4444', 10, 50);
     px('#ef4444', 39, 41); px('#ff6b8b', 38, 49);
+  } else if (tier === 'ruby') {
+    const cmap = {
+      k:'#14040a', 1:'#b45309', 2:'#f59e0b', 3:'#fef08a',
+      R:'#ff2e63', S:'#ffe4e6', C:'#fb7185',
+    };
+    const leftHandle = [
+      '..kkk.',
+      '.k321k',
+      'k32kk.',
+      'k21k..',
+      'k21k..',
+      'k12kk.',
+      '.k21k.',
+      '..kkk.',
+    ];
+    const rightHandle = [
+      '.kkk..',
+      'k232k.',
+      '.k212k',
+      '..k12k',
+      '..k12k',
+      '.k212k',
+      'k121k.',
+      '.kkk..',
+    ];
+    drawPatternRows(px, leftHandle, cmap, 4, 39);
+    drawPatternRows(px, rightHandle, cmap, 49, 39);
+
+    if (fIdx <= 3) {
+      const lift = fIdx <= 1 ? 0 : -1;
+      const leftHorn = [
+        'kk...',
+        'k3k..',
+        'k23k.',
+        '.k12k',
+        '..kkk',
+      ];
+      const rightHorn = [
+        '...kk',
+        '..k3k',
+        '.k32k',
+        'k21k.',
+        'kkk..',
+      ];
+      drawPatternRows(px, leftHorn, cmap, 15, 16);
+      drawPatternRows(px, rightHorn, cmap, 35, 18);
+      const dragonClasp = [
+        '.kk..........kk.',
+        'k32k........k23k',
+        'k232k..kk..k232k',
+        '.k123kk33kk321k.',
+        '..k1223333221k..',
+        '..k2RSk22kSR2k..',
+        '..k122kSSk221k..',
+        '...k12kCCk21k...',
+        '...k23RRRR32k...',
+        '....k1k22k1k....',
+        '.....k2kk2k.....',
+        '.....k1111k.....',
+        '......kkkk......',
+      ];
+      drawPatternRows(px, dragonClasp, cmap, 16, 36 + lift);
+    } else {
+      const keyhole = [
+        'k33k',
+        'kCRk',
+        'kRSk',
+        'k12k',
+      ];
+      drawPatternRows(px, keyhole, cmap, 22, 42);
+      if (fIdx >= 9 && fIdx <= 11) {
+        const lidCrest = [
+          'kk..........kk',
+          'k3k..kkkk..k3k',
+          'k23kk2332kk32k',
+          '.k122RkkR221k.',
+          '..k1k2RR2k1k..',
+          '....kkkkkk....',
+        ];
+        drawPatternRows(px, lidCrest, cmap, 25, 10);
+      }
+    }
+    for (const [rx, ry, col] of [
+      [10, 39, '#fef08a'], [10, 49, '#fb7185'], [38, 39, '#fef08a'], [38, 50, '#f59e0b'],
+      [14, 51, '#fbbf24'], [20, 52, '#ff2e63'], [28, 52, '#fbbf24'], [34, 52, '#ff2e63'],
+      [48, 34, '#fbbf24'], [46, 47, '#ff2e63'],
+    ]) px(col, rx, ry);
   }
 }
 
@@ -471,6 +597,7 @@ const BACKLIGHT_COLS_HEX = {
   wood: ['#17100e', '#291710', '#3b1d10', '#572814', '#6b3214', '#9a4718', '#fb923c'],
   iron: ['#08152b', '#0b2547', '#113c6e', '#0b355e', '#0e7490', '#0284c7', '#38bdf8', '#0369a1', '#e0f2fe'],
   gold: ['#1b0d26', '#2e1065', '#4c1d95', '#612c09', '#b45309', '#7e22ce', '#eab308', '#fde047', '#fef9c3', '#ffffff'],
+  ruby: ['#18050d', '#2b0716', '#4a0c23', '#7c2d12', '#991b1b', '#881337', '#b45309', '#be123c', '#fda4af', '#ffffff'],
 };
 const BACKLIGHT_COLS_32 = Object.fromEntries(
   Object.entries(BACKLIGHT_COLS_HEX).map(([k, arr]) => [k, arr.map(col32)])
@@ -554,6 +681,41 @@ function drawItemBacklight(r, tier, cx, cy, reach, phase, t, climax = 0, lut = n
         dst[rowD + x] = c;
       }
     }
+  } else if (tier === 'ruby') {
+    const maxR = 10 + reach * maxCorner;
+    const rInner = (6 + reach * 34 + phase * 3) * unit;
+    const rCore = (5 + reach * 21 + phase * 3) * unit;
+    const rSun = (3 + reach * 13 + phase * 3) * unit;
+    const rot1 = (t * 0.08 * 7) / (Math.PI * 2);
+    const rot2 = (t * 0.05 * 10) / (Math.PI * 2);
+    const span = 44 * unit;
+    const ring = 14 * unit + ((t * 2.4 * unit) % span);
+    const u3 = 3 * unit, u38 = 38 * unit, u50 = 50 * unit, ringTol = 1.4 * unit;
+    const flash = climax > 0 ? 26 * unit : 0, flashCol = climax > 1 ? cols[9] : cols[8];
+
+    for (let y = 0; y < gh; y++) {
+      const rowL = (y + offY) * lutW + offX, rowD = y * gw;
+      for (let x = 0; x < gw; x++) {
+        const li = rowL + x, d = distArr[li];
+        let c = bg;
+        if (d < maxR) c = cols[0];
+        if (d < rInner) c = cols[1];
+        let m1 = 1;
+        if (reach > 0.2) {
+          m1 = angArr[li] * 7 + rot1;
+          let m2 = angArr[li] * 10 - rot2;
+          m1 -= Math.floor(m1);
+          m2 -= Math.floor(m2);
+          if (m2 < 0.34 && d > u3 && d < maxR) c = d < u50 ? cols[4] : cols[2];
+          if (m1 < 0.32 && d > u3 && d < maxR) c = d < u38 ? cols[6] : cols[3];
+          if (reach > 0.45 && Math.abs(d - ring) < ringTol && d < maxR) c = cols[7];
+        }
+        if (d < rCore) c = m1 < 0.36 ? cols[3] : cols[5];
+        if (d < rSun) c = cols[2];
+        if (flash > 0 && d < flash) c = flashCol;
+        dst[rowD + x] = c;
+      }
+    }
   } else {
     const maxR = 8 + reach * maxCorner;
     const rCore = (4 + reach * 24 + phase * 4) * unit;
@@ -613,7 +775,7 @@ function paintRevealScene(r, tier, state, lut = null) {
     drawFloorShadow(r, ox, oy, 0, 0);
     drawTierChest(r, tier, state.chestIdx, ox + (state.shakeX || 0), oy, 0);
     if (state.spark > 0) {
-      const glowCol = tier === 'iron' ? '#7dd3fc' : tier === 'gold' ? '#fde047' : '#fbbf24';
+      const glowCol = tier === 'iron' ? '#7dd3fc' : tier === 'ruby' ? '#fb7185' : tier === 'gold' ? '#fde047' : '#fbbf24';
       drawSparkle(r, C(glowCol), C('#ffffff'), cx - 4, mouthY + 2 - state.spark, 1);
     }
     return;
@@ -635,7 +797,7 @@ function paintRevealScene(r, tier, state, lut = null) {
     }
 
     if (p < 0.14) {
-      const budCol = tier === 'iron' ? '#38bdf8' : tier === 'gold' ? '#facc15' : '#ea580c';
+      const budCol = tier === 'iron' ? '#38bdf8' : tier === 'ruby' ? '#fb7185' : tier === 'gold' ? '#facc15' : '#ea580c';
       drawSparkle(r, C(budCol), C('#ffffff'), itemX, itemY, 2 + (p > 0.07 ? 1 : 0));
     } else {
       const scale = p < 0.48 ? 1.0 : p < 0.82 ? 1.5 : 2;
@@ -664,6 +826,14 @@ function paintRevealScene(r, tier, state, lut = null) {
     for (let k = 0; k < 4; k++) {
       const a = t * 0.32 + (k * Math.PI) / 2;
       drawSparkle(r, C('#38bdf8'), C('#ffffff'), cx + Math.cos(a) * (34 * unit), heroY + Math.sin(a) * (26 * unit), 2);
+    }
+  } else if (tier === 'ruby') {
+    const dx = 38 * unit, dy = 24 * unit;
+    for (let k = 0; k < 6; k++) {
+      const a = t * 0.28 + (k * Math.PI) / 3;
+      const sx = cx + Math.cos(a) * (k % 2 ? dx : dx * 0.78);
+      const sy = heroY + Math.sin(a) * (k % 2 ? dy : dy * 0.78);
+      drawSparkle(r, C(k % 2 ? '#fb7185' : '#facc15'), C('#ffffff'), sx, sy, k % 2 ? 2 : 1);
     }
   } else {
     const dx = 36 * unit, dy = 24 * unit;
@@ -1018,6 +1188,12 @@ const CHEST_AUDIO_TRACKS = Object.freeze({
     fanfare: [[0, 783.99, 0.085], [90, 830.61, 0.085], [180, 880.0, 0.085], [280, 1174.66, 0.44], [510, 1760.0, 0.2]],
     chord: [369.99, 440.0, 587.33],
     chordAt: 280,
+  },
+  ruby: {
+    climb: [440.0, 523.25, 587.33, 659.25, 783.99, 987.77, 1174.66, 1567.98],
+    fanfare: [[0, 659.25, 0.08], [80, 783.99, 0.08], [160, 987.77, 0.08], [245, 1174.66, 0.09], [340, 1567.98, 0.46], [560, 1975.53, 0.22]],
+    chord: [392.0, 493.88, 587.33],
+    chordAt: 340,
   },
 });
 

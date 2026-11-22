@@ -38,10 +38,10 @@ function render(fn, id, opened = false) {
   try { return fn({ id }, opened); } finally { globalThis.document = old; }
 }
 
-test('All three chest tiers render unified 64x64 3/4 pixel sprites with tier-specific accents', () => {
-  assert.deepEqual(CHESTS.map(c => c.id), ['wood', 'iron', 'gold']);
+test('All four chest tiers render unified 64x64 3/4 pixel sprites with tier-specific accents', () => {
+  assert.deepEqual(CHESTS.map(c => c.id), ['wood', 'iron', 'gold', 'ruby']);
   const signatures = new Set();
-  for (const id of ['wood', 'iron', 'gold']) {
+  for (const id of ['wood', 'iron', 'gold', 'ruby']) {
     for (const opened of [false, true]) {
       const art = render(chestArt, id, opened);
       assert.equal(art.className, 'lb-chest-art');
@@ -65,13 +65,16 @@ test('All three chest tiers render unified 64x64 3/4 pixel sprites with tier-spe
     assert.notDeepEqual(closed, open, id + ' open sprite differs from closed sprite');
     signatures.add(closed.filter(Boolean).slice(0, 120).join(','));
   }
-  assert.equal(signatures.size, 3, 'every tier has a distinct pixel palette/detail signature');
+  assert.equal(signatures.size, 4, 'every tier has a distinct pixel palette/detail signature');
 
-  // Iron sapphire rune inside padlock & Gold ruby-eyed skull clasp on Boss chest
+  // Iron sapphire rune inside padlock, Gold ruby-eyed skull clasp & Ruby horned dragon boss clasp
   const ironClosed = renderChestPixels('iron', 0);
   assert.ok(ironClosed.includes('#38bdf8'), 'iron chest has sapphire rune core');
   const goldClosed = renderChestPixels('gold', 0);
   assert.ok(goldClosed.includes('#ff4d6d'), 'gold boss chest has ruby skull eyes');
+  const rubyClosed = renderChestPixels('ruby', 0);
+  assert.ok(rubyClosed.includes('#ff2e63'), 'dragon chest has glowing crimson dragon clasp');
+  assert.ok(rubyClosed.some((_, idx) => (idx % 64) <= 7 && Boolean(rubyClosed[idx])), 'dragon chest includes side handle silhouette');
 });
 
 test('56-frame 112x96 reveal stage keeps neutral dark background behind chest and distinct item backlights', () => {
@@ -89,7 +92,7 @@ test('56-frame 112x96 reveal stage keeps neutral dark background behind chest an
   assert.equal(stageWrap.children[0].height, 96);
 
   const cornerColors = new Set();
-  for (const id of ['wood', 'iron', 'gold']) {
+  for (const id of ['wood', 'iron', 'gold', 'ruby']) {
     const sealed = renderRevealFrame(id, 0);
     assert.equal(sealed.length, 112 * 96);
     // Neutral void corner pixels during closed chest phase
@@ -101,10 +104,11 @@ test('56-frame 112x96 reveal stage keeps neutral dark background behind chest an
     cornerColors.add(centerReveal[0]);
     assert.ok(CHEST_THEMES[id].glowName.length > 4);
   }
-  // Legendary god-rays reach frame corners; Common & Shield stay distinct in frame palette
+  // Legendary god-rays reach frame corners; all 4 tiers stay distinct in reveal frame palette
   assert.notDeepEqual(renderRevealFrame('wood', 34), renderRevealFrame('iron', 34));
   assert.notDeepEqual(renderRevealFrame('iron', 34), renderRevealFrame('gold', 34));
-  assert.ok(cornerColors.size >= 2);
+  assert.notDeepEqual(renderRevealFrame('gold', 34), renderRevealFrame('ruby', 34));
+  assert.ok(cornerColors.size >= 3);
 });
 
 test('Modal reveal uses fullscreen tap-anywhere UX without Tap to open button or close cross', () => {
@@ -173,6 +177,7 @@ test('Modal reveal uses fullscreen tap-anywhere UX without Tap to open button or
   assert.match(rewards, /days: 1, xp: 30/);
   assert.match(rewards, /days: 7, xp: 70/);
   assert.match(rewards, /days: 14, xp: 140/);
+  assert.match(rewards, /days: 30, xp: 260/);
 });
 
 test('Both top tab groups remain operable at 320px and 480px', () => {

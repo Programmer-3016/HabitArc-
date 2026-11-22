@@ -32,9 +32,9 @@ test('schedule edits preserve earlier weekdays; unknown habits, future and inval
   assert.deepEqual(clearedDays([habit('a',[])],[done('a',today)],today),[]);
 });
 
-test('tiers require 1/7/14 clears; opening auto-equips, remounting and re-equipping never duplicate XP', () => {
+test('tiers require 1/7/14/30 clears; opening auto-equips, remounting and re-equipping never duplicate XP', () => {
   let bag;
-  for(const [id,n,xp] of [['wood',1,30],['iron',7,100],['gold',14,240]]) {
+  for(const [id,n,xp] of [['wood',1,30],['iron',7,100],['gold',14,240],['ruby',30,500]]) {
     assert.equal(changeTreasure(bag,id,'open',n-1,'astro'),null);
     bag = changeTreasure(bag,id,'open',n,'astro');
     bag = JSON.parse(JSON.stringify(bag));
@@ -42,7 +42,7 @@ test('tiers require 1/7/14 clears; opening auto-equips, remounting and re-equipp
     assert.equal(changeTreasure(bag,id,'open',n,'astro'),null);
   }
   bag = changeTreasure(bag,'wood','equip',0,'astro');
-  assert.equal(inventory(bag).xp,240); assert.equal(inventory(bag).equipped,'wood');
+  assert.equal(inventory(bag).xp,500); assert.equal(inventory(bag).equipped,'wood');
   assert.equal(changeTreasure({},'gold','equip',99,'astro'),null);
   assert.deepEqual(inventory({opened:['wood','wood','bogus'],equipped:'gold'}),{opened:['wood'],equipped:null,xp:30});
 });

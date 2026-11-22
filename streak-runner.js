@@ -3240,15 +3240,23 @@
             hctx.save();
             hctx.translate(GX + Math.sin(aAng) * (GR + aLift), GY - Math.cos(aAng) * (GR + aLift));
             hctx.rotate(aAng);
-            if (equipped === 'wood' || equipped === 'iron' || equipped === 'gold') {
+            if (equipped === 'wood' || equipped === 'iron' || equipped === 'gold' || equipped === 'ruby') {
                 hctx.save();
-                hctx.fillStyle = equipped === 'wood' ? '#F4A658' : equipped === 'iron' ? '#88DFF6' : '#FFDC74';
-                for (let i = 0; i < 6; i++) {
+                hctx.fillStyle = equipped === 'wood' ? '#F4A658' : equipped === 'iron' ? '#88DFF6' : equipped === 'ruby' ? '#F43F5E' : '#FFDC74';
+                for (let i = 0; i < (equipped === 'ruby' ? 8 : 6); i++) {
                     const phase = T * .002 + i * Math.PI / 3;
-                    const x = equipped === 'wood' ? -10 - i * 3 : Math.cos(phase) * (equipped === 'iron' ? 19 : 9);
-                    const y = equipped === 'wood' ? -7 + Math.sin(phase) * 2 : equipped === 'iron'
-                        ? -sprRenderedH / 2 + Math.sin(phase) * 16 : crownY - 6 + Math.sin(phase) * 3;
-                    hctx.fillRect(Math.round(x), Math.round(y), i % 2 ? 2 : 3, i % 2 ? 2 : 3);
+                    if (equipped === 'ruby') {
+                        const wingSide = i % 2 === 0 ? -1 : 1;
+                        const span = 12 + Math.floor(i / 2) * 4;
+                        const flap = Math.sin(T * 0.008 + i * 0.4) * 4;
+                        hctx.fillStyle = i % 4 < 2 ? '#F43F5E' : '#FDE047';
+                        hctx.fillRect(Math.round(wingSide * span), Math.round(-sprRenderedH * 0.55 - i * 1.6 + flap), 3, 3);
+                    } else {
+                        const x = equipped === 'wood' ? -10 - i * 3 : Math.cos(phase) * (equipped === 'iron' ? 19 : 9);
+                        const y = equipped === 'wood' ? -7 + Math.sin(phase) * 2 : equipped === 'iron'
+                            ? -sprRenderedH / 2 + Math.sin(phase) * 16 : crownY - 6 + Math.sin(phase) * 3;
+                        hctx.fillRect(Math.round(x), Math.round(y), i % 2 ? 2 : 3, i % 2 ? 2 : 3);
+                    }
                 }
                 hctx.restore();
             }

@@ -3,6 +3,7 @@ export const CHESTS = Object.freeze([
   { id: 'wood', name: 'Wooden chest', days: 1, xp: 30, power: 'Ember Trail', description: 'A trail of amber pixels follows your runner.' },
   { id: 'iron', name: 'Iron chest', days: 7, xp: 70, power: 'Orbit Shield', description: 'A ring of ice-blue pixels surrounds your runner.' },
   { id: 'gold', name: 'Gold chest', days: 14, xp: 140, power: 'Star Crown', description: 'Gold stars hover above your runner.' },
+  { id: 'ruby', name: 'Dragon chest', days: 30, xp: 260, power: 'Phoenix Wings', description: 'Blazing crimson-gold wings flare behind your runner.' },
 ]);
 const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const heroes = ['arcy', 'ninja', 'specops', 'astro'];

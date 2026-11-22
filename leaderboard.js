@@ -349,12 +349,12 @@ function mountTreasureRoom(root, find, redrawLeague) {
     find('treasure-summary').textContent = !ready
       ? 'Finish onboarding to track clear days and unlock chests — tap any chest below to preview its animation.'
       : !next
-        ? 'Vault complete! All 3 chests unlocked. Equip any relic power below.'
+        ? `Vault complete! All ${CHESTS.length} chests unlocked. Equip any relic power below.`
         : count >= next.days
           ? `${next.name} is unlocked and ready to open! Tap it to claim +${next.xp} XP.`
           : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name} unlocks.`;
 
-    const tierLabels = { wood: 'Tier I · 1d', iron: 'Tier II · 7d', gold: 'Tier III · 14d' };
+    const tierLabels = { wood: 'Tier I · 1d', iron: 'Tier II · 7d', gold: 'Tier III · 14d', ruby: 'Tier IV · 30d' };
     const cards = CHESTS.map(c => {
       const opened = bag.opened.includes(c.id);
       const equipped = bag.equipped === c.id;
