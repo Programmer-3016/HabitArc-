@@ -369,3 +369,60 @@ test('Streaming failures after headers send an error frame and release the user 
     assert.doesNotMatch(response.output, /event: done/);
     assert.doesNotMatch(response.output, /provider disconnected/);
 });
+
+
+test('Streaming provider failure resets partial UI and falls back to JSON without counting an extra request', async () => {
+    let quotaCalls = 0;
+    let leaseReleases = 0;
+    let fallbackCalls = 0;
+    const handler = createCoachHandler({
+        configured: () => true,
+        now: () => new Date('2026-11-23T09:00:00Z'),
+        logError() {},
+        getAdmin: async () => ({
+            auth: { verifyIdToken: async () => ({ uid: 'stream-member', firebase: { sign_in_provider: 'google.com' } }) },
+            reserveQuota: async () => {
+                quotaCalls++;
+                return { leaseId: 'once', remaining: 5, limit: 15 };
+            },
+            releaseQuota: async () => { leaseReleases++; },
+            loadSnapshot: async () => ({ habits: [], completionHistory: [], settings: {} })
+        }),
+        streamGenerate: async ({ onDelta }) => {
+            onDelta('Unfinished streamed text…');
+            throw Object.assign(new Error('Gemini SSE unavailable'), { status: 502 });
+        },
+        generate: async () => {
+            fallbackCalls++;
+            return { text: 'Stable answer from the ordinary Gemini endpoint.' };
+        }
+    });
+    const res = {
+        headers: {}, chunks: [], writableEnded: false,
+        setHeader(k,v) { this.headers[k] = v; }, flushHeaders() {}, once() {},
+        write(text) { this.chunks.push(text); }, end() { this.writableEnded = true; }
+    };
+    await handler({
+        method: 'POST',
+        headers: { authorization: 'Bearer token', 'content-type': 'application/json', accept: 'text/event-stream' },
+        body: { question: 'Please summarize my routine', timeZone: 'Asia/Kolkata' }
+    }, res);
+    const streamed = res.chunks.join('');
+    assert.equal(quotaCalls, 1);
+    assert.equal(leaseReleases, 1);
+    assert.equal(fallbackCalls, 1);
+    assert.equal(res.writableEnded, true);
+    assert.match(streamed, /event: reset/);
+    assert.match(streamed, /event: done/);
+    assert.match(streamed, /Stable answer from the ordinary Gemini endpoint/);
+    assert.doesNotMatch(streamed, /event: error/);
+});
+
+test('Browser actually connects the SSE reader; it must not parse event-stream as JSON', () => {
+    const html = readFileSync(new URL('../Arc_AI.html', import.meta.url), 'utf8');
+    assert.match(html, /await consumeArcCoachStream\(response,/);
+    assert.match(html, /event === 'delta'/);
+    assert.match(html, /event === 'reset'/);
+    assert.match(html, /event === 'done'/);
+    assert.match(html, /response\.headers\?\.get\?\.\('content-type'\)/);
+});
