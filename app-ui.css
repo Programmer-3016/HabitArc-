@@ -2874,9 +2874,13 @@ html.ha-spa-navigated .animate-in {
     padding:0 2px 2px;
   }
   body.ha-arc-body:has(#arc-zen-home:not(.hidden)) .ha-arc-composer {
+    position:sticky;
+    bottom:calc(80px + env(safe-area-inset-bottom,0px));
+    z-index:48;
     flex:0 0 auto;
-    padding-top:4px;
-    padding-bottom:4px;
+    margin-inline:-2px;
+    padding:6px 2px 4px;
+    background:rgb(var(--ha-background,246 244 239));
   }
   body.ha-arc-body:has(#arc-zen-home:not(.hidden)) .ha-arc-disclaimer {display:none}
   /* Conversation mode is intentionally the only fixed-height ARC layout.
@@ -2894,6 +2898,9 @@ html.ha-spa-navigated .animate-in {
   }
   body.ha-arc-body:has(#arc-zen-home:not(.hidden)):is(.is-arc-typing,:has(.ha-arc-composer textarea:focus)) > main.ha-arc-ai {
     padding-bottom:8px !important;
+  }
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)):is(.is-arc-typing,:has(.ha-arc-composer textarea:focus)) .ha-arc-composer {
+    bottom:calc(8px + env(safe-area-inset-bottom,0px));
   }
   /* On short landscape screens keep the launcher accessible without
      obscuring the last task row beneath the nav. */
@@ -3716,3 +3723,183 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     padding-left:7px;
   }
 }
+
+/* ─── Pixel-Style HabitArc AI Level & Power UI (Dashboard & ARC AI) ─────────── */
+.ha-ai-dash-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 8px;
+  border: 1.5px solid var(--ha-hero-divider, rgb(var(--ha-outline-variant)));
+  background: color-mix(in srgb, var(--ha-hero-fg, #121215) 10%, transparent);
+  color: var(--ha-hero-fg, rgb(var(--ha-on-surface)));
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.04em; text-decoration: none; white-space: nowrap;
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+.ha-ai-dash-pill:hover { transform: translateY(-1px); }
+
+.ha-dash-ai-card {
+  margin-top: 16px;
+}
+.ha-dash-ai-link {
+  display: block; text-decoration: none;
+  background: rgb(var(--ha-surface-container-lowest));
+  border: 2px solid rgb(var(--ha-outline-variant));
+  border-radius: 16px;
+  box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
+  overflow: hidden;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+@media (hover: hover) {
+  .ha-dash-ai-link:hover { transform: translate(-1px, -1px); }
+}
+.ha-dash-ai-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 7px 12px;
+  background-color: rgb(var(--ha-surface-container-low));
+  background-image: radial-gradient(rgb(var(--ha-on-surface) / .12) 1px, transparent 1px);
+  background-size: 6px 6px;
+  border-bottom: 1.5px solid rgb(var(--ha-outline-variant) / .5);
+}
+.ha-dash-ai-id {
+  display: inline-flex; align-items: center; gap: 7px; min-width: 0;
+}
+.ha-dash-ai-ico {
+  width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+  background: #ffffff; border: 1.5px solid #121010;
+  box-shadow: 2px 2px 0 var(--rpg-cta, #ff6b4a);
+  display: grid; place-items: center;
+}
+.ha-dash-ai-name {
+  font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 800;
+  color: rgb(var(--ha-on-surface)); letter-spacing: 0.02em;
+}
+.ha-dash-ai-rank {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700;
+  color: rgb(var(--ha-on-surface-variant)); letter-spacing: 0.04em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ha-dash-ai-lvl {
+  flex-shrink: 0; padding: 2px 8px; border-radius: 6px;
+  background: var(--rpg-cta, #ff6b4a); color: var(--rpg-cta-fg, #ffffff);
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+}
+.ha-dash-ai-body {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px;
+}
+.ha-dash-ai-copy {
+  margin: 0; font-size: 12.5px; line-height: 1.38;
+  color: rgb(var(--ha-on-surface)); font-weight: 500;
+}
+.ha-dash-ai-cta {
+  flex-shrink: 0; padding: 5px 9px; border-radius: 8px;
+  background: rgb(var(--ha-surface-container)); color: rgb(var(--ha-on-surface));
+  border: 1.5px solid rgb(var(--ha-outline-variant));
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+  white-space: nowrap;
+}
+
+.ha-arc-level-card {
+  margin-top: 8px;
+  background: rgb(var(--ha-surface-container-lowest));
+  border: 2px solid rgb(var(--ha-outline-variant));
+  border-radius: 16px;
+  box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
+  overflow: hidden;
+  text-align: left;
+}
+.ha-arc-level-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 6px 11px;
+  background-color: rgb(var(--ha-surface-container-low));
+  background-image: radial-gradient(rgb(var(--ha-on-surface) / .13) 1px, transparent 1px);
+  background-size: 6px 6px;
+  border-bottom: 1.5px solid rgb(var(--ha-outline-variant) / .5);
+}
+.ha-arc-level-ident {
+  display: inline-flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap;
+}
+.ha-arc-lvl-pill {
+  padding: 2px 7px; border-radius: 6px;
+  background: var(--rpg-cta, #ff6b4a); color: var(--rpg-cta-fg, #ffffff);
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+}
+.ha-arc-lvl-name {
+  font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 800;
+  color: rgb(var(--ha-on-surface));
+}
+.ha-arc-lvl-rank {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700;
+  color: rgb(var(--ha-on-surface-variant)); letter-spacing: 0.04em;
+}
+.ha-arc-lvl-next {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700;
+  color: rgb(var(--ha-on-surface-variant)); white-space: nowrap;
+}
+.ha-arc-level-body {
+  padding: 9px 11px 10px;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.ha-arc-px-bar {
+  display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px;
+}
+.ha-arc-px-seg {
+  height: 6px; border-radius: 2px;
+  background: rgb(var(--ha-surface-container-highest));
+  border: 1px solid rgb(var(--ha-outline-variant) / .55);
+}
+.ha-arc-px-seg.is-filled {
+  background: var(--rpg-mint, #47e393);
+  border-color: var(--rpg-shadow-ink, #121215);
+}
+.ha-arc-power-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+}
+.ha-arc-power-copy {
+  margin: 0; font-size: 12px; line-height: 1.38;
+  color: rgb(var(--ha-on-surface)); flex: 1 1 200px;
+}
+.ha-arc-try-chip {
+  padding: 4px 9px; border-radius: 8px; cursor: pointer;
+  background: rgb(var(--ha-surface-container-low));
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
+  color: rgb(var(--ha-on-surface)); white-space: nowrap;
+}
+.ha-arc-tier-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px;
+}
+@media (min-width: 768px) {
+  .ha-arc-tier-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.ha-arc-tier {
+  display: flex; align-items: center; justify-content: space-between; gap: 5px;
+  padding: 5px 7px; border-radius: 9px;
+  border: 1.5px solid rgb(var(--ha-outline-variant) / .65);
+  background: rgb(var(--ha-surface-container-low));
+  font-size: 10.5px; line-height: 1.2;
+}
+.ha-arc-tier.is-unlocked {
+  border-color: var(--rpg-shadow-ink, #121215);
+  background: color-mix(in srgb, var(--rpg-mint, #47e393) 16%, rgb(var(--ha-surface-container-lowest)));
+}
+.ha-arc-tier-txt { min-width: 0; }
+.ha-arc-tier-lvl {
+  display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800;
+  color: rgb(var(--ha-on-surface-variant));
+}
+.ha-arc-tier.is-unlocked .ha-arc-tier-lvl { color: rgb(var(--ha-on-surface)); }
+.ha-arc-tier-label {
+  display: block; font-weight: 700; color: rgb(var(--ha-on-surface));
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ha-arc-tier-state {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800;
+  color: rgb(var(--ha-on-surface-variant)); flex-shrink: 0;
+}
+.ha-arc-tier.is-unlocked .ha-arc-tier-state { color: rgb(var(--ha-secondary, 14 108 74)); }

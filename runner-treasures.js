@@ -44,6 +44,61 @@ export function inventory(raw) {
     equipped: opened.some(c => c.id === raw?.equipped) ? raw.equipped : null };
 }
 
+export const AI_DEFAULT_NAME = 'ARC';
+
+export const AI_LEVEL_TIERS = Object.freeze([
+  { level: 1, minDays: 0, rank: 'Habit Builder', shortPower: 'Make Habits', summary: 'Create and add habits directly in chat.' },
+  { level: 2, minDays: 1, rank: 'Routine Tuner', shortPower: 'Edit Reminders', summary: 'Update reminders, schedules, and notes directly.' },
+  { level: 3, minDays: 7, rank: 'Streak Tactician', shortPower: 'Streak Shield', summary: 'Build low-energy backups and smart backlog rescues.' },
+  { level: 4, minDays: 14, rank: 'Routine Architect', shortPower: 'Deep Optimizer', summary: 'Unlock multi-week tuning and deep routine insights.' },
+]);
+
+export function normaliseAiName(value) {
+  const clean = typeof value === 'string'
+    ? value.replace(/[\u0000-\u001f\u007f<>"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 16)
+    : '';
+  return clean || AI_DEFAULT_NAME;
+}
+
+export function aiProgressionForClearDays(clearCount = 0) {
+  const safeDays = Number.isInteger(clearCount) && clearCount > 0 ? clearCount : 0;
+  let current = AI_LEVEL_TIERS[0];
+  for (const tier of AI_LEVEL_TIERS) {
+    if (safeDays >= tier.minDays) current = tier;
+  }
+  const next = AI_LEVEL_TIERS.find(t => t.level === current.level + 1) || null;
+  const span = next ? Math.max(1, next.minDays - current.minDays) : 1;
+  const progress = next ? Math.min(span, Math.max(0, safeDays - current.minDays)) : span;
+  return {
+    level: current.level,
+    rank: current.rank,
+    shortPower: current.shortPower,
+    summary: current.summary,
+    clearDays: safeDays,
+    currentMinDays: current.minDays,
+    nextLevel: next?.level || null,
+    nextRank: next?.rank || null,
+    nextPower: next?.shortPower || null,
+    nextMinDays: next?.minDays ?? null,
+    remainingDays: next ? Math.max(0, next.minDays - safeDays) : 0,
+    progressPct: next ? Math.round((progress / span) * 100) : 100,
+    tiers: AI_LEVEL_TIERS.map(t => ({
+      ...t,
+      unlocked: safeDays >= t.minDays,
+      current: t.level === current.level,
+    })),
+  };
+}
+
+export function computeAiProgression({ habits = [], completionHistory = [], today = '', clearCount = null } = {}) {
+  const daysCleared = Number.isInteger(clearCount)
+    ? Math.max(0, clearCount)
+    : (Array.isArray(habits) && Array.isArray(completionHistory) && today
+        ? clearedDays(habits, completionHistory, today).length
+        : 0);
+  return aiProgressionForClearDays(daysCleared);
+}
+
 export function changeTreasure(raw, id, action, count) {
   const chest = CHESTS.find(c => c.id === id);
   const { opened, equipped } = inventory(raw);

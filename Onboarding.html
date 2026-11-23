@@ -400,8 +400,8 @@
         transition: background-color 0.14s ease, color 0.14s ease;
         -webkit-tap-highlight-color: transparent;
     }
-    /* Override @tailwindcss/forms focus ring/border injection on Step 7 email form inputs */
-    #step-7 .auth-input {
+    /* Override @tailwindcss/forms focus ring/border injection on Step 8 email form inputs */
+    #step-8 .auth-input {
         width: 100%;
         padding: 13px 16px !important;
         border-radius: 16px !important;
@@ -415,8 +415,8 @@
         -webkit-tap-highlight-color: transparent;
         transition: border-color 0.18s ease, box-shadow 0.18s ease;
     }
-    #step-7 .auth-input:focus,
-    #step-7 .auth-input:focus-visible {
+    #step-8 .auth-input:focus,
+    #step-8 .auth-input:focus-visible {
         outline: none !important;
         outline-offset: 0 !important;
         border-color: #031e13 !important;
@@ -473,7 +473,7 @@
         background: #012d1d;
     }
 
-    /* Pure Mint Green Continuity Theme Across Steps 1–7 */
+    /* Pure Mint Green Continuity Theme Across Steps 1–8 */
     body {
         background-color: #47e393 !important;
         color: #012d1d;
@@ -484,7 +484,7 @@
         color: rgba(1, 45, 29, 0.78) !important;
         transition: color 0.2s ease;
     }
-    #step-6 > span.inline-flex {
+    #step-7 > span.inline-flex {
         background: #ffffff;
         border: 1.5px solid #031e13;
         box-shadow: 0 2px 0 #031e13;
@@ -645,10 +645,11 @@
             </svg>
             <span>HabitArc</span>
         </span>
-        <span id="step-indicator" class="hdr-step-pill geist">1 / 7</span>
+        <span id="step-indicator" class="hdr-step-pill geist">1 / 8</span>
     </div>
-    <div id="step-segments" class="grid grid-cols-7 gap-1.5" aria-hidden="true">
+    <div id="step-segments" class="grid grid-cols-8 gap-1.5" aria-hidden="true">
         <span class="hdr-seg done"></span>
+        <span class="hdr-seg"></span>
         <span class="hdr-seg"></span>
         <span class="hdr-seg"></span>
         <span class="hdr-seg"></span>
@@ -828,8 +829,41 @@
         </div>
     </div>
 
-    <!-- STEP 5: Notifications -->
+    <!-- STEP 5: Name your AI buddy -->
     <div id="step-5" class="step-card animate-in pt-6 sm:pt-10 w-full">
+        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Name your AI.</h2>
+        <p class="mt-2 text-[15px] text-outline">Starts at Level 1 building habits for you.</p>
+
+        <div class="mt-6 bg-white/95 border-2 border-[#031e13] shadow-[0_4px_0_#031e13] rounded-2xl p-4 flex items-center gap-3.5">
+            <span class="w-12 h-12 rounded-xl bg-[#012d1d] border-2 border-[#031e13] grid place-items-center shrink-0" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                    <rect x="7" y="1" width="2" height="2" fill="#47e393"/>
+                    <rect x="4" y="4" width="8" height="1" fill="#47e393"/>
+                    <rect x="4" y="5" width="8" height="8" fill="#1b4332"/>
+                    <rect x="5" y="7" width="2" height="2" fill="#ffffff"/>
+                    <rect x="9" y="7" width="2" height="2" fill="#ffffff"/>
+                </svg>
+            </span>
+            <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                    <strong id="ob-ai-preview-name" class="text-[16px] font-extrabold text-[#012d1d] truncate">ARC</strong>
+                    <span class="px-2 py-0.5 rounded-md bg-[#47e393] border border-[#031e13] text-[#012d1d] text-[10px] font-extrabold geist tracking-wider shrink-0">LVL 1</span>
+                </div>
+                <p id="ob-ai-preview-sub" class="text-xs text-[#012d1d]/80 mt-0.5 leading-snug">Right now <span id="ob-ai-preview-inline">ARC</span> can make habits for you. Level up as your streak grows.</p>
+            </div>
+        </div>
+
+        <input id="ai-name-input" type="text" maxlength="16" autocomplete="off" aria-label="Name your HabitArc AI" class="mt-6 w-full bg-transparent border-0 border-b-2 border-primary px-0 py-2 text-[22px] font-semibold text-primary outline-none focus:outline-none focus:ring-0 focus:shadow-none shadow-none focus:border-primary placeholder:font-normal placeholder:text-outline/50" placeholder="e.g. ARC, NOVA, KAI" value="ARC"/>
+        <div class="mt-4 flex flex-wrap gap-2" id="ai-name-chips">
+            <button type="button" class="chip btn-press">ARC</button>
+            <button type="button" class="chip btn-press">NOVA</button>
+            <button type="button" class="chip btn-press">KAI</button>
+            <button type="button" class="chip btn-press">ATLAS</button>
+        </div>
+    </div>
+
+    <!-- STEP 6: Notifications -->
+    <div id="step-6" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Gentle reminders?</h2>
         <p class="mt-2 text-[15px] text-outline">Only when you need them.</p>
         <div class="mt-7 grid grid-cols-2 gap-3" id="notification-options">
@@ -838,8 +872,8 @@
         </div>
     </div>
 
-    <!-- STEP 6: North Star -->
-    <div id="step-6" class="step-card animate-in pt-6 sm:pt-10 w-full">
+    <!-- STEP 7: North Star -->
+    <div id="step-7" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eaf5ef] text-primary text-[11px] font-bold geist uppercase tracking-wider">
             <span class="material-symbols-outlined fill" style="font-size:14px;">star</span> North Star
         </span>
@@ -853,8 +887,8 @@
         </div>
     </div>
 
-    <!-- STEP 7: Save progress -->
-    <div id="step-7" class="step-card animate-in pt-6 sm:pt-10 w-full">
+    <!-- STEP 8: Save progress -->
+    <div id="step-8" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 id="auth-mode-title" class="text-[30px] leading-tight font-bold tracking-tight text-primary">Save Your Progress</h2>
         <p id="auth-mode-sub" class="mt-2 text-[15px] text-outline">Sync across your devices.</p>
 
@@ -976,13 +1010,14 @@
 <script>
 (function() {
     let currentStep = 1;
-    const totalSteps = 7;
+    const totalSteps = 8;
     let jumpedToLoginFromStep1 = false;
 
     let selectedIntents = [];
     let selectedChallenges = [];
     let selectedCap = '5';
     let selectedTheme = 'light';
+    let selectedAiName = 'ARC';
     let selectedGridShape = 'square';
     let selectedDuration = '30';
     let notificationsEnabled = true;
@@ -1014,6 +1049,7 @@
 
     function writeGoogleRedirectDraft() {
         const northStarInput = document.getElementById('north-star-input');
+        const aiNameInput = document.getElementById('ai-name-input');
         const nameInput = document.getElementById('acc-name-input');
 
         try {
@@ -1025,6 +1061,7 @@
                 selectedChallenge: selectedChallenges[0] || '',
                 selectedCap,
                 selectedTheme,
+                aiName: aiNameInput?.value || selectedAiName || 'ARC',
                 selectedGridShape,
                 selectedDuration,
                 notificationsEnabled,
@@ -1063,6 +1100,9 @@
         }
         if (typeof pendingGoogleRedirectDraft.selectedTheme === 'string') {
             selectedTheme = pendingGoogleRedirectDraft.selectedTheme;
+        }
+        if (typeof pendingGoogleRedirectDraft.aiName === 'string') {
+            selectedAiName = HabitArc.normaliseAiName?.(pendingGoogleRedirectDraft.aiName) || pendingGoogleRedirectDraft.aiName || 'ARC';
         }
         if (typeof pendingGoogleRedirectDraft.selectedGridShape === 'string') {
             selectedGridShape = pendingGoogleRedirectDraft.selectedGridShape;
@@ -1355,7 +1395,32 @@
     }
     document.querySelector('.theme-btn[data-theme="light"]')?.classList.add('selected-theme');
 
-    // Step 5: notifications
+    // Step 5: Name your AI buddy
+    const aiNameInput = document.getElementById('ai-name-input');
+    const aiPreviewName = document.getElementById('ob-ai-preview-name');
+    const aiPreviewInline = document.getElementById('ob-ai-preview-inline');
+    function syncAiNamePreview(rawValue) {
+        const resolved = HabitArc.normaliseAiName?.(rawValue) || String(rawValue || '').trim().slice(0, 16) || 'ARC';
+        selectedAiName = resolved;
+        if (aiPreviewName) aiPreviewName.textContent = resolved;
+        if (aiPreviewInline) aiPreviewInline.textContent = resolved;
+    }
+    if (aiNameInput) {
+        aiNameInput.addEventListener('input', () => syncAiNamePreview(aiNameInput.value));
+        aiNameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('next-step-btn').click(); }
+        });
+    }
+    document.querySelectorAll('#ai-name-chips .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const picked = chip.textContent.trim();
+            if (aiNameInput) { aiNameInput.value = picked; aiNameInput.focus(); }
+            syncAiNamePreview(picked);
+        });
+    });
+    syncAiNamePreview(aiNameInput?.value || selectedAiName);
+
+    // Step 6: notifications
     document.querySelectorAll('.notif-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.notif-opt').forEach(o => o.classList.remove('selected'));
@@ -1473,6 +1538,11 @@
         }
         if (typeof draft.selectedTheme === 'string') {
             document.querySelectorAll('.theme-btn').forEach((b) => b.classList.toggle('selected-theme', b.dataset.theme === draft.selectedTheme));
+        }
+        if (typeof draft.aiName === 'string') {
+            const restoredAi = HabitArc.normaliseAiName?.(draft.aiName) || draft.aiName || 'ARC';
+            if (aiNameInput) aiNameInput.value = restoredAi;
+            syncAiNamePreview(restoredAi);
         }
         if (typeof draft.northStar === 'string') {
             const northStarInput = document.getElementById('north-star-input');
@@ -1720,8 +1790,10 @@
         const northStarInput = document.getElementById('north-star-input');
         const northStar = (northStarInput && northStarInput.value.trim()) ? northStarInput.value.trim() : 'Daily Meditation & Mindful Reflection';
 
+        const finalAiName = HabitArc.normaliseAiName?.(aiNameInput?.value || selectedAiName) || 'ARC';
         HabitArc.updateSettings({
             userName,
+            aiName: finalAiName,
             userBio: `North Star: ${northStar}`,
             theme: selectedTheme,
             goalDuration: parseInt(selectedDuration) || 30,

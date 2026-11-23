@@ -178,6 +178,30 @@
             </p>
         </div>
 
+        <section id="arc-level-card" class="ha-arc-level-card" aria-label="HabitArc AI Level and Unlocked Powers">
+            <div class="ha-arc-level-head">
+                <div class="ha-arc-level-ident">
+                    <span id="arc-ai-lvl-badge" class="ha-arc-lvl-pill">LVL 1</span>
+                    <span id="arc-ai-buddy-name" class="ha-arc-lvl-name">ARC</span>
+                    <span id="arc-ai-rank" class="ha-arc-lvl-rank">HABIT BUILDER</span>
+                </div>
+                <span id="arc-ai-next-txt" class="ha-arc-lvl-next">0/1D → LVL 2</span>
+            </div>
+            <div class="ha-arc-level-body">
+                <div id="arc-px-bar" class="ha-arc-px-bar" role="progressbar" aria-label="Progress toward next AI level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+                <div class="ha-arc-power-row">
+                    <p id="arc-ai-power-copy" class="ha-arc-power-copy">Right now ARC can build and add habits for you in chat. Clear days to level up.</p>
+                    <button id="arc-lvl1-try-btn" type="button" class="ha-arc-try-chip">Try: Make a habit</button>
+                </div>
+                <div id="arc-tier-grid" class="ha-arc-tier-grid" aria-label="AI power levels">
+                    <div id="arc-tier-1" class="ha-arc-tier is-unlocked"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 1</span><span class="ha-arc-tier-label">Make Habits</span></span><span id="arc-tier-state-1" class="ha-arc-tier-state">ACTIVE</span></div>
+                    <div id="arc-tier-2" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 2 · 1D</span><span class="ha-arc-tier-label">Edit Reminders</span></span><span id="arc-tier-state-2" class="ha-arc-tier-state">LOCKED</span></div>
+                    <div id="arc-tier-3" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 3 · 7D</span><span class="ha-arc-tier-label">Streak Shield</span></span><span id="arc-tier-state-3" class="ha-arc-tier-state">LOCKED</span></div>
+                    <div id="arc-tier-4" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 4 · 14D</span><span class="ha-arc-tier-label">Deep Coach</span></span><span id="arc-tier-state-4" class="ha-arc-tier-state">LOCKED</span></div>
+                </div>
+            </div>
+        </section>
+
         <div class="ha-arc-cards" aria-label="Suggested AI actions">
             <!-- 1. Highlighted Halftone Spotlight Card -->
             <button id="arc-card-priority" type="button" class="ha-arc-spot">
@@ -268,7 +292,7 @@
                     </svg>
                 </span>
                 <div class="min-w-0">
-                    <div class="ha-arc-thread-name">ARC THREAD</div>
+                    <div id="arc-thread-name" class="ha-arc-thread-name">ARC THREAD</div>
                     <div id="arc-thread-context" class="ha-arc-thread-sub">28d log loaded</div>
                 </div>
             </div>
@@ -283,7 +307,7 @@
 
         <article id="ai-coach-answer-card" class="hidden ha-arc-answer-card" aria-live="polite">
             <div class="ha-arc-resp-hdr">
-                <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
+                <span id="ai-coach-resp-id" class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
                 <div class="ha-arc-resp-tools">
                     <button id="ai-coach-copy-btn" type="button" class="ha-arc-copy-btn" aria-label="Copy response">COPY</button>
                 </div>
@@ -367,8 +391,17 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const scrollArea = document.getElementById('arc-scroll-area');
     const zenHome = document.getElementById('arc-zen-home');
     const threadView = document.getElementById('arc-thread-view');
+    const threadNameEl = document.getElementById('arc-thread-name');
     const threadContext = document.getElementById('arc-thread-context');
     const telemetryText = document.getElementById('arc-telemetry-text');
+    const respIdEl = document.getElementById('ai-coach-resp-id');
+    const buddyNameEl = document.getElementById('arc-ai-buddy-name');
+    const rankEl = document.getElementById('arc-ai-rank');
+    const lvlBadgeEl = document.getElementById('arc-ai-lvl-badge');
+    const nextTxtEl = document.getElementById('arc-ai-next-txt');
+    const pxBarEl = document.getElementById('arc-px-bar');
+    const powerCopyEl = document.getElementById('arc-ai-power-copy');
+    const tryLvl1Button = document.getElementById('arc-lvl1-try-btn');
 
     const cardPriority = document.getElementById('arc-card-priority');
     const priorityKicker = document.getElementById('arc-priority-kicker');
@@ -430,9 +463,36 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     let activeActionApplied = false;
     let activeActionAutoCreated = false;
     let activeCreatedHabitId = '';
+    let activePrevHabitPatch = null;
     let lastEvidence = '';
     let lastVerifiedSnapshot = null;
     let lastCasualGreeting = false;
+
+    function getAiMeta() {
+        const settings = HabitArc.getSettings ? HabitArc.getSettings() : {};
+        const fallbackName = HabitArc.normaliseAiName?.(settings?.aiName) || String(settings?.aiName || '').trim().slice(0, 16) || 'ARC';
+        const prog = HabitArc.getAiProgression?.() || {
+            aiName: fallbackName,
+            level: 1,
+            rank: 'Habit Builder',
+            shortPower: 'Make Habits',
+            summary: 'Create and add habits directly in chat.',
+            clearDays: 0,
+            nextLevel: 2,
+            nextMinDays: 1,
+            remainingDays: 1,
+            progressPct: 0,
+            tiers: [
+                { level: 1, unlocked: true, current: true },
+                { level: 2, unlocked: false, current: false },
+                { level: 3, unlocked: false, current: false },
+                { level: 4, unlocked: false, current: false },
+            ],
+        };
+        const aiName = prog.aiName || fallbackName;
+        const chatLabel = aiName === 'ARC' ? 'ARC AI' : aiName;
+        return { ...prog, aiName, chatLabel };
+    }
 
     function shorten(text, max) {
         const value = String(text || '').trim();
@@ -440,6 +500,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     }
 
     function renderArcConsole() {
+        const meta = getAiMeta();
         const settings = HabitArc.getSettings ? HabitArc.getSettings() : {};
         const habits = HabitArc.getHabits ? HabitArc.getHabits() : [];
         const history = HabitArc.getCompletionHistory ? HabitArc.getCompletionHistory() : [];
@@ -450,6 +511,40 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             now: new Date(),
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
         });
+
+        if (buddyNameEl) buddyNameEl.textContent = meta.aiName;
+        if (rankEl) rankEl.textContent = meta.rank.toUpperCase();
+        if (lvlBadgeEl) lvlBadgeEl.textContent = `LVL ${meta.level}`;
+        if (nextTxtEl) {
+            nextTxtEl.textContent = meta.nextLevel
+                ? `${meta.clearDays}/${meta.nextMinDays}D → LVL ${meta.nextLevel}`
+                : 'MAX RANK';
+        }
+        if (pxBarEl) {
+            const filledCount = Math.max(0, Math.min(8, Math.round((meta.progressPct || 0) / 12.5)));
+            pxBarEl.setAttribute?.('aria-valuenow', String(meta.progressPct || 0));
+            pxBarEl.innerHTML = Array.from({ length: 8 }, (_, idx) =>
+                `<span class="ha-arc-px-seg${idx < filledCount ? ' is-filled' : ''}"></span>`
+            ).join('');
+        }
+        if (powerCopyEl) {
+            powerCopyEl.textContent = meta.level === 1
+                ? `Right now at Level 1 you can use ${meta.aiName} to create habits for you. Clear 1 day to unlock LVL 2.`
+                : `Level ${meta.level} Active — ${meta.summary}${meta.nextLevel ? ` Clear ${meta.remainingDays} more day${meta.remainingDays === 1 ? '' : 's'} for LVL ${meta.nextLevel}.` : ''}`;
+        }
+        if (Array.isArray(meta.tiers)) {
+            meta.tiers.forEach(t => {
+                const row = document.getElementById(`arc-tier-${t.level}`);
+                const st = document.getElementById(`arc-tier-state-${t.level}`);
+                row?.classList?.toggle?.('is-unlocked', Boolean(t.unlocked));
+                if (st) st.textContent = t.current ? 'ACTIVE' : (t.unlocked ? 'ON ✓' : 'LOCKED');
+            });
+        }
+        if (threadNameEl) threadNameEl.textContent = `${meta.aiName.toUpperCase()} THREAD`;
+        if (respIdEl) respIdEl.innerHTML = `<span class="ha-arc-dot" aria-hidden="true"></span>${HabitArc.escapeHTML(meta.chatLabel)}`;
+        if (questionInput && !questionInput.value && threadView?.classList?.contains?.('hidden')) {
+            questionInput.placeholder = `Ask ${meta.aiName} anything...`;
+        }
 
         const curStreak = HabitArc.getOverallCurrentStreak ? (HabitArc.getOverallCurrentStreak() || 0) : 0;
         const longestStreak = HabitArc.getOverallLongestStreak ? (HabitArc.getOverallLongestStreak() || 0) : 0;
@@ -555,7 +650,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         if (zenHome) zenHome.classList.toggle('hidden', show);
         if (threadView) threadView.classList.toggle('hidden', !show);
         if (questionInput && !questionInput.value) {
-            questionInput.placeholder = show ? 'Ask a follow-up...' : 'Ask ARC anything...';
+            const meta = getAiMeta();
+            questionInput.placeholder = show ? 'Ask a follow-up...' : `Ask ${meta.aiName} anything...`;
             resizeTextarea();
         }
         // On phones, Zen uses normal document scrolling while the conversation
@@ -625,10 +721,11 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
     function setLoading(isLoading) {
         const busy = Boolean(isLoading);
+        const meta = getAiMeta();
         submitButton.disabled = false;
         submitButton.type = busy ? 'button' : 'submit';
         submitButton.setAttribute('aria-busy', String(busy));
-        submitButton.setAttribute('aria-label', busy ? 'Stop generating' : 'Ask ARC AI');
+        submitButton.setAttribute('aria-label', busy ? 'Stop generating' : `Ask ${meta.chatLabel}`);
         if (busy) submitButton.setAttribute?.('title', 'Stop generating');
         else submitButton.removeAttribute?.('title');
         submitButton.classList?.toggle?.('is-stop', busy);
@@ -671,6 +768,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 lastActionApplied: activeActionApplied,
                 lastActionAutoCreated: activeActionAutoCreated,
                 lastCreatedHabitId: activeCreatedHabitId,
+                lastPrevHabitPatch: activePrevHabitPatch,
                 updatedAt: Date.now()
             }));
         } catch { /* Optional device cache */ }
@@ -692,33 +790,43 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         return String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
     }
 
-    function renderSuggestedAction(action, { applied = false, autoCreated = false, createdHabitId = '' } = {}) {
+    function renderSuggestedAction(action, { applied = false, autoCreated = false, createdHabitId = '', prevPatch = null } = {}) {
         activeAction = action || null;
         activeActionApplied = Boolean(applied);
         activeActionAutoCreated = Boolean(applied && autoCreated);
         activeCreatedHabitId = (activeActionApplied && createdHabitId) ? String(createdHabitId) : '';
+        activePrevHabitPatch = (activeActionApplied && prevPatch) ? prevPatch : null;
         if (!actionBox || !actionTitle || !actionMeta || !applyActionButton) return;
         if (!action || (action.type !== 'create_habit' && action.type !== 'update_habit')) {
             actionBox.classList.add('hidden');
             return;
         }
+        const meta = getAiMeta();
+        const isAutoUpdated = Boolean(activeActionApplied && activePrevHabitPatch && action.type === 'update_habit');
         const stillExists = !activeActionAutoCreated || !activeCreatedHabitId
             || typeof HabitArc.getHabitById !== 'function'
             || Boolean(HabitArc.getHabitById(activeCreatedHabitId));
         if (actionKicker) {
             actionKicker.textContent = activeActionAutoCreated
                 ? (stillExists ? 'ADDED BY HABITARC AI' : 'REMOVED FROM HABITARC')
-                : (action.type === 'create_habit' ? 'PROPOSED NEW HABIT' : 'PROPOSED HABIT UPDATE');
+                : isAutoUpdated
+                    ? `UPDATED BY ${meta.aiName.toUpperCase()}`
+                    : (action.type === 'create_habit' ? 'PROPOSED NEW HABIT' : 'PROPOSED HABIT UPDATE');
         }
         actionTitle.textContent = action.type === 'create_habit'
             ? (activeActionAutoCreated ? `Added "${action.name}"` : `Add "${action.name}"`)
-            : `Update "${action.habitName || 'Habit'}"`;
+            : (isAutoUpdated ? `Updated "${action.habitName || 'Habit'}"` : `Update "${action.habitName || 'Habit'}"`);
         actionMeta.textContent = formatActionMeta(action);
         if (activeActionAutoCreated && action.type === 'create_habit') {
             const canUndo = stillExists && Boolean(activeCreatedHabitId) && typeof HabitArc.deleteHabit === 'function';
             applyActionButton.disabled = !canUndo;
             applyActionButton.textContent = stillExists ? (canUndo ? 'UNDO' : 'ADDED ✓') : 'REMOVED';
             applyActionButton.setAttribute?.('aria-label', canUndo ? `Undo added habit ${action.name}` : 'Habit added');
+        } else if (isAutoUpdated) {
+            const canUndo = typeof HabitArc.updateHabit === 'function';
+            applyActionButton.disabled = !canUndo;
+            applyActionButton.textContent = 'UNDO';
+            applyActionButton.setAttribute?.('aria-label', `Undo update to ${action.habitName || 'habit'}`);
         } else {
             applyActionButton.disabled = activeActionApplied;
             applyActionButton.textContent = activeActionApplied ? 'APPLIED ✓' : (action.type === 'create_habit' ? 'ADD HABIT' : 'APPLY UPDATE');
@@ -743,11 +851,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
     function renderHistoryList(turns) {
         if (!historyEl) return;
+        const meta = getAiMeta();
         historyEl.innerHTML = turns.map(turn => `
             <div class="ha-arc-user-msg"><p>${HabitArc.escapeHTML(turn.question)}</p></div>
             <article class="ha-arc-answer-card">
                 <div class="ha-arc-resp-hdr">
-                    <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
+                    <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>${HabitArc.escapeHTML(meta.chatLabel)}</span>
                     </div>
                 <div class="ha-arc-answer-body"><div class="ha-arc-answer-text ha-md-prose">${renderArcChatAnswer(turn.answer, HabitArc.escapeHTML)}</div></div>
             </article>
@@ -774,7 +883,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         renderSuggestedAction(activeAction, {
             applied: activeActionApplied,
             autoCreated: activeActionAutoCreated,
-            createdHabitId: activeCreatedHabitId
+            createdHabitId: activeCreatedHabitId,
+            prevPatch: activePrevHabitPatch
         });
         answerCard?.classList.remove('hidden');
         showThreadView(true);
@@ -799,6 +909,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             activeActionApplied = Boolean(parsed.lastActionApplied);
             activeActionAutoCreated = Boolean(parsed.lastActionAutoCreated);
             activeCreatedHabitId = typeof parsed.lastCreatedHabitId === 'string' ? parsed.lastCreatedHabitId : '';
+            activePrevHabitPatch = parsed.lastPrevHabitPatch || null;
             renderThreadFromState();
             scrollChatToLatest(true);
             setTimeout(() => {
@@ -820,6 +931,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         activeActionApplied = false;
         activeActionAutoCreated = false;
         activeCreatedHabitId = '';
+        activePrevHabitPatch = null;
         if (clearStored && previousUid && typeof localStorage !== 'undefined') {
             try { localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${previousUid}`); } catch {}
         }
@@ -832,7 +944,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         answerCard?.classList.add('hidden');
         showThreadView(false);
         questionInput.value = '';
-        questionInput.placeholder = 'Ask ARC anything...';
+        questionInput.placeholder = `Ask ${getAiMeta().aiName} anything...`;
         resizeTextarea();
         setStatus('');
         setLoading(false);
@@ -850,23 +962,24 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     }
 
     async function askCoach() {
+        const meta = getAiMeta();
         if (requestController) {
             setStatus(
                 questionInput.value.trim()
-                    ? 'ARC AI is still replying—tap Stop to cancel or keep your next message ready below.'
-                    : 'ARC AI is replying—tap Stop to cancel.'
+                    ? `${meta.chatLabel} is still replying—tap Stop to cancel or keep your next message ready below.`
+                    : `${meta.chatLabel} is replying—tap Stop to cancel.`
             );
             return;
         }
         const question = questionInput.value.trim();
         if (question.length < 3) {
-            setStatus('Ask a slightly more specific question so ARC AI can help.', 'error');
+            setStatus(`Ask a slightly more specific question so ${meta.chatLabel} can help.`, 'error');
             questionInput.focus();
             return;
         }
 
         setLoading(true);
-        setStatus('Syncing your latest habits before asking ARC AI…');
+        setStatus(`Syncing your latest habits before asking ${meta.chatLabel}…`);
         const controller = new AbortController();
         requestController = controller;
         const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(65000)]);
@@ -883,11 +996,11 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
         try {
             if (navigator.onLine === false) {
-                throw new Error('You are offline. Reconnect to ask ARC AI; your habits remain saved on this device.');
+                throw new Error(`You are offline. Reconnect to ask ${meta.chatLabel}; your habits remain saved on this device.`);
             }
             const user = await cancellable(HabitArc.whenAuthReady(), signal);
             if (!user || user.isAnonymous) {
-                throw new Error('Create or sign in to an account before using ARC AI.');
+                throw new Error(`Create or sign in to an account before using ${meta.chatLabel}.`);
             }
 
             owner = user.uid;
@@ -944,7 +1057,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             let payload = null;
             if (!response.ok) {
                 try { payload = await cancellable(response.json(), signal); } catch {}
-                throw new Error(payload?.error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.');
+                throw new Error(payload?.error?.message || `${meta.chatLabel} is temporarily unavailable. Please try again shortly.`);
             }
             const contentType = response.headers?.get?.('content-type') || '';
             if (/text\/event-stream/i.test(contentType)) {
@@ -952,12 +1065,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                     if (controller !== requestController || controller.signal.aborted ||
                         HabitArc.getAuthUser()?.uid !== owner) {
                         controller.abort();
-                        throw new Error('ARC AI conversation changed during streaming.');
+                        throw new Error(`${meta.chatLabel} conversation changed during streaming.`);
                     }
                     if (event === 'delta' && typeof value?.text === 'string') {
                         receivedDraft += value.text;
                         if (receivedDraft.length > 12000) {
-                            throw new Error('ARC AI reply exceeded the display limit.');
+                            throw new Error(`${meta.chatLabel} reply exceeded the display limit.`);
                         }
                         // Only genuine Gemini chunks enter the word queue.
                         wordReveal.push(value.text);
@@ -1015,6 +1128,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             activeActionApplied = false;
             activeActionAutoCreated = false;
             activeCreatedHabitId = '';
+            activePrevHabitPatch = null;
             let autoActionMessage = '';
             let duplicateAutoBlocked = false;
             if (payload.autoExecute && activeAction?.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
@@ -1041,6 +1155,36 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                         autoActionMessage = created?.message || 'Could not auto-add habit.';
                     }
                 }
+            } else if (payload.autoExecute && activeAction?.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
+                const targetHabit = HabitArc.getHabitById?.(activeAction.habitId)
+                    || (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === normaliseHabitKey(activeAction.habitName));
+                const updates = {};
+                const prevPatch = {};
+                if (activeAction.reminder !== undefined && activeAction.reminder !== null && activeAction.reminder !== '') {
+                    prevPatch.reminder = targetHabit?.reminder ?? '';
+                    updates.reminder = activeAction.reminder;
+                }
+                if (Array.isArray(activeAction.repeat) && activeAction.repeat.length) {
+                    prevPatch.repeat = Array.isArray(targetHabit?.repeat)
+                        ? [...targetHabit.repeat]
+                        : ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                    updates.repeat = activeAction.repeat;
+                }
+                if (typeof activeAction.why === 'string' && activeAction.why.trim()) {
+                    prevPatch.why = targetHabit?.why ?? '';
+                    updates.why = activeAction.why;
+                }
+                const targetId = targetHabit?.id || activeAction.habitId;
+                if (targetId && Object.keys(updates).length && HabitArc.updateHabit(targetId, updates)) {
+                    activeAction.habitId = targetId;
+                    activeAction.habitName = targetHabit?.name || activeAction.habitName || 'Habit';
+                    activeActionApplied = true;
+                    activePrevHabitPatch = Object.keys(prevPatch).length ? prevPatch : null;
+                    renderArcConsole();
+                    autoActionMessage = `Updated "${activeAction.habitName}" in HabitArc.`;
+                } else {
+                    autoActionMessage = 'Could not find that habit to update.';
+                }
             }
             renderThreadFromState();
             copyAnswerButton?.classList?.remove('hidden');
@@ -1059,15 +1203,15 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
             const remaining = payload.usage?.remaining;
             const remainingLabel = Number.isFinite(remaining)
-                ? `${remaining} ARC AI messages remaining today.`
-                : 'ARC AI response ready.';
+                ? `${remaining} ${meta.chatLabel} messages remaining today.`
+                : `${meta.chatLabel} response ready.`;
             setStatus(
                 autoActionMessage
-                    ? (Number.isFinite(remaining) ? `${autoActionMessage} ${remaining} ARC AI messages remaining.` : autoActionMessage)
+                    ? (Number.isFinite(remaining) ? `${autoActionMessage} ${remaining} ${meta.chatLabel} messages remaining.` : autoActionMessage)
                     : remainingLabel,
                 duplicateAutoBlocked ? 'muted' : 'success'
             );
-            window.HabitArcUI?.announce?.(autoActionMessage || 'ARC AI response is ready.');
+            window.HabitArcUI?.announce?.(autoActionMessage || `${meta.chatLabel} response is ready.`);
         } catch (error) {
             if (controller !== requestController) return;
             const stoppedByUser = Boolean(controller._haStoppedByUser);
@@ -1101,15 +1245,15 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 setStatus(
                     restoredPrompt
                         ? 'Stopped. Your question is kept below.'
-                        : 'ARC AI stopped.',
+                        : `${meta.chatLabel} stopped.`,
                     'muted'
                 );
-                window.HabitArcUI?.announce?.('ARC AI stopped.');
+                window.HabitArcUI?.announce?.(`${meta.chatLabel} stopped.`);
             } else {
                 setStatus(
                     error?.name === 'TimeoutError'
                         ? 'This is taking too long. Your question is kept—check your connection and try again.'
-                        : error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.',
+                        : error?.message || `${meta.chatLabel} is temporarily unavailable. Please try again shortly.`,
                     'error'
                 );
             }
@@ -1140,6 +1284,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     cardStreak?.addEventListener('click', () => launchStarterPrompt('streak'));
     cardTrend?.addEventListener('click', () => launchStarterPrompt('trend'));
     cardMomentum?.addEventListener('click', () => launchStarterPrompt('momentum'));
+    tryLvl1Button?.addEventListener('click', () => {
+        if (requestController) return;
+        questionInput.value = 'Create a 10-min stretching habit at 08:00';
+        resizeTextarea();
+        questionInput.focus();
+    });
 
     submitButton?.addEventListener('pointerdown', (event) => {
         event.preventDefault();
@@ -1193,6 +1343,17 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             renderArcConsole();
             setStatus(`Removed "${removedName}" from HabitArc.`, 'muted');
             window.HabitArcUI?.announce?.(`Removed ${removedName} from HabitArc.`);
+            return;
+        }
+        if (activeActionApplied && activePrevHabitPatch && activeAction.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
+            HabitArc.updateHabit(activeAction.habitId, activePrevHabitPatch);
+            activePrevHabitPatch = null;
+            activeActionApplied = false;
+            renderSuggestedAction(activeAction, { applied: false });
+            saveThreadState(owner);
+            renderArcConsole();
+            setStatus(`Restored "${activeAction.habitName || 'habit'}" in HabitArc.`, 'muted');
+            window.HabitArcUI?.announce?.(`Restored ${activeAction.habitName || 'habit'} in HabitArc.`);
             return;
         }
         if (activeActionApplied) return;

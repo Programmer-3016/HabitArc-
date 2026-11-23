@@ -67,6 +67,7 @@ const HabitArc = (() => {
         completionHistory: {},
         settings: {
             theme: 'dark', // "dark" | "light" | "forest" | "midnight"
+            aiName: 'ARC',
             goalDuration: 30,
             startWeekOn: 'monday',
             defaultReminderTime: '09:00',
@@ -553,6 +554,7 @@ const HabitArc = (() => {
             ...DEFAULT_DATA.settings,
             ..._cloneData(settings)
         };
+        mergedSettings.aiName = normaliseAiName(mergedSettings.aiName);
 
         return {
             habits,
@@ -1227,6 +1229,9 @@ const HabitArc = (() => {
         const data = _getData();
         const { onboardingComplete, ...settingsUpdates } = updates;
 
+        if ('aiName' in settingsUpdates) {
+            settingsUpdates.aiName = normaliseAiName(settingsUpdates.aiName);
+        }
         data.settings = { ...data.settings, ...settingsUpdates };
         if (typeof onboardingComplete === 'boolean') {
             data.onboardingComplete = onboardingComplete;
@@ -2187,8 +2192,92 @@ const HabitArc = (() => {
 
     _initializeAuthAndCloudSync();
 
+    const AI_LEVEL_TIERS = Object.freeze([
+        { level: 1, minDays: 0, rank: 'Habit Builder', shortPower: 'Make Habits', summary: 'Create and add habits directly in chat.' },
+        { level: 2, minDays: 1, rank: 'Routine Tuner', shortPower: 'Edit Reminders', summary: 'Update reminders, schedules, and notes directly.' },
+        { level: 3, minDays: 7, rank: 'Streak Tactician', shortPower: 'Streak Shield', summary: 'Build low-energy backups and smart backlog rescues.' },
+        { level: 4, minDays: 14, rank: 'Routine Architect', shortPower: 'Deep Optimizer', summary: 'Unlock multi-week tuning and deep routine insights.' },
+    ]);
+    const _aiDays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+    function normaliseAiName(value) {
+        const clean = typeof value === 'string'
+            ? value.replace(/[\u0000-\u001f\u007f<>"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 16)
+            : '';
+        return clean || 'ARC';
+    }
+
+    function _clearedDayCount() {
+        const data = _getData();
+        const habits = Array.isArray(data.habits) ? data.habits : [];
+        const records = Object.values(data.completionHistory || {});
+        const today = _today();
+        const weekdayFor = (key) => {
+            if (typeof key !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
+            const d = new Date(key + 'T12:00:00Z');
+            return Number.isFinite(+d) && d.toISOString().startsWith(key + 'T') ? _aiDays[d.getUTCDay()] : null;
+        };
+        const byId = new Map(habits.map(h => [h.id, h]));
+        const adopted = new Map(), done = new Map();
+        for (const r of records) {
+            const h = byId.get(r?.habitId);
+            if (!h || !weekdayFor(r?.date) || r.date > today || r.date < h.createdAt) continue;
+            if (h.starterHabit && r.updatedAt === r.date + 'T12:00:00.000Z' && r.completedAt === r.updatedAt) continue;
+            if (!adopted.has(h.id) || r.date < adopted.get(h.id)) adopted.set(h.id, r.date);
+            if (r.status !== 'completed') continue;
+            if (!done.has(r.date)) done.set(r.date, new Set());
+            done.get(r.date).add(h.id);
+        }
+        let count = 0;
+        for (const [date, completed] of done) {
+            const day = weekdayFor(date);
+            const scheduled = habits.filter(h => {
+                if (!h.createdAt || h.createdAt > date || (h.starterHabit && !(adopted.get(h.id) <= date))) return false;
+                const period = Array.isArray(h.scheduleHistory) && h.scheduleHistory.findLast(s => s.from <= date && Array.isArray(s.days));
+                return (period?.days ?? h.repeat ?? _aiDays).includes(day);
+            });
+            if (scheduled.length > 0 && scheduled.every(h => completed.has(h.id))) count++;
+        }
+        return count;
+    }
+
+    function getAiProgression() {
+        const settings = getSettings();
+        const clearDays = _clearedDayCount();
+        let current = AI_LEVEL_TIERS[0];
+        for (const tier of AI_LEVEL_TIERS) {
+            if (clearDays >= tier.minDays) current = tier;
+        }
+        const next = AI_LEVEL_TIERS.find(t => t.level === current.level + 1) || null;
+        const span = next ? Math.max(1, next.minDays - current.minDays) : 1;
+        const progress = next ? Math.min(span, Math.max(0, clearDays - current.minDays)) : span;
+        return {
+            aiName: normaliseAiName(settings?.aiName),
+            level: current.level,
+            rank: current.rank,
+            shortPower: current.shortPower,
+            summary: current.summary,
+            clearDays,
+            currentMinDays: current.minDays,
+            nextLevel: next?.level || null,
+            nextRank: next?.rank || null,
+            nextPower: next?.shortPower || null,
+            nextMinDays: next?.minDays ?? null,
+            remainingDays: next ? Math.max(0, next.minDays - clearDays) : 0,
+            progressPct: next ? Math.round((progress / span) * 100) : 100,
+            tiers: AI_LEVEL_TIERS.map(t => ({
+                ...t,
+                unlocked: clearDays >= t.minDays,
+                current: t.level === current.level,
+            })),
+        };
+    }
+
     // ─── Public API ─────────────────────────────────
     return {
+        // AI Buddy & Progression
+        normaliseAiName,
+        getAiProgression,
         // Habits
         getHabits,
         getHabitById,

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal } from '../habit-analytics.js';
+import { aiProgressionForClearDays } from '../runner-treasures.js';
 
 const html = readFileSync(new URL('../Arc_AI.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
@@ -15,7 +16,7 @@ class Clock extends Date {
 }
 const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false, holdStream = false, autoExecute = false, actionName = '10-Min Wind-Down' } = {}) {
+function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false, holdStream = false, autoExecute = false, actionName = '10-Min Wind-Down', aiName = 'ARC', clearDays = 0, suggestedAction = null } = {}) {
     const elements = new Map();
     const events = new Map();
     const requests = [];
@@ -57,20 +58,28 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             const date = new Clock(); date.setDate(date.getDate() - i);
             if (index === 1 ? i <= 18 : (i <= 5 || (i >= 8 && i <= 10))) completions[dateKey(date)] = true;
         }
-        return { id: `habit-${index}`, name, icon: 'book', completions, createdAt: '2026-10-01' };
+        return { id: `habit-${index}`, name, icon: 'book', reminder: '08:00', repeat: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], why: 'Daily anchor', completions, createdAt: '2026-10-01' };
     });
     const addedHabits = [];
     const updatedHabits = [];
     const deletedHabits = [];
+    const progression = { aiName, ...aiProgressionForClearDays(clearDays) };
     const app = {
-        getSettings: () => ({ userName: 'Alex' }),
+        getSettings: () => ({ userName: 'Alex', aiName }),
+        getAiProgression: () => progression,
         getHabits: () => habits,
         getHabitById: id => habits.find(h => h.id === id) || null,
         getCompletionHistory: () => [],
         getOverallCurrentStreak: () => empty ? 0 : 14,
         getOverallLongestStreak: () => empty ? 0 : 14,
         addHabit: payload => { const h = { id: `new-${addedHabits.length}`, ...payload }; addedHabits.push(h); habits.push(h); return { success: true, habit: h }; },
-        updateHabit: (id, updates) => { updatedHabits.push({ id, updates }); return true; },
+        updateHabit: (id, updates) => {
+            updatedHabits.push({ id, updates });
+            const target = habits.find(h => h.id === id);
+            if (!target) return false;
+            Object.assign(target, updates);
+            return true;
+        },
         deleteHabit: id => { deletedHabits.push(id); const idx = habits.findIndex(h => h.id === id); if (idx !== -1) habits.splice(idx, 1); },
         escapeHTML,
         whenAuthReady: async () => signedIn ? { uid: 'qa-user' } : null,
@@ -99,7 +108,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             }
             const payload = {
                 answer: 'Try reading 10 minutes right after dinner.',
-                suggestedAction: {
+                suggestedAction: suggestedAction || {
                     type: 'create_habit',
                     name: actionName,
                     category: 'Mindfulness',
@@ -401,4 +410,58 @@ test('Level 1 autoExecute creates habit directly with 1-tap UNDO and skips dupli
     await waitFor(() => /already in your habits/.test(dup.elements.get('ai-coach-status').textContent));
     assert.equal(dup.addedHabits.length, 0);
     assert.equal(dup.elements.get('ai-coach-apply-btn').textContent, 'ADD HABIT');
+});
+
+test('Arc_AI displays pixel Level roadmap, custom AI name, try-chip prefill, and Level 2 auto-update with UNDO', async () => {
+    const l1 = arcAi();
+    assert.equal(l1.elements.get('arc-ai-buddy-name').textContent, 'ARC');
+    assert.equal(l1.elements.get('arc-ai-lvl-badge').textContent, 'LVL 1');
+    assert.equal(l1.elements.get('arc-ai-rank').textContent, 'HABIT BUILDER');
+    assert.equal(l1.elements.get('arc-tier-1').classList.contains('is-unlocked'), true);
+    assert.equal(l1.elements.get('arc-tier-state-1').textContent, 'ACTIVE');
+    assert.equal(l1.elements.get('arc-tier-state-2').textContent, 'LOCKED');
+    assert.match(l1.elements.get('arc-ai-power-copy').textContent, /Right now at Level 1 you can use ARC to create habits for you/);
+
+    l1.elements.get('arc-lvl1-try-btn').handlers.click();
+    assert.equal(l1.elements.get('ai-coach-question').value, 'Create a 10-min stretching habit at 08:00');
+
+    const l2 = arcAi({
+        signedIn: true,
+        aiName: 'NOVA',
+        clearDays: 1,
+        autoExecute: true,
+        suggestedAction: {
+            type: 'update_habit',
+            habitId: 'habit-1',
+            habitName: 'Walk',
+            reminder: '06:45',
+            why: 'Cooler morning air'
+        }
+    });
+    assert.equal(l2.elements.get('arc-ai-buddy-name').textContent, 'NOVA');
+    assert.equal(l2.elements.get('arc-ai-lvl-badge').textContent, 'LVL 2');
+    assert.equal(l2.elements.get('arc-ai-rank').textContent, 'ROUTINE TUNER');
+    assert.equal(l2.elements.get('arc-thread-name').textContent, 'NOVA THREAD');
+    assert.equal(l2.elements.get('arc-tier-2').classList.contains('is-unlocked'), true);
+    assert.equal(l2.elements.get('arc-tier-state-1').textContent, 'ON ✓');
+    assert.equal(l2.elements.get('arc-tier-state-2').textContent, 'ACTIVE');
+    assert.equal(l2.elements.get('arc-tier-state-3').textContent, 'LOCKED');
+
+    l2.elements.get('ai-coach-question').value = 'Change Walk reminder to 06:45';
+    l2.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => l2.updatedHabits.length === 1);
+
+    assert.equal(l2.habits[1].reminder, '06:45');
+    assert.equal(l2.elements.get('ai-coach-action-kicker').textContent, 'UPDATED BY NOVA');
+    assert.equal(l2.elements.get('ai-coach-action-title').textContent, 'Updated "Walk"');
+    assert.match(l2.elements.get('ai-coach-status').textContent, /Updated "Walk" in HabitArc\. 6 NOVA messages remaining/);
+    const actionBtn = l2.elements.get('ai-coach-apply-btn');
+    assert.equal(actionBtn.textContent, 'UNDO');
+
+    actionBtn.handlers.click();
+    assert.equal(l2.updatedHabits.length, 2);
+    assert.equal(l2.habits[1].reminder, '08:00');
+    assert.equal(l2.habits[1].why, 'Daily anchor');
+    assert.equal(l2.elements.get('ai-coach-action-kicker').textContent, 'PROPOSED HABIT UPDATE');
+    assert.equal(actionBtn.textContent, 'APPLY UPDATE');
 });

@@ -7,7 +7,7 @@ const html = readFileSync(new URL('../Dashboard.html', import.meta.url), 'utf8')
 const script = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1];
 
 // Small DOM harness for the page's rendering contract; layout is checked in a browser.
-function dashboard({ count = 4, completed = 3 } = {}) {
+function dashboard({ count = 4, completed = 3, aiName = undefined, progression = null } = {}) {
     const elements = new Map();
     const events = new Map();
     let focused;
@@ -40,7 +40,8 @@ function dashboard({ count = 4, completed = 3 } = {}) {
     const toggles = () => elements.get('habits-container').children.flatMap(card => card.toggle ? [card.toggle] : []);
     const app = {
         getAuthUser: () => null,
-        getSettings: () => ({ userName: 'Sarthak Chauhan' }),
+        getSettings: () => ({ userName: 'Sarthak Chauhan', ...(aiName ? { aiName } : {}) }),
+        ...(progression ? { getAiProgression: () => progression } : {}),
         getGreeting: () => 'Good morning', getFormattedToday: () => 'Sunday, November 15',
         getOverallCurrentStreak: () => 12, getOverallLongestStreak: () => 28,
         getTodayProgress: () => ({ total: habits.length, completed: habits.filter(h => h.completed).length, percentage: habits.length ? Math.round(habits.filter(h => h.completed).length / habits.length * 100) : 0 }),
@@ -117,4 +118,31 @@ test('focused dashboard retains the five mobile navigation destinations and top-
     assert.doesNotMatch(html, /DAY AT A GLANCE|fadeUp|animation-delay/, 'duplicate Day At A Glance card and fade lag removed');
     const heroMatch = html.match(/<section class="ha-progress-card[\s\S]*?<\/section>/);
     assert.ok(heroMatch && heroMatch[0].includes('id="ha-day-dashboard-peek"'), 'Day summary strip lives inside unified hero card');
+});
+
+test('focused dashboard renders custom AI name pill, level badge, and pixel banner safely', () => {
+    const minimal = dashboard();
+    assert.equal(minimal.elements.get('dash-ai-pill-label').textContent, 'ARC · LVL 1');
+    assert.equal(minimal.elements.get('dash-ai-name').textContent, 'ARC');
+    assert.equal(minimal.elements.get('dash-ai-level-badge').textContent, 'LVL 1');
+    assert.match(minimal.elements.get('dash-ai-power-copy').textContent, /Right now ARC can make habits for you/);
+
+    const custom = dashboard({
+        aiName: 'NOVA',
+        progression: {
+            aiName: 'NOVA',
+            level: 2,
+            rank: 'Routine Tuner',
+            remainingDays: 6,
+            nextLevel: 3,
+            nextPower: 'Streak Shield',
+            summary: 'Update reminders, schedules, and notes directly.'
+        }
+    });
+    assert.equal(custom.elements.get('dash-ai-pill-label').textContent, 'NOVA · LVL 2');
+    assert.equal(custom.elements.get('dash-ai-pill').attrs['aria-label'], 'NOVA Level 2 · Open AI');
+    assert.equal(custom.elements.get('dash-ai-name').textContent, 'NOVA');
+    assert.equal(custom.elements.get('dash-ai-rank').textContent, 'ROUTINE TUNER');
+    assert.equal(custom.elements.get('dash-ai-level-badge').textContent, 'LVL 2');
+    assert.match(custom.elements.get('dash-ai-power-copy').textContent, /Update reminders, schedules, and notes directly.*6d to LVL 3/);
 });

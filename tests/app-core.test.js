@@ -164,3 +164,29 @@ test('habit chime reuses one shared AudioContext across 60 completions and emits
     triggerVisible();
     assert.equal(dispatched.some(e => e.type === 'habitarc:data-changed' && e.detail?.source === 'visibility'), true);
 });
+
+test('custom aiName sanitizes safely and getAiProgression unlocks Level 2 on first cleared day', () => {
+    const { app } = application();
+    assert.equal(app.getSettings().aiName, 'ARC');
+    assert.equal(app.getAiProgression().level, 1);
+    assert.equal(app.getAiProgression().aiName, 'ARC');
+
+    app.updateSettings({ aiName: '  Nova   <Coach>  ' });
+    assert.equal(app.getSettings().aiName, 'Nova Coach');
+    assert.equal(app.getAiProgression().aiName, 'Nova Coach');
+
+    app.updateSettings({ aiName: '   ' });
+    assert.equal(app.getSettings().aiName, 'ARC');
+
+    app.updateSettings({ aiName: 'Nova' });
+    const { habit } = app.addHabit({ name: 'Stretch' });
+    assert.equal(app.getAiProgression().clearDays, 0);
+    assert.equal(app.getAiProgression().level, 1);
+
+    app.completeHabit(habit.id);
+    const l2 = app.getAiProgression();
+    assert.equal(l2.aiName, 'Nova');
+    assert.equal(l2.clearDays, 1);
+    assert.equal(l2.level, 2);
+    assert.equal(l2.shortPower, 'Edit Reminders');
+});

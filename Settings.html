@@ -327,6 +327,24 @@
         </div>
     </div>
 </section>
+<!-- HabitArc AI Buddy Section -->
+<section class="mb-section-margin">
+    <div class="flex items-center justify-between gap-2 mb-element-gap pl-2 pr-1">
+        <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">HabitArc AI</h3>
+        <span id="settings-ai-level-pill" class="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-[10px] geist uppercase tracking-wider">LVL 1</span>
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4 space-y-3">
+        <div>
+            <label for="settings-ai-name-input" class="block font-headline-md text-sm font-bold text-on-surface">AI Assistant Name</label>
+            <p id="settings-ai-power-summary" class="text-xs text-on-surface-variant mt-0.5">Right now ARC can make habits for you. Clear days to level up.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <input id="settings-ai-name-input" type="text" maxlength="16" autocomplete="off" placeholder="ARC" class="flex-1 min-w-0 rounded-xl border border-outline-variant/60 bg-surface-container-low px-3.5 py-2 text-sm font-semibold text-on-surface focus:outline-none focus:border-primary"/>
+            <button id="settings-ai-save-btn" type="button" class="btn-press px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold uppercase tracking-wide shrink-0 cursor-pointer">Save</button>
+        </div>
+        <p id="settings-ai-status" class="text-[11px] font-medium text-secondary min-h-[16px]" role="status" aria-live="polite"></p>
+    </div>
+</section>
 <!-- Notifications Section -->
 <section class="mb-section-margin">
 <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Notifications</h3>
@@ -581,7 +599,46 @@
 
     updateThemeUI();
 
-    window.addEventListener('habitarc:data-changed', updateThemeUI);
+    const aiInput = document.getElementById('settings-ai-name-input');
+    const aiSaveBtn = document.getElementById('settings-ai-save-btn');
+    const aiLevelPill = document.getElementById('settings-ai-level-pill');
+    const aiPowerSummary = document.getElementById('settings-ai-power-summary');
+    const aiStatus = document.getElementById('settings-ai-status');
+
+    function syncAiSettingsUI(preserveTyping = false) {
+        const prog = HabitArc.getAiProgression?.() || { aiName: HabitArc.getSettings?.()?.aiName || 'ARC', level: 1, rank: 'Habit Builder', summary: 'Create and add habits directly in chat.' };
+        if (aiInput && (!preserveTyping || document.activeElement !== aiInput)) {
+            aiInput.value = prog.aiName;
+        }
+        if (aiLevelPill) aiLevelPill.textContent = `LVL ${prog.level} · ${prog.rank.toUpperCase()}`;
+        if (aiPowerSummary) aiPowerSummary.textContent = prog.level === 1
+            ? `Right now ${prog.aiName} can make habits for you. Clear days to level up.`
+            : `${prog.aiName} power active: ${prog.summary}`;
+    }
+
+    function saveSettingsAiName() {
+        const chosen = HabitArc.normaliseAiName?.(aiInput?.value) || String(aiInput?.value || '').trim().slice(0, 16) || 'ARC';
+        HabitArc.updateSettings({ aiName: chosen });
+        if (aiInput) aiInput.value = chosen;
+        syncAiSettingsUI(false);
+        if (aiStatus) aiStatus.textContent = `Saved AI name as ${chosen}.`;
+        window.HabitArcUI?.announce?.(`AI name updated to ${chosen}.`);
+    }
+
+    aiSaveBtn?.addEventListener('click', saveSettingsAiName);
+    aiInput?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            saveSettingsAiName();
+        }
+    });
+
+    syncAiSettingsUI(false);
+
+    window.addEventListener('habitarc:data-changed', () => {
+        updateThemeUI();
+        syncAiSettingsUI(true);
+    });
 
     const dailyToggle = document.getElementById('toggle-daily');
     const weeklyToggle = document.getElementById('toggle-weekly');

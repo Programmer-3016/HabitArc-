@@ -128,7 +128,11 @@ try {
       pending.get(data.id).resolve(data.result);
       pending.delete(data.id);
     } else if (data.method === 'Runtime.exceptionThrown') {
-      errors.push(data.params.exceptionDetails?.text || 'Runtime exception');
+      const ex = data.params.exceptionDetails;
+      const msg = `${ex?.url || ''}:${ex?.lineNumber ?? ''} ${ex?.exception?.description || ex?.text || 'Runtime exception'}`;
+      if (!/Offline browser QA test: Firebase intentionally disabled/.test(msg)) {
+        errors.push(msg);
+      }
     } else if (data.method === 'Network.requestWillBeSent') {
       if (blockFonts && /fonts\.(googleapis|gstatic)\.com/i.test(data.params.request.url)) {
         blockedReqIds.set(data.params.requestId, data.params.request.url);
@@ -423,6 +427,142 @@ try {
   assert.equal(dashCheck.firstPaintOpacity, '1', 'Dashboard cards render immediately without fade-up lag');
   assert.equal(dashCheck.firstHabitVisibleAboveDock, true, 'First habit lifts cleanly above bottom dock on 390px phone');
   assert.equal(dashCheck.hasBottomScrim, true, 'Mobile bottom dock renders smooth gradient fade scrim');
+
+  // 9) Custom AI Name + Pixel Level 1->2 UI across Onboarding Step 5, Settings, Dashboard & ARC AI at 390px
+  await ev(`localStorage.removeItem('habitarc_data')`);
+  await go(`${base}/Onboarding.html`);
+  for (let i = 0; i < 4; i++) {
+    await ev(`document.getElementById('next-step-btn')?.click()`);
+    await sleep(160);
+  }
+  const obAi = await ev(`(() => {
+    const inp = document.getElementById('ai-name-input');
+    inp.value = 'NOVA';
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    return {
+      step5Active: document.getElementById('step-5')?.classList.contains('active'),
+      indicator: document.getElementById('step-indicator')?.textContent.trim(),
+      preview: document.getElementById('ob-ai-preview-name')?.textContent.trim(),
+      inline: document.getElementById('ob-ai-preview-inline')?.textContent.trim(),
+      overflow: document.documentElement.scrollWidth > innerWidth
+    };
+  })()`);
+  await saveShot('onboarding-ai-name-390.png');
+  assert.equal(obAi.step5Active, true, 'Onboarding advances cleanly to Step 5 Name your AI');
+  assert.equal(obAi.indicator, '5 / 8');
+  assert.equal(obAi.preview, 'NOVA');
+  assert.equal(obAi.inline, 'NOVA');
+  assert.equal(obAi.overflow, false, 'Onboarding Step 5 fits 390px without horizontal overflow');
+
+  await go(`${base}/Settings.html`);
+  await ev(`(() => {
+    const today = HabitArc.today();
+    const d = {
+      habits: [{ id: 'h1', name: 'Stretch', category: 'Health', reminder: '08:00', repeat: ['mon','tue','wed','thu','fri','sat','sun'], createdAt: today, completions: {} }],
+      completionHistory: {},
+      settings: { userName: 'Alex', theme: 'light', aiName: 'ARC' },
+      onboardingComplete: true
+    };
+    localStorage.setItem('habitarc_data', JSON.stringify(d));
+    window.dispatchEvent(new CustomEvent('habitarc:data-changed', { detail: { source: 'storage' } }));
+  })()`);
+  await go(`${base}/Settings.html`);
+  await ev(`(() => {
+    const inp = document.getElementById('settings-ai-name-input');
+    inp.value = 'NOVA';
+    document.getElementById('settings-ai-save-btn').click();
+  })()`);
+  await sleep(150);
+  const settingsAi = await ev(`({
+    levelPill: document.getElementById('settings-ai-level-pill')?.textContent.trim(),
+    summary: document.getElementById('settings-ai-power-summary')?.textContent.trim(),
+    status: document.getElementById('settings-ai-status')?.textContent.trim(),
+    savedName: HabitArc.getSettings().aiName,
+    overflow: document.documentElement.scrollWidth > innerWidth
+  })`);
+  await ev(`document.getElementById('settings-ai-save-btn')?.scrollIntoView({ block: 'center' })`);
+  await sleep(100);
+  await saveShot('settings-ai-390.png');
+  assert.equal(settingsAi.savedName, 'NOVA');
+  assert.equal(settingsAi.levelPill, 'LVL 1 · HABIT BUILDER');
+  assert.match(settingsAi.summary, /Right now NOVA can make habits for you/);
+  assert.match(settingsAi.status, /Saved AI name as NOVA/);
+  assert.equal(settingsAi.overflow, false, 'Settings HabitArc AI section fits 390px cleanly');
+
+  await go(`${base}/Dashboard.html`);
+  const dashLvl1 = await ev(`(() => {
+    const firstHabit = document.querySelector('.ha-dashboard-habit');
+    const dock = document.querySelector('.ha-bottom-nav');
+    const hRect = firstHabit ? firstHabit.getBoundingClientRect() : null;
+    const dRect = dock ? dock.getBoundingClientRect() : null;
+    return {
+      pill: document.getElementById('dash-ai-pill-label')?.textContent.trim(),
+      bannerName: document.getElementById('dash-ai-name')?.textContent.trim(),
+      bannerRank: document.getElementById('dash-ai-rank')?.textContent.trim(),
+      bannerLvl: document.getElementById('dash-ai-level-badge')?.textContent.trim(),
+      copy: document.getElementById('dash-ai-power-copy')?.textContent.trim(),
+      firstHabitVisibleAboveDock: Boolean(hRect && dRect && hRect.top < dRect.top - 40),
+      overflow: document.documentElement.scrollWidth > innerWidth
+    };
+  })()`);
+  await saveShot('dashboard-ai-lvl1-390.png');
+  assert.equal(dashLvl1.pill, 'NOVA · LVL 1');
+  assert.equal(dashLvl1.bannerName, 'NOVA');
+  assert.equal(dashLvl1.bannerRank, 'HABIT BUILDER');
+  assert.equal(dashLvl1.bannerLvl, 'LVL 1');
+  assert.match(dashLvl1.copy, /Right now NOVA can make habits for you/);
+  assert.equal(dashLvl1.firstHabitVisibleAboveDock, true, 'Dashboard keeps first habit above dock with AI pill + banner');
+  assert.equal(dashLvl1.overflow, false, 'Dashboard with AI pill & pixel banner fits 390px without overflow');
+
+  await go(`${base}/Arc_AI.html`);
+  await saveShot('arc-ai-lvl1-light-390.png');
+  const arcLvl1 = await ev(`(() => {
+    const comp = document.getElementById('ai-coach-form')?.getBoundingClientRect();
+    const dock = document.querySelector('nav.ha-bottom-nav')?.getBoundingClientRect();
+    document.getElementById('arc-lvl1-try-btn')?.click();
+    return {
+      buddy: document.getElementById('arc-ai-buddy-name')?.textContent.trim(),
+      lvl: document.getElementById('arc-ai-lvl-badge')?.textContent.trim(),
+      t1: document.getElementById('arc-tier-state-1')?.textContent.trim(),
+      t2: document.getElementById('arc-tier-state-2')?.textContent.trim(),
+      t4: document.getElementById('arc-tier-state-4')?.textContent.trim(),
+      powerCopy: document.getElementById('arc-ai-power-copy')?.textContent.trim(),
+      prefill: document.getElementById('ai-coach-question')?.value,
+      composerClear: Boolean(comp && dock && comp.bottom <= dock.top - 4),
+      overflow: document.documentElement.scrollWidth > innerWidth
+    };
+  })()`);
+  assert.equal(arcLvl1.buddy, 'NOVA');
+  assert.equal(arcLvl1.lvl, 'LVL 1');
+  assert.equal(arcLvl1.t1, 'ACTIVE');
+  assert.equal(arcLvl1.t2, 'LOCKED');
+  assert.equal(arcLvl1.t4, 'LOCKED');
+  assert.match(arcLvl1.powerCopy, /Right now at Level 1 you can use NOVA to create habits for you/);
+  assert.equal(arcLvl1.prefill, 'Create a 10-min stretching habit at 08:00');
+  assert.equal(arcLvl1.composerClear, true, 'ARC AI Zen composer sits cleanly above bottom dock with zero overlap');
+  assert.equal(arcLvl1.overflow, false, 'ARC AI Pixel Level roadmap fits 390px without overflow');
+
+  await ev(`(() => {
+    HabitArc.completeHabit('h1');
+    HabitArc.setTheme('dark');
+  })()`);
+  await go(`${base}/Arc_AI.html`);
+  const arcLvl2 = await ev(`({
+    lvl: document.getElementById('arc-ai-lvl-badge')?.textContent.trim(),
+    rank: document.getElementById('arc-ai-rank')?.textContent.trim(),
+    t1: document.getElementById('arc-tier-state-1')?.textContent.trim(),
+    t2: document.getElementById('arc-tier-state-2')?.textContent.trim(),
+    theme: document.documentElement.dataset.theme,
+    overflow: document.documentElement.scrollWidth > innerWidth
+  })`);
+  await saveShot('arc-ai-lvl2-dark-390.png');
+  assert.equal(arcLvl2.lvl, 'LVL 2');
+  assert.equal(arcLvl2.rank, 'ROUTINE TUNER');
+  assert.equal(arcLvl2.t1, 'ON ✓');
+  assert.equal(arcLvl2.t2, 'ACTIVE');
+  assert.equal(arcLvl2.theme, 'dark');
+  assert.equal(arcLvl2.overflow, false, 'ARC AI dark theme LVL 2 fits 390px without overflow');
+
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);
 
   console.log(JSON.stringify({

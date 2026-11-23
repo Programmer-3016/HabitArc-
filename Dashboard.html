@@ -219,6 +219,16 @@
     <section class="ha-progress-card ha-dashboard-hero fade-up" aria-labelledby="progress-title">
         <div class="ha-rpg-hero-toprow">
             <h2 id="progress-title" class="ha-dashboard-eyebrow">Today's progress</h2>
+            <a id="dash-ai-pill" href="Arc_AI.html" class="ha-ai-dash-pill" aria-label="Open HabitArc AI">
+                <svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                    <rect x="7" y="1" width="2" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
+                    <rect x="4" y="4" width="8" height="1" fill="currentColor"/>
+                    <rect x="4" y="5" width="8" height="8" fill="currentColor"/>
+                    <rect x="5" y="7" width="2" height="2" fill="var(--ha-hero-bg, #ffffff)"/>
+                    <rect x="9" y="7" width="2" height="2" fill="var(--ha-hero-bg, #ffffff)"/>
+                </svg>
+                <span id="dash-ai-pill-label">ARC · LVL 1</span>
+            </a>
         </div>
         <div class="ha-dashboard-progress">
             <div class="ha-dashboard-progress-copy">
@@ -266,6 +276,31 @@
         <a href="Habits.html" class="ha-dashboard-view-all">View all habits<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
     </section>
 
+    <!-- ─── AI Level & Active Power Strip (Pixel UI) ── -->
+    <section id="dash-ai-banner" class="ha-dash-ai-card fade-up" aria-label="HabitArc AI Level and Powers">
+        <a href="Arc_AI.html" class="ha-dash-ai-link">
+            <div class="ha-dash-ai-top">
+                <span class="ha-dash-ai-id">
+                    <span class="ha-dash-ai-ico" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                            <rect x="7" y="1" width="2" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
+                            <rect x="4" y="4" width="8" height="1" fill="#121010"/>
+                            <rect x="4" y="5" width="8" height="8" fill="#121010"/>
+                            <rect x="5" y="7" width="2" height="2" fill="#ffffff"/>
+                            <rect x="9" y="7" width="2" height="2" fill="#ffffff"/>
+                        </svg>
+                    </span>
+                    <span id="dash-ai-name" class="ha-dash-ai-name">ARC</span>
+                    <span class="ha-dash-ai-rank" id="dash-ai-rank">HABIT BUILDER</span>
+                </span>
+                <span id="dash-ai-level-badge" class="ha-dash-ai-lvl">LVL 1</span>
+            </div>
+            <div class="ha-dash-ai-body">
+                <p id="dash-ai-power-copy" class="ha-dash-ai-copy">Right now ARC can build habits for you in chat. Clear 1 day for LVL 2.</p>
+                <span id="dash-ai-cta" class="ha-dash-ai-cta">OPEN →</span>
+            </div>
+        </a>
+    </section>
 
 </main>
 
@@ -345,6 +380,32 @@
         if (document.getElementById('header-streak-count')) document.getElementById('header-streak-count').textContent = overallStreak + 'd';
         if (document.getElementById('header-streak-count-web')) document.getElementById('header-streak-count-web').textContent = overallStreak + ' Day Streak';
         updateProfileShortcut();
+
+        const prog = HabitArc.getAiProgression?.() || {
+            aiName: HabitArc.normaliseAiName?.(HabitArc.getSettings?.()?.aiName) || HabitArc.getSettings?.()?.aiName || 'ARC',
+            level: 1,
+            rank: 'Habit Builder',
+            remainingDays: 1,
+            nextLevel: 2,
+            nextPower: 'Edit Reminders',
+            summary: 'Create and add habits directly in chat.'
+        };
+        const pillLabel = document.getElementById('dash-ai-pill-label');
+        if (pillLabel) pillLabel.textContent = `${prog.aiName} · LVL ${prog.level}`;
+        const pillEl = document.getElementById('dash-ai-pill');
+        if (pillEl) pillEl.setAttribute('aria-label', `${prog.aiName} Level ${prog.level} · Open AI`);
+        const dashAiName = document.getElementById('dash-ai-name');
+        if (dashAiName) dashAiName.textContent = prog.aiName;
+        const dashAiRank = document.getElementById('dash-ai-rank');
+        if (dashAiRank) dashAiRank.textContent = prog.rank.toUpperCase();
+        const dashAiLvl = document.getElementById('dash-ai-level-badge');
+        if (dashAiLvl) dashAiLvl.textContent = `LVL ${prog.level}`;
+        const dashAiCopy = document.getElementById('dash-ai-power-copy');
+        if (dashAiCopy) {
+            dashAiCopy.textContent = prog.level === 1
+                ? `Right now ${prog.aiName} can make habits for you. Clear 1 day to unlock LVL 2.`
+                : `${prog.summary}${prog.nextLevel ? ` · ${prog.remainingDays}d to LVL ${prog.nextLevel}` : ' · Max rank active!'}`;
+        }
     }
 
     function render() {

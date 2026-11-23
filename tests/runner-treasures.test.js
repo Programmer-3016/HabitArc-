@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clearedDays, changeTreasure, inventory } from '../runner-treasures.js';
+import { clearedDays, changeTreasure, inventory, AI_DEFAULT_NAME, AI_LEVEL_TIERS, normaliseAiName, computeAiProgression } from '../runner-treasures.js';
 
 const habit = (id, repeat, extra = {}) => ({id, createdAt:'2026-11-01', repeat, ...extra});
 const done = (habitId, date, extra = {}) => ({habitId, date, status:'completed', updatedAt:date+'T10:32:11Z', ...extra});
@@ -45,4 +45,46 @@ test('tiers require 1/7/14/30 clears; opening auto-equips, remounting and re-equ
   assert.equal(inventory(bag).xp,500); assert.equal(inventory(bag).equipped,'wood');
   assert.equal(changeTreasure({},'gold','equip',99),null);
   assert.deepEqual(inventory({opened:['wood','wood','bogus'],equipped:'gold'}),{opened:['wood'],equipped:null,xp:30});
+});
+
+test('AI progression unlocks LVL 1/2/3/4 at 0/1/7/14 clear days and sanitizes custom AI names', () => {
+  assert.equal(AI_DEFAULT_NAME, 'ARC');
+  assert.equal(AI_LEVEL_TIERS.length, 4);
+  assert.equal(normaliseAiName(''), 'ARC');
+  assert.equal(normaliseAiName('  Nova   Bot  '), 'Nova Bot');
+  assert.equal(normaliseAiName('  Nova   <Coach>  '), 'Nova Coach');
+  assert.equal(normaliseAiName('SuperLongCustomAssistantName'), 'SuperLongCustomA');
+
+  const l1 = computeAiProgression({ clearCount: 0 });
+  assert.equal(l1.level, 1);
+  assert.equal(l1.shortPower, 'Make Habits');
+  assert.equal(l1.nextLevel, 2);
+  assert.equal(l1.remainingDays, 1);
+  assert.equal(l1.tiers.filter(t => t.unlocked).length, 1);
+
+  const l2 = computeAiProgression({ clearCount: 1 });
+  assert.equal(l2.level, 2);
+  assert.equal(l2.nextLevel, 3);
+  assert.equal(l2.remainingDays, 6);
+  assert.equal(l2.tiers.filter(t => t.unlocked).length, 2);
+
+  const l3 = computeAiProgression({ clearCount: 7 });
+  assert.equal(l3.level, 3);
+  assert.equal(l3.nextLevel, 4);
+  assert.equal(l3.remainingDays, 7);
+
+  const l4 = computeAiProgression({ clearCount: 14 });
+  assert.equal(l4.level, 4);
+  assert.equal(l4.nextLevel, null);
+  assert.equal(l4.remainingDays, 0);
+  assert.equal(l4.progressPct, 100);
+  assert.equal(l4.tiers.every(t => t.unlocked), true);
+
+  const fromHabits = computeAiProgression({
+    habits: [habit('walk', ['mon', 'wed', 'fri'])],
+    completionHistory: [done('walk', '2026-11-16'), done('walk', '2026-11-18')],
+    today
+  });
+  assert.equal(fromHabits.clearDays, 2);
+  assert.equal(fromHabits.level, 2);
 });
