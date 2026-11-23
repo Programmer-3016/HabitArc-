@@ -2058,6 +2058,11 @@ body.ha-arc-body > main.ha-arc-ai {
     padding-bottom: 9px; border-bottom: 1px solid rgb(var(--ha-outline-variant) / .35);
 }
 .ha-arc-thread-id { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.ha-arc-thread-avatar {
+    width: 28px; height: 28px; flex-shrink: 0;
+    background: #ffffff; border: 1.5px solid rgb(var(--ha-outline-variant));
+    border-radius: 9px; display: grid; place-items: center;
+}
 .ha-arc-thread-name { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: rgb(var(--ha-on-surface)); }
 .ha-arc-thread-sub { font-size: 11.5px; color: rgb(var(--ha-on-surface-variant)); }
 .ha-arc-new-btn {
@@ -2235,13 +2240,21 @@ body.ha-arc-body > main.ha-arc-ai {
 /* Composer Docked Bar */
 .ha-arc-composer { flex-shrink: 0; margin-top: 0; display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
 .ha-arc-prompt-status {
-    min-height: 16px; font-size: 12px; line-height: 1.35; color: rgb(var(--ha-on-surface-variant));
+    min-height: 0; font-size: 11px; line-height: 1.35; color: rgb(var(--ha-on-surface-variant));
+    padding: 0 4px;
 }
-.ha-arc-prompt-status:is(.text-error, .text-secondary) {
+.ha-arc-prompt-status.text-error {
     padding: 6px 10px;
     background: rgb(var(--ha-surface-container-low));
     border: 1px solid rgb(var(--ha-outline-variant) / .7);
     border-left: 3px solid currentColor;
+    border-radius: 10px;
+}
+.ha-arc-prompt-status.text-secondary {
+    padding: 0 6px;
+    background: transparent;
+    border: 0;
+    color: rgb(var(--ha-on-surface-variant));
 }
 .ha-arc-prompt-status:empty { display: none; }
 .ha-arc-prompt-box {
@@ -2253,7 +2266,7 @@ body.ha-arc-body > main.ha-arc-ai {
 .ha-arc-prompt-box textarea {
     flex: 1; min-width: 0; resize: none; border: 0 !important; background: transparent !important;
     box-shadow: none !important; --tw-ring-shadow: 0 0 #0000 !important; --tw-ring-offset-shadow: 0 0 #0000 !important;
-    padding: 7px 0 !important;
+    padding: 7px 0 !important; overflow-y: hidden;
     font-family: 'Hanken Grotesk', -apple-system, sans-serif; font-size: 16px; line-height: 1.45;
     color: rgb(var(--ha-on-surface)) !important; max-height: 112px;
 }

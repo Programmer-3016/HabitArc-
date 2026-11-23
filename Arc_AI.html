@@ -258,13 +258,15 @@
     <section id="arc-thread-view" class="hidden ha-arc-thread" aria-label="ARC AI conversation">
         <div class="ha-arc-thread-hdr">
             <div class="ha-arc-thread-id">
-                <svg width="22" height="22" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-                    <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
-                    <rect x="4" y="4" width="8" height="1" fill="#000000"/>
-                    <rect x="4" y="5" width="8" height="8" fill="#ffffff"/>
-                    <rect x="5" y="7" width="2" height="2" fill="#121010"/>
-                    <rect x="9" y="7" width="2" height="2" fill="#121010"/>
-                </svg>
+                <span class="ha-arc-thread-avatar" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                        <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
+                        <rect x="4" y="4" width="8" height="1" fill="#000000"/>
+                        <rect x="4" y="5" width="8" height="8" fill="#121010"/>
+                        <rect x="5" y="7" width="2" height="2" fill="#ffffff"/>
+                        <rect x="9" y="7" width="2" height="2" fill="#ffffff"/>
+                    </svg>
+                </span>
                 <div class="min-w-0">
                     <div class="ha-arc-thread-name">ARC THREAD</div>
                     <div id="arc-thread-context" class="ha-arc-thread-sub">28d log loaded</div>
@@ -549,6 +551,10 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         const wasZenHome = zenHome && !zenHome.classList.contains('hidden');
         if (zenHome) zenHome.classList.toggle('hidden', show);
         if (threadView) threadView.classList.toggle('hidden', !show);
+        if (questionInput && !questionInput.value) {
+            questionInput.placeholder = show ? 'Ask a follow-up...' : 'Ask ARC anything...';
+            resizeTextarea();
+        }
         // On phones, Zen uses normal document scrolling while the conversation
         // uses its own bounded scrollport. Reset the old document position when
         // switching modes so the sticky header and thread header are not clipped.
@@ -616,7 +622,9 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     function resizeTextarea() {
         if (!questionInput?.style) return;
         questionInput.style.height = 'auto';
-        questionInput.style.height = Math.min(questionInput.scrollHeight || 36, 120) + 'px';
+        const scrollH = questionInput.scrollHeight || 36;
+        questionInput.style.height = Math.min(scrollH, 112) + 'px';
+        questionInput.style.overflowY = scrollH > 112 ? 'auto' : 'hidden';
     }
 
     function getActiveThreadUid() {
@@ -919,11 +927,11 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 ? {habitCount:source.habitCount,totalScheduled:source.totalScheduled,totalLogged:source.totalLogged}
                 : null;
             lastEvidence = source?.dateWindow
-                ? `Based on ${source.habitCount} synced habits · ${source.dateWindow.start} – ${source.dateWindow.end} · ${source.timeZone}. ` +
+                ? `Window: ${source.dateWindow.start} – ${source.dateWindow.end} (${source.timeZone}). ` +
                   (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
                   (source.truncated ? 'Some history was outside the context limit. ' : '') +
-                  'Today is in progress. Advice is not a guarantee.'
-                : 'Based on your synced HabitArc records. Advice is not a guarantee.';
+                  'Today is in progress · Guidance only.'
+                : 'Based on your synced HabitArc records · Guidance only.';
             const deviceHabitCount = HabitArc.getHabits?.()?.length;
             if (lastVerifiedSnapshot && Number.isSafeInteger(deviceHabitCount)
                 && deviceHabitCount !== lastVerifiedSnapshot.habitCount) {
@@ -939,7 +947,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             contextPicker?.clearAfterSend?.();
 
             questionInput.value = '';
-            questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
+            questionInput.placeholder = 'Ask a follow-up...';
             resizeTextarea();
             // Finish at the end of the reply if auto-follow is still enabled.
             // Do not snap back to the question or fight manual scrolling.
