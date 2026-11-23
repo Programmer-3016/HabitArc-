@@ -184,9 +184,9 @@
   border: 2px solid var(--line);
   border-radius: 12px;
   padding: 0 13px;
-  flex: 1;
-  min-width: min(240px, 100%);
-  max-width: 420px;
+  flex: 1 1 260px;
+  min-width: 0;
+  max-width: none;
   box-shadow: 2px 2px 0 var(--rpg-shadow-ink, var(--line));
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
@@ -647,6 +647,12 @@
 }
 
 @media (max-width: 540px) {
+  .notes-toolbar {
+    gap: 10px;
+  }
+  .notes-search {
+    flex: 1 1 100%;
+  }
   .notes-grid {
     grid-template-columns: 1fr;
   }

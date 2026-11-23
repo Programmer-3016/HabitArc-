@@ -7,6 +7,7 @@ body > main.ha-leaderboard {
     --sub: rgb(var(--ha-on-surface-variant));
     --mono: "JetBrains Mono", ui-monospace, monospace;
     --head: "Space Grotesk", "Hanken Grotesk", sans-serif;
+    box-sizing: border-box;
     width: min(100%, var(--ha-page-width, 1120px));
     margin-inline: auto;
     padding-inline: 20px;
@@ -467,8 +468,12 @@ html.lb-reveal-active body::-webkit-scrollbar {
    Shared five-tab mobile dock and every other page are untouched. */
 @media(min-width:768px) and (max-width:1080px){
   .lb-desktop-topbar > div{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
     gap:9px;
-    padding-inline:clamp(12px,1.7vw,22px);
+    padding:10px clamp(12px,1.7vw,22px);
     min-width:0;
   }
   .lb-desktop-topbar .ha-brand-link{flex:0 0 auto}

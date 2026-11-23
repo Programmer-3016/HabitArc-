@@ -83,8 +83,8 @@
  .ha-day-peek-open{font-size:10px}
 }
 
-/* Three modes fit on narrow Android PWA widths without adding a sixth dock tab. */
-.ha-plan-modes{grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,620px)}
+/* Three modes span the container cleanly across mobile, tablet and desktop. */
+.ha-plan-modes{grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
 @media(max-width:767px){
  .ha-plan-modes{gap:3px;padding:4px}
  .ha-plan-modes button{min-width:0;gap:4px;padding:7px 3px;font-size:12px}

@@ -193,6 +193,22 @@ try {
       const metrics = await ev(`({ vw: innerWidth, sw: document.documentElement.scrollWidth })`);
       assert.ok(metrics.vw <= width && metrics.sw <= width, `${page} font-blocked overflow at ${width}px: ${JSON.stringify(metrics)}`);
     }
+    if (width === 320 || width === 390) {
+      await go(`${base}/Add_Habit.html`);
+      const addHabitCheck = await ev(`(() => {
+        const sub = document.getElementById('habit-form-submit')?.getBoundingClientRect();
+        const cancel = document.getElementById('habit-form-cancel')?.getBoundingClientRect();
+        const nameInp = document.getElementById('habit-name-input')?.getBoundingClientRect();
+        return {
+          subRightOk: Boolean(sub && sub.right <= innerWidth + 1 && sub.left >= 0),
+          cancelLeftOk: Boolean(cancel && cancel.left >= 0 && cancel.right <= innerWidth + 1),
+          inputFit: Boolean(nameInp && nameInp.right <= innerWidth + 1)
+        };
+      })()`);
+      assert.equal(addHabitCheck.subRightOk, true, `Add_Habit submit fits ${width}px viewport`);
+      assert.equal(addHabitCheck.cancelLeftOk, true, `Add_Habit cancel fits ${width}px viewport`);
+      assert.equal(addHabitCheck.inputFit, true, `Add_Habit name input fits ${width}px viewport`);
+    }
     await go(`${base}/Habits.html`);
     for (const mode of ['tasks', 'day', 'habits']) {
       await ev(`document.querySelector('[data-plan-mode="${mode}"]')?.click()`);
@@ -215,6 +231,57 @@ try {
   blockFonts = false;
   await cdp('Network.setBlockedURLs', { urls: [] });
   assert.ok(blockedFontReqs > 0, 'Confirmed Google Fonts requests were blocked during test');
+
+  // 1b) Tablet (768px) & Desktop (1366px) A-Z layout alignment & overflow checks
+  const allShellPages = ['Dashboard.html', 'Habits.html', 'Arc_AI.html', 'Leaderboard.html', 'Insights.html', 'Notes.html', 'Habit_Detail.html?id=h1', 'Add_Habit.html', 'Settings.html', 'Profile.html', 'privacy.html', 'offline.html'];
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 768, height: 1024, deviceScaleFactor: 1, mobile: true });
+  for (const page of allShellPages) {
+    await go(`${base}/${page}`);
+    const m = await ev(`({ vw: innerWidth, sw: document.documentElement.scrollWidth })`);
+    assert.ok(m.vw <= 768 && m.sw <= 768, `${page} overflow at 768px tablet: ${JSON.stringify(m)}`);
+  }
+
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1366, height: 900, deviceScaleFactor: 1, mobile: false });
+  for (const page of allShellPages) {
+    await go(`${base}/${page}`);
+    const m = await ev(`({ vw: innerWidth, sw: document.documentElement.scrollWidth })`);
+    assert.ok(m.vw <= 1366 && m.sw <= 1366, `${page} overflow at 1366px desktop: ${JSON.stringify(m)}`);
+  }
+  await go(`${base}/Dashboard.html`);
+  const hdrAlign = await ev(`(() => {
+    const links = [...document.querySelectorAll('header.md\\\\:block nav a')].map(a => {
+      const r = a.getBoundingClientRect();
+      return { text: a.textContent.trim(), top: r.top, height: r.height };
+    });
+    const tops = links.map(l => l.top);
+    const heights = links.map(l => l.height);
+    return {
+      count: links.length,
+      maxTopSpread: Math.max(...tops) - Math.min(...tops),
+      maxHeightSpread: Math.max(...heights) - Math.min(...heights)
+    };
+  })()`);
+  assert.equal(hdrAlign.count, 6, 'Desktop header shows all 6 primary tabs');
+  assert.ok(hdrAlign.maxTopSpread <= 1.5, `Desktop header tabs must align vertically (spread ${hdrAlign.maxTopSpread}px)`);
+  assert.ok(hdrAlign.maxHeightSpread <= 1.5, `Desktop header tabs must share uniform height (spread ${hdrAlign.maxHeightSpread}px)`);
+
+  await go(`${base}/Habits.html`);
+  const planAlign = await ev(`(() => {
+    const modes = document.querySelector('.ha-plan-modes');
+    const parent = modes?.parentElement;
+    if (!modes || !parent) return { ratio: 0 };
+    return { ratio: modes.getBoundingClientRect().width / parent.getBoundingClientRect().width };
+  })()`);
+  assert.ok(planAlign.ratio >= 0.95, `Habits mode switcher spans full desktop column (ratio ${planAlign.ratio.toFixed(2)})`);
+
+  await go(`${base}/Notes.html`);
+  const notesToolbarGap = await ev(`(() => {
+    const s = document.querySelector('.notes-search')?.getBoundingClientRect();
+    const f = document.querySelector('.notes-filters')?.getBoundingClientRect();
+    if (!s || !f) return { gap: 999 };
+    return { gap: Math.round(f.left - s.right) };
+  })()`);
+  assert.ok(notesToolbarGap.gap <= 32 && notesToolbarGap.gap >= 0, `Notes search fills desktop toolbar cleanly (gap ${notesToolbarGap.gap}px)`);
 
   // 2) Cross-tab stale-button undo guard + focus + StorageEvent refresh across Habits, Dashboard, Habit_Detail
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1366, height: 900, deviceScaleFactor: 1, mobile: false });

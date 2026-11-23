@@ -723,12 +723,15 @@ body .grid-bg { display: none !important; }
 }
 
 /* ─── Base & Typography ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 html { scroll-padding-top: 84px; }
 body {
+    margin: 0;
     background-color: rgb(var(--ha-background)) !important;
     color: rgb(var(--ha-on-surface)) !important;
     font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
 }
 .px-title { font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; }
 .px-ui { font-family: 'Hanken Grotesk', 'Space Grotesk', sans-serif; }
@@ -737,6 +740,43 @@ body {
 body .grid-bg { display: none !important; }
 :root[data-theme="light"] body .grid-bg { display: none !important; }
 [hidden] { display: none !important; }
+.hidden:not(.md\:block) { display: none !important; }
+@media (max-width: 767px) {
+    body > header.hidden.md\:block { display: none !important; }
+    body > header.md\:hidden {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 10px 16px;
+    }
+    body > header.md\:hidden > div:last-child {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+}
+@media (min-width: 768px) {
+    body > header.md\:hidden,
+    body > nav.md\:hidden { display: none !important; }
+    body > header.hidden.md\:block {
+        display: block !important;
+        width: 100%;
+    }
+    body > header.hidden.md\:block > div:has(> nav) {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-block: 10px;
+    }
+    body > header.hidden.md\:block > div:has(> nav) > div:last-child {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+}
 
 body > main { padding-top: 22px; padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 body > main > *, body > main :is(.flex-1, .flex-grow) { min-width: 0; }
@@ -807,17 +847,19 @@ body > header nav {
     box-shadow: none !important;
 }
 body > header nav a {
-    display: inline-flex; align-items: center;
+    display: inline-flex !important; align-items: center !important;
     height: 34px; min-height: 34px !important;
     padding: 0 14px !important;
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 13.5px;
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif !important;
+    font-size: 13.5px !important;
+    line-height: 1 !important;
     font-weight: 600;
     letter-spacing: -0.01em;
     border-radius: 9999px !important;
     border: 1.5px solid transparent !important;
     color: var(--rpg-hdr-fg, #121215) !important;
     opacity: 0.85;
+    white-space: nowrap;
 }
 body > header nav a:hover {
     opacity: 1;
@@ -1469,8 +1511,9 @@ body main.ha-insights :is(.ha-insights-story, .ha-insights-timeline) {
 .ha-insights #todays-story-list .material-symbols-outlined { font-size: 18px; color: rgb(var(--ha-primary)); margin-top: 2px; }
 
 /* 365-Day Contribution Heatmap */
+.ha-insights :is(.ha-insights-main, .ha-insights-aside, .ha-insights-calendar, .ha-insights-achievements, .ha-insights-note) { min-width: 0; }
 .ha-insights .ha-insights-legend { font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 600; color: rgb(var(--ha-on-surface-variant)); }
-.ha-insights-calendar-scroll { max-width: 100%; -webkit-overflow-scrolling: touch; margin-top: 18px; padding-block: 4px 10px; scrollbar-width: thin; scrollbar-color: rgb(var(--ha-outline-variant)) transparent; }
+.ha-insights-calendar-scroll { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 18px; padding-block: 4px 10px; scrollbar-width: thin; scrollbar-color: rgb(var(--ha-outline-variant)) transparent; }
 .ha-insights-calendar-scroll:focus-visible { outline: 2.5px solid rgb(var(--ha-primary)); outline-offset: 2px; border-radius: 8px; }
 .ha-insights #heatmap-grid-365, .ha-insights-months { display: grid; width: max-content; min-width: 100%; grid-template-columns: repeat(var(--heatmap-columns, 53), 12px); column-gap: 4px; }
 .ha-insights #heatmap-grid-365 { grid-template-rows: repeat(7, 12px); row-gap: 4px; }
@@ -1521,6 +1564,15 @@ body .input-elegant {
     border-bottom: 2px solid rgba(var(--ha-outline-variant) / 0.35) !important;
     border-radius: 0px !important;
     box-shadow: none !important;
+}
+#habit-name-input {
+    font-size: clamp(14px, 3.85vw, 22px) !important;
+    line-height: 1.35 !important;
+}
+@media (max-width: 420px) {
+    #add-habit-form > div:last-child { flex-wrap: wrap; gap: 10px; }
+    #habit-form-cancel { margin-right: 0 !important; }
+    #habit-form-submit { font-size: 15px !important; line-height: 1.2 !important; padding: 11px 20px !important; }
 }
 body .input-elegant:focus,
 body .input-elegant:focus-visible {
@@ -2339,7 +2391,7 @@ body.ha-arc-body > main.ha-arc-ai {
     body > header .ha-brand-link { flex: 0 0 auto; white-space: nowrap; }
     body > header nav { min-width: 0; flex: 1 1 auto; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-inline: contain; }
     body > header nav::-webkit-scrollbar { display: none; }
-    body > header nav a { flex: 0 0 auto; white-space: nowrap; padding-inline: 10px !important; font-size: 12.5px; }
+    body > header nav a { flex: 0 0 auto; white-space: nowrap; padding-inline: 10px !important; font-size: 12.5px !important; }
     body > header > div:has(> nav) > div:last-child { flex: 0 0 auto; gap: 6px; }
 }
 @media (min-width: 768px) and (max-width: 1050px) {
@@ -2347,7 +2399,7 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 @media (min-width: 768px) and (max-width: 900px) {
     body > header > div:has(> nav) { padding-inline: 12px; gap: 6px; }
-    body > header nav a { padding-inline: 7px !important; padding-block: 6px !important; font-size: 12px; }
+    body > header nav a { padding-inline: 7px !important; padding-block: 6px !important; font-size: 12px !important; }
     body > header a[href="Add_Habit.html"] { padding-inline: 10px !important; font-size: 12.5px; }
 }
 @media (min-width: 768px) and (max-width: 1023px) {

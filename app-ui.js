@@ -272,6 +272,7 @@
                     const tab = document.createElement('a');
                     tab.href = 'Leaderboard.html';
                     tab.textContent = 'Leaderboard';
+                    tab.className = 'px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:text-primary hover:bg-primary/[0.04] transition-colors';
                     nav.insertBefore(tab, nav.querySelector('a[href="Arc_AI.html"]'));
                 });
                 const profile = document.querySelector('body > header.md\\:hidden a[href="Profile.html"]');
