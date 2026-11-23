@@ -151,6 +151,8 @@ test('Legacy habit identifiers are hidden from the reading layout but code fence
  assert.match(cleaned,/0%/);
  assert.match(cleaned,/  const spaced =  3;/);
  assert.doesNotMatch(renderArcSignalDeck(response),/h_mv1|h_mwq/);
+ assert.equal(cleanArcDisplayText('Multiple entries sharing Daily Meditation & Mindful Reflection (such as IDs `h_abc123`, `h_def456`, `h_ghi789`, and `h_jkl012`) today.'), 'Multiple entries sharing Daily Meditation & Mindful Reflection today.');
+ assert.equal(cleanArcDisplayText('Multiple entries sharing Daily Meditation (such as IDs , , , and).'), 'Multiple entries sharing Daily Meditation.');
 });
 
 test('Actual analytics determine completion statistics, not generated text',()=>{

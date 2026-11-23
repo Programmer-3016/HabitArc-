@@ -446,12 +446,14 @@ export function cleanArcDisplayText(text) {
     return source.split(/((?:^|\n)\x60{3}[^\n]*\n[\s\S]*?(?:^|\n)\x60{3})/gm).map(part=>{
         if(/^\s*\x60{3}/.test(part))return part;
         return part
-          .replace(/\s*\(\s*including\s+(?:habit\s+)?(?:record\s+)?ids?[^)]*\bh_[a-z0-9_-]{6,}[^)]*\)/gi,'')
+          .replace(/\s*\(\s*(?:(?:including|such\s+as|e\.g\.|i\.e\.|for|with|named|like)\s+)?(?:habit\s+)?(?:record\s+)?ids?\b[^)]*\bh_[a-z0-9_-]{4,}[^)]*\)/gi,'')
           .replace(/\bincluding\s+(?:habit\s+)?ids?\s+\x60?h_[a-z0-9_-]{6,}\x60?(?:\s*,\s*(?:and\s+)?\x60?h_[a-z0-9_-]{6,}\x60?|\s+and\s+\x60?h_[a-z0-9_-]{6,}\x60?)*/gi,'multiple matching habit entries')
+          .replace(/\s+(?:such\s+as|e\.g\.|for|with|like)\s+(?:habit\s+)?(?:record\s+)?ids?\s+\x60?h_[a-z0-9_-]{6,}\x60?(?:\s*,\s*(?:and\s+)?\x60?h_[a-z0-9_-]{6,}\x60?|\s+and\s+\x60?h_[a-z0-9_-]{6,}\x60?)*/gi,'')
           .replace(/\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*,\s*/gi,'(')
           .replace(/\s*\(\s*\x60?h_[a-z0-9_-]{6,}\x60?\s*\)/gi,'')
           .replace(/\x60?h_[a-z0-9_-]{6,}\x60?/gi,'')
-          .replace(/\(\s*,/g,'(').replace(/,\s*,/g,', ').replace(/\s+\)/g,')');
+          .replace(/\s*\(\s*(?:(?:such\s+as|e\.g\.|i\.e\.|including|with|for|like)\s+)?(?:habit\s+)?(?:record\s+)?ids?\b[\s,;:\-and]*\)/gi,'')
+          .replace(/\(\s*[,;\s]+/g,'(').replace(/,\s*(?:,\s*)+/g,', ').replace(/\s+\)/g,')');
     }).join('');
 }
 function arcDeckResponsiveTables(markup,esc) {

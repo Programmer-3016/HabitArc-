@@ -427,3 +427,48 @@ test('Browser actually connects the SSE reader; it must not parse event-stream a
     assert.match(html, /event === 'done'/);
     assert.match(html, /response\.headers\?\.get\?\.\('content-type'\)/);
 });
+
+test('Casual check-ins route to greeting prompt without routine-audit bloat', async () => {
+    const systems = [];
+    const prompts = [];
+    let usage;
+    const ref = path => ({
+        collection: n => ref(`${path}/${n}`), doc: n => ref(`${path}/${n}`),
+        select() { return this; }, where() { return this; }, limit() { return this; },
+        async get() { return { docs: [] }; }
+    });
+    const handler = createCoachHandler({
+        configured: () => true,
+        now: () => new Date('2026-11-23T12:00:00Z'),
+        timestamp: () => 't',
+        logError() {},
+        getAdmin: () => ({
+            db: {
+                collection: n => ref(n),
+                runTransaction: fn => fn({
+                    get: async () => ({ exists: !!usage, data: () => usage }),
+                    set: (_, v) => { usage = { ...usage, ...v }; }
+                })
+            },
+            auth: { verifyIdToken: async () => ({ uid: 'u1', firebase: { sign_in_provider: 'google.com' } }) }
+        }),
+        generate: async ({ system, prompt }) => {
+            systems.push(system);
+            prompts.push(JSON.parse(prompt));
+            return { text: 'Main badhiya hoon! Aaj kis routine par focus karein?' };
+        }
+    });
+    for (const q of ['Heelo ji', 'Sonion you fine ??']) {
+        const res = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+        await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: q, timeZone: 'Asia/Kolkata', conversation: [{ question: 'old', answer: 'old' }] } }, res);
+        assert.equal(res.code, 200);
+        assert.equal(res.body.casualGreeting, true);
+        usage.lastRequestAtMs = 0;
+    }
+    assert.match(systems[0], /Do NOT recite habit counts/);
+    assert.equal(prompts[1].recentConversation.length, 0);
+    const resHabit = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Why did my meditation streak drop?', timeZone: 'Asia/Kolkata' } }, resHabit);
+    assert.equal(resHabit.body.casualGreeting, false);
+    assert.match(systems[2], /When analyzing habits/);
+});

@@ -430,6 +430,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     let activeActionApplied = false;
     let lastEvidence = '';
     let lastVerifiedSnapshot = null;
+    let lastCasualGreeting = false;
 
     function shorten(text, max) {
         const value = String(text || '').trim();
@@ -646,6 +647,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 turns: conversation.slice(-6),
                 lastEvidence,
                 lastVerifiedSnapshot,
+                lastCasualGreeting,
                 lastAction: activeAction,
                 lastActionApplied: activeActionApplied,
                 updatedAt: Date.now()
@@ -728,7 +730,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         askedWrap?.classList.remove('hidden');
         if (answerEl) answerEl.innerHTML = renderArcChatAnswer(latest.answer, HabitArc.escapeHTML, lastVerifiedSnapshot);
         if (copyAnswerButton) copyAnswerButton.textContent = 'COPY';
-        if (evidenceEl) evidenceEl.textContent = lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.';
+        if (evidenceEl) evidenceEl.textContent = lastCasualGreeting ? '' : (lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.');
         renderSuggestedAction(activeAction, { applied: activeActionApplied });
         answerCard?.classList.remove('hidden');
         showThreadView(true);
@@ -748,6 +750,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             conversation = validTurns.slice(-6);
             lastEvidence = typeof parsed.lastEvidence === 'string' ? parsed.lastEvidence : '';
             lastVerifiedSnapshot = parsed.lastVerifiedSnapshot || null;
+            lastCasualGreeting = Boolean(parsed.lastCasualGreeting);
             activeAction = parsed.lastAction || null;
             activeActionApplied = Boolean(parsed.lastActionApplied);
             renderThreadFromState();
@@ -766,6 +769,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         owner = null;
         lastEvidence = '';
         lastVerifiedSnapshot = null;
+        lastCasualGreeting = false;
         activeAction = null;
         activeActionApplied = false;
         if (clearStored && previousUid && typeof localStorage !== 'undefined') {
@@ -921,17 +925,20 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
             const safeAnswer = String(payload.answer).slice(0, 12000);
             conversation = [...conversation.slice(-5), { question, answer: safeAnswer.slice(0, 4000) }];
-            const source = payload.snapshot;
+            lastCasualGreeting = Boolean(payload.casualGreeting);
+            const source = lastCasualGreeting ? null : payload.snapshot;
             lastVerifiedSnapshot = source && [source.habitCount,source.totalScheduled,source.totalLogged]
                 .every(Number.isSafeInteger)
                 ? {habitCount:source.habitCount,totalScheduled:source.totalScheduled,totalLogged:source.totalLogged}
                 : null;
-            lastEvidence = source?.dateWindow
-                ? `Window: ${source.dateWindow.start} – ${source.dateWindow.end} (${source.timeZone}). ` +
-                  (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
-                  (source.truncated ? 'Some history was outside the context limit. ' : '') +
-                  'Today is in progress · Guidance only.'
-                : 'Based on your synced HabitArc records · Guidance only.';
+            lastEvidence = lastCasualGreeting
+                ? ''
+                : (source?.dateWindow
+                    ? `Window: ${source.dateWindow.start} – ${source.dateWindow.end} (${source.timeZone}). ` +
+                      (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
+                      (source.truncated ? 'Some history was outside the context limit. ' : '') +
+                      'Today is in progress · Guidance only.'
+                    : 'Based on your synced HabitArc records · Guidance only.');
             const deviceHabitCount = HabitArc.getHabits?.()?.length;
             if (lastVerifiedSnapshot && Number.isSafeInteger(deviceHabitCount)
                 && deviceHabitCount !== lastVerifiedSnapshot.habitCount) {
