@@ -519,10 +519,13 @@ try {
   const arcLvl1 = await ev(`(() => {
     const comp = document.getElementById('ai-coach-form')?.getBoundingClientRect();
     const dock = document.querySelector('nav.ha-bottom-nav')?.getBoundingClientRect();
+    const hud = document.getElementById('arc-level-card')?.getBoundingClientRect();
     document.getElementById('arc-lvl1-try-btn')?.click();
     return {
       buddy: document.getElementById('arc-ai-buddy-name')?.textContent.trim(),
       lvl: document.getElementById('arc-ai-lvl-badge')?.textContent.trim(),
+      nextTxt: document.getElementById('arc-ai-next-txt')?.textContent.trim(),
+      hudHeight: hud ? Math.round(hud.height) : 0,
       t1: document.getElementById('arc-tier-state-1')?.textContent.trim(),
       t2: document.getElementById('arc-tier-state-2')?.textContent.trim(),
       t4: document.getElementById('arc-tier-state-4')?.textContent.trim(),
@@ -534,13 +537,15 @@ try {
   })()`);
   assert.equal(arcLvl1.buddy, 'NOVA');
   assert.equal(arcLvl1.lvl, 'LVL 1');
+  assert.equal(arcLvl1.nextTxt, '0/3 QUESTS');
+  assert.ok(arcLvl1.hudHeight > 0 && arcLvl1.hudHeight <= 170, `Expected compact Zen HUD height <= 170px, got ${arcLvl1.hudHeight}px`);
   assert.equal(arcLvl1.t1, 'ACTIVE');
   assert.equal(arcLvl1.t2, 'LOCKED');
   assert.equal(arcLvl1.t4, 'LOCKED');
   assert.match(arcLvl1.powerCopy, /Right now at Level 1 you can use NOVA to create habits for you/);
   assert.equal(arcLvl1.prefill, 'Create a 10-min stretching habit at 08:00');
   assert.equal(arcLvl1.composerClear, true, 'ARC AI Zen composer sits cleanly above bottom dock with zero overlap');
-  assert.equal(arcLvl1.overflow, false, 'ARC AI Pixel Level roadmap fits 390px without overflow');
+  assert.equal(arcLvl1.overflow, false, 'ARC AI Pixel Level HUD fits 390px without overflow');
 
   await ev(`(() => {
     HabitArc.completeHabit('h1');
@@ -589,7 +594,7 @@ try {
       tag1: document.getElementById('arc-tj-tag-1')?.textContent.trim(),
       tag2: document.getElementById('arc-tj-tag-2')?.textContent.trim(),
       conn1Filled: document.getElementById('arc-tj-conn-1')?.classList.contains('is-filled'),
-      questChips: document.querySelectorAll('#arc-tj-quests .ha-arc-tj-qchip').length,
+      oldChipsCount: document.querySelectorAll('#arc-tj-quests .ha-arc-tj-qchip').length,
       overflow: document.documentElement.scrollWidth > innerWidth
     };
   })()`);
@@ -599,12 +604,32 @@ try {
   assert.equal(threadJourney.lvlUpShown, true);
   assert.match(threadJourney.lvlUpText, /LEVEL UP! NOVA LVL 1 → LVL 2/);
   assert.equal(threadJourney.tjTitle, 'STARTED LVL 1 → REACHED LVL 2 (1D)');
-  assert.equal(threadJourney.tjNow, 'NOW LVL 2');
+  assert.match(threadJourney.tjNow, /^[0-3]\/3 QUESTS$/);
   assert.equal(threadJourney.tag1, 'START ✓');
   assert.equal(threadJourney.tag2, 'NOW');
   assert.equal(threadJourney.conn1Filled, true);
-  assert.equal(threadJourney.questChips, 3);
+  assert.equal(threadJourney.oldChipsCount, 0);
   assert.equal(threadJourney.overflow, false, 'In-chat Pixel Level Journey fits 390px without overflow');
+
+  const hubDrawer = await ev(`(() => {
+    document.getElementById('arc-tj-open-hub-btn')?.click();
+    const dlg = document.getElementById('arc-hub-dialog');
+    const visibleQuests = [...document.querySelectorAll('#arc-hub-dialog .ha-arc-quest-row:not(.hidden) .ha-arc-q-lbl')];
+    const anyEllipsis = visibleQuests.some(el => el.textContent.includes('...') || el.scrollWidth > el.clientWidth + 2);
+    return {
+      isOpen: Boolean(dlg?.hasAttribute('open')),
+      questCount: visibleQuests.length,
+      anyEllipsis,
+      toneLock: document.getElementById('arc-tone-lock')?.textContent.trim(),
+      overflow: document.documentElement.scrollWidth > innerWidth
+    };
+  })()`);
+  await saveShot('arc-ai-hub-drawer-390.png');
+  assert.equal(hubDrawer.isOpen, true, 'Clicking thread quest pill opens #arc-hub-dialog');
+  assert.equal(hubDrawer.questCount, 3, 'Quest hub dialog shows all 3 quests');
+  assert.equal(hubDrawer.anyEllipsis, false, 'Quest labels inside hub drawer render untruncated');
+  assert.equal(hubDrawer.toneLock, 'LOCKED · LVL 4');
+  assert.equal(hubDrawer.overflow, false, 'Quest hub drawer fits 390px without horizontal overflow');
 
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);
 

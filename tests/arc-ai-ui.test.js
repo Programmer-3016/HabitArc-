@@ -436,6 +436,7 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     assert.equal(l1.elements.get('arc-ai-buddy-name').textContent, 'ARC');
     assert.equal(l1.elements.get('arc-ai-lvl-badge').textContent, 'LVL 1');
     assert.equal(l1.elements.get('arc-ai-rank').textContent, 'HABIT BUILDER');
+    assert.equal(l1.elements.get('arc-ai-next-txt').textContent, '0/3 QUESTS');
     assert.equal(l1.elements.get('arc-quest-hdr-title').textContent, 'QUESTS TO LVL 2');
     assert.equal(l1.elements.get('arc-quest-cnt').textContent, '0/3');
     assert.equal(l1.elements.get('arc-q-prog-0').textContent, '0/1');
@@ -443,20 +444,29 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     assert.equal(l1.elements.get('arc-tier-1').classList.contains('is-unlocked'), true);
     assert.equal(l1.elements.get('arc-tier-state-1').textContent, 'ACTIVE');
     assert.equal(l1.elements.get('arc-tier-state-2').textContent, 'LOCKED');
-    assert.equal(l1.elements.get('arc-tone-row').classList.contains('hidden'), true);
+    assert.equal(l1.elements.get('arc-tone-lock').textContent, 'LOCKED · LVL 4');
+    assert.equal(l1.elements.get('arc-tone-row').classList.contains('is-locked'), true);
+    assert.equal(l1.elements.get('arc-tone-hinglish').disabled, true);
     assert.equal(l1.elements.get('arc-thread-lvl-badge').textContent, 'LVL 1');
     assert.equal(l1.elements.get('ai-coach-resp-lvl').textContent, 'LVL 1');
     assert.equal(l1.elements.get('arc-tj-title').textContent, 'STARTED: LVL 1 (0D)');
-    assert.equal(l1.elements.get('arc-tj-now').textContent, 'NOW LVL 1');
+    assert.equal(l1.elements.get('arc-tj-now').textContent, '0/3 QUESTS');
     assert.equal(l1.elements.get('arc-tj-tag-1').textContent, 'NOW');
     assert.equal(l1.elements.get('arc-tj-tag-2').textContent, '3Q');
     assert.equal(l1.elements.get('arc-tj-conn-1').classList.contains('is-filled'), false);
     assert.match(l1.elements.get('arc-ai-power-copy').textContent, /Right now at Level 1 you can use ARC to create habits for you/);
 
+    l1.elements.get('arc-open-hub-btn').handlers.click();
+    assert.equal(l1.elements.get('arc-hub-dialog').classList.contains('is-open'), true);
+    l1.elements.get('arc-hub-close').handlers.click();
+    assert.equal(l1.elements.get('arc-hub-dialog').classList.contains('is-open'), false);
+
     l1.elements.get('arc-lvl1-try-btn').handlers.click();
     assert.equal(l1.elements.get('ai-coach-question').value, 'Create a 10-min stretching habit at 08:00');
     l1.elements.get('arc-tj-node-4').handlers.click();
-    assert.match(l1.elements.get('ai-coach-status').textContent, /Unlock LVL 4 first/);
+    assert.equal(l1.elements.get('arc-hub-dialog').classList.contains('is-open'), true);
+    assert.match(l1.elements.get('ai-coach-status').textContent, /Finish quests to unlock LVL 4/);
+    l1.elements.get('arc-hub-close').handlers.click();
 
     // Auto-update at LVL 2 + 1-tap UNDO
     const l2 = arcAi({
@@ -480,7 +490,7 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     assert.equal(l2.elements.get('arc-thread-lvl-badge').textContent, 'LVL 2');
     assert.equal(l2.elements.get('ai-coach-resp-lvl').textContent, 'LVL 2');
     assert.equal(l2.elements.get('arc-tj-title').textContent, 'STARTED LVL 1 → REACHED LVL 2 (1D)');
-    assert.equal(l2.elements.get('arc-tj-now').textContent, 'NOW LVL 2');
+    assert.equal(l2.elements.get('arc-tj-now').textContent, '0/3 QUESTS');
     assert.equal(l2.elements.get('arc-tj-tag-1').textContent, 'START ✓');
     assert.equal(l2.elements.get('arc-tj-tag-2').textContent, 'NOW');
     assert.equal(l2.elements.get('arc-tj-conn-1').classList.contains('is-filled'), true);
@@ -489,6 +499,12 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     assert.equal(l2.elements.get('arc-tier-state-1').textContent, 'ON ✓');
     assert.equal(l2.elements.get('arc-tier-state-2').textContent, 'ACTIVE');
     assert.equal(l2.elements.get('arc-tier-state-3').textContent, 'LOCKED');
+    assert.equal(l2.elements.get('arc-hub-try-2').classList.contains('hidden'), false);
+
+    l2.elements.get('arc-open-hub-btn').handlers.click();
+    l2.elements.get('arc-hub-try-2').handlers.click();
+    assert.equal(l2.elements.get('ai-coach-question').value, 'Change my first habit reminder to 08:30');
+    assert.equal(l2.elements.get('arc-hub-dialog').classList.contains('is-open'), false);
 
     l2.elements.get('ai-coach-question').value = 'Change Walk reminder to 06:45';
     l2.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
@@ -558,10 +574,12 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     taskView.elements.get('ai-coach-apply-btn').handlers.click();
     await waitFor(() => taskView.taskRemoved.length === 1);
 
-    // LVL 4 exposes AI Tone chips and displays celebration banner on level-up event
+    // LVL 4 unlocks AI Tone chips and displays celebration banner on level-up event
     const l4 = arcAi({ aiName: 'NOVA', clearDays: 14 });
     assert.equal(l4.elements.get('arc-ai-lvl-badge').textContent, 'LVL 4');
-    assert.equal(l4.elements.get('arc-tone-row').classList.contains('hidden'), false);
+    assert.equal(l4.elements.get('arc-tone-row').classList.contains('is-locked'), false);
+    assert.equal(l4.elements.get('arc-tone-lock').textContent, 'ACTIVE');
+    assert.equal(l4.elements.get('arc-tone-drill').disabled, false);
     l4.elements.get('arc-tone-drill').handlers.click();
     assert.equal(l4.elements.get('arc-tone-drill').classList.contains('is-active'), true);
     l4.events.get('habitarc:ai-level-up')({ detail: { fromLevel: 3, toLevel: 4, prog: { aiName: 'NOVA', shortPower: 'Batch Tune & Tones', rank: 'Routine Architect' } } });

@@ -2882,6 +2882,13 @@ html.ha-spa-navigated .animate-in {
     padding:6px 2px 4px;
     background:rgb(var(--ha-background,246 244 239));
   }
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)) .ha-arc-composer::before {
+    content:"";
+    position:absolute;
+    left:0; right:0; top:-16px; height:16px;
+    pointer-events:none;
+    background:linear-gradient(to bottom, transparent, rgb(var(--ha-background,246 244 239)));
+  }
   body.ha-arc-body:has(#arc-zen-home:not(.hidden)) .ha-arc-disclaimer {display:none}
   /* Conversation mode is intentionally the only fixed-height ARC layout.
      Remove body padding reserved for the dock because main already reserves it. */
@@ -3805,8 +3812,8 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
   margin-top: 8px;
   background: rgb(var(--ha-surface-container-lowest));
   border: 2px solid rgb(var(--ha-outline-variant));
-  border-radius: 16px;
-  box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
+  border-radius: 15px;
+  box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215);
   overflow: hidden;
   text-align: left;
 }
@@ -3814,35 +3821,54 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 6px 11px;
   background-color: rgb(var(--ha-surface-container-low));
-  background-image: radial-gradient(rgb(var(--ha-on-surface) / .13) 1px, transparent 1px);
+  background-image: radial-gradient(rgb(var(--ha-on-surface) / .11) 1px, transparent 1px);
   background-size: 6px 6px;
-  border-bottom: 1.5px solid rgb(var(--ha-outline-variant) / .5);
+  border-bottom: 1px dashed rgb(var(--ha-outline-variant) / .55);
 }
 .ha-arc-level-ident {
   display: inline-flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap;
 }
-.ha-arc-lvl-pill {
-  padding: 2px 7px; border-radius: 6px;
+.ha-arc-lvl-pill,
+.ha-arc-lvl-badge {
+  padding: 2px 7px; border-radius: 6px; flex-shrink: 0;
   background: var(--rpg-cta, #ff6b4a); color: var(--rpg-cta-fg, #ffffff);
   border: 1.5px solid var(--rpg-shadow-ink, #121215);
   box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
-  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; line-height: 1.25;
 }
 .ha-arc-lvl-name {
   font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 800;
   color: rgb(var(--ha-on-surface));
 }
-.ha-arc-lvl-rank {
+.ha-arc-lvl-rank,
+.ha-arc-rank {
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700;
   color: rgb(var(--ha-on-surface-variant)); letter-spacing: 0.04em;
 }
-.ha-arc-lvl-next {
-  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700;
-  color: rgb(var(--ha-on-surface-variant)); white-space: nowrap;
+#arc-open-hub-btn,
+.ha-arc-hub-pill {
+  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+  padding: 3px 8px; border-radius: 7px; cursor: pointer;
+  background: color-mix(in srgb, var(--rpg-mint, #47e393) 18%, rgb(var(--ha-surface-container-lowest)));
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800; line-height: 1.2;
+  color: rgb(var(--ha-on-surface)); white-space: nowrap;
+  transition: transform 110ms ease, box-shadow 110ms ease;
+}
+#arc-open-hub-btn:hover,
+.ha-arc-hub-pill:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215);
+}
+#arc-open-hub-btn:active,
+.ha-arc-hub-pill:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
 }
 .ha-arc-level-body {
-  padding: 9px 11px 10px;
-  display: flex; flex-direction: column; gap: 7px;
+  padding: 8px 11px 9px;
+  display: flex; flex-direction: column; gap: 6px;
 }
 .ha-arc-px-bar {
   display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px;
@@ -3850,71 +3876,46 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
 .ha-arc-px-seg {
   height: 6px; border-radius: 2px;
   background: rgb(var(--ha-surface-container-highest));
-  border: 1px solid rgb(var(--ha-outline-variant) / .55);
+  border: 1px solid rgb(var(--ha-outline-variant) / .5);
 }
 .ha-arc-px-seg.is-filled {
   background: var(--rpg-mint, #47e393);
   border-color: var(--rpg-shadow-ink, #121215);
 }
 .ha-arc-power-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: nowrap;
+}
+@media (max-width: 340px) {
+  .ha-arc-power-row { flex-wrap: wrap; }
 }
 .ha-arc-power-copy {
-  margin: 0; font-size: 12px; line-height: 1.38;
-  color: rgb(var(--ha-on-surface)); flex: 1 1 200px;
+  margin: 0; font-size: 11.5px; line-height: 1.35;
+  color: rgb(var(--ha-on-surface)); flex: 1 1 auto; min-width: 0;
 }
 .ha-arc-try-chip {
-  padding: 4px 9px; border-radius: 8px; cursor: pointer;
+  padding: 4px 9px; border-radius: 7px; cursor: pointer; flex-shrink: 0;
   background: rgb(var(--ha-surface-container-low));
   border: 1.5px solid var(--rpg-shadow-ink, #121215);
-  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
   color: rgb(var(--ha-on-surface)); white-space: nowrap;
+  transition: transform 110ms ease;
 }
-.ha-arc-tier-grid {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px;
-}
-@media (min-width: 768px) {
-  .ha-arc-tier-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-.ha-arc-tier {
-  display: flex; align-items: center; justify-content: space-between; gap: 5px;
-  padding: 5px 7px; border-radius: 9px;
-  border: 1.5px solid rgb(var(--ha-outline-variant) / .65);
-  background: rgb(var(--ha-surface-container-low));
-  font-size: 10.5px; line-height: 1.2;
-}
-.ha-arc-tier.is-unlocked {
-  border-color: var(--rpg-shadow-ink, #121215);
-  background: color-mix(in srgb, var(--rpg-mint, #47e393) 16%, rgb(var(--ha-surface-container-lowest)));
-}
-.ha-arc-tier-txt { min-width: 0; }
-.ha-arc-tier-lvl {
-  display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800;
-  color: rgb(var(--ha-on-surface-variant));
-}
-.ha-arc-tier.is-unlocked .ha-arc-tier-lvl { color: rgb(var(--ha-on-surface)); }
-.ha-arc-tier-label {
-  display: block; font-weight: 700; color: rgb(var(--ha-on-surface));
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.ha-arc-tier-state {
-  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800;
-  color: rgb(var(--ha-on-surface-variant)); flex-shrink: 0;
-}
-.ha-arc-tier.is-unlocked .ha-arc-tier-state { color: rgb(var(--ha-secondary, 14 108 74)); }
+.ha-arc-try-chip:active { transform: translate(1px, 1px); box-shadow: none; }
 
 /* ─── In-Chat Pixel Level Journey Strip (#arc-thread-journey) ───────────────── */
 .ha-arc-thread-title-row {
   display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
 .ha-arc-thread-lvl-pill {
-  padding: 1px 6px; border-radius: 5px;
+  padding: 2px 7px; border-radius: 6px; cursor: pointer;
   background: var(--rpg-cta, #ff6b4a); color: var(--rpg-cta-fg, #ffffff);
   border: 1.5px solid var(--rpg-shadow-ink, #121215);
   box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
-  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; line-height: 1.3;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; line-height: 1.25;
+  transition: transform 110ms ease;
 }
+.ha-arc-thread-lvl-pill:hover { transform: translateY(-1px); }
 .ha-arc-resp-lvl {
   padding: 2px 6px; border-radius: 5px;
   background: rgb(var(--ha-surface-container));
@@ -3924,33 +3925,38 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
 }
 .ha-arc-tj {
   background: rgb(var(--ha-surface-container-lowest));
-  border: 2px solid rgb(var(--ha-outline-variant));
-  border-radius: 14px;
-  box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215);
+  border: 1.5px solid rgb(var(--ha-outline-variant));
+  border-radius: 13px;
+  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
   overflow: hidden;
 }
 .ha-arc-tj-head {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 5px 10px;
   background-color: rgb(var(--ha-surface-container-low));
-  background-image: radial-gradient(rgb(var(--ha-on-surface) / .12) 1px, transparent 1px);
+  background-image: radial-gradient(rgb(var(--ha-on-surface) / .11) 1px, transparent 1px);
   background-size: 6px 6px;
-  border-bottom: 1.5px solid rgb(var(--ha-outline-variant) / .45);
+  border-bottom: 1px dashed rgb(var(--ha-outline-variant) / .5);
 }
 .ha-arc-tj-title {
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
-  color: rgb(var(--ha-on-surface)); letter-spacing: 0.03em;
+  color: rgb(var(--ha-on-surface)); letter-spacing: 0.03em; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+#arc-tj-open-hub-btn,
+.ha-arc-tj-hub-btn,
 .ha-arc-tj-now {
-  padding: 1px 6px; border-radius: 5px;
+  display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0;
+  padding: 2px 7px; border-radius: 6px; cursor: pointer;
   background: color-mix(in srgb, var(--rpg-mint, #47e393) 20%, rgb(var(--ha-surface-container-lowest)));
-  border: 1px solid var(--rpg-shadow-ink, #121215);
-  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800;
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; line-height: 1.2;
   color: rgb(var(--ha-on-surface)); white-space: nowrap;
 }
 .ha-arc-tj-track {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px;
-  padding: 8px 10px 4px;
+  padding: 7px 10px 4px;
 }
 .ha-arc-tj-node {
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0;
@@ -3965,6 +3971,7 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
   background: rgb(var(--ha-surface-container));
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
   color: rgb(var(--ha-on-surface-variant));
+  transition: transform 110ms ease;
 }
 .ha-arc-tj-node.is-reached .ha-arc-tj-box {
   border-color: var(--rpg-shadow-ink, #121215);
@@ -3998,99 +4005,210 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
 .ha-arc-tj-node.is-current .ha-arc-tj-tag { color: var(--rpg-cta, #ff6b4a); }
 .ha-arc-tj-node.is-reached:not(.is-current) .ha-arc-tj-tag { color: rgb(var(--ha-secondary, 14 108 74)); }
 .ha-arc-tj-cap {
-  margin: 0; padding: 2px 10px 8px;
-  font-size: 11px; line-height: 1.35; color: rgb(var(--ha-on-surface-variant));
-}
-
-/* ─── Quests Checklist, AI Tones & Level-Up Celebration UI ────────────────── */
-.ha-dash-ai-quest {
-  margin: 3px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
-  color: rgb(var(--ha-secondary, 14 108 74)); line-height: 1.3;
-}
-.ha-arc-quest-box {
-  display: flex; flex-direction: column; gap: 5px;
-  padding: 7px 9px; border-radius: 10px;
-  background: rgb(var(--ha-surface-container-low));
-  border: 1.5px solid rgb(var(--ha-outline-variant) / .65);
-}
-.ha-arc-quest-hdr {
-  display: flex; align-items: center; justify-content: space-between; gap: 6px;
-  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
-  color: rgb(var(--ha-on-surface)); letter-spacing: 0.03em;
-}
-.ha-arc-quest-cnt {
-  padding: 1px 6px; border-radius: 5px;
-  background: rgb(var(--ha-surface-container-highest));
-  border: 1px solid rgb(var(--ha-outline-variant));
-  color: rgb(var(--ha-on-surface-variant));
-}
-.ha-arc-quest-list {
-  display: flex; flex-direction: column; gap: 4px;
-}
-.ha-arc-q-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  font-size: 11px; line-height: 1.28; color: rgb(var(--ha-on-surface));
-}
-.ha-arc-q-row.is-done { color: rgb(var(--ha-on-surface-variant)); }
-.ha-arc-q-lbl {
-  display: inline-flex; align-items: center; gap: 6px; min-width: 0;
-}
-.ha-arc-q-box {
-  width: 15px; height: 15px; border-radius: 4px; flex-shrink: 0;
-  display: inline-grid; place-items: center;
-  border: 1.5px solid rgb(var(--ha-outline-variant));
-  background: rgb(var(--ha-surface-container-lowest));
-  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800;
-}
-.ha-arc-q-row.is-done .ha-arc-q-box {
-  background: var(--rpg-mint, #47e393); color: #121010;
-  border-color: var(--rpg-shadow-ink, #121215);
-}
-.ha-arc-q-badge {
-  flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
-  padding: 1px 6px; border-radius: 5px;
-  background: rgb(var(--ha-surface-container-lowest));
-  border: 1px solid rgb(var(--ha-outline-variant) / .75);
-  color: rgb(var(--ha-on-surface-variant));
-}
-.ha-arc-q-row.is-done .ha-arc-q-badge {
-  color: rgb(var(--ha-secondary, 14 108 74));
-  border-color: rgb(var(--ha-secondary, 14 108 74) / .45);
-}
-.ha-arc-tone-row {
-  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
-}
-.ha-arc-tone-chip {
-  padding: 3px 8px; border-radius: 7px; cursor: pointer;
-  border: 1.5px solid rgb(var(--ha-outline-variant));
-  background: rgb(var(--ha-surface-container-lowest));
-  color: rgb(var(--ha-on-surface));
-  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
-}
-.ha-arc-tone-chip.is-active {
-  background: var(--rpg-cta, #ff6b4a); color: var(--rpg-cta-fg, #ffffff);
-  border-color: var(--rpg-shadow-ink, #121215);
-  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
+  margin: 0; padding: 1px 10px 7px;
+  font-size: 10.5px; line-height: 1.35; color: rgb(var(--ha-on-surface-variant));
 }
 button.ha-arc-tj-node {
   appearance: none; background: transparent; border: 0; padding: 0; text-align: left; cursor: pointer;
 }
 button.ha-arc-tj-node:hover .ha-arc-tj-box { transform: translateY(-1px); }
-.ha-arc-tj-quests {
-  padding: 0 10px 7px;
-  display: flex; flex-wrap: wrap; gap: 4px;
+
+/* ─── Quests & Powers Modal Drawer (#arc-hub-dialog) ───────────────────────── */
+.ha-dash-ai-quest {
+  margin: 3px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  color: rgb(var(--ha-secondary, 14 108 74)); line-height: 1.3;
 }
-.ha-arc-tj-qchip {
-  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
-  padding: 2px 6px; border-radius: 5px;
+.ha-ai-hub-dialog {
+  padding: 0; border: 0; background: transparent; color: rgb(var(--ha-on-surface));
+  max-width: 100%; width: 100%; max-height: 86dvh;
+  margin: auto 0 0 0; overflow: visible;
+}
+.ha-ai-hub-dialog:not([open]):not(.is-open) { display: none; }
+.ha-ai-hub-dialog::backdrop {
+  background: rgb(8 10 16 / .62);
+  backdrop-filter: blur(4px);
+}
+@media (min-width: 640px) {
+  .ha-ai-hub-dialog {
+    margin: auto; max-width: 460px; width: calc(100% - 32px); max-height: 84dvh;
+  }
+}
+.ha-ai-hub-sheet {
+  display: flex; flex-direction: column; max-height: inherit; overflow: hidden;
+  background: rgb(var(--ha-surface-container-lowest));
+  border: 2px solid var(--rpg-shadow-ink, #121215);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 24px rgb(0 0 0 / .24), 4px 4px 0 var(--rpg-shadow-ink, #121215);
+}
+@media (min-width: 640px) {
+  .ha-ai-hub-sheet {
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 var(--rpg-shadow-ink, #121215);
+  }
+}
+.ha-ai-hub-hdr {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px;
+  background-color: rgb(var(--ha-surface-container-low));
+  background-image: radial-gradient(rgb(var(--ha-on-surface) / .11) 1px, transparent 1px);
+  background-size: 6px 6px;
+  border-bottom: 1.5px solid rgb(var(--ha-outline-variant) / .65);
+}
+.ha-ai-hub-id {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+}
+.ha-ai-hub-title-row {
+  display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap;
+}
+.ha-ai-hub-name {
+  margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 800;
+  color: rgb(var(--ha-on-surface)); line-height: 1.15;
+}
+.ha-ai-hub-sub {
+  margin: 2px 0 0; font-size: 11px; color: rgb(var(--ha-on-surface-variant));
+}
+.ha-ai-hub-close {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; cursor: pointer;
+  display: grid; place-items: center;
+  background: rgb(var(--ha-surface-container-lowest));
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800;
+  color: rgb(var(--ha-on-surface));
+}
+.ha-ai-hub-px-wrap {
+  padding: 8px 14px;
   background: rgb(var(--ha-surface-container-low));
-  border: 1px solid rgb(var(--ha-outline-variant) / .7);
+  border-bottom: 1px dashed rgb(var(--ha-outline-variant) / .55);
+}
+.ha-ai-hub-body {
+  padding: 12px 14px calc(18px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+}
+.ha-ai-hub-section {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ha-ai-hub-sec-hdr {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding-bottom: 4px;
+}
+.ha-arc-quest-hdr-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+  color: rgb(var(--ha-on-surface)); letter-spacing: 0.05em;
+}
+.ha-ai-hub-sec-note,
+.ha-arc-quest-cnt {
+  padding: 1px 6px; border-radius: 5px;
+  background: rgb(var(--ha-surface-container));
+  border: 1px solid rgb(var(--ha-outline-variant) / .85);
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
   color: rgb(var(--ha-on-surface-variant));
 }
-.ha-arc-tj-qchip.is-done {
-  background: color-mix(in srgb, var(--rpg-mint, #47e393) 18%, rgb(var(--ha-surface-container-lowest)));
+.ha-ai-hub-list {
+  display: flex; flex-direction: column;
+}
+.ha-arc-quest-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 2px;
+  border-bottom: 1px dashed rgb(var(--ha-outline-variant) / .45);
+}
+.ha-arc-quest-row:last-child { border-bottom: 0; }
+.ha-arc-q-box {
+  width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+  display: inline-grid; place-items: center;
+  border: 1.5px solid rgb(var(--ha-outline-variant));
+  background: rgb(var(--ha-surface-container-low));
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+}
+.ha-arc-quest-row.is-done .ha-arc-q-box {
+  background: var(--rpg-mint, #47e393); color: #121010;
   border-color: var(--rpg-shadow-ink, #121215);
+}
+.ha-arc-q-main {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;
+}
+.ha-arc-q-lbl {
+  font-size: 12px; font-weight: 600; line-height: 1.35;
+  color: rgb(var(--ha-on-surface)); white-space: normal;
+}
+.ha-arc-quest-row.is-done .ha-arc-q-lbl {
+  color: rgb(var(--ha-on-surface-variant));
+}
+.ha-arc-q-hint {
+  font-size: 10.5px; color: rgb(var(--ha-on-surface-variant)); line-height: 1.3;
+}
+.ha-arc-q-prog {
+  flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+  padding: 2px 7px; border-radius: 6px;
+  background: rgb(var(--ha-surface-container-low));
+  border: 1px solid rgb(var(--ha-outline-variant) / .8);
+  color: rgb(var(--ha-on-surface-variant));
+}
+.ha-arc-quest-row.is-done .ha-arc-q-prog {
+  color: rgb(var(--ha-secondary, 14 108 74));
+  border-color: rgb(var(--ha-secondary, 14 108 74) / .5);
+}
+.ha-arc-tier {
+  display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  padding: 9px 2px;
+  border-bottom: 1px dashed rgb(var(--ha-outline-variant) / .45);
+}
+.ha-arc-tier:last-child { border-bottom: 0; }
+.ha-arc-tier-lvl {
+  display: inline-grid; place-items: center; width: 30px; height: 24px; border-radius: 6px;
+  border: 1.5px solid rgb(var(--ha-outline-variant));
+  background: rgb(var(--ha-surface-container-low));
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+  color: rgb(var(--ha-on-surface-variant));
+}
+.ha-arc-tier.is-unlocked .ha-arc-tier-lvl {
+  border-color: var(--rpg-shadow-ink, #121215);
+  background: color-mix(in srgb, var(--rpg-mint, #47e393) 24%, rgb(var(--ha-surface-container-lowest)));
   color: rgb(var(--ha-on-surface));
+}
+.ha-arc-tier-copy {
+  min-width: 0; display: flex; flex-direction: column; gap: 1px;
+}
+.ha-arc-tier-copy strong {
+  font-size: 12px; font-weight: 700; color: rgb(var(--ha-on-surface)); line-height: 1.25;
+}
+.ha-arc-tier-copy span {
+  font-size: 11px; color: rgb(var(--ha-on-surface-variant)); line-height: 1.3;
+}
+.ha-arc-tier-actions {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.ha-arc-hub-try {
+  padding: 3px 8px; border-radius: 6px; cursor: pointer;
+  background: rgb(var(--ha-surface-container-low));
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
+  color: rgb(var(--ha-on-surface));
+}
+.ha-arc-tier-state {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 800;
+  color: rgb(var(--ha-on-surface-variant)); flex-shrink: 0;
+}
+.ha-arc-tier.is-unlocked .ha-arc-tier-state { color: rgb(var(--ha-secondary, 14 108 74)); }
+.ha-arc-tone-pills {
+  display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px;
+}
+.ha-arc-tone-btn {
+  padding: 5px 10px; border-radius: 8px; cursor: pointer;
+  border: 1.5px solid rgb(var(--ha-outline-variant));
+  background: rgb(var(--ha-surface-container-low));
+  color: rgb(var(--ha-on-surface));
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
+  transition: transform 110ms ease;
+}
+.ha-arc-tone-btn:disabled {
+  opacity: 0.5; cursor: not-allowed;
+}
+.ha-arc-tone-btn.is-active {
+  background: var(--rpg-cta, #ff6b4a); color: var(--rpg-cta-fg, #ffffff);
+  border-color: var(--rpg-shadow-ink, #121215);
+  box-shadow: 1.5px 1.5px 0 var(--rpg-shadow-ink, #121215);
 }
 .ha-arc-lvlup-banner {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;

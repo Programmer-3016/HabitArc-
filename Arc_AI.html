@@ -185,36 +185,15 @@
                     <span id="arc-ai-buddy-name" class="ha-arc-lvl-name">ARC</span>
                     <span id="arc-ai-rank" class="ha-arc-lvl-rank">HABIT BUILDER</span>
                 </div>
-                <span id="arc-ai-next-txt" class="ha-arc-lvl-next">0/3Q → LVL 2</span>
+                <button id="arc-open-hub-btn" type="button" class="ha-arc-hub-pill" aria-haspopup="dialog" aria-controls="arc-hub-dialog">
+                    <span id="arc-ai-next-txt">0/3 QUESTS</span><span aria-hidden="true">›</span>
+                </button>
             </div>
             <div class="ha-arc-level-body">
                 <div id="arc-px-bar" class="ha-arc-px-bar" role="progressbar" aria-label="Progress toward next AI level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
                 <div class="ha-arc-power-row">
-                    <p id="arc-ai-power-copy" class="ha-arc-power-copy">Right now at Level 1 you can use ARC to make habits for you.</p>
-                    <button id="arc-lvl1-try-btn" type="button" class="ha-arc-try-chip">Try: Make a habit</button>
-                </div>
-                <div id="arc-quest-box" class="ha-arc-quest-box" aria-label="Quests to unlock next level">
-                    <div class="ha-arc-quest-hdr">
-                        <span id="arc-quest-hdr-title">QUESTS TO LVL 2</span>
-                        <span id="arc-quest-cnt" class="ha-arc-quest-cnt">0/3</span>
-                    </div>
-                    <div id="arc-quest-list" class="ha-arc-quest-list">
-                        <div id="arc-q-row-0" class="ha-arc-q-row"><span class="ha-arc-q-lbl"><span id="arc-q-box-0" class="ha-arc-q-box">·</span><span id="arc-q-lbl-0">Create 1 habit with ARC</span></span><span id="arc-q-prog-0" class="ha-arc-q-badge">0/1</span></div>
-                        <div id="arc-q-row-1" class="ha-arc-q-row"><span class="ha-arc-q-lbl"><span id="arc-q-box-1" class="ha-arc-q-box">·</span><span id="arc-q-lbl-1">Complete 3 habit check-ins</span></span><span id="arc-q-prog-1" class="ha-arc-q-badge">0/3</span></div>
-                        <div id="arc-q-row-2" class="ha-arc-q-row"><span class="ha-arc-q-lbl"><span id="arc-q-box-2" class="ha-arc-q-box">·</span><span id="arc-q-lbl-2">Clear 1 day or finish 1 task/focus</span></span><span id="arc-q-prog-2" class="ha-arc-q-badge">0/1</span></div>
-                    </div>
-                </div>
-                <div id="arc-tone-row" class="hidden ha-arc-tone-row" aria-label="AI personality tones">
-                    <button id="arc-tone-default" type="button" data-ai-tone="default" class="ha-arc-tone-chip is-active">Balanced</button>
-                    <button id="arc-tone-calm" type="button" data-ai-tone="calm" class="ha-arc-tone-chip">Zen Monk</button>
-                    <button id="arc-tone-drill" type="button" data-ai-tone="drill" class="ha-arc-tone-chip">Drill Coach</button>
-                    <button id="arc-tone-hinglish" type="button" data-ai-tone="hinglish" class="ha-arc-tone-chip">Hinglish Dost</button>
-                </div>
-                <div id="arc-tier-grid" class="ha-arc-tier-grid" aria-label="AI power levels">
-                    <div id="arc-tier-1" class="ha-arc-tier is-unlocked"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 1 · START</span><span class="ha-arc-tier-label">Make Habits</span></span><span id="arc-tier-state-1" class="ha-arc-tier-state">ACTIVE</span></div>
-                    <div id="arc-tier-2" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 2 · 3Q</span><span class="ha-arc-tier-label">Delete, Edit &amp; Tasks</span></span><span id="arc-tier-state-2" class="ha-arc-tier-state">LOCKED</span></div>
-                    <div id="arc-tier-3" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 3 · 7D+3Q</span><span class="ha-arc-tier-label">Streak Shield</span></span><span id="arc-tier-state-3" class="ha-arc-tier-state">LOCKED</span></div>
-                    <div id="arc-tier-4" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 4 · 14D+3Q</span><span class="ha-arc-tier-label">Batch &amp; Tones</span></span><span id="arc-tier-state-4" class="ha-arc-tier-state">LOCKED</span></div>
+                    <p id="arc-ai-power-copy" class="ha-arc-power-copy">Right now at Level 1 you can use ARC to create habits for you.</p>
+                    <button id="arc-lvl1-try-btn" type="button" class="ha-arc-try-chip">Try it</button>
                 </div>
             </div>
         </section>
@@ -311,7 +290,7 @@
                 <div class="min-w-0">
                     <div class="ha-arc-thread-title-row">
                         <div id="arc-thread-name" class="ha-arc-thread-name">ARC THREAD</div>
-                        <span id="arc-thread-lvl-badge" class="ha-arc-thread-lvl-pill">LVL 1</span>
+                        <button id="arc-thread-lvl-badge" type="button" class="ha-arc-thread-lvl-pill" aria-haspopup="dialog" aria-controls="arc-hub-dialog">LVL 1</button>
                     </div>
                     <div id="arc-thread-context" class="ha-arc-thread-sub">28d log loaded</div>
                 </div>
@@ -327,7 +306,9 @@
         <section id="arc-thread-journey" class="ha-arc-tj" aria-label="AI Level journey in chat">
             <div class="ha-arc-tj-head">
                 <span id="arc-tj-title" class="ha-arc-tj-title">STARTED: LVL 1 (0D)</span>
-                <span id="arc-tj-now" class="ha-arc-tj-now">NOW LVL 1</span>
+                <button id="arc-tj-open-hub-btn" type="button" class="ha-arc-tj-hub-btn" aria-haspopup="dialog" aria-controls="arc-hub-dialog">
+                    <span id="arc-tj-now">0/3 QUESTS</span><span aria-hidden="true">›</span>
+                </button>
             </div>
             <div id="arc-tj-track" class="ha-arc-tj-track" role="list" aria-label="Level 1 to Level 4 progression">
                 <button type="button" id="arc-tj-node-1" class="ha-arc-tj-node is-reached is-current" role="listitem">
@@ -362,8 +343,7 @@
                     <span id="arc-tj-tag-4" class="ha-arc-tj-tag">14D+3Q</span>
                 </button>
             </div>
-            <p id="arc-tj-caption" class="ha-arc-tj-cap">Started at LVL 1 (Make Habits) · Complete 3 quests to reach LVL 2.</p>
-            <div id="arc-tj-quests" class="ha-arc-tj-quests" aria-label="Current level quest progress"></div>
+            <p id="arc-tj-caption" class="ha-arc-tj-cap">Started LVL 1 (Make Habits) · Tap Quests › for unlock tasks.</p>
         </section>
 
         <div id="ai-coach-history" class="ha-arc-thread-stack"></div>
@@ -418,6 +398,129 @@
 
 </main>
 
+<dialog id="arc-hub-dialog" class="ha-ai-hub-dialog" aria-labelledby="arc-hub-name">
+    <div class="ha-ai-hub-sheet">
+        <div class="ha-ai-hub-hdr">
+            <div class="ha-ai-hub-id">
+                <span id="arc-hub-lvl-badge" class="ha-arc-lvl-badge">LVL 1</span>
+                <div>
+                    <div class="ha-ai-hub-title-row">
+                        <h2 id="arc-hub-name" class="ha-ai-hub-name">Arc</h2>
+                        <span id="arc-hub-rank" class="ha-arc-rank">SPARK</span>
+                    </div>
+                    <p class="ha-ai-hub-sub">Quests, powers &amp; personality unlocks</p>
+                </div>
+            </div>
+            <button id="arc-hub-close" type="button" class="ha-ai-hub-close" aria-label="Close quests and powers drawer">✕</button>
+        </div>
+
+        <div class="ha-ai-hub-px-wrap">
+            <div id="arc-hub-px-bar" class="ha-arc-px-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Level progression"></div>
+        </div>
+
+        <div class="ha-ai-hub-body">
+            <section id="arc-quest-box" class="ha-ai-hub-section" aria-labelledby="arc-quest-hdr-title">
+                <div class="ha-ai-hub-sec-hdr">
+                    <span id="arc-quest-hdr-title" class="ha-arc-quest-hdr-title">QUESTS TO LVL 2</span>
+                    <span id="arc-quest-cnt" class="ha-arc-quest-cnt">0/3</span>
+                </div>
+                <div class="ha-ai-hub-list">
+                    <div id="arc-q-row-0" class="ha-arc-quest-row">
+                        <span id="arc-q-box-0" class="ha-arc-q-box" aria-hidden="true">[ ]</span>
+                        <div class="ha-arc-q-main">
+                            <span id="arc-q-lbl-0" class="ha-arc-q-lbl">Quest 1</span>
+                            <span id="arc-q-hint-0" class="ha-arc-q-hint hidden"></span>
+                        </div>
+                        <span id="arc-q-prog-0" class="ha-arc-q-prog">0/1</span>
+                    </div>
+                    <div id="arc-q-row-1" class="ha-arc-quest-row">
+                        <span id="arc-q-box-1" class="ha-arc-q-box" aria-hidden="true">[ ]</span>
+                        <div class="ha-arc-q-main">
+                            <span id="arc-q-lbl-1" class="ha-arc-q-lbl">Quest 2</span>
+                            <span id="arc-q-hint-1" class="ha-arc-q-hint hidden"></span>
+                        </div>
+                        <span id="arc-q-prog-1" class="ha-arc-q-prog">0/1</span>
+                    </div>
+                    <div id="arc-q-row-2" class="ha-arc-quest-row">
+                        <span id="arc-q-box-2" class="ha-arc-q-box" aria-hidden="true">[ ]</span>
+                        <div class="ha-arc-q-main">
+                            <span id="arc-q-lbl-2" class="ha-arc-q-lbl">Quest 3</span>
+                            <span id="arc-q-hint-2" class="ha-arc-q-hint hidden"></span>
+                        </div>
+                        <span id="arc-q-prog-2" class="ha-arc-q-prog">0/1</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="ha-ai-hub-section" aria-label="AI level powers">
+                <div class="ha-ai-hub-sec-hdr">
+                    <span class="ha-arc-quest-hdr-title">POWER TIERS</span>
+                    <span class="ha-ai-hub-sec-note">L1 → L4</span>
+                </div>
+                <div id="arc-tier-grid" class="ha-ai-hub-list">
+                    <div id="arc-tier-1" class="ha-arc-tier is-unlocked">
+                        <span class="ha-arc-tier-lvl">L1</span>
+                        <div class="ha-arc-tier-copy">
+                            <strong>Make Habits</strong>
+                            <span>Draft &amp; save new daily habits right in chat</span>
+                        </div>
+                        <div class="ha-arc-tier-actions">
+                            <button id="arc-hub-try-1" type="button" class="ha-arc-hub-try">Try</button>
+                            <span id="arc-tier-state-1" class="ha-arc-tier-state">ACTIVE</span>
+                        </div>
+                    </div>
+                    <div id="arc-tier-2" class="ha-arc-tier">
+                        <span class="ha-arc-tier-lvl">L2</span>
+                        <div class="ha-arc-tier-copy">
+                            <strong>Delete, Edit &amp; Tasks</strong>
+                            <span>Update cues, check off habits &amp; remove clutter</span>
+                        </div>
+                        <div class="ha-arc-tier-actions">
+                            <button id="arc-hub-try-2" type="button" class="ha-arc-hub-try hidden">Try</button>
+                            <span id="arc-tier-state-2" class="ha-arc-tier-state">LOCKED</span>
+                        </div>
+                    </div>
+                    <div id="arc-tier-3" class="ha-arc-tier">
+                        <span class="ha-arc-tier-lvl">L3</span>
+                        <div class="ha-arc-tier-copy">
+                            <strong>Streak Shield &amp; Plan-B</strong>
+                            <span>2-minute fallback habits to save streaks on hard days</span>
+                        </div>
+                        <div class="ha-arc-tier-actions">
+                            <button id="arc-hub-try-3" type="button" class="ha-arc-hub-try hidden">Try</button>
+                            <span id="arc-tier-state-3" class="ha-arc-tier-state">LOCKED</span>
+                        </div>
+                    </div>
+                    <div id="arc-tier-4" class="ha-arc-tier">
+                        <span class="ha-arc-tier-lvl">L4</span>
+                        <div class="ha-arc-tier-copy">
+                            <strong>Batch Tune &amp; Tones</strong>
+                            <span>Rebalance schedules in bulk &amp; switch AI personality</span>
+                        </div>
+                        <div class="ha-arc-tier-actions">
+                            <button id="arc-hub-try-4" type="button" class="ha-arc-hub-try hidden">Try</button>
+                            <span id="arc-tier-state-4" class="ha-arc-tier-state">LOCKED</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="arc-tone-row" class="ha-ai-hub-section" aria-label="AI personality tones">
+                <div class="ha-ai-hub-sec-hdr">
+                    <span class="ha-arc-quest-hdr-title">AI VOICE &amp; TONE</span>
+                    <span id="arc-tone-lock" class="ha-arc-tier-state">LOCKED · LVL 4</span>
+                </div>
+                <div class="ha-arc-tone-pills">
+                    <button id="arc-tone-default" type="button" class="ha-arc-tone-btn">Balanced</button>
+                    <button id="arc-tone-calm" type="button" class="ha-arc-tone-btn">Calm Zen</button>
+                    <button id="arc-tone-drill" type="button" class="ha-arc-tone-btn">Drill Coach</button>
+                    <button id="arc-tone-hinglish" type="button" class="ha-arc-tone-btn">Hinglish Bro</button>
+                </div>
+            </section>
+        </div>
+    </div>
+</dialog>
+
 <!-- Floating Bottom Nav Bar (Mobile Only) -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
   <a class="ha-bottom-nav-link" href="Dashboard.html">
@@ -468,7 +571,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const tjTitleEl = document.getElementById('arc-tj-title');
     const tjNowEl = document.getElementById('arc-tj-now');
     const tjCaptionEl = document.getElementById('arc-tj-caption');
-    const tjQuestsEl = document.getElementById('arc-tj-quests');
     const lvlUpBanner = document.getElementById('arc-lvlup-banner');
     const lvlUpText = document.getElementById('arc-lvlup-text');
     const lvlUpClose = document.getElementById('arc-lvlup-close');
@@ -481,7 +583,16 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const questHdrTitleEl = document.getElementById('arc-quest-hdr-title');
     const questCntEl = document.getElementById('arc-quest-cnt');
     const toneRowEl = document.getElementById('arc-tone-row');
+    const toneLockEl = document.getElementById('arc-tone-lock');
     const tryLvl1Button = document.getElementById('arc-lvl1-try-btn');
+    const hubDialog = document.getElementById('arc-hub-dialog');
+    const hubCloseBtn = document.getElementById('arc-hub-close');
+    const hubLvlBadge = document.getElementById('arc-hub-lvl-badge');
+    const hubNameEl = document.getElementById('arc-hub-name');
+    const hubRankEl = document.getElementById('arc-hub-rank');
+    const hubPxBar = document.getElementById('arc-hub-px-bar');
+    const openHubBtn = document.getElementById('arc-open-hub-btn');
+    const tjOpenHubBtn = document.getElementById('arc-tj-open-hub-btn');
     const loadTaskStore = () => (typeof window.HabitArcTaskStore !== 'undefined'
         ? Promise.resolve(window.HabitArcTaskStore)
         : import('./task-store.js').catch(() => null));
@@ -620,20 +731,29 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         const remQ = Math.max(0, totalQ - doneQ);
         if (nextTxtEl) {
             nextTxtEl.textContent = meta.nextLevel
-                ? `${doneQ}/${totalQ}Q → LVL ${meta.nextLevel}`
+                ? `${doneQ}/${totalQ} QUESTS`
                 : 'MAX RANK';
         }
+        const filledCount = Math.max(0, Math.min(8, Math.round((meta.progressPct || 0) / 12.5)));
+        const pxSegmentsMarkup = Array.from({ length: 8 }, (_, idx) =>
+            `<span class="ha-arc-px-seg${idx < filledCount ? ' is-filled' : ''}"></span>`
+        ).join('');
         if (pxBarEl) {
-            const filledCount = Math.max(0, Math.min(8, Math.round((meta.progressPct || 0) / 12.5)));
             pxBarEl.setAttribute?.('aria-valuenow', String(meta.progressPct || 0));
-            pxBarEl.innerHTML = Array.from({ length: 8 }, (_, idx) =>
-                `<span class="ha-arc-px-seg${idx < filledCount ? ' is-filled' : ''}"></span>`
-            ).join('');
+            pxBarEl.innerHTML = pxSegmentsMarkup;
+        }
+        if (hubLvlBadge) hubLvlBadge.textContent = `LVL ${meta.level}`;
+        if (hubNameEl) hubNameEl.textContent = meta.aiName;
+        if (hubRankEl) hubRankEl.textContent = meta.rank;
+        if (hubPxBar) {
+            hubPxBar.setAttribute?.('aria-valuenow', String(meta.progressPct || 0));
+            hubPxBar.innerHTML = pxSegmentsMarkup;
         }
         if (powerCopyEl) {
+            const cleanSummary = String(meta.summary || '').replace(/\.+$/, '');
             powerCopyEl.textContent = meta.level === 1
-                ? `Right now at Level 1 you can use ${meta.aiName} to create habits for you. Complete ${remQ} quest${remQ === 1 ? '' : 's'} for LVL 2.`
-                : `Level ${meta.level} Active — ${meta.summary}${meta.nextLevel ? ` Complete ${remQ} quest${remQ === 1 ? '' : 's'} for LVL ${meta.nextLevel}.` : ''}`;
+                ? `Right now at Level 1 you can use ${meta.aiName} to create habits for you.`
+                : `Level ${meta.level} Active — ${cleanSummary}.`;
         }
         const quests = Array.isArray(meta.quests) ? meta.quests : [];
         if (questHdrTitleEl) {
@@ -647,6 +767,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             const row = document.getElementById(`arc-q-row-${idx}`);
             const box = document.getElementById(`arc-q-box-${idx}`);
             const lbl = document.getElementById(`arc-q-lbl-${idx}`);
+            const hintEl = document.getElementById(`arc-q-hint-${idx}`);
             const progBadge = document.getElementById(`arc-q-prog-${idx}`);
             if (!row) continue;
             if (!q) {
@@ -657,22 +778,32 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             row.classList?.toggle?.('is-done', Boolean(q.done));
             if (box) box.textContent = q.done ? '✓' : '·';
             if (lbl) lbl.textContent = q.label;
+            if (hintEl) {
+                hintEl.textContent = q.hint || '';
+                hintEl.classList?.toggle?.('hidden', !q.hint);
+            }
             if (progBadge) progBadge.textContent = q.done ? 'DONE' : `${q.current}/${q.target}`;
         }
         if (toneRowEl) {
-            toneRowEl.classList?.toggle?.('hidden', meta.level < 4);
+            const unlockedTone = meta.level >= 4;
             const curTone = meta.activeTone || meta.aiTone || 'default';
+            toneRowEl.classList?.toggle?.('is-locked', !unlockedTone);
+            if (toneLockEl) toneLockEl.textContent = unlockedTone ? 'ACTIVE' : 'LOCKED · LVL 4';
             ['default', 'calm', 'drill', 'hinglish'].forEach(toneId => {
                 const btn = document.getElementById(`arc-tone-${toneId}`);
-                btn?.classList?.toggle?.('is-active', toneId === curTone);
+                if (!btn) return;
+                btn.disabled = !unlockedTone;
+                btn.classList?.toggle?.('is-active', unlockedTone && toneId === curTone);
             });
         }
         if (Array.isArray(meta.tiers)) {
             meta.tiers.forEach(t => {
                 const row = document.getElementById(`arc-tier-${t.level}`);
                 const st = document.getElementById(`arc-tier-state-${t.level}`);
+                const tryBtn = document.getElementById(`arc-hub-try-${t.level}`);
                 row?.classList?.toggle?.('is-unlocked', Boolean(t.unlocked));
                 if (st) st.textContent = t.current ? 'ACTIVE' : (t.unlocked ? 'ON ✓' : 'LOCKED');
+                tryBtn?.classList?.toggle?.('hidden', !t.unlocked);
             });
         }
         if (threadNameEl) threadNameEl.textContent = `${meta.aiName.toUpperCase()} THREAD`;
@@ -685,20 +816,11 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 ? `STARTED: LVL 1 (${shownDays}D)`
                 : `STARTED LVL 1 → REACHED LVL ${meta.level} (${shownDays}D)`;
         }
-        if (tjNowEl) tjNowEl.textContent = `NOW LVL ${meta.level}`;
-        if (tjCaptionEl) {
-            tjCaptionEl.textContent = meta.level === 1
-                ? `Started at LVL 1 (Make Habits) · Complete ${doneQ}/${totalQ} quests to reach LVL 2.`
-                : `Started LVL 1 → Reached LVL ${meta.level} (${meta.shortPower})${meta.nextLevel ? ` · ${doneQ}/${totalQ} quests to LVL ${meta.nextLevel}.` : ' · All powers active!'}`;
+        if (tjNowEl) {
+            tjNowEl.textContent = meta.nextLevel ? `${doneQ}/${totalQ} QUESTS` : 'MAX';
         }
-        if (tjQuestsEl) {
-            if (meta.nextLevel && quests.length) {
-                tjQuestsEl.innerHTML = quests.map(q =>
-                    `<span class="ha-arc-tj-qchip${q.done ? ' is-done' : ''}">${q.done ? '✓ ' : ''}${HabitArc.escapeHTML(shorten(q.label, 24))} ${q.done ? 'DONE' : `${q.current}/${q.target}`}</span>`
-                ).join('');
-            } else {
-                tjQuestsEl.innerHTML = '<span class="ha-arc-tj-qchip is-done">✓ All 4 AI Levels Unlocked</span>';
-            }
+        if (tjCaptionEl) {
+            tjCaptionEl.textContent = `Started LVL 1 → Reached LVL ${meta.level} (${meta.shortPower}).`;
         }
         if (Array.isArray(meta.tiers)) {
             meta.tiers.forEach(t => {
@@ -1764,6 +1886,36 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         finishManualActionOutcome(executeHabitActionSync(activeAction, { auto: false }));
     });
 
+    function openHubDialog() {
+        renderArcConsole();
+        if (!hubDialog) return;
+        if (typeof hubDialog.showModal === 'function') {
+            if (!hubDialog.open) hubDialog.showModal();
+        } else {
+            hubDialog.setAttribute?.('open', '');
+        }
+        hubDialog.classList?.add?.('is-open');
+    }
+
+    function closeHubDialog() {
+        if (!hubDialog) return;
+        if (typeof hubDialog.close === 'function' && hubDialog.open) {
+            hubDialog.close();
+        } else {
+            hubDialog.removeAttribute?.('open');
+        }
+        hubDialog.classList?.remove?.('is-open');
+    }
+
+    openHubBtn?.addEventListener('click', openHubDialog);
+    tjOpenHubBtn?.addEventListener('click', openHubDialog);
+    document.getElementById('arc-thread-lvl-badge')?.addEventListener('click', openHubDialog);
+    hubCloseBtn?.addEventListener('click', closeHubDialog);
+    hubDialog?.addEventListener?.('close', () => hubDialog.classList?.remove?.('is-open'));
+    hubDialog?.addEventListener?.('click', (event) => {
+        if (event?.target === hubDialog) closeHubDialog();
+    });
+
     const nodePrompts = {
         1: 'Create a 10-min stretching habit at 08:00',
         2: 'Change my first habit reminder to 08:30',
@@ -1771,17 +1923,21 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         4: 'Rebalance my daily habit schedule so mornings feel lighter',
     };
     [1, 2, 3, 4].forEach(lvl => {
-        document.getElementById(`arc-tj-node-${lvl}`)?.addEventListener('click', () => {
-            if (requestController) return;
+        const handleTierAction = (fromHub = false) => {
             const meta = getAiMeta();
             if (lvl > meta.level) {
-                setStatus(`Unlock LVL ${lvl} first: finish the quests shown in ${meta.aiName}'s Level Journey.`, 'muted');
+                openHubDialog();
+                setStatus(`Finish quests to unlock LVL ${lvl} (${meta.aiName}).`, 'muted');
                 return;
             }
+            if (fromHub) closeHubDialog();
+            if (requestController) return;
             questionInput.value = nodePrompts[lvl] || '';
             resizeTextarea();
             questionInput.focus();
-        });
+        };
+        document.getElementById(`arc-tj-node-${lvl}`)?.addEventListener('click', () => handleTierAction(false));
+        document.getElementById(`arc-hub-try-${lvl}`)?.addEventListener('click', () => handleTierAction(true));
     });
 
     ['default', 'calm', 'drill', 'hinglish'].forEach(toneId => {
@@ -1823,6 +1979,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
     renderArcConsole();
     restoreSavedThread();
+    const shouldOpenHub = typeof location !== 'undefined'
+        && typeof URLSearchParams !== 'undefined'
+        && new URLSearchParams(location.search).get('hub') === '1';
+    if (shouldOpenHub) {
+        openHubDialog();
+    }
     // ARC Rescue prepares a suggestion only; the user reviews and sends it.
     // Nothing is uploaded to the Coach unless they explicitly press Send.
     const isRescueHandoff = typeof location !== 'undefined'
