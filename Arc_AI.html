@@ -176,20 +176,21 @@
                 <span class="ha-arc-dot" aria-hidden="true"></span>
                 <span id="arc-telemetry-text">Loading synced habit history…</span>
             </p>
-            <div class="ha-arc-zen-bar" role="toolbar" aria-label="Chat history and AI level controls">
-                <button id="arc-zen-history-btn" type="button" class="ha-arc-hist-btn" aria-haspopup="dialog" aria-controls="arc-history-dialog">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
-                    <span>Chats</span>
-                    <span id="arc-zen-hist-count" class="ha-arc-hist-cnt hidden">0</span>
-                </button>
-                <button id="arc-open-hub-btn" type="button" class="ha-arc-hub-pill" aria-haspopup="dialog" aria-controls="arc-hub-dialog">
-                    <span id="arc-ai-lvl-badge" class="ha-arc-lvl-pill">LVL 1</span>
-                    <span id="arc-ai-buddy-name" class="ha-arc-lvl-name">ARC</span>
-                    <span class="ha-arc-lvl-sep" aria-hidden="true">·</span>
-                    <span id="arc-ai-next-txt">0/3 QUESTS</span>
-                    <span aria-hidden="true">›</span>
-                </button>
-            </div>
+        </div>
+
+        <div class="ha-arc-zen-bar" role="toolbar" aria-label="Chat history and AI level controls">
+            <button id="arc-zen-history-btn" type="button" class="ha-arc-hist-btn" aria-haspopup="dialog" aria-controls="arc-history-dialog">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+                <span>Chats</span>
+                <span id="arc-zen-hist-count" class="ha-arc-hist-cnt hidden">0</span>
+            </button>
+            <button id="arc-open-hub-btn" type="button" class="ha-arc-hub-pill" aria-haspopup="dialog" aria-controls="arc-hub-dialog">
+                <span id="arc-ai-lvl-badge" class="ha-arc-lvl-pill">LVL 1</span>
+                <span id="arc-ai-buddy-name" class="ha-arc-lvl-name">ARC</span>
+                <span class="ha-arc-lvl-sep" aria-hidden="true">·</span>
+                <span id="arc-ai-next-txt">0/3 QUESTS</span>
+                <span aria-hidden="true">›</span>
+            </button>
         </div>
 
         <div class="ha-arc-cards" aria-label="Suggested AI actions">
@@ -559,6 +560,7 @@ import {
     loadLocalArcChats,
     saveLocalArcChats,
     loadActiveArcChatId,
+    loadActiveArcChatMeta,
     saveActiveArcChatId,
     groupArcChatsByRecency
 } from './arc-chat-store.js';
@@ -663,8 +665,12 @@ import {
     let activeChatId = '';
     let owner = null;
     let hydratedChatUid = '';
+    let cloudSyncCompletedUid = '';
+    let cloudSyncPromise = null;
     let cloudChatUnsubscribe = null;
-    let cloudChatSaveTimer = null;
+    let cloudSavePromise = null;
+    let cloudSaveQueued = false;
+    let lastForegroundSyncAt = 0;
     let requestController = null;
     let activeAction = null;
     let activeActionApplied = false;
@@ -1125,24 +1131,67 @@ import {
         updateHistoryUI();
     }
 
+    function normaliseRemoteChatPayload(raw) {
+        if (Array.isArray(raw)) {
+            return { chats: raw, activeChatId: '', activeChatUpdatedAt: 0 };
+        }
+        if (raw && typeof raw === 'object') {
+            return {
+                chats: Array.isArray(raw.chats) ? raw.chats : [],
+                activeChatId: typeof raw.activeChatId === 'string' ? raw.activeChatId : '',
+                activeChatUpdatedAt: Number.isFinite(raw.activeChatUpdatedAt) ? raw.activeChatUpdatedAt : 0,
+            };
+        }
+        return { chats: [], activeChatId: '', activeChatUpdatedAt: 0 };
+    }
+
     async function flushCloudChatSave(uid = owner || getActiveThreadUid()) {
         const user = HabitArc.getAuthUser?.();
         const cloud = getCloudAuthClient();
         if (!uid || !user || user.isAnonymous || user.uid !== uid || !cloud?.saveArcChats) return;
-        try {
-            await cloud.saveArcChats(sanitizeArcChatsForCloud(chatThreads), user);
-            if (histSyncNote) histSyncNote.textContent = 'Synced to your HabitArc account ✓';
-        } catch {
-            if (histSyncNote) histSyncNote.textContent = 'Saved on this device · Cloud retry pending';
+        if (cloudSavePromise) {
+            cloudSaveQueued = true;
+            return cloudSavePromise;
         }
+        cloudSavePromise = (async () => {
+            try {
+                if (cloudSyncPromise) {
+                    try { await cloudSyncPromise; } catch {}
+                }
+                const storage = getChatStorage();
+                // Pull-before-push guard: never overwrite newer remote chats from another device before first pull.
+                if (cloudSyncCompletedUid !== uid && typeof cloud.loadArcChats === 'function') {
+                    try {
+                        const rawRemote = await cloud.loadArcChats(user);
+                        if ((HabitArc.getAuthUser?.()?.uid || hydratedChatUid) !== uid) return;
+                        const remote = normaliseRemoteChatPayload(rawRemote);
+                        chatThreads = saveLocalArcChats(uid, mergeArcChats(chatThreads, remote.chats), storage);
+                        cloudSyncCompletedUid = uid;
+                        updateHistoryUI();
+                    } catch { /* Proceed with offline-queued local save attempt below */ }
+                }
+                const activeMeta = loadActiveArcChatMeta(uid, storage);
+                await cloud.saveArcChats({
+                    chats: sanitizeArcChatsForCloud(chatThreads),
+                    activeChatId: activeChatId || activeMeta.id || '',
+                    activeChatUpdatedAt: activeMeta.updatedAt || Date.now(),
+                }, user);
+                if (histSyncNote) histSyncNote.textContent = 'Synced to your HabitArc account ✓';
+            } catch {
+                if (histSyncNote) histSyncNote.textContent = 'Saved on this device · Cloud retry pending';
+            } finally {
+                cloudSavePromise = null;
+                if (cloudSaveQueued) {
+                    cloudSaveQueued = false;
+                    void flushCloudChatSave(uid);
+                }
+            }
+        })();
+        return cloudSavePromise;
     }
 
     function scheduleCloudChatSave(uid = owner || getActiveThreadUid()) {
-        if (cloudChatSaveTimer) clearTimeout(cloudChatSaveTimer);
-        cloudChatSaveTimer = setTimeout(() => {
-            cloudChatSaveTimer = null;
-            void flushCloudChatSave(uid);
-        }, 350);
+        void flushCloudChatSave(uid);
     }
 
     function saveThreadState(uid = owner || getActiveThreadUid()) {
@@ -1150,14 +1199,15 @@ import {
         if (!resolvedUid) return;
         ensureChatsLoaded(resolvedUid);
         const storage = getChatStorage();
+        const nowTs = Date.now();
         if (!conversation.length) {
-            saveActiveArcChatId(resolvedUid, '', storage);
+            saveActiveArcChatId(resolvedUid, '', storage, nowTs);
             updateHistoryUI();
+            scheduleCloudChatSave(resolvedUid);
             return;
         }
-        if (!activeChatId) activeChatId = generateArcChatId();
+        if (!activeChatId) activeChatId = generateArcChatId(nowTs);
         const existing = getLiveArcChats(chatThreads).find(c => c.id === activeChatId);
-        const nowTs = Date.now();
         chatThreads = upsertArcChat(chatThreads, {
             id: activeChatId,
             title: existing?.title || deriveArcChatTitle(conversation[0]?.question),
@@ -1175,7 +1225,7 @@ import {
             lastActionUndo: activeActionUndo
         }, nowTs);
         chatThreads = saveLocalArcChats(resolvedUid, chatThreads, storage);
-        saveActiveArcChatId(resolvedUid, activeChatId, storage);
+        saveActiveArcChatId(resolvedUid, activeChatId, storage, nowTs);
         updateHistoryUI();
         scheduleCloudChatSave(resolvedUid);
     }
@@ -1550,7 +1600,7 @@ import {
         showThreadView(true);
     }
 
-    function openSavedChat(chatId, { closeDrawer = true, scroll = true } = {}) {
+    function openSavedChat(chatId, { closeDrawer = true, scroll = true, syncCloud = true } = {}) {
         const thread = getLiveArcChats(chatThreads).find(c => c.id === chatId);
         if (!thread) return false;
         const uid = hydratedChatUid || owner || getActiveThreadUid();
@@ -1566,7 +1616,10 @@ import {
         activeCreatedHabitId = typeof thread.lastCreatedHabitId === 'string' ? thread.lastCreatedHabitId : '';
         activePrevHabitPatch = thread.lastPrevHabitPatch || null;
         activeActionUndo = thread.lastActionUndo || null;
-        if (uid) saveActiveArcChatId(uid, activeChatId, getChatStorage());
+        if (uid) {
+            saveActiveArcChatId(uid, activeChatId, getChatStorage(), syncCloud ? Date.now() : (thread.updatedAt || Date.now()));
+            if (syncCloud) scheduleCloudChatSave(uid);
+        }
         renderThreadFromState();
         updateHistoryUI();
         if (closeDrawer) closeHistoryDialog();
@@ -1582,14 +1635,15 @@ import {
     function deleteSavedChat(chatId) {
         const uid = hydratedChatUid || owner || getActiveThreadUid();
         if (!uid) return;
-        chatThreads = deleteArcChat(chatThreads, chatId);
+        const nowTs = Date.now();
+        chatThreads = deleteArcChat(chatThreads, chatId, nowTs);
         chatThreads = saveLocalArcChats(uid, chatThreads, getChatStorage());
-        scheduleCloudChatSave(uid);
         if (chatId === activeChatId) {
             activeChatId = '';
-            saveActiveArcChatId(uid, '', getChatStorage());
+            saveActiveArcChatId(uid, '', getChatStorage(), nowTs);
             resetConversation();
         }
+        scheduleCloudChatSave(uid);
         updateHistoryUI();
     }
 
@@ -1597,7 +1651,10 @@ import {
         const uid = hydratedChatUid || owner || getActiveThreadUid();
         if (uid && conversation.length) saveThreadState(uid);
         activeChatId = '';
-        if (uid) saveActiveArcChatId(uid, '', getChatStorage());
+        if (uid) {
+            saveActiveArcChatId(uid, '', getChatStorage(), Date.now());
+            scheduleCloudChatSave(uid);
+        }
         resetConversation();
         closeHistoryDialog();
         updateHistoryUI();
@@ -1609,8 +1666,45 @@ import {
         ensureChatsLoaded(uid);
         const savedActiveId = loadActiveArcChatId(uid, getChatStorage());
         if (savedActiveId) {
-            openSavedChat(savedActiveId, { closeDrawer: false, scroll: true });
+            openSavedChat(savedActiveId, { closeDrawer: false, scroll: true, syncCloud: false });
         }
+    }
+
+    function applySyncedRemoteChats(uid, rawRemote) {
+        if ((HabitArc.getAuthUser?.()?.uid || hydratedChatUid) !== uid) return;
+        const storage = getChatStorage();
+        const remote = normaliseRemoteChatPayload(rawRemote);
+        const prevActiveUpdated = chatThreads.find(c => c.id === activeChatId)?.updatedAt || 0;
+        const prevLocalSerialized = JSON.stringify(sanitizeArcChatsForCloud(chatThreads));
+        const merged = mergeArcChats(chatThreads, remote.chats);
+        const chatsChanged = JSON.stringify(merged) !== JSON.stringify(chatThreads);
+        if (chatsChanged) {
+            chatThreads = saveLocalArcChats(uid, merged, storage);
+        }
+        const localMeta = loadActiveArcChatMeta(uid, storage);
+        const remoteHasNewerActive = remote.activeChatUpdatedAt > localMeta.updatedAt;
+        if (remoteHasNewerActive) {
+            saveActiveArcChatId(uid, remote.activeChatId, storage, remote.activeChatUpdatedAt);
+        }
+        updateHistoryUI();
+        if (!requestController && !questionInput?.value?.trim()) {
+            const liveChats = getLiveArcChats(chatThreads);
+            if (remoteHasNewerActive) {
+                if (remote.activeChatId && liveChats.some(c => c.id === remote.activeChatId)) {
+                    openSavedChat(remote.activeChatId, { closeDrawer: false, scroll: false, syncCloud: false });
+                } else if (!remote.activeChatId && conversation.length) {
+                    resetConversation();
+                }
+            } else if (activeChatId) {
+                const updatedThread = liveChats.find(c => c.id === activeChatId);
+                if (updatedThread && updatedThread.updatedAt > prevActiveUpdated) {
+                    openSavedChat(activeChatId, { closeDrawer: false, scroll: false, syncCloud: false });
+                }
+            } else if (!localMeta.id && !localMeta.updatedAt && remote.activeChatId && liveChats.some(c => c.id === remote.activeChatId)) {
+                openSavedChat(remote.activeChatId, { closeDrawer: false, scroll: false, syncCloud: false });
+            }
+        }
+        return { remote, prevLocalSerialized };
     }
 
     let subscribedCloudUid = '';
@@ -1620,44 +1714,33 @@ import {
         ensureChatsLoaded(uid);
         if (!conversation.length && !requestController && !questionInput?.value?.trim()) {
             const localActive = loadActiveArcChatId(uid, getChatStorage());
-            if (localActive) openSavedChat(localActive, { closeDrawer: false, scroll: true });
+            if (localActive) openSavedChat(localActive, { closeDrawer: false, scroll: true, syncCloud: false });
         }
         const cloud = getCloudAuthClient();
         if (!cloud?.loadArcChats) return;
-        try {
-            const remote = await cloud.loadArcChats(user);
-            if ((HabitArc.getAuthUser?.()?.uid || hydratedChatUid) !== uid) return;
-            const prevUpdated = chatThreads.find(c => c.id === activeChatId)?.updatedAt || 0;
-            const merged = mergeArcChats(chatThreads, remote);
-            chatThreads = saveLocalArcChats(uid, merged, getChatStorage());
-            updateHistoryUI();
-            if (JSON.stringify(sanitizeArcChatsForCloud(chatThreads)) !== JSON.stringify(remote)) {
-                scheduleCloudChatSave(uid);
-            }
-            if (activeChatId && !requestController && !questionInput?.value?.trim()) {
-                const updatedThread = getLiveArcChats(chatThreads).find(c => c.id === activeChatId);
-                if (updatedThread && updatedThread.updatedAt > prevUpdated) {
-                    openSavedChat(activeChatId, { closeDrawer: false, scroll: false });
-                }
-            }
-        } catch {
-            if (histSyncNote) histSyncNote.textContent = 'Saved on this device';
-        }
-        if (subscribedCloudUid !== uid && typeof cloud.subscribeArcChats === 'function') {
-            subscribedCloudUid = uid;
-            cloudChatUnsubscribe = cloud.subscribeArcChats((remote) => {
+        const runSync = async () => {
+            try {
+                const rawRemote = await cloud.loadArcChats(user);
                 if ((HabitArc.getAuthUser?.()?.uid || hydratedChatUid) !== uid) return;
-                const prevUpdated = chatThreads.find(c => c.id === activeChatId)?.updatedAt || 0;
-                const merged = mergeArcChats(chatThreads, remote);
-                if (JSON.stringify(merged) === JSON.stringify(chatThreads)) return;
-                chatThreads = saveLocalArcChats(uid, merged, getChatStorage());
-                updateHistoryUI();
-                if (activeChatId && !requestController && !questionInput?.value?.trim()) {
-                    const updatedThread = getLiveArcChats(chatThreads).find(c => c.id === activeChatId);
-                    if (updatedThread && updatedThread.updatedAt > prevUpdated) {
-                        openSavedChat(activeChatId, { closeDrawer: false, scroll: false });
+                cloudSyncCompletedUid = uid;
+                const applied = applySyncedRemoteChats(uid, rawRemote);
+                if (applied) {
+                    const nextCloudChats = sanitizeArcChatsForCloud(chatThreads);
+                    if (JSON.stringify(nextCloudChats) !== JSON.stringify(applied.remote.chats)) {
+                        scheduleCloudChatSave(uid);
                     }
                 }
+            } catch {
+                if (histSyncNote) histSyncNote.textContent = 'Saved on this device';
+            }
+        };
+        cloudSyncPromise = runSync().finally(() => { cloudSyncPromise = null; });
+        await cloudSyncPromise;
+        if (subscribedCloudUid !== uid && typeof cloud.subscribeArcChats === 'function') {
+            subscribedCloudUid = uid;
+            cloudChatUnsubscribe = cloud.subscribeArcChats((rawRemote) => {
+                cloudSyncCompletedUid = uid;
+                applySyncedRemoteChats(uid, rawRemote);
             }, () => {});
         }
     }
@@ -1670,6 +1753,7 @@ import {
         if (switchAccount) {
             owner = null;
             hydratedChatUid = '';
+            cloudSyncCompletedUid = '';
             subscribedCloudUid = '';
             chatThreads = [];
             if (cloudChatUnsubscribe) {
@@ -2206,12 +2290,23 @@ import {
         renderArcConsole();
     }
 
+    function triggerForegroundSync() {
+        renderArcConsole();
+        const authUser = HabitArc.getAuthUser?.();
+        const nowMs = Date.now();
+        if (authUser?.uid && !authUser.isAnonymous && !requestController && (nowMs - lastForegroundSyncAt) > 1500) {
+            lastForegroundSyncAt = nowMs;
+            void syncCloudChatsForUser(authUser);
+        }
+    }
+
     window.addEventListener('habitarc:data-changed', handleAccountRefresh);
     window.addEventListener('habitarc-auth-state-changed', handleAccountRefresh);
     window.addEventListener('habitarc:sync-status-changed', renderArcConsole);
     window.addEventListener('habitarc:cloud-sync-error', renderArcConsole);
-    window.addEventListener('pageshow', renderArcConsole);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderArcConsole(); });
+    window.addEventListener('pageshow', triggerForegroundSync);
+    window.addEventListener('focus', triggerForegroundSync);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) triggerForegroundSync(); });
 
     renderArcConsole();
     restoreSavedThread();

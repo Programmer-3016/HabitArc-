@@ -458,30 +458,58 @@ window.HabitArcAuthReady = (async () => {
             return [...live.slice(0, 15), ...tombstones.slice(0, 30)];
         }
 
+        function sanitizeCloudActiveChatId(rawId) {
+            return typeof rawId === 'string' && /^[a-zA-Z0-9_-]{3,48}$/.test(rawId) ? rawId : '';
+        }
+
         async function loadArcChats(user = currentUser) {
             if (!user) throw new Error('Sign in to sync AI chats.');
             const snap = await getDoc(userDocument(user));
             const data = snap.exists() ? snap.data() : {};
-            return sanitizeCloudArcChats(data?.arcChats);
+            return {
+                chats: sanitizeCloudArcChats(data?.arcChats),
+                activeChatId: sanitizeCloudActiveChatId(data?.arcActiveChatId),
+                activeChatUpdatedAt: Number.isFinite(data?.arcActiveChatUpdatedAt) && data.arcActiveChatUpdatedAt > 0
+                    ? Math.trunc(data.arcActiveChatUpdatedAt)
+                    : 0,
+            };
         }
 
-        async function saveArcChats(chats, user = currentUser) {
+        async function saveArcChats(payload, user = currentUser) {
             if (!user) throw new Error('Sign in to sync AI chats.');
-            const safeChats = sanitizeCloudArcChats(chats);
-            const batch = writeBatch(firestore);
-            batch.set(userDocument(user), {
+            const rawChats = Array.isArray(payload) ? payload : payload?.chats;
+            const safeChats = sanitizeCloudArcChats(rawChats);
+            const fields = {
                 arcChats: safeChats,
                 arcChatsUpdatedAt: serverTimestamp()
-            }, { merge: true });
+            };
+            if (!Array.isArray(payload) && payload && 'activeChatId' in payload) {
+                fields.arcActiveChatId = sanitizeCloudActiveChatId(payload.activeChatId);
+                fields.arcActiveChatUpdatedAt = Number.isFinite(payload.activeChatUpdatedAt) && payload.activeChatUpdatedAt > 0
+                    ? Math.trunc(payload.activeChatUpdatedAt)
+                    : Date.now();
+            }
+            const batch = writeBatch(firestore);
+            batch.set(userDocument(user), fields, { merge: true });
             await batch.commit();
-            return safeChats;
+            return {
+                chats: safeChats,
+                activeChatId: fields.arcActiveChatId ?? '',
+                activeChatUpdatedAt: fields.arcActiveChatUpdatedAt ?? 0,
+            };
         }
 
         function subscribeArcChats(onChange, onError, user = currentUser) {
             if (!user) return () => {};
             return onSnapshot(userDocument(user), (snapshot) => {
                 const data = snapshot.exists() ? snapshot.data() : {};
-                onChange(sanitizeCloudArcChats(data?.arcChats), {
+                onChange({
+                    chats: sanitizeCloudArcChats(data?.arcChats),
+                    activeChatId: sanitizeCloudActiveChatId(data?.arcActiveChatId),
+                    activeChatUpdatedAt: Number.isFinite(data?.arcActiveChatUpdatedAt) && data.arcActiveChatUpdatedAt > 0
+                        ? Math.trunc(data.arcActiveChatUpdatedAt)
+                        : 0,
+                }, {
                     fromCache: snapshot.metadata.fromCache
                 });
             }, onError);

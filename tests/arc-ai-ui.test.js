@@ -621,15 +621,26 @@ test('arc-chat-store persists multi-chat history, migrates legacy thread & two-w
     assert.equal(groups[1].items[0].id, 'chat_yesterday_1');
 });
 
-test('Arc_AI keeps ChatGPT-style history across +NEW, reloads & cloud sync without deleting saved threads', async () => {
-    const storage = memoryStorage({ 'habitarc_active_uid': 'qa-user' });
-    let cloudRemote = [];
+test('Arc_AI keeps ChatGPT-style history across +NEW, reloads & cross-device same-account sync', async () => {
+    const desktopStorage = memoryStorage({ 'habitarc_active_uid': 'qa-user' });
+    let cloudState = { chats: [], activeChatId: '', activeChatUpdatedAt: 0 };
+    const desktopSubscribers = [];
     const cloudAuth = {
-        loadArcChats: async () => cloudRemote,
-        saveArcChats: async (chats) => { cloudRemote = chats; return chats; }
+        loadArcChats: async () => cloudState,
+        saveArcChats: async (payload) => {
+            cloudState = Array.isArray(payload)
+                ? { chats: payload, activeChatId: cloudState.activeChatId, activeChatUpdatedAt: Date.now() }
+                : {
+                    chats: payload.chats,
+                    activeChatId: payload.activeChatId || '',
+                    activeChatUpdatedAt: payload.activeChatUpdatedAt || Date.now()
+                };
+            return cloudState;
+        },
+        subscribeArcChats: (onChange) => { desktopSubscribers.push(onChange); return () => {}; }
     };
 
-    const s1 = arcAi({ signedIn: true, storage, cloudAuth });
+    const s1 = arcAi({ signedIn: true, storage: desktopStorage, cloudAuth });
     s1.elements.get('ai-coach-question').value = 'First saved chat about sleep';
     s1.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
     await waitFor(() => s1.requests.length === 1 && !s1.elements.get('arc-thread-view').classList.contains('hidden'));
@@ -643,28 +654,34 @@ test('Arc_AI keeps ChatGPT-style history across +NEW, reloads & cloud sync witho
     s1.elements.get('ai-coach-question').value = 'Second active chat about hydration';
     s1.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
     await waitFor(() => s1.requests.length === 2 && s1.elements.get('ai-coach-asked').textContent === 'Second active chat about hydration');
+    await waitFor(() => cloudState.chats.length === 2 && cloudState.activeChatUpdatedAt > 0);
     assert.equal(s1.elements.get('arc-zen-hist-count').textContent, '2');
 
-    // Simulate another device adding a remote chat in Firestore before reloading.
-    cloudRemote = [
-        ...cloudRemote,
-        {
-            id: 'chat_cloud_1',
-            title: 'Synced tablet streak plan',
-            createdAt: now - 86400000 - 5000,
-            updatedAt: now - 86400000 - 5000,
-            deleted: false,
-            turns: [{ question: 'Synced tablet streak plan', answer: 'Focus on 1 daily anchor.', timestamp: now - 86400000 - 5000 }]
-        }
-    ];
-
-    // Simulate full page reload with the same browser storage + cloud account.
-    const s2 = arcAi({ signedIn: true, storage, cloudAuth });
-    await waitFor(() => s2.elements.get('arc-zen-hist-count').textContent === '3');
-    assert.equal(s2.elements.get('arc-thread-view').classList.contains('hidden'), false);
-    assert.equal(s2.elements.get('ai-coach-asked').textContent, 'Second active chat about hydration');
-    const histMarkup = s2.elements.get('arc-hist-list').innerHTML;
+    // Simulate opening Phone (blank fresh localStorage) on the SAME signed-in account:
+    // Phone must pull Desktop's synced chats AND automatically show Desktop's active conversation!
+    const phoneStorage = memoryStorage({ 'habitarc_active_uid': 'qa-user' });
+    const phone = arcAi({ signedIn: true, storage: phoneStorage, cloudAuth });
+    await waitFor(() => phone.elements.get('arc-zen-hist-count').textContent === '2');
+    assert.equal(phone.elements.get('arc-thread-view').classList.contains('hidden'), false);
+    assert.equal(phone.elements.get('ai-coach-asked').textContent, 'Second active chat about hydration');
+    const histMarkup = phone.elements.get('arc-hist-list').innerHTML;
     assert.match(histMarkup, /First saved chat about sleep/);
     assert.match(histMarkup, /Second active chat about hydration/);
-    assert.match(histMarkup, /Synced tablet streak plan/);
+
+    // Simulate another device pushing a brand new active thread over live onSnapshot subscription.
+    const liveChat = {
+        id: 'chat_cloud_live',
+        title: 'Synced tablet streak plan',
+        createdAt: now + 5000,
+        updatedAt: now + 5000,
+        deleted: false,
+        turns: [{ question: 'Synced tablet streak plan', answer: 'Focus on 1 daily anchor.', timestamp: now + 5000 }]
+    };
+    desktopSubscribers.forEach(fn => fn({
+        chats: [...cloudState.chats, liveChat],
+        activeChatId: 'chat_cloud_live',
+        activeChatUpdatedAt: now + 6000
+    }));
+    await waitFor(() => phone.elements.get('ai-coach-asked').textContent === 'Synced tablet streak plan');
+    assert.equal(phone.elements.get('arc-zen-hist-count').textContent, '3');
 });

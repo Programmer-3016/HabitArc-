@@ -3447,16 +3447,21 @@ body.ha-arc-body.is-arc-thread-active > main.ha-arc-ai {
   padding-top: 9px;
 }
 body.ha-arc-body.is-arc-thread-active .ha-arc-scroll {
-  scroll-padding-block: 12px 20px;
-  padding-inline: 2px 6px;
+  scroll-padding-block: 56px 20px;
+  padding: 0 6px 10px 2px;
 }
 body.ha-arc-body.is-arc-thread-active .ha-arc-thread {
   gap: 12px;
   padding-bottom: 14px;
 }
 body.ha-arc-body.is-arc-thread-active .ha-arc-thread-hdr {
+  position: sticky;
+  top: 0;
+  z-index: 24;
   gap: 12px;
-  padding: 5px 2px 10px;
+  padding: 6px 4px 9px;
+  margin-inline: -2px;
+  background: rgb(var(--ha-background, 246 244 239));
 }
 body.ha-arc-body.is-arc-thread-active .ha-arc-thread-stack {
   gap: 18px;
@@ -3627,7 +3632,7 @@ body.ha-arc-body.is-arc-thread-active .ha-arc-disclaimer {display: none;}
     padding: 5px 8px; min-height: 32px; font-size: 10px;
   }
   body.ha-arc-body.is-arc-thread-active .ha-arc-scroll {
-    padding: 2px 2px 10px;
+    padding: 0 2px 10px;
     margin-inline: 0;
     scrollbar-width: none !important;
     scrollbar-color: transparent transparent !important;
@@ -3810,8 +3815,19 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
 
 /* ─── Clean Zen Utility Bar, History Drawer & Quest Hub Modal ──────────────── */
 .ha-arc-zen-bar {
-  margin: 10px auto 2px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap;
+  position: sticky;
+  top: 56px;
+  z-index: 38;
+  width: fit-content;
+  max-width: 100%;
+  margin: 8px auto 10px;
+  padding: 5px 8px;
+  border-radius: 14px;
+  background: rgb(var(--ha-background, 246 244 239));
+  display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap;
+}
+@media (min-width: 768px) {
+  .ha-arc-zen-bar { top: 60px; }
 }
 .ha-arc-hist-btn {
   display: inline-flex; align-items: center; gap: 6px;

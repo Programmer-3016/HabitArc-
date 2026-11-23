@@ -6,6 +6,7 @@
 
 export const CHAT_LIST_PREFIX = 'habitarc_arc_chats:';
 export const ACTIVE_CHAT_PREFIX = 'habitarc_arc_active_chat:';
+export const ACTIVE_META_PREFIX = 'habitarc_arc_active_meta:';
 export const LEGACY_THREAD_PREFIX = 'habitarc_arc_thread:';
 export const MAX_LOCAL_CHATS = 30;
 export const MAX_LOCAL_TURNS = 20;
@@ -198,14 +199,31 @@ export function loadActiveArcChatId(uid, storage = (typeof localStorage !== 'und
     return sanitizeArcChatId(readKey(storage, `${ACTIVE_CHAT_PREFIX}${uid}`));
 }
 
-export function saveActiveArcChatId(uid, chatId, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+export function saveActiveArcChatId(uid, chatId, storage = (typeof localStorage !== 'undefined' ? localStorage : null), updatedAt = Date.now()) {
     if (!uid || !storage) return;
     const cleanId = sanitizeArcChatId(chatId);
+    const ts = Number.isFinite(updatedAt) && updatedAt > 0 ? Math.trunc(updatedAt) : Date.now();
     if (!cleanId) {
         removeKey(storage, `${ACTIVE_CHAT_PREFIX}${uid}`);
     } else {
         writeKey(storage, `${ACTIVE_CHAT_PREFIX}${uid}`, cleanId);
     }
+    writeKey(storage, `${ACTIVE_META_PREFIX}${uid}`, JSON.stringify({ id: cleanId, updatedAt: ts }));
+}
+
+export function loadActiveArcChatMeta(uid, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+    if (!uid || !storage) return { id: '', updatedAt: 0 };
+    const rawId = loadActiveArcChatId(uid, storage);
+    try {
+        const rawMeta = readKey(storage, `${ACTIVE_META_PREFIX}${uid}`);
+        if (rawMeta) {
+            const parsed = JSON.parse(rawMeta);
+            const id = sanitizeArcChatId(parsed?.id);
+            const updatedAt = Number.isFinite(parsed?.updatedAt) && parsed.updatedAt > 0 ? Math.trunc(parsed.updatedAt) : 0;
+            return { id, updatedAt };
+        }
+    } catch { /* Ignore corrupt meta */ }
+    return { id: rawId, updatedAt: rawId ? 1 : 0 };
 }
 
 export function loadLocalArcChats(uid, storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {

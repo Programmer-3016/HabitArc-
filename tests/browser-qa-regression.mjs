@@ -595,11 +595,17 @@ try {
         createdAt: now - 120000,
         updatedAt: now - 60000,
         deleted: false,
-        turns: [{
-          question: 'Delete Stretch habit and add review task',
-          answer: 'With LVL 2 powers unlocked, I can now edit, delete, complete habits, or add tasks directly with 1-tap Undo.',
-          timestamp: now - 60000
-        }],
+        turns: [
+          { question: 'How can I stay steady this week?', answer: 'Pick one morning anchor habit.', timestamp: now - 110000 },
+          { question: 'Should I schedule reminders?', answer: 'Yes, anchor at 08:00 after breakfast.', timestamp: now - 100000 },
+          { question: 'What if a day is busy?', answer: 'Drop to a 2-minute Plan B fallback.', timestamp: now - 90000 },
+          { question: 'And weekends?', answer: 'Keep the same cue so the streak holds.', timestamp: now - 80000 },
+          {
+            question: 'Delete Stretch habit and add review task',
+            answer: 'With LVL 2 powers unlocked, I can now edit, delete, complete habits, or add tasks directly with 1-tap Undo.',
+            timestamp: now - 60000
+          }
+        ],
         lastEvidence: 'Window: 28d · Guidance only.'
       },
       {
@@ -618,6 +624,11 @@ try {
   await go(`${base}/Arc_AI.html`);
   const reloadedChat = await ev(`(() => {
     window.dispatchEvent(new CustomEvent('habitarc:ai-level-up', { detail: { fromLevel: 1, toLevel: 2, prog: HabitArc.getAiProgression() } }));
+    const sc = document.getElementById('arc-scroll-area');
+    if (sc) sc.scrollTop = sc.scrollHeight;
+    const hdrBtn = document.getElementById('arc-thread-history-btn')?.getBoundingClientRect();
+    const newBtn = document.getElementById('ai-coach-clear')?.getBoundingClientRect();
+    const topHdr = document.querySelector('header.md\\\\:hidden')?.getBoundingClientRect();
     return {
       inThread: !document.getElementById('arc-thread-view')?.classList.contains('hidden'),
       asked: document.getElementById('ai-coach-asked')?.textContent.trim(),
@@ -626,6 +637,8 @@ try {
       lvlUpShown: !document.getElementById('arc-lvlup-banner')?.classList.contains('hidden'),
       lvlUpText: document.getElementById('arc-lvlup-text')?.textContent.trim(),
       histCount: document.getElementById('arc-zen-hist-count')?.textContent.trim(),
+      stickyThreadHistVisible: Boolean(hdrBtn && topHdr && hdrBtn.top >= topHdr.bottom - 2 && hdrBtn.bottom <= innerHeight - 80),
+      stickyNewVisible: Boolean(newBtn && topHdr && newBtn.top >= topHdr.bottom - 2),
       overflow: document.documentElement.scrollWidth > innerWidth
     };
   })()`);
@@ -637,6 +650,8 @@ try {
   assert.equal(reloadedChat.lvlUpShown, true);
   assert.match(reloadedChat.lvlUpText, /LEVEL UP! NOVA LVL 1 → LVL 2/);
   assert.equal(reloadedChat.histCount, '2');
+  assert.equal(reloadedChat.stickyThreadHistVisible, true, 'History button stays sticky visible while scrolled in a multi-turn thread');
+  assert.equal(reloadedChat.stickyNewVisible, true, '+ NEW stays sticky visible while scrolled in thread');
   assert.equal(reloadedChat.overflow, false, 'Clean active thread fits 390px without overflow');
 
   const histDrawer = await ev(`(() => {
@@ -668,6 +683,24 @@ try {
   assert.equal(afterSwitchAndNew.switchedAsked, 'Morning water habit check-in');
   assert.equal(afterSwitchAndNew.backOnZen, true, '+ NEW returns cleanly to Zen Home');
   assert.equal(afterSwitchAndNew.histCountAfterNew, '2', '+ NEW keeps all archived chats in History');
+
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 560, deviceScaleFactor: 2, mobile: true });
+  const zenScrollSticky = await ev(`(() => {
+    window.scrollTo(0, 240);
+    const zenHist = document.getElementById('arc-zen-history-btn')?.getBoundingClientRect();
+    const topHdr = document.querySelector('header.md\\\\:hidden')?.getBoundingClientRect();
+    const bar = document.querySelector('.ha-arc-zen-bar')?.getBoundingClientRect();
+    return {
+      scrolledY: Math.round(window.scrollY),
+      stickyVisible: Boolean(zenHist && topHdr && zenHist.top >= topHdr.bottom - 2 && zenHist.bottom <= innerHeight - 80),
+      barGapOk: Boolean(bar && topHdr && bar.top >= topHdr.bottom - 3)
+    };
+  })()`);
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  await ev(`window.scrollTo(0, 0)`);
+  assert.ok(zenScrollSticky.scrolledY > 0, 'Short mobile Zen Home can scroll');
+  assert.equal(zenScrollSticky.stickyVisible, true, 'Chats history button stays sticky visible when scrolling down Zen Home');
+  assert.equal(zenScrollSticky.barGapOk, true, 'Sticky Zen control bar does not collide with mobile header');
 
   const hubDrawer = await ev(`(() => {
     document.getElementById('arc-open-hub-btn')?.click();
