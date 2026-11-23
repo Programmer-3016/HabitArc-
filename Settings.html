@@ -327,19 +327,6 @@
         </div>
     </div>
 </section>
-<!-- Companion Runner Section -->
-<section class="mb-section-margin">
-    <div class="flex items-center justify-between gap-2 mb-element-gap pl-2 pr-1">
-        <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Companion Runner</h3>
-        <button id="preview-companion-btn" type="button" class="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1 cursor-pointer">
-            <span class="material-symbols-outlined text-[15px]">play_circle</span>
-            Preview celebration
-        </button>
-    </div>
-    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4">
-        <div id="settings-companion-picker"></div>
-    </div>
-</section>
 <!-- Notifications Section -->
 <section class="mb-section-margin">
 <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Notifications</h3>
@@ -570,8 +557,6 @@
   </a>
 </nav>
 <script src="app.js"></script>
-<script src="companion-sprites.js"></script>
-<script src="streak-runner.js"></script>
 <script>
 (function() {
     function updateThemeUI() {
@@ -596,33 +581,7 @@
 
     updateThemeUI();
 
-    const companionMount = document.getElementById('settings-companion-picker');
-    let companionPickerApi = null;
-    if (companionMount && window.HabitArcStreak?.mountPicker) {
-        companionPickerApi = window.HabitArcStreak.mountPicker(companionMount, {
-            variant: 'settings',
-            selected: HabitArc.getSettings()?.companion || 'arcy',
-            onSelect: (chosenId) => {
-                HabitArc.updateSettings({ companion: chosenId });
-                const label = window.HabitArcStreak.COMPANIONS.find((c) => c.id === chosenId)?.name || chosenId;
-                window.HabitArcUI?.announce?.(`Companion runner switched to ${label}.`);
-            }
-        });
-    }
-    window.addEventListener('habitarc:data-changed', () => {
-        companionPickerApi?.setSelected(HabitArc.getSettings()?.companion || 'arcy');
-        updateThemeUI();
-    });
-
-    document.getElementById('preview-companion-btn')?.addEventListener('click', () => {
-        const chosenId = HabitArc.getSettings()?.companion || 'arcy';
-        const currentStreak = Math.max(1, HabitArc.getOverallCurrentStreak?.() || 0) || 7;
-        window.HabitArcStreak?.celebrate?.({
-            streak: currentStreak,
-            runnerId: chosenId,
-            forceAnimate: true
-        });
-    });
+    window.addEventListener('habitarc:data-changed', updateThemeUI);
 
     const dailyToggle = document.getElementById('toggle-daily');
     const weeklyToggle = document.getElementById('toggle-weekly');

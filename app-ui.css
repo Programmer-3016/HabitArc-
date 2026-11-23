@@ -1821,7 +1821,6 @@ body > main:has(#theme-selector-grid) div:has(> .toggle-checkbox) { flex-shrink:
 body > main:has(#theme-selector-grid) div:has(> div > .toggle-checkbox) { gap: 12px; }
 body > main:has(#theme-selector-grid) div:has(> div > .toggle-checkbox) > div:first-child { min-width: 0; flex: 1; }
 body > main:has(#theme-selector-grid) #restore-backup-file { max-width: 100%; overflow: hidden; }
-body > main:has(#theme-selector-grid) .flex.items-center.justify-between:has(#preview-companion-btn) { flex-wrap: wrap; }
 #add-habit-form :is(input, select, textarea) { min-width: 0; max-width: 100%; }
 @media (min-width: 768px) {
     body > main.ha-profile { padding-top: 28px !important; padding-bottom: 56px !important; }
@@ -2672,6 +2671,11 @@ body.ha-arc-body > main.ha-arc-ai {
     color: var(--rpg-cta-fg) !important;
     border: 1.5px solid var(--rpg-shadow-ink) !important;
     box-shadow: none !important;
+}
+.ha-arc-send-btn.is-stop {
+    background: rgb(var(--ha-on-surface)) !important;
+    color: rgb(var(--ha-surface)) !important;
+    border-color: rgb(var(--ha-on-surface)) !important;
 }
 
 .ha-arc-zen-meta {

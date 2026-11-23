@@ -304,8 +304,6 @@
 </nav>
 
 <script src="app.js"></script>
-<script src="companion-sprites.js"></script>
-<script src="streak-runner.js"></script>
 <script>
 (function() {
     let signedInUser = HabitArc.getAuthUser();
@@ -462,9 +460,6 @@
                 // Rendering replaces the button; retain keyboard focus on it.
                 const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
                 refocusedBtn?.focus({ preventScroll: true });
-                if (shouldComplete) {
-                    window.HabitArcStreak?.maybeCelebrate?.();
-                }
             });
         });
     }

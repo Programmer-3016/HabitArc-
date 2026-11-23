@@ -1,16 +1,11 @@
 // Private progression. Standings, preview points and other users are never inputs.
 export const CHESTS = Object.freeze([
-  { id: 'wood', name: 'Wooden chest', days: 1, xp: 30, power: 'Ember Trail', description: 'A trail of amber pixels follows your runner.' },
-  { id: 'iron', name: 'Iron chest', days: 7, xp: 70, power: 'Orbit Shield', description: 'A ring of ice-blue pixels surrounds your runner.' },
-  { id: 'gold', name: 'Gold chest', days: 14, xp: 140, power: 'Star Crown', description: 'Gold stars hover above your runner.' },
-  { id: 'ruby', name: 'Dragon chest', days: 30, xp: 260, power: 'Phoenix Wings', description: 'Blazing crimson-gold wings flare behind your runner.' },
+  { id: 'wood', name: 'Wooden chest', days: 1, xp: 30, power: 'First Clear', description: 'Unlocked on your first cleared day.' },
+  { id: 'iron', name: 'Iron chest', days: 7, xp: 70, power: 'Week Strong', description: 'Unlocked after clearing 7 scheduled days.' },
+  { id: 'gold', name: 'Gold chest', days: 14, xp: 140, power: 'Fortnight Crown', description: 'Unlocked after clearing 14 scheduled days.' },
+  { id: 'ruby', name: 'Dragon chest', days: 30, xp: 260, power: '30-Day Crest', description: 'Unlocked after clearing 30 scheduled days.' },
 ]);
 const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const heroes = ['arcy', 'ninja', 'specops', 'astro'];
-
-export function leagueRunner(settings = {}) {
-  return [settings.leagueCompanion, settings.treasureRoom?.runnerId, settings.companion].find(id => heroes.includes(id)) || 'arcy';
-}
 
 function weekday(key) {
   if (typeof key !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
@@ -49,11 +44,11 @@ export function inventory(raw) {
     equipped: opened.some(c => c.id === raw?.equipped) ? raw.equipped : null };
 }
 
-export function changeTreasure(raw, id, action, count, runnerId) {
+export function changeTreasure(raw, id, action, count) {
   const chest = CHESTS.find(c => c.id === id);
   const { opened, equipped } = inventory(raw);
-  if (!chest || !heroes.includes(runnerId)) return null;
+  if (!chest) return null;
   if (action === 'open' && !opened.includes(id) && Number.isInteger(count) && count >= chest.days) opened.push(id);
   else if (!(action === 'equip' && opened.includes(id) && equipped !== id)) return null;
-  return { version: 1, runnerId, opened, equipped: id };
+  return { version: 1, opened, equipped: id };
 }

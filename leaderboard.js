@@ -1,4 +1,4 @@
-import { CHESTS, changeTreasure, clearedDays, inventory, leagueRunner } from './runner-treasures.js';
+import { CHESTS, changeTreasure, clearedDays, inventory } from './runner-treasures.js';
 import {
   chestArt,
   createRevealStage,
@@ -8,22 +8,15 @@ import {
   wakeCardChestAnimations,
 } from './treasure-art.js';
 // Public preview roster only. Never fetch or compare private habit documents here.
-export const COMPANION_META = Object.freeze({
-  arcy: { label: 'Arcy', role: 'Classic Spark' },
-  ninja: { label: 'Shinobi', role: 'Red Scarf Ninja' },
-  specops: { label: 'Ghost Ops', role: 'NVG Tactical' },
-  astro: { label: 'Astro Nova', role: 'Rocket Pilot' },
-});
-
-const runners = [
-  { name: 'mintfox', hero: 'arcy', weekly: 410, allTime: 3320, streak: 19, consistency: 96, weeklyDelta: 0, allTimeDelta: 0 },
-  { name: 'zenpanda', hero: 'ninja', weekly: 385, allTime: 2480, streak: 16, consistency: 94, weeklyDelta: 1, allTimeDelta: 1 },
-  { name: 'nightowl_k', hero: 'astro', weekly: 372, allTime: 2790, streak: 14, consistency: 91, weeklyDelta: 2, allTimeDelta: 0 },
-  { name: 'Sarthak', hero: 'specops', weekly: 350, allTime: 1580, streak: 12, consistency: 89, weeklyDelta: 1, allTimeDelta: 2 },
-  { name: 'riya.runs', hero: 'astro', weekly: 340, allTime: 1650, streak: 11, consistency: 86, weeklyDelta: -2, allTimeDelta: -1 },
-  { name: 'codekarma', hero: 'ninja', weekly: 318, allTime: 1420, streak: 9, consistency: 82, weeklyDelta: 0, allTimeDelta: 0 },
-  { name: 'aarav_09', hero: 'arcy', weekly: 296, allTime: 910, streak: 7, consistency: 79, weeklyDelta: 1, allTimeDelta: 1 },
-  { name: 'lofi.lena', hero: 'specops', weekly: 262, allTime: 1180, streak: 6, consistency: 74, weeklyDelta: -1, allTimeDelta: -1 },
+const members = [
+  { name: 'mintfox', tone: 0, weekly: 410, allTime: 3320, streak: 19, consistency: 96, weeklyDelta: 0, allTimeDelta: 0 },
+  { name: 'zenpanda', tone: 1, weekly: 385, allTime: 2480, streak: 16, consistency: 94, weeklyDelta: 1, allTimeDelta: 1 },
+  { name: 'nightowl_k', tone: 2, weekly: 372, allTime: 2790, streak: 14, consistency: 91, weeklyDelta: 2, allTimeDelta: 0 },
+  { name: 'Sarthak', tone: 3, weekly: 350, allTime: 1580, streak: 12, consistency: 89, weeklyDelta: 1, allTimeDelta: 2 },
+  { name: 'riya.runs', tone: 4, weekly: 340, allTime: 1650, streak: 11, consistency: 86, weeklyDelta: -2, allTimeDelta: -1 },
+  { name: 'codekarma', tone: 5, weekly: 318, allTime: 1420, streak: 9, consistency: 82, weeklyDelta: 0, allTimeDelta: 0 },
+  { name: 'aarav_09', tone: 6, weekly: 296, allTime: 910, streak: 7, consistency: 79, weeklyDelta: 1, allTimeDelta: 1 },
+  { name: 'lofi.lena', tone: 7, weekly: 262, allTime: 1180, streak: 6, consistency: 74, weeklyDelta: -1, allTimeDelta: -1 },
 ];
 
 export function tierForPoints(points, period = 'weekly') {
@@ -41,10 +34,10 @@ export function tierForPoints(points, period = 'weekly') {
 
 export function standings(period) {
   const isAllTime = period === 'allTime';
-  return runners
+  return members
     .map(r => ({
       name: r.name,
-      hero: r.hero,
+      tone: r.tone,
       points: isAllTime ? r.allTime : r.weekly,
       weeklyPoints: r.weekly,
       allTimePoints: r.allTime,
@@ -70,13 +63,21 @@ function el(tag, cls, txt) {
   return node;
 }
 
-function sprite(hero, pose) {
-  const img = el('img');
-  img.alt = '';
-  const frames = window.HabitArcSprites?.[hero];
-  const src = (frames?.[pose] || frames?.run0)?.src;
-  if (src) img.src = src;
-  return img;
+function memberInitials(name) {
+  const parts = String(name || '')
+    .trim()
+    .split(/[._\-\s]+/)
+    .filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  const clean = (parts[0] || 'HA').replace(/[^a-zA-Z0-9]/g, '');
+  return (clean.slice(0, 2) || 'HA').toUpperCase();
+}
+
+function avatarBadge(member, cls) {
+  const badge = el('span', cls, memberInitials(member?.name));
+  badge.dataset.tone = String((Number(member?.tone) || 0) % 8);
+  badge.setAttribute('aria-hidden', 'true');
+  return badge;
 }
 
 function deltaLabel(delta) {
@@ -89,8 +90,6 @@ const mounted = new WeakSet();
 
 export async function mountLeaderboard(root) {
   if (!root.isConnected || mounted.has(root)) return;
-  if (!window.HabitArcSprites) await import('./companion-sprites.js');
-  if (!root.isConnected || mounted.has(root)) return;
   mounted.add(root);
 
   const find = id => root.querySelector('#' + id);
@@ -98,10 +97,7 @@ export async function mountLeaderboard(root) {
   let activePeriod = 'weekly';
 
   function buildRoster(period) {
-    const base = standings(period);
-    const store = window.HabitArc;
-    if (store?.isOnboardingComplete?.()) base.find(r => r.self).hero = leagueRunner(store.getSettings());
-    return base;
+    return standings(period);
   }
 
   function draw(period, announce) {
@@ -115,7 +111,7 @@ export async function mountLeaderboard(root) {
       lane.dataset.rank = String(r.rank);
       const step = el('div', 'lb-plinth');
       step.append(el('b', null, String(r.rank).padStart(2, '0')), el('strong', null, r.name));
-      lane.append(sprite(r.hero, 'cheer'), step);
+      lane.append(avatarBadge(r, 'lb-podium-avatar'), step);
       return lane;
     };
     find('podium').replaceChildren(...[list[1], list[0], list[2]].map(slot));
@@ -124,8 +120,7 @@ export async function mountLeaderboard(root) {
       const tr = el('tr');
       const nameCell = el('td');
       const wrap = el('div', 'lb-runner');
-      const avatar = el('span', 'lb-pic');
-      avatar.append(sprite(r.hero, 'run0'));
+      const avatar = avatarBadge(r, 'lb-pic');
       wrap.append(avatar, el('span', null, r.name));
       if (r.self) {
         tr.className = 'lb-mine';
@@ -145,7 +140,7 @@ export async function mountLeaderboard(root) {
     find('self-gap').textContent = gap
       ? `${format.format(mine.points)} pts · ${format.format(gap)} pts behind #${mine.rank - 1}`
       : 'Leading the league';
-    find('roster').textContent = `${list.length} demo runners`;
+    find('roster').textContent = `${list.length} demo members`;
     periodButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.period === period)));
     if (announce) {
       find('announcement').textContent = `${period === 'weekly' ? 'Weekly' : 'All-time'} standings. Your demo rank is ${mine.rank} of ${list.length}.`;
@@ -190,7 +185,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
   // it in the browser's top layer, above the header and bottom navigation.
   function reveal(chest, sample, trigger) {
     if (showing) return;
-    const {scope, ready, hero} = read();
+    const {scope, ready} = read();
     const dialog = el('dialog', 'lb-reveal');
     dialog.tabIndex = -1;
     dialog.dataset.tier = chest.id;
@@ -245,7 +240,7 @@ function mountTreasureRoom(root, find, redrawLeague) {
     }
     function triggerOpen() {
       if (!dialog.open || dialog.dataset.phase !== 'sealed') return;
-      if (!sample && !applyTreasure(chest, 'open', scope, hero)) {
+      if (!sample && !applyTreasure(chest, 'open', scope)) {
         dialog.close();
         render();
         find('announcement').textContent = 'Your collection changed. Check the chest and try again.';
@@ -294,12 +289,12 @@ function mountTreasureRoom(root, find, redrawLeague) {
     dialog.showModal();
     dialog.focus({ preventScroll: true });
   }
-  function applyTreasure(chest, action, scope, hero) {
+  function applyTreasure(chest, action, scope) {
     const current = read();
-    if (!current.writable || current.scope !== scope || current.hero !== hero) return false;
-    const updated = changeTreasure(current.settings.treasureRoom, chest.id, action, current.count, hero);
+    if (!current.writable || current.scope !== scope) return false;
+    const updated = changeTreasure(current.settings.treasureRoom, chest.id, action, current.count);
     if (!updated) return false;
-    store().updateSettings({ treasureRoom: updated, leagueCompanion: hero });
+    store().updateSettings({ treasureRoom: updated });
     render();
     return true;
   }
@@ -314,12 +309,12 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const writable = ready;
     const settings = ready ? app.getSettings() : {};
     const count = ready ? clearedDays(app.getHabits(), app.getCompletionHistory(), app.today()).length : 0;
-    return { ready, writable, scope, settings, count, bag: inventory(settings.treasureRoom), hero: leagueRunner(settings) };
+    return { ready, writable, scope, settings, count, bag: inventory(settings.treasureRoom) };
   }
   function render() {
-    const { ready, writable, scope, count, bag, hero } = read();
+    const { ready, writable, scope, count, bag } = read();
     if (showing && (scope !== showing.scope || (showing.ready && !ready))) showing.dialog.close();
-    const key = JSON.stringify([ready, writable, scope, count, bag, hero]);
+    const key = JSON.stringify([ready, writable, scope, count, bag]);
     if (key === lastRenderKey) return;
     lastRenderKey = key;
     const focusNode = root.contains(document.activeElement) && document.activeElement;

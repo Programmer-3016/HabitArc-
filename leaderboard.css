@@ -307,8 +307,10 @@ html.lb-reveal-active body::-webkit-scrollbar {
 .lb-hills { position:absolute; inset:auto 0 0; height:42%; background:color-mix(in srgb,var(--ha-hero-bg) 80%,var(--ha-hero-fg)); clip-path:polygon(0 35%,10% 35%,10% 46%,20% 46%,20% 62%,32% 62%,32% 74%,59% 74%,59% 59%,73% 59%,73% 34%,88% 34%,88% 13%,100% 13%,100% 100%,0 100%); }
 .lb-podium { display:flex; align-items:flex-end; justify-content:center; padding:24px 16px 0; min-height:245px; gap:3px; }
 .lb-lane { display:grid; align-content:end; justify-items:center; flex:1; min-width:0; }
-.lb-lane img { display:block; max-width:85%; height:58px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(2px 3px 0 #141324aa); }
-.lb-lane[data-rank="1"] img { height:74px; }
+.lb-podium-avatar { display:grid; place-items:center; width:50px; height:50px; border-radius:15px; border:2px solid #161320; box-shadow:0 3px 0 #161320; font:800 1rem/1 "Space Grotesk",sans-serif; letter-spacing:.02em; margin-bottom:6px; background:#e7e4f3; color:#1c1829; }
+.lb-lane[data-rank="1"] .lb-podium-avatar { width:62px; height:62px; font-size:1.18rem; background:#ffda77; color:#1f1600; }
+.lb-lane[data-rank="2"] .lb-podium-avatar { background:#dcd6ec; color:#1d192b; }
+.lb-lane[data-rank="3"] .lb-podium-avatar { background:#ecc6b6; color:#2b150e; }
 .lb-plinth { align-self:stretch; margin-top:4px; width:100%; text-align:center; background:#afa6c7; color:#201c30; border:2px solid #161320; border-bottom:0; border-radius:6px 6px 0 0; padding:8px 2px 11px; min-height:75px; }
 .lb-lane[data-rank="1"] .lb-plinth { background:#ffda77; min-height:107px; }
 .lb-lane[data-rank="3"] .lb-plinth { background:#dbaf9c; min-height:61px; }
@@ -335,8 +337,8 @@ html.lb-reveal-active body::-webkit-scrollbar {
 .lb-rank { font:650 .87rem var(--mono); color:var(--sub); }
 .lb-runner { display:flex; align-items:center; gap:9px; font-weight:680; min-width:0; }
 .lb-runner > span:not(.lb-pic) { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.lb-pic { display:grid; place-items:center; width:30px; height:31px; flex:none; }
-.lb-pic img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
+.lb-pic { display:grid; place-items:center; width:30px; height:30px; flex:none; border-radius:9px; border:1.5px solid rgb(var(--ha-outline-variant) / .6); background:rgb(var(--ha-surface-container-low)); color:rgb(var(--ha-on-surface)); font:800 .72rem/1 "Space Grotesk",sans-serif; letter-spacing:.03em; }
+.lb-mine .lb-pic { background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.32); color:var(--ha-hero-fg); }
 .lb-pts { font:700 .96rem var(--mono); }
 .lb-you { flex:none; font:700 .65rem var(--mono); padding:2px 4px; border:1px solid currentColor; border-radius:4px; text-transform:uppercase; }
 .lb-mine { background:var(--ha-hero-bg); color:var(--ha-hero-fg); scroll-margin:84px; }

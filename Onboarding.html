@@ -400,8 +400,8 @@
         transition: background-color 0.14s ease, color 0.14s ease;
         -webkit-tap-highlight-color: transparent;
     }
-    /* Override @tailwindcss/forms focus ring/border injection on Step 8 email form inputs */
-    #step-8 .auth-input {
+    /* Override @tailwindcss/forms focus ring/border injection on Step 7 email form inputs */
+    #step-7 .auth-input {
         width: 100%;
         padding: 13px 16px !important;
         border-radius: 16px !important;
@@ -415,8 +415,8 @@
         -webkit-tap-highlight-color: transparent;
         transition: border-color 0.18s ease, box-shadow 0.18s ease;
     }
-    #step-8 .auth-input:focus,
-    #step-8 .auth-input:focus-visible {
+    #step-7 .auth-input:focus,
+    #step-7 .auth-input:focus-visible {
         outline: none !important;
         outline-offset: 0 !important;
         border-color: #031e13 !important;
@@ -473,7 +473,7 @@
         background: #012d1d;
     }
 
-    /* Pure Mint Green Continuity Theme Across Steps 1–8 */
+    /* Pure Mint Green Continuity Theme Across Steps 1–7 */
     body {
         background-color: #47e393 !important;
         color: #012d1d;
@@ -484,7 +484,7 @@
         color: rgba(1, 45, 29, 0.78) !important;
         transition: color 0.2s ease;
     }
-    #step-7 > span.inline-flex {
+    #step-6 > span.inline-flex {
         background: #ffffff;
         border: 1.5px solid #031e13;
         box-shadow: 0 2px 0 #031e13;
@@ -645,11 +645,10 @@
             </svg>
             <span>HabitArc</span>
         </span>
-        <span id="step-indicator" class="hdr-step-pill geist">1 / 8</span>
+        <span id="step-indicator" class="hdr-step-pill geist">1 / 7</span>
     </div>
-    <div id="step-segments" class="grid grid-cols-8 gap-1.5" aria-hidden="true">
+    <div id="step-segments" class="grid grid-cols-7 gap-1.5" aria-hidden="true">
         <span class="hdr-seg done"></span>
-        <span class="hdr-seg"></span>
         <span class="hdr-seg"></span>
         <span class="hdr-seg"></span>
         <span class="hdr-seg"></span>
@@ -829,16 +828,8 @@
         </div>
     </div>
 
-    <!-- STEP 5: Choose your companion -->
+    <!-- STEP 5: Notifications -->
     <div id="step-5" class="step-card animate-in pt-6 sm:pt-10 w-full">
-        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Pick your runner.</h2>
-        <p class="mt-2 text-[15px] text-outline">Sprints the globe every time you finish a day.</p>
-        <div id="onboarding-companion-picker" class="mt-6"></div>
-        <p id="companion-finale-hint" class="mt-4 text-center text-xs font-semibold text-primary/90 geist bg-white/85 border-2 border-[#031e13] shadow-[0_2.5px_0_#031e13] rounded-xl py-2 px-3">Selected: Arcy · Backflip Finale</p>
-    </div>
-
-    <!-- STEP 6: Notifications -->
-    <div id="step-6" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Gentle reminders?</h2>
         <p class="mt-2 text-[15px] text-outline">Only when you need them.</p>
         <div class="mt-7 grid grid-cols-2 gap-3" id="notification-options">
@@ -847,8 +838,8 @@
         </div>
     </div>
 
-    <!-- STEP 7: North Star -->
-    <div id="step-7" class="step-card animate-in pt-6 sm:pt-10 w-full">
+    <!-- STEP 6: North Star -->
+    <div id="step-6" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eaf5ef] text-primary text-[11px] font-bold geist uppercase tracking-wider">
             <span class="material-symbols-outlined fill" style="font-size:14px;">star</span> North Star
         </span>
@@ -862,8 +853,8 @@
         </div>
     </div>
 
-    <!-- STEP 8: Save progress -->
-    <div id="step-8" class="step-card animate-in pt-6 sm:pt-10 w-full">
+    <!-- STEP 7: Save progress -->
+    <div id="step-7" class="step-card animate-in pt-6 sm:pt-10 w-full">
         <h2 id="auth-mode-title" class="text-[30px] leading-tight font-bold tracking-tight text-primary">Save Your Progress</h2>
         <p id="auth-mode-sub" class="mt-2 text-[15px] text-outline">Sync across your devices.</p>
 
@@ -981,20 +972,17 @@
 </section>
 
 <script src="app.js"></script>
-<script src="companion-sprites.js"></script>
-<script src="streak-runner.js"></script>
 <script type="module" src="firebase-auth.js"></script>
 <script>
 (function() {
     let currentStep = 1;
-    const totalSteps = 8;
+    const totalSteps = 7;
     let jumpedToLoginFromStep1 = false;
 
     let selectedIntents = [];
     let selectedChallenges = [];
     let selectedCap = '5';
     let selectedTheme = 'light';
-    let selectedCompanion = 'arcy';
     let selectedGridShape = 'square';
     let selectedDuration = '30';
     let notificationsEnabled = true;
@@ -1037,7 +1025,6 @@
                 selectedChallenge: selectedChallenges[0] || '',
                 selectedCap,
                 selectedTheme,
-                selectedCompanion,
                 selectedGridShape,
                 selectedDuration,
                 notificationsEnabled,
@@ -1076,9 +1063,6 @@
         }
         if (typeof pendingGoogleRedirectDraft.selectedTheme === 'string') {
             selectedTheme = pendingGoogleRedirectDraft.selectedTheme;
-        }
-        if (typeof pendingGoogleRedirectDraft.selectedCompanion === 'string') {
-            selectedCompanion = window.HabitArcStreak?.normalizeCompanionId(pendingGoogleRedirectDraft.selectedCompanion) || pendingGoogleRedirectDraft.selectedCompanion;
         }
         if (typeof pendingGoogleRedirectDraft.selectedGridShape === 'string') {
             selectedGridShape = pendingGoogleRedirectDraft.selectedGridShape;
@@ -1371,28 +1355,7 @@
     }
     document.querySelector('.theme-btn[data-theme="light"]')?.classList.add('selected-theme');
 
-    // Step 5: companion runner picker
-    function updateCompanionHint(id) {
-        const hint = document.getElementById('companion-finale-hint');
-        const meta = window.HabitArcStreak?.COMPANIONS?.find((c) => c.id === id);
-        if (hint && meta) {
-            hint.textContent = `Selected: ${meta.name} · ${meta.finale}`;
-        }
-    }
-    const companionMount = document.getElementById('onboarding-companion-picker');
-    const companionPickerApi = (companionMount && window.HabitArcStreak?.mountPicker)
-        ? window.HabitArcStreak.mountPicker(companionMount, {
-            selected: selectedCompanion,
-            variant: 'onboarding',
-            onSelect: (id) => {
-                selectedCompanion = id;
-                updateCompanionHint(id);
-            }
-        })
-        : null;
-    updateCompanionHint(selectedCompanion);
-
-    // Step 6: notifications
+    // Step 5: notifications
     document.querySelectorAll('.notif-opt').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.notif-opt').forEach(o => o.classList.remove('selected'));
@@ -1510,11 +1473,6 @@
         }
         if (typeof draft.selectedTheme === 'string') {
             document.querySelectorAll('.theme-btn').forEach((b) => b.classList.toggle('selected-theme', b.dataset.theme === draft.selectedTheme));
-        }
-        if (typeof draft.selectedCompanion === 'string') {
-            selectedCompanion = window.HabitArcStreak?.normalizeCompanionId(draft.selectedCompanion) || draft.selectedCompanion;
-            companionPickerApi?.setSelected(selectedCompanion);
-            updateCompanionHint(selectedCompanion);
         }
         if (typeof draft.northStar === 'string') {
             const northStarInput = document.getElementById('north-star-input');
@@ -1766,8 +1724,6 @@
             userName,
             userBio: `North Star: ${northStar}`,
             theme: selectedTheme,
-            companion: selectedCompanion,
-            leagueCompanion: HabitArc.getSettings().leagueCompanion || selectedCompanion,
             goalDuration: parseInt(selectedDuration) || 30,
             // Browser permission is requested later from the explicit
             // Settings toggle, never during an authentication redirect. Do

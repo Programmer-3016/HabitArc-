@@ -577,14 +577,18 @@ export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, ve
  * boundaries, UTF-8 splits, CRLF, and multiple event frames per chunk.
  * Requiring a terminal "done" prevents saving truncated responses as complete.
  */
-export async function consumeArcCoachStream(response, onEvent) {
+export async function consumeArcCoachStream(response, onEvent, signal = null) {
     if (!response?.body?.getReader) throw new Error('Streaming is not supported in this browser.');
+    signal?.throwIfAborted?.();
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let completed = false;
     let totalChars = 0;
+    const onAbort = () => { void reader.cancel().catch(() => {}); };
+    signal?.addEventListener?.('abort', onAbort, { once: true });
     async function handleFrame(frame) {
+        signal?.throwIfAborted?.();
         const lines = frame.split('\n');
         const name = lines.find(line => line.startsWith('event:'))?.slice(6).trim() || 'message';
         const data = lines.filter(line => line.startsWith('data:'))
@@ -599,7 +603,9 @@ export async function consumeArcCoachStream(response, onEvent) {
     }
     try {
         while (!completed) {
+            signal?.throwIfAborted?.();
             const { done, value } = await reader.read();
+            signal?.throwIfAborted?.();
             if (done) break;
             const text = decoder.decode(value, { stream: true });
             totalChars += text.length;
@@ -616,12 +622,14 @@ export async function consumeArcCoachStream(response, onEvent) {
             if (buffer.length > 16000) throw new Error('ARC AI returned an oversized streaming event.');
         }
         if (!completed) {
+            signal?.throwIfAborted?.();
             buffer += decoder.decode();
             buffer = buffer.replace(/\r\n/g, '\n').trim();
             if (buffer) await handleFrame(buffer);
         }
         if (!completed) throw new Error('ARC AI connection closed before the reply finished. Please retry.');
     } finally {
+        signal?.removeEventListener?.('abort', onAbort);
         if (!completed) await reader.cancel().catch(() => {});
         reader.releaseLock();
     }

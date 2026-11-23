@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clearedDays, changeTreasure, inventory, leagueRunner } from '../runner-treasures.js';
+import { clearedDays, changeTreasure, inventory } from '../runner-treasures.js';
 
 const habit = (id, repeat, extra = {}) => ({id, createdAt:'2026-11-01', repeat, ...extra});
 const done = (habitId, date, extra = {}) => ({habitId, date, status:'completed', updatedAt:date+'T10:32:11Z', ...extra});
@@ -35,21 +35,14 @@ test('schedule edits preserve earlier weekdays; unknown habits, future and inval
 test('tiers require 1/7/14/30 clears; opening auto-equips, remounting and re-equipping never duplicate XP', () => {
   let bag;
   for(const [id,n,xp] of [['wood',1,30],['iron',7,100],['gold',14,240],['ruby',30,500]]) {
-    assert.equal(changeTreasure(bag,id,'open',n-1,'astro'),null);
-    bag = changeTreasure(bag,id,'open',n,'astro');
+    assert.equal(changeTreasure(bag,id,'open',n-1),null);
+    bag = changeTreasure(bag,id,'open',n);
     bag = JSON.parse(JSON.stringify(bag));
     assert.equal(inventory(bag).xp,xp); assert.equal(inventory(bag).equipped,id);
-    assert.equal(changeTreasure(bag,id,'open',n,'astro'),null);
+    assert.equal(changeTreasure(bag,id,'open',n),null);
   }
-  bag = changeTreasure(bag,'wood','equip',0,'astro');
+  bag = changeTreasure(bag,'wood','equip',0);
   assert.equal(inventory(bag).xp,500); assert.equal(inventory(bag).equipped,'wood');
-  assert.equal(changeTreasure({},'gold','equip',99,'astro'),null);
+  assert.equal(changeTreasure({},'gold','equip',99),null);
   assert.deepEqual(inventory({opened:['wood','wood','bogus'],equipped:'gold'}),{opened:['wood'],equipped:null,xp:30});
-});
-
-test('onboarding companion is stable; existing accounts recover their runner from saved preferences', () => {
-  assert.equal(leagueRunner({leagueCompanion:'ninja',companion:'astro'}),'ninja');
-  assert.equal(leagueRunner({treasureRoom:{runnerId:'astro'},companion:'specops'}),'astro');
-  assert.equal(leagueRunner({companion:'specops'}),'specops');
-  assert.equal(leagueRunner({companion:'unknown'}),'arcy');
 });

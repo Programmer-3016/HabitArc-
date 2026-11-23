@@ -266,27 +266,19 @@ try {
     assert.equal(await ev(`document.querySelector('${sel}').getAttribute('aria-pressed')`), 'true', `${pageName}: StorageEvent syncs state`);
   }
 
-  // 3) Celebration overlay dismissal unblocks #edit-habit-btn
+  // 3) Completing all daily habits leaves #edit-habit-btn unobstructed (no runner overlay)
   await go(`${base}/Habit_Detail.html?id=h1`);
-  await ev(`HabitArc.uncompleteHabit('h1'); HabitArc.completeHabit('h2'); document.querySelector('#haSrCtaBtn')?.click(); window.dispatchEvent(new Event('focus'));`);
+  await ev(`HabitArc.uncompleteHabit('h1'); HabitArc.completeHabit('h2'); window.dispatchEvent(new Event('focus'));`);
   await sleep(150);
   await ev(`document.querySelector('#complete-today-btn').click()`);
-  await sleep(300);
-  const overlayVisible = await ev(`(() => {
-    const cta = document.querySelector('#haSrCtaBtn');
-    const visible = !!(cta && cta.offsetParent !== null);
-    if (cta) cta.click();
-    return visible;
-  })()`);
   await sleep(260);
   const editUnblocked = await ev(`(() => {
     const edit = document.querySelector('#edit-habit-btn');
     const r = edit.getBoundingClientRect();
     const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    return !!hit && (hit === edit || edit.contains(hit));
+    return !document.querySelector('#haSrCtaBtn') && !!hit && (hit === edit || edit.contains(hit));
   })()`);
-  assert.equal(overlayVisible, true, 'Celebration overlay surfaced on completing all daily habits');
-  assert.equal(editUnblocked, true, 'Dismissing #haSrCtaBtn unblocks #edit-habit-btn');
+  assert.equal(editUnblocked, true, 'Completing all daily habits keeps #edit-habit-btn unobstructed');
 
   // 4) Single shared AudioContext reused across 100 completions
   await go(`${base}/Habits.html`);
@@ -373,7 +365,7 @@ try {
     }
     d.habits = [h];
     d.settings.theme = 'light';
-    d.settings.treasureRoom = { runnerId: 'arcy', opened: ['wood', 'iron'] };
+    d.settings.treasureRoom = { opened: ['wood', 'iron'] };
     localStorage.setItem('habitarc_data', JSON.stringify(d));
     window.dispatchEvent(new CustomEvent('habitarc:data-changed', { detail: { source: 'storage' } }));
   })()`);

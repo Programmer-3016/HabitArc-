@@ -346,8 +346,6 @@
   </a>
 </nav>
 <script src="app.js"></script>
-<script src="companion-sprites.js"></script>
-<script src="streak-runner.js"></script>
 <script>
 (function() {
     let currentFilter = 'All';
@@ -429,9 +427,6 @@
                 syncStateSig();
                 const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
                 refocusedBtn?.focus({ preventScroll: true });
-                if (completedNow) {
-                    window.HabitArcStreak?.maybeCelebrate?.();
-                }
             });
         });
     }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { COMPANION_META, mountLeaderboard, standings, tierForPoints } from '../leaderboard.js';
+import { mountLeaderboard, standings, tierForPoints } from '../leaderboard.js';
 
 test('periods use the same demo roster but independently rank points', () => {
   const weekly = standings('weekly'), all = standings('allTime');
@@ -9,7 +9,7 @@ test('periods use the same demo roster but independently rank points', () => {
   for (const rows of [weekly, all]) {
     assert.ok(rows.every((r, i) => r.rank === i + 1 && (!i || r.points <= rows[i - 1].points)));
     assert.equal(rows.filter(r => r.self).length, 1);
-    assert.ok(rows.every(r => Number.isFinite(r.streak) && r.streak > 0 && Boolean(COMPANION_META[r.hero])));
+    assert.ok(rows.every(r => Number.isFinite(r.streak) && r.streak > 0 && Number.isInteger(r.tone)));
   }
   assert.equal(weekly.find(r => r.self).rank, 4);
   assert.equal(all.find(r => r.self).rank, 5);
@@ -113,14 +113,7 @@ test('mountLeaderboard drives period switch and classic position/standings contr
   allTimeBtn.dataset.period = 'allTime';
   root.append(weeklyBtn, allTimeBtn);
 
-  globalThis.window = {
-    HabitArcSprites: {
-      arcy: { run0: { src: 'a0' }, cheer: { src: 'ac' }, act: { src: 'aa' } },
-      ninja: { run0: { src: 'n0' }, cheer: { src: 'nc' }, act: { src: 'na' } },
-      specops: { run0: { src: 's0' }, cheer: { src: 'sc' }, act: { src: 'sa' } },
-      astro: { run0: { src: 'o0' }, cheer: { src: 'oc' }, act: { src: 'oa' } },
-    },
-  };
+  globalThis.window = {};
   globalThis.document = { createElement: tag => createNode(tag) };
   globalThis.matchMedia = () => ({ matches: true });
 
@@ -130,7 +123,8 @@ test('mountLeaderboard drives period switch and classic position/standings contr
     assert.equal(byId.get('entries').children.length, 8);
     assert.equal(byId.get('self-rank').textContent, '#4');
     assert.match(byId.get('self-gap').textContent, /350 pts · 22 pts behind #3/);
-    assert.equal(byId.get('roster').textContent, '8 demo runners');
+    assert.equal(byId.get('roster').textContent, '8 demo members');
+    assert.ok(collectText(byId.get('podium')).includes('MI'), 'podium renders monogram initials instead of character sprites');
 
     allTimeBtn.click();
     assert.equal(byId.get('self-rank').textContent, '#5');

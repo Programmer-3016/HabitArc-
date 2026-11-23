@@ -39,7 +39,6 @@ test('Desktop, tablet, and narrow phone UI responsiveness guards stay intact acr
   const day=read('day-workspace.css');
   const tasks=read('plan-tasks.css');
   const lb=read('leaderboard.css');
-  const runner=read('streak-runner.js');
   const onboarding=read('Onboarding.html');
 
   // Shared desktop tablet topbar (768-1140px) & Habit Detail title truncation
@@ -63,9 +62,9 @@ test('Desktop, tablet, and narrow phone UI responsiveness guards stay intact acr
   assert.match(tasks,/\.ha-task-field-pair\s*\{[^}]*repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(lb,/\.lb-standings table\s*\{[\s\S]*?table-layout:\s*fixed/);
 
-  // Streak runner stage scrolls on short desktop/phone heights; Onboarding allows zoom
-  assert.match(runner,/\.ha-sr-stage\s*\{[\s\S]*?overflow-y:\s*auto/);
-  assert.match(runner,/@media \(max-height:\s*740px\)/);
+  // Onboarding uses 7 steps without runner character picker and allows zoom
+  assert.ok(onboarding.includes('const totalSteps = 7;'));
+  assert.doesNotMatch(onboarding,/onboarding-companion-picker|companion-sprites\.js|streak-runner\.js/);
   assert.doesNotMatch(onboarding,/user-scalable=no|maximum-scale=1\.0/);
 });
 

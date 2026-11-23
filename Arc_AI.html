@@ -614,12 +614,26 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             '<span class="ha-arc-thinking-label">' + HabitArc.escapeHTML(label) + '</span></div>';
     }
 
+    function stopGenerating() {
+        const controller = requestController;
+        if (!controller || controller.signal.aborted) return;
+        controller._haStoppedByUser = true;
+        controller.abort();
+    }
+
     function setLoading(isLoading) {
-        submitButton.disabled = isLoading;
-        submitButton.setAttribute('aria-busy', String(isLoading));
+        const busy = Boolean(isLoading);
+        submitButton.disabled = false;
+        submitButton.type = busy ? 'button' : 'submit';
+        submitButton.setAttribute('aria-busy', String(busy));
+        submitButton.setAttribute('aria-label', busy ? 'Stop generating' : 'Ask ARC AI');
+        if (busy) submitButton.setAttribute?.('title', 'Stop generating');
+        else submitButton.removeAttribute?.('title');
+        submitButton.classList?.toggle?.('is-stop', busy);
+        if (submitButton.dataset) submitButton.dataset.mode = busy ? 'stop' : 'send';
         questionInput.disabled = false;
-        submitButton.innerHTML = isLoading
-            ? '<svg class="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.56"/></svg>'
+        submitButton.innerHTML = busy
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>'
             : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
     }
 
@@ -805,10 +819,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     }
 
     async function askCoach() {
-        if (submitButton.disabled) {
-            if (questionInput.value.trim()) {
-                setStatus('ARC AI is still replying—your next message stays ready below.');
-            }
+        if (requestController) {
+            setStatus(
+                questionInput.value.trim()
+                    ? 'ARC AI is still replying—tap Stop to cancel or keep your next message ready below.'
+                    : 'ARC AI is replying—tap Stop to cancel.'
+            );
             return;
         }
         const question = questionInput.value.trim();
@@ -878,7 +894,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             showArcThinking();
             scrollChatToLatest();
             setStatus('');
-            const response = await fetch('/api/coach', {
+            const response = await cancellable(fetch('/api/coach', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -892,11 +908,11 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 }),
                 signal
-            });
+            }), signal);
 
             let payload = null;
             if (!response.ok) {
-                try { payload = await response.json(); } catch {}
+                try { payload = await cancellable(response.json(), signal); } catch {}
                 throw new Error(payload?.error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.');
             }
             const contentType = response.headers?.get?.('content-type') || '';
@@ -924,14 +940,20 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                         showArcThinking('Finishing your reply…');
                         scrollChatToLatest();
                     } else if (event === 'done') {
-                        if (!streamFellBack) await wordReveal.finish();
+                        if (!streamFellBack) {
+                            await wordReveal.finish();
+                            signal.throwIfAborted();
+                        }
                         payload = value;
                     }
-                });
+                }, signal);
             } else {
                 // Older server build / test fixture: preserve JSON support.
-                try { payload = await response.json(); } catch {}
+                try { payload = await cancellable(response.json(), signal); } catch (jsonError) {
+                    if (controller.signal.aborted) throw jsonError;
+                }
             }
+            if (controller !== requestController || controller.signal.aborted) return;
             if (!payload?.answer) {
                 throw new Error('ARC AI did not finish a response. Please retry.');
             }
@@ -984,12 +1006,15 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             );
             window.HabitArcUI?.announce?.('ARC AI response is ready.');
         } catch (error) {
-            if (controller !== requestController || controller.signal.aborted) return;
-            // If a fast upstream disconnect happens before the first word
+            if (controller !== requestController) return;
+            const stoppedByUser = Boolean(controller._haStoppedByUser);
+            if (controller.signal.aborted && !stoppedByUser) return;
+            // If a fast upstream disconnect or stop happens before the first word
             // could paint, still preserve the *received* (not fabricated) text.
             const incompleteReply = streamedDraft || (streamFellBack ? '' : receivedDraft);
             wordReveal.cancel();
-            if (!questionInput.value.trim()) {
+            const restoredPrompt = !questionInput.value.trim();
+            if (restoredPrompt) {
                 questionInput.value = question;
                 resizeTextarea();
             }
@@ -999,18 +1024,32 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 if (answerEl) answerEl.innerHTML = renderArcChatAnswer(incompleteReply, HabitArc.escapeHTML);
                 copyAnswerButton?.classList?.add('hidden');
                 scrollChatToLatest();
-                if (evidenceEl) evidenceEl.textContent = 'Partial reply · not saved. Your question is ready to retry.';
+                if (evidenceEl) {
+                    evidenceEl.textContent = stoppedByUser
+                        ? 'Stopped · Partial reply not saved.'
+                        : 'Partial reply · not saved. Your question is ready to retry.';
+                }
                 answerCard?.classList.remove('hidden');
                 showThreadView(true);
             } else {
                 renderThreadFromState();
             }
-            setStatus(
-                error?.name === 'TimeoutError'
-                    ? 'This is taking too long. Your question is kept—check your connection and try again.'
-                    : error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.',
-                'error'
-            );
+            if (stoppedByUser) {
+                setStatus(
+                    restoredPrompt
+                        ? 'Stopped. Your question is kept below.'
+                        : 'ARC AI stopped.',
+                    'muted'
+                );
+                window.HabitArcUI?.announce?.('ARC AI stopped.');
+            } else {
+                setStatus(
+                    error?.name === 'TimeoutError'
+                        ? 'This is taking too long. Your question is kept—check your connection and try again.'
+                        : error?.message || 'ARC AI is temporarily unavailable. Please try again shortly.',
+                    'error'
+                );
+            }
         } finally {
             if (controller === requestController) {
                 requestController = null;
@@ -1028,7 +1067,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     }
 
     function launchStarterPrompt(key) {
-        if (submitButton.disabled) return;
+        if (requestController) return;
         questionInput.value = prompts[key];
         resizeTextarea();
         void askCoach();
@@ -1041,6 +1080,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
     submitButton?.addEventListener('pointerdown', (event) => {
         event.preventDefault();
+    });
+    submitButton?.addEventListener('click', (event) => {
+        if (requestController) {
+            event?.preventDefault?.();
+            stopGenerating();
+        }
     });
     form?.addEventListener('submit', (event) => {
         event.preventDefault();

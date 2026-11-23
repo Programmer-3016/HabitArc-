@@ -67,7 +67,6 @@ const HabitArc = (() => {
         completionHistory: {},
         settings: {
             theme: 'dark', // "dark" | "light" | "forest" | "midnight"
-            companion: 'arcy', // "arcy" | "ninja" | "specops" | "astro"
             goalDuration: 30,
             startWeekOn: 'monday',
             defaultReminderTime: '09:00',
@@ -550,14 +549,10 @@ const HabitArc = (() => {
         // retained as a backwards-compatible, UI-friendly projection.
         _applyCompletionHistoryToHabits(habits, completionHistory);
 
-        const validCompanions = new Set(['arcy', 'ninja', 'specops', 'astro']);
         const mergedSettings = {
             ...DEFAULT_DATA.settings,
             ..._cloneData(settings)
         };
-        if (!validCompanions.has(mergedSettings.companion)) {
-            mergedSettings.companion = DEFAULT_DATA.settings.companion;
-        }
 
         return {
             habits,
@@ -1232,9 +1227,6 @@ const HabitArc = (() => {
         const data = _getData();
         const { onboardingComplete, ...settingsUpdates } = updates;
 
-        if (!data.settings.leagueCompanion && data.onboardingComplete && settingsUpdates.companion) {
-            data.settings.leagueCompanion = data.settings.companion;
-        }
         data.settings = { ...data.settings, ...settingsUpdates };
         if (typeof onboardingComplete === 'boolean') {
             data.onboardingComplete = onboardingComplete;

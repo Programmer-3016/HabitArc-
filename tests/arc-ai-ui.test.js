@@ -31,7 +31,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             set textContent(v) { plainText = String(v ?? ''); },
             get innerHTML() { return htmlMarkup; },
             set innerHTML(v) { htmlMarkup = String(v ?? ''); plainText = htmlMarkup.replace(/<[^>]+>/g, ''); },
-            value: '', placeholder: '', disabled: false,
+            value: '', placeholder: '', disabled: false, type: '', dataset: {},
             attrs: {}, handlers: {}, scrollHeight: 36, clientHeight: 320, scrollTop: 0,
             scrollTo({ top }) { this.scrollTop = top; },
             style: { height: '', setProperty() {} },
@@ -44,6 +44,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
                     : (on ? classes.add(value) : classes.delete(value)),
             },
             setAttribute(name, value) { this.attrs[name] = String(value); },
+            removeAttribute(name) { delete this.attrs[name]; },
             addEventListener(name, handler) { this.handlers[name] = handler; },
             focus() {},
         };
@@ -84,7 +85,15 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
         window: { addEventListener: (name, handler) => events.set(name, handler), HabitArcUI: { announce: msg => announced.push(msg) } },
         fetch: async (url, options) => {
             requests.push({ url, options });
-            if (streamGate) await streamGate;
+            if (streamGate) {
+                await Promise.race([
+                    streamGate,
+                    new Promise((_, reject) => {
+                        if (options?.signal?.aborted) { reject(options.signal.reason); return; }
+                        options?.signal?.addEventListener?.('abort', () => reject(options.signal.reason), { once: true });
+                    })
+                ]);
+            }
             const payload = {
                 answer: 'Try reading 10 minutes right after dinner.',
                 suggestedAction: {
@@ -259,7 +268,10 @@ test('ARC AI replaces skeleton bars with a compact accessible typing indicator',
     const submitBtn = view.elements.get('ai-coach-submit');
     assert.equal(questionInput.value, '', 'Submitted prompt must clear from the type bar immediately');
     assert.equal(Boolean(questionInput.disabled), false, 'Composer must stay unlocked so users can type a follow-up while ARC thinks');
-    assert.equal(submitBtn.disabled, true);
+    assert.equal(submitBtn.disabled, false, 'Submit button becomes an enabled Stop button while ARC thinks');
+    assert.equal(submitBtn.type, 'button');
+    assert.equal(submitBtn.attrs['aria-label'], 'Stop generating');
+    assert.equal(submitBtn.classList.contains('is-stop'), true);
     questionInput.value = 'Draft while ARC thinks';
     const answer = view.elements.get('ai-coach-answer').innerHTML;
     assert.match(answer, /class="ha-arc-thinking"/);
@@ -273,7 +285,47 @@ test('ARC AI replaces skeleton bars with a compact accessible typing indicator',
     await waitFor(() => /6 ARC AI messages/.test(view.elements.get('ai-coach-status').textContent));
     assert.equal(questionInput.value, 'Draft while ARC thinks', 'Completion must not erase a follow-up draft typed while thinking');
     assert.equal(submitBtn.disabled, false);
+    assert.equal(submitBtn.type, 'submit');
+    assert.equal(submitBtn.attrs['aria-label'], 'Ask ARC AI');
+    assert.equal(submitBtn.classList.contains('is-stop'), false);
     assert.equal(view.elements.get('ai-coach-copy-btn').classList.contains('hidden'), false);
+});
+
+test('ARC AI Stop button cancels before first words, keeps question, and restores composer cleanly', async () => {
+    const view = arcAi({ signedIn: true, streaming: true, holdStream: true });
+    const questionInput = view.elements.get('ai-coach-question');
+    const submitBtn = view.elements.get('ai-coach-submit');
+    view.elements.get('arc-card-momentum').handlers.click();
+    await waitFor(() => view.requests.length === 1);
+    assert.equal(view.requests[0].options.signal.aborted, false);
+    assert.equal(submitBtn.classList.contains('is-stop'), true);
+
+    submitBtn.handlers.click({ preventDefault() {} });
+    await waitFor(() => submitBtn.type === 'submit');
+    assert.equal(view.requests[0].options.signal.aborted, true);
+    assert.equal(submitBtn.classList.contains('is-stop'), false);
+    assert.equal(submitBtn.attrs['aria-label'], 'Ask ARC AI');
+    assert.match(questionInput.value, /28-day momentum/);
+    assert.match(view.elements.get('ai-coach-status').textContent, /Stopped\. Your question is kept below\./);
+    assert.equal(view.elements.get('arc-zen-home').classList.contains('hidden'), false);
+    assert.equal(view.elements.get('arc-thread-view').classList.contains('hidden'), true);
+});
+
+test('ARC AI Stop button aborts mid-stream cleanly without saving partial text or action cards', async () => {
+    const view = arcAi({ signedIn: true, streaming: true });
+    const questionInput = view.elements.get('ai-coach-question');
+    const submitBtn = view.elements.get('ai-coach-submit');
+    view.elements.get('arc-card-momentum').handlers.click();
+    await waitFor(() => /Try reading/.test(view.elements.get('ai-coach-answer').innerHTML));
+
+    submitBtn.handlers.click({ preventDefault() {} });
+    await waitFor(() => submitBtn.type === 'submit');
+    assert.equal(submitBtn.classList.contains('is-stop'), false);
+    assert.match(view.elements.get('ai-coach-answer').innerHTML, /Try reading/);
+    assert.match(view.elements.get('ai-coach-evidence').textContent, /Stopped · Partial reply not saved/);
+    assert.equal(view.elements.get('ai-coach-action-box').classList.contains('hidden'), true);
+    assert.equal(view.elements.get('ai-coach-copy-btn').classList.contains('hidden'), true);
+    assert.match(questionInput.value, /28-day momentum/);
 });
 
 test('ARC AI follows answer while near bottom, then respects manual scroll-up', async () => {

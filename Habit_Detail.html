@@ -288,8 +288,6 @@
 </nav>
 
 <script src="app.js"></script>
-<script src="companion-sprites.js"></script>
-<script src="streak-runner.js"></script>
 <script>
 (async function() {
     // Get habit ID from URL
@@ -442,9 +440,6 @@
         renderStats();
         renderCalendar();
         renderMonthlyBars();
-        if (shouldComplete) {
-            window.HabitArcStreak?.maybeCelebrate?.();
-        }
     });
 
     updateCompleteButton();

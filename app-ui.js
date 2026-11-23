@@ -232,8 +232,8 @@
         function ensureLeaderboardModule() {
             if (window.__haLeaderboardModule) return Promise.resolve(window.__haLeaderboardModule);
             if (!leaderboardModulePromise) {
-                leaderboardModulePromise = Promise.all([import('./leaderboard.js'), import('./companion-sprites.js')])
-                    .then(([mod]) => {
+                leaderboardModulePromise = import('./leaderboard.js')
+                    .then(mod => {
                         window.__haLeaderboardModule = mod;
                         return mod;
                     })
