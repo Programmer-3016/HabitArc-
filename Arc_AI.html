@@ -179,67 +179,77 @@
         </div>
 
         <div class="ha-arc-cards" aria-label="Suggested AI actions">
-            <!-- 1. Highlighted Priority Card -->
+            <!-- 1. Highlighted Halftone Spotlight Card -->
             <button id="arc-card-priority" type="button" class="ha-arc-spot">
-                <div class="ha-arc-spot-top">
-                    <span id="arc-priority-kicker" class="ha-arc-spot-kicker">ROUTINE AUDIT</span>
+                <div class="ha-arc-ht-strip">
+                    <span id="arc-priority-kicker" class="ha-arc-spot-kicker">⚡ ROUTINE AUDIT</span>
                     <span id="arc-priority-stat" class="ha-arc-spot-stat">28D READY</span>
                 </div>
                 <div class="ha-arc-spot-body">
                     <div class="min-w-0">
                         <div id="arc-priority-title" class="ha-arc-spot-title">Find my consistency leaks</div>
-                        <div id="arc-priority-sub" class="ha-arc-spot-sub">Analyze missed days &amp; reminders</div>
+                        <div id="arc-priority-sub" class="ha-arc-spot-sub">Analyze missed days &amp; late hours</div>
                     </div>
-                    <span class="ha-arc-spot-arrow" aria-hidden="true">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                    </span>
+                    <span class="ha-arc-ask-pill">ASK ▶</span>
                 </div>
             </button>
 
-            <!-- 2. Streak Plan Tile -->
+            <!-- 2. Streak Shield Tile -->
             <button id="arc-card-streak" type="button" class="ha-arc-sq">
-                <div class="ha-arc-sq-head">
+                <div class="ha-arc-ht-dark">
+                    <span>STREAK</span>
+                    <span id="arc-streak-badge" class="ha-arc-accent-txt">0D</span>
+                </div>
+                <div class="ha-arc-sq-body">
                     <div class="ha-arc-sq-ico is-coral" aria-hidden="true">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.8-3 8.9-7 10-4-1.1-7-5.2-7-10V6l7-3z"/></svg>
                     </div>
-                    <span id="arc-streak-badge" class="ha-arc-sq-stat">0D</span>
+                    <div id="arc-streak-title" class="ha-arc-sq-title">Build a 7d streak</div>
+                    <div id="arc-streak-sub" class="ha-arc-sq-sub">Low-energy backup plan</div>
+                    <div class="ha-arc-sq-foot">
+                        <span>PLAN B</span>
+                        <span class="ha-arc-accent-txt">-&gt;</span>
+                    </div>
                 </div>
-                <div id="arc-streak-title" class="ha-arc-sq-title">Build a 7d streak</div>
-                <div id="arc-streak-sub" class="ha-arc-sq-sub">Low-energy backup plan</div>
             </button>
 
             <!-- 3. Weekly Trend Tile -->
             <button id="arc-card-trend" type="button" class="ha-arc-sq">
-                <div class="ha-arc-sq-head">
+                <div class="ha-arc-ht-dark">
+                    <span>TREND</span>
+                    <span id="arc-trend-badge" class="ha-arc-mint-txt">7D</span>
+                </div>
+                <div class="ha-arc-sq-body">
                     <div class="ha-arc-sq-ico is-white" aria-hidden="true">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19V11M12 19V5M19 19v-8"/></svg>
                     </div>
-                    <span id="arc-trend-badge" class="ha-arc-sq-stat is-mint">7D</span>
+                    <div id="arc-trend-title" class="ha-arc-sq-title">Weekly 7d recap</div>
+                    <div id="arc-trend-sub" class="ha-arc-sq-sub">Compare vs prior week</div>
+                    <div class="ha-arc-sq-foot">
+                        <span>REPORT</span>
+                        <span class="ha-arc-accent-txt">-&gt;</span>
+                    </div>
                 </div>
-                <div id="arc-trend-title" class="ha-arc-sq-title">Weekly 7d recap</div>
-                <div id="arc-trend-sub" class="ha-arc-sq-sub">Compare vs prior week</div>
             </button>
 
-            <!-- 4. 28-Day Momentum Check -->
+            <!-- 4. Wide Dashed Card: 28-Day Momentum Check -->
             <button id="arc-card-momentum" type="button" class="ha-arc-momentum">
                 <div class="ha-arc-momentum-left">
-                    <span class="ha-arc-row-ico" aria-hidden="true">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5.5-5.5 3.5 3.5L20 7"/><path d="M14.5 7H20v5.5"/></svg>
-                    </span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" class="ha-arc-gold-ico shrink-0" aria-hidden="true"><path d="M4 17l5.5-5.5 3.5 3.5L20 7"/><path d="M14.5 7H20v5.5"/></svg>
                     <div class="min-w-0">
                         <span id="arc-momentum-title" class="ha-arc-momentum-title">28-day momentum check</span>
                         <span id="arc-momentum-sub" class="ha-arc-momentum-sub">Review your 4-week consistency trajectory</span>
                     </div>
                 </div>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="ha-arc-accent-txt shrink-0" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
 
             <a href="Habits.html?section=tasks&amp;rescue=1" class="ha-arc-rescue-shortcut" aria-label="Open ARC Daily Rescue Mode in Plan">
                 <span class="ha-arc-rescue-shortcut-icon" aria-hidden="true">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.1L19.5 10l-5.3 1.9L12 17l-2.2-5.1L4.5 10l5.3-1.9z"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.1L19.5 10l-5.3 1.9L12 17l-2.2-5.1L4.5 10l5.3-1.9z"/></svg>
                 </span>
-                <span class="ha-arc-rescue-shortcut-copy"><strong>Daily Rescue Mode</strong><small>Overdue tasks? Reschedule with a lighter plan.</small></span>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                <span class="ha-arc-rescue-shortcut-copy"><strong>Daily Rescue Mode</strong><small>Overdue tasks? Get a lighter plan you approve.</small></span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
         </div>
     </section>
@@ -459,7 +469,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         // Card 1: Priority Leak (4A White Halftone Card)
         const weakest = snapshot.weakestHabit;
         if (count === 0) {
-            priorityKicker.textContent = 'GET STARTED';
+            priorityKicker.textContent = '⚡ GET STARTED';
             priorityStat.textContent = '0 HABITS';
             priorityTitle.textContent = 'Design my first habit routine';
             prioritySub.textContent = 'Build a realistic 2-habit baseline for your week';
@@ -471,13 +481,13 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             const logSummary = Number.isFinite(weakestStat?.completed) && Number.isFinite(weakestStat?.scheduled)
                 ? `${weakestStat.completed}/${weakestStat.scheduled} logged`
                 : `${weakest.rate}% completion`;
-            priorityKicker.textContent = 'PRIORITY LEAK';
+            priorityKicker.textContent = '⚡ PRIORITY LEAK';
             priorityStat.textContent = `${weakest.rate}% RATE`;
             priorityTitle.textContent = `Fix ${shorten(name, 22)} drop-offs`;
             prioritySub.textContent = `${logSummary} over 28d · find trigger & timing`;
             prompts.priority = `Analyze why "${name}" is at ${weakest.rate}% (${logSummary}) over the last 28 days and suggest one practical adjustment.`;
         } else {
-            priorityKicker.textContent = 'ROUTINE AUDIT';
+            priorityKicker.textContent = '⚡ ROUTINE AUDIT';
             priorityStat.textContent = snapshot.fourWeekRate !== null ? `${snapshot.fourWeekRate}% 28D` : '28D READY';
             priorityTitle.textContent = 'Find my consistency leaks';
             prioritySub.textContent = 'Analyze missed days, reminders & late hours';

@@ -1929,10 +1929,10 @@ body.ha-arc-body > main.ha-arc-ai {
     margin: -2px -5px 0 -2px;
 }
 
-.ha-arc-zen-top { text-align: center; padding: 0 8px 2px; }
+.ha-arc-zen-top { text-align: center; padding: 0 8px 0; }
 .ha-arc-mascot-sq {
-    width: 36px; height: 36px; margin: 0 auto 7px;
-    background: #ffffff; border: 1.5px solid rgb(var(--ha-outline-variant)); box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+    width: 36px; height: 36px; margin: 0 auto 6px;
+    background: #ffffff; border: 2px solid rgb(var(--ha-outline-variant)); box-shadow: 3px 3px 0 var(--rpg-cta, #ff6b4a);
     border-radius: 12px; display: grid; place-items: center;
 }
 .ha-arc-status {
@@ -1940,14 +1940,14 @@ body.ha-arc-body > main.ha-arc-ai {
     color: var(--rpg-text-accent, #7c3aed); letter-spacing: 0.05em;
 }
 .ha-arc-zen-q {
-    font-size: clamp(20px, 3vw, 24px); font-weight: 800; letter-spacing: -0.025em;
-    line-height: 1.18; margin-top: 2px; color: rgb(var(--ha-on-surface));
+    font-size: clamp(19px, 3vw, 25px); font-weight: 800; letter-spacing: -0.025em;
+    line-height: 1.18; margin-top: 1px; color: rgb(var(--ha-on-surface));
 }
 .ha-arc-zen-meta {
-    display: inline-flex; align-items: center; gap: 6px; margin-top: 5px;
-    padding: 3px 10px; background: rgb(var(--ha-surface)); border: 1px solid rgb(var(--ha-outline-variant) / 0.45);
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+    padding: 3px 10px; background: rgb(var(--ha-surface)); border: 1.5px solid rgb(var(--ha-outline-variant) / 0.55);
     border-radius: 9999px;
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 600; color: rgb(var(--ha-on-surface-variant));
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-size: 10.5px; font-weight: 600; color: rgb(var(--ha-on-surface-variant));
 }
 .ha-arc-dot { width: 7px; height: 7px; border-radius: 9999px; background: var(--rpg-mint, #47e393); display: inline-block; flex-shrink: 0; }
 
@@ -1955,84 +1955,101 @@ body.ha-arc-body > main.ha-arc-ai {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 7px;
 }
 .ha-arc-spot {
     grid-column: 1 / -1;
     width: 100%; text-align: left; cursor: pointer;
     background: var(--ha-hero-bg, #c4b5fd); color: var(--ha-hero-fg, #121215);
-    border: 1.5px solid var(--ha-hero-border, rgb(var(--ha-outline-variant)));
-    border-radius: 14px;
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
-    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    border: 2px solid var(--ha-hero-border, rgb(var(--ha-outline-variant)));
+    border-radius: 16px;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
+    overflow: hidden;
+    transition: transform 120ms ease, box-shadow 120ms ease;
 }
-.ha-arc-spot-top {
-    padding: 9px 13px 0;
+.ha-arc-ht-strip {
+    background-color: rgba(255, 255, 255, 0.14);
+    background-image: radial-gradient(rgba(18, 16, 16, 0.15) 1px, transparent 1px);
+    background-size: 6px 6px;
+    border-bottom: 1.5px solid var(--ha-hero-divider, rgba(18, 16, 16, 0.18));
+    padding: 4px 12px;
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.05em;
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.04em;
+}
+:root:is([data-theme="light"], [data-theme="sage"]) .ha-arc-spot .ha-arc-ht-strip {
+    background-color: rgba(255, 255, 255, 0.45);
 }
 .ha-arc-spot-kicker { color: var(--rpg-hero-eyebrow, #3b0764); }
 .ha-arc-spot-stat {
     background: #121215; color: #facc15;
-    padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; white-space: nowrap;
+    padding: 2px 8px; border-radius: 9999px; font-size: 9.5px; font-weight: 700; white-space: nowrap;
 }
-.ha-arc-spot-body { padding: 4px 13px 11px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.ha-arc-spot-title { font-size: 15px; font-weight: 750; color: var(--ha-hero-fg, #121215); line-height: 1.25; }
-.ha-arc-spot-sub { font-size: 11.5px; color: var(--ha-hero-sub, #3b3556); margin-top: 2px; line-height: 1.3; }
-.ha-arc-spot-arrow { color: var(--ha-hero-fg, #121215); flex-shrink: 0; opacity: 0.85; }
+.ha-arc-spot-body { padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ha-arc-spot-title { font-size: 14.5px; font-weight: 750; color: var(--ha-hero-fg, #121215); line-height: 1.22; }
+.ha-arc-spot-sub { font-size: 11px; color: var(--ha-hero-sub, #3b3556); margin-top: 2px; line-height: 1.3; }
+.ha-arc-ask-pill {
+    flex-shrink: 0; background: var(--rpg-cta, #7c3aed); color: var(--rpg-cta-fg, #ffffff);
+    border: 1.5px solid var(--rpg-shadow-ink, #121215); box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+    border-radius: 10px; padding: 5px 10px;
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.04em; white-space: nowrap;
+}
 
 .ha-arc-sq {
     text-align: left; cursor: pointer;
     background: rgb(var(--ha-surface-container-lowest)); color: rgb(var(--ha-on-surface));
-    border: 1.5px solid rgb(var(--ha-outline-variant) / 0.45);
-    border-radius: 14px;
-    padding: 10px 12px;
-    display: flex; flex-direction: column; gap: 5px;
-    transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+    border: 2px solid rgb(var(--ha-outline-variant));
+    border-radius: 16px;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
+    display: flex; flex-direction: column; overflow: hidden;
+    transition: transform 120ms ease, box-shadow 120ms ease;
 }
-.ha-arc-sq:hover { border-color: rgb(var(--ha-primary)); background: rgb(var(--ha-surface-container-low)); }
-.ha-arc-sq-head {
-    display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px;
+.ha-arc-ht-dark {
+    background-color: rgb(var(--ha-surface-container-low));
+    background-image: radial-gradient(rgb(var(--ha-on-surface) / .13) 1px, transparent 1px);
+    background-size: 6px 6px;
+    border-bottom: 1.5px solid rgb(var(--ha-outline-variant) / 0.45);
+    padding: 4px 10px;
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.04em; color: rgb(var(--ha-on-surface));
 }
+.ha-arc-sq-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .ha-arc-sq-ico {
-    width: 28px; height: 28px; border-radius: 9px;
-    border: 1.5px solid rgb(var(--ha-outline-variant) / 0.4);
+    width: 24px; height: 24px; border-radius: 8px;
+    border: 1.5px solid var(--rpg-shadow-ink, #121215); box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
     display: grid; place-items: center; flex-shrink: 0;
 }
 .ha-arc-sq-ico.is-coral { background: var(--ha-hero-bg, #c4b5fd); color: var(--ha-hero-fg, #121215); }
-.ha-arc-sq-ico.is-white { background: rgb(var(--ha-surface-container-low)); color: rgb(var(--ha-on-surface)); }
-.ha-arc-sq-stat {
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 10px; font-weight: 800; letter-spacing: 0.03em;
-    padding: 2px 7px; border-radius: 9999px;
-    background: rgb(var(--ha-surface-container-low)); color: rgb(var(--ha-primary));
-    white-space: nowrap;
+.ha-arc-sq-ico.is-white { background: #ffffff; color: #121010; }
+.ha-arc-sq-title { font-size: 13px; font-weight: 750; line-height: 1.22; color: rgb(var(--ha-on-surface)); }
+.ha-arc-sq-sub { font-size: 10.5px; color: rgb(var(--ha-on-surface-variant)); line-height: 1.28; }
+.ha-arc-sq-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto; padding-top: 5px; border-top: 1px dashed rgb(var(--ha-outline-variant) / 0.55);
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 700; color: rgb(var(--ha-on-surface-variant));
 }
-.ha-arc-sq-stat.is-mint { color: rgb(var(--ha-secondary)); }
-.ha-arc-sq-title { font-size: 13.5px; font-weight: 750; line-height: 1.25; color: rgb(var(--ha-on-surface)); }
-.ha-arc-sq-sub { font-size: 11px; color: rgb(var(--ha-on-surface-variant)); line-height: 1.3; }
+.ha-arc-accent-txt { color: var(--rpg-cta, #ff6b4a); }
+.ha-arc-mint-txt { color: var(--rpg-mint, #47e393); }
+:root[data-theme="light"] .ha-arc-accent-txt,
+:root[data-theme="sage"] .ha-arc-accent-txt { color: var(--rpg-text-accent); }
+:root[data-theme="light"] .ha-arc-mint-txt,
+:root[data-theme="sage"] .ha-arc-mint-txt { color: rgb(var(--ha-secondary)); }
 
-/* Unified 28-Day Momentum Check row */
+/* Wide Dashed Card: 28-Day Momentum Check */
 .ha-arc-momentum {
     grid-column: 1 / -1;
     width: 100%; text-align: left; cursor: pointer;
     background: rgb(var(--ha-surface-container-lowest));
-    border: 1.5px solid rgb(var(--ha-outline-variant) / 0.45);
-    border-radius: 14px;
-    padding: 10px 14px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border: 2px dashed rgb(var(--ha-outline));
+    border-radius: 16px;
+    padding: 8px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
     transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
 }
 .ha-arc-momentum:hover { border-color: rgb(var(--ha-primary)); background: rgb(var(--ha-surface-container-low)); }
-.ha-arc-momentum-left { display: flex; align-items: center; gap: 11px; min-width: 0; }
-.ha-arc-row-ico {
-    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
-    border: 1.5px solid rgb(var(--ha-outline-variant) / 0.4);
-    background: rgb(var(--ha-surface-container-low)); color: rgb(var(--ha-primary));
-    display: grid; place-items: center;
-}
-.ha-arc-momentum-title { display: block; font-size: 13.5px; font-weight: 750; color: rgb(var(--ha-on-surface)); }
-.ha-arc-momentum-sub { display: block; font-size: 11px; color: rgb(var(--ha-on-surface-variant)); margin-top: 1px; line-height: 1.3; }
+.ha-arc-momentum-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ha-arc-gold-ico { color: var(--rpg-streak-ink, #facc15); }
+.ha-arc-momentum-title { display: block; font-size: 13px; font-weight: 750; color: rgb(var(--ha-on-surface)); }
+.ha-arc-momentum-sub { display: block; font-size: 10.5px; color: rgb(var(--ha-on-surface-variant)); margin-top: 1px; line-height: 1.28; }
 
 /* Active Thread View (Calm ChatGPT/Claude Editorial Card) */
 .ha-arc-thread { display: flex; flex-direction: column; gap: 12px; padding-bottom: 8px; }
@@ -2282,11 +2299,13 @@ body.ha-arc-body > main.ha-arc-ai {
     body.ha-arc-body > main.ha-arc-ai:has(#arc-zen-home:not(.hidden)) { justify-content: center; }
     body.ha-arc-body > main.ha-arc-ai:has(#arc-zen-home:not(.hidden)) .ha-arc-scroll { flex: 0 1 auto; }
     .ha-arc-zen-top { padding: 6px 8px 4px; }
-    .ha-arc-mascot-sq { width: 42px; height: 42px; margin-bottom: 10px; }
-    .ha-arc-cards { grid-template-columns: 1.25fr 1fr 1fr; gap: 11px; margin-top: 10px; }
+    .ha-arc-mascot-sq { width: 44px; height: 44px; margin-bottom: 9px; }
+    .ha-arc-cards { grid-template-columns: 1.25fr 1fr 1fr; gap: 12px; margin-top: 10px; }
     .ha-arc-spot { grid-column: auto; display: flex; flex-direction: column; }
-    .ha-arc-spot-body { flex: 1; align-items: flex-end; padding: 6px 14px 13px; }
-    .ha-arc-momentum { padding: 11px 14px; }
+    .ha-arc-spot-body { flex: 1; flex-direction: column; align-items: flex-start; gap: 10px; padding: 11px 13px; }
+    .ha-arc-spot-body .ha-arc-ask-pill { margin-top: auto; }
+    .ha-arc-sq-body { padding: 10px 11px; gap: 5px; }
+    .ha-arc-momentum { padding: 10px 13px; }
     .ha-arc-prompt-box textarea { font-size: 14.5px; }
     #habits-container, #habits-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
     #habits-container > :not(.ha-habit-card), #habits-list > :not(.ha-habit-card) { grid-column: 1 / -1; }
@@ -2306,6 +2325,11 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 @media (min-width: 768px) and (max-width: 1050px) {
     body > header div:has(> #header-streak-count-web) { display: none; }
+}
+@media (min-width: 768px) and (max-width: 900px) {
+    body > header > div:has(> nav) { padding-inline: 12px; gap: 6px; }
+    body > header nav a { padding-inline: 7px !important; padding-block: 6px !important; font-size: 12px; }
+    body > header a[href="Add_Habit.html"] { padding-inline: 10px !important; font-size: 12.5px; }
 }
 @media (min-width: 768px) and (max-width: 1023px) {
     .ha-insights-aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
@@ -2581,14 +2605,22 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 
 
-/* ─── Unified Rounded Neo-Brutalist ARC AI & Global Sans Overrides ─── */
+/* ─── Rounded Neo-Brutalist ARC AI Borders & Sans Overrides ─── */
+.ha-arc-mascot-sq {
+    border-radius: 13px !important;
+}
+.ha-arc-spot,
+.ha-arc-sq,
+.ha-arc-momentum,
+.ha-arc-action-card {
+    border-radius: 16px !important;
+}
 .ha-arc-answer-card {
     border-radius: 14px;
 }
 .ha-arc-action-card {
-    border-radius: 14px !important;
-    border: 1.5px solid var(--ha-hero-border, rgb(var(--ha-outline-variant))) !important;
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink) !important;
+    border: 2px solid var(--ha-hero-border, rgb(var(--ha-outline-variant))) !important;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink) !important;
 }
 .ha-arc-send-btn,
 .ha-arc-action-btn,

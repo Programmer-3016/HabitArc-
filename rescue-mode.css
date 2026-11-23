@@ -105,24 +105,25 @@
 .ha-arc-rescue-shortcut{
   grid-column:1/-1;
   display:flex;align-items:center;gap:12px;text-decoration:none;
-  color:rgb(var(--ha-on-surface,#121215));
-  padding:11px 14px;margin-top:0;
-  background:rgb(var(--ha-surface-container-lowest,#ffffff));
-  border:1.5px solid rgb(var(--ha-outline-variant,18 18 21) / .45);
-  border-radius:14px;
-  box-shadow:none;
-  transition:border-color 120ms ease, background-color 120ms ease;
+  color:var(--ha-hero-fg,#17131e);
+  padding:9px 13px;margin-top:0;
+  background:var(--ha-hero-bg,#e7ddff);
+  border:2px solid var(--ha-hero-border,#17131e);
+  border-radius:16px;
+  box-shadow:3px 3px 0 var(--rpg-shadow-ink,#17131e);
+  transition:transform 120ms ease,box-shadow 120ms ease;
 }
-.ha-arc-rescue-shortcut:hover{border-color:rgb(var(--ha-primary,124 58 237));background:rgb(var(--ha-surface-container-low,#f4f2ef))}
+.ha-arc-rescue-shortcut:hover{transform:translate(-1px,-1px)}
 .ha-arc-rescue-shortcut-icon{
-  display:grid;place-items:center;width:34px;height:34px;
-  border:1.5px solid rgb(var(--ha-outline-variant,18 18 21) / .4);
-  background:var(--ha-hero-bg,#e7ddff);color:var(--ha-hero-fg,#121215);
-  border-radius:10px;flex-shrink:0;
+  display:grid;place-items:center;width:36px;height:36px;
+  border:1.5px solid var(--ha-hero-border,#17131e);
+  background:rgb(var(--ha-surface-container-lowest,255 255 255));
+  color:rgb(var(--ha-on-surface,#17131e));
+  border-radius:11px;flex-shrink:0;
 }
 .ha-arc-rescue-shortcut-copy{min-width:0;flex:1}
-.ha-arc-rescue-shortcut-copy strong{display:block;font-weight:750;font-size:13.5px;line-height:1.25}
-.ha-arc-rescue-shortcut-copy small{display:block;font-size:11px;color:rgb(var(--ha-on-surface-variant,#555164));margin-top:2px;line-height:1.3}
+.ha-arc-rescue-shortcut-copy strong{display:block;font-weight:800;font-size:13.5px;line-height:1.25}
+.ha-arc-rescue-shortcut-copy small{display:block;font-size:11px;color:var(--ha-hero-sub,#555164);margin-top:2px;line-height:1.3}
 .ha-arc-rescue-shortcut>.material-symbols-outlined{font-size:20px}
 @media(max-width:480px){
   .ha-rescue-launch{padding:14px;gap:10px}
