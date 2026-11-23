@@ -726,6 +726,10 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             activeAction = parsed.lastAction || null;
             activeActionApplied = Boolean(parsed.lastActionApplied);
             renderThreadFromState();
+            scrollChatToLatest(true);
+            setTimeout(() => {
+                if (conversation.length) scrollChatToLatest();
+            }, 0);
         } catch { /* Ignore corrupt storage */ }
     }
 
