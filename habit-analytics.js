@@ -617,3 +617,74 @@ export async function consumeArcCoachStream(response, onEvent) {
         reader.releaseLock();
     }
 }
+
+
+/**
+ * Present actual streamed Gemini deltas in readable word-sized increments.
+ * The queue only accepts text already received from the live SSE transport;
+ * it never fabricates content or pretends a non-streaming fallback was streamed.
+ * A terminal "done" waits for the pending words before the final saved render.
+ */
+export function createArcWordReveal(onUpdate, {
+    intervalMs = 42,
+    schedule = (callback, delay) => setTimeout(callback, delay),
+    clear = timer => clearTimeout(timer)
+} = {}) {
+    if (typeof onUpdate !== 'function') throw new TypeError('onUpdate must be a function.');
+    let fragment = '';
+    let visible = '';
+    let queue = [];
+    let timer = null;
+    let closed = false;
+    let finishing = false;
+    const waiters = [];
+    const notifyDrain = () => {
+        if (!finishing || queue.length || timer !== null) return;
+        for (const resolve of waiters.splice(0)) resolve(visible);
+    };
+    const pump = () => {
+        if (closed || timer !== null) return;
+        if (!queue.length) { notifyDrain(); return; }
+        // Catch up if the provider/transport sends many words in one frame.
+        const delay = queue.length > 65 ? 14
+            : queue.length > 25 ? 22
+                : queue.length > 8 ? 31 : intervalMs;
+        timer = schedule(() => {
+            timer = null;
+            if (closed) return;
+            visible += queue.shift();
+            onUpdate(visible);
+            pump();
+        }, delay);
+    };
+    return {
+        push(chunk) {
+            if (closed || typeof chunk !== 'string' || !chunk) return;
+            fragment += chunk;
+            // Do not render a partial word unless the stream has ended.
+            let match;
+            while ((match = /^(\s*\S+\s+)/u.exec(fragment)) !== null) {
+                queue.push(match[1]);
+                fragment = fragment.slice(match[1].length);
+            }
+            pump();
+        },
+        finish() {
+            if (closed) return Promise.resolve(visible);
+            if (fragment) { queue.push(fragment); fragment = ''; }
+            finishing = true;
+            return new Promise(resolve => { waiters.push(resolve); pump(); });
+        },
+        reset() {
+            if (timer !== null) clear(timer);
+            timer = null;
+            fragment = '';
+            queue = [];
+            visible = '';
+            finishing = false;
+            for (const resolve of waiters.splice(0)) resolve('');
+        },
+        cancel() { closed = true; this.reset(); },
+        get text() { return visible; }
+    };
+}
