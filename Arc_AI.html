@@ -292,12 +292,56 @@
                     </svg>
                 </span>
                 <div class="min-w-0">
-                    <div id="arc-thread-name" class="ha-arc-thread-name">ARC THREAD</div>
+                    <div class="ha-arc-thread-title-row">
+                        <div id="arc-thread-name" class="ha-arc-thread-name">ARC THREAD</div>
+                        <span id="arc-thread-lvl-badge" class="ha-arc-thread-lvl-pill">LVL 1</span>
+                    </div>
                     <div id="arc-thread-context" class="ha-arc-thread-sub">28d log loaded</div>
                 </div>
             </div>
             <button id="ai-coach-clear" type="button" class="ha-arc-new-btn">+ NEW</button>
         </div>
+
+        <section id="arc-thread-journey" class="ha-arc-tj" aria-label="AI Level journey in chat">
+            <div class="ha-arc-tj-head">
+                <span id="arc-tj-title" class="ha-arc-tj-title">STARTED: LVL 1 (0D)</span>
+                <span id="arc-tj-now" class="ha-arc-tj-now">NOW LVL 1</span>
+            </div>
+            <div id="arc-tj-track" class="ha-arc-tj-track" role="list" aria-label="Level 1 to Level 4 progression">
+                <div id="arc-tj-node-1" class="ha-arc-tj-node is-reached is-current" role="listitem">
+                    <div class="ha-arc-tj-rail">
+                        <span class="ha-arc-tj-box">L1</span>
+                        <span id="arc-tj-conn-1" class="ha-arc-tj-conn" aria-hidden="true"></span>
+                    </div>
+                    <span class="ha-arc-tj-pwr">Make</span>
+                    <span id="arc-tj-tag-1" class="ha-arc-tj-tag">NOW</span>
+                </div>
+                <div id="arc-tj-node-2" class="ha-arc-tj-node" role="listitem">
+                    <div class="ha-arc-tj-rail">
+                        <span class="ha-arc-tj-box">L2</span>
+                        <span id="arc-tj-conn-2" class="ha-arc-tj-conn" aria-hidden="true"></span>
+                    </div>
+                    <span class="ha-arc-tj-pwr">Edit</span>
+                    <span id="arc-tj-tag-2" class="ha-arc-tj-tag">1D</span>
+                </div>
+                <div id="arc-tj-node-3" class="ha-arc-tj-node" role="listitem">
+                    <div class="ha-arc-tj-rail">
+                        <span class="ha-arc-tj-box">L3</span>
+                        <span id="arc-tj-conn-3" class="ha-arc-tj-conn" aria-hidden="true"></span>
+                    </div>
+                    <span class="ha-arc-tj-pwr">Shield</span>
+                    <span id="arc-tj-tag-3" class="ha-arc-tj-tag">7D</span>
+                </div>
+                <div id="arc-tj-node-4" class="ha-arc-tj-node" role="listitem">
+                    <div class="ha-arc-tj-rail">
+                        <span class="ha-arc-tj-box">L4</span>
+                    </div>
+                    <span class="ha-arc-tj-pwr">Coach</span>
+                    <span id="arc-tj-tag-4" class="ha-arc-tj-tag">14D</span>
+                </div>
+            </div>
+            <p id="arc-tj-caption" class="ha-arc-tj-cap">Started at LVL 1 (Make Habits) · Clear 1 day to reach LVL 2.</p>
+        </section>
 
         <div id="ai-coach-history" class="ha-arc-thread-stack"></div>
 
@@ -309,6 +353,7 @@
             <div class="ha-arc-resp-hdr">
                 <span id="ai-coach-resp-id" class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
                 <div class="ha-arc-resp-tools">
+                    <span id="ai-coach-resp-lvl" class="ha-arc-resp-lvl">LVL 1</span>
                     <button id="ai-coach-copy-btn" type="button" class="ha-arc-copy-btn" aria-label="Copy response">COPY</button>
                 </div>
             </div>
@@ -392,9 +437,14 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const zenHome = document.getElementById('arc-zen-home');
     const threadView = document.getElementById('arc-thread-view');
     const threadNameEl = document.getElementById('arc-thread-name');
+    const threadLvlBadge = document.getElementById('arc-thread-lvl-badge');
     const threadContext = document.getElementById('arc-thread-context');
     const telemetryText = document.getElementById('arc-telemetry-text');
     const respIdEl = document.getElementById('ai-coach-resp-id');
+    const respLvlEl = document.getElementById('ai-coach-resp-lvl');
+    const tjTitleEl = document.getElementById('arc-tj-title');
+    const tjNowEl = document.getElementById('arc-tj-now');
+    const tjCaptionEl = document.getElementById('arc-tj-caption');
     const buddyNameEl = document.getElementById('arc-ai-buddy-name');
     const rankEl = document.getElementById('arc-ai-rank');
     const lvlBadgeEl = document.getElementById('arc-ai-lvl-badge');
@@ -541,7 +591,31 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             });
         }
         if (threadNameEl) threadNameEl.textContent = `${meta.aiName.toUpperCase()} THREAD`;
+        if (threadLvlBadge) threadLvlBadge.textContent = `LVL ${meta.level}`;
         if (respIdEl) respIdEl.innerHTML = `<span class="ha-arc-dot" aria-hidden="true"></span>${HabitArc.escapeHTML(meta.chatLabel)}`;
+        if (respLvlEl) respLvlEl.textContent = `LVL ${meta.level}`;
+        if (tjTitleEl) {
+            tjTitleEl.textContent = meta.level === 1
+                ? 'STARTED: LVL 1 (0D)'
+                : `STARTED LVL 1 → REACHED LVL ${meta.level} (${meta.clearDays}D)`;
+        }
+        if (tjNowEl) tjNowEl.textContent = `NOW LVL ${meta.level}`;
+        if (tjCaptionEl) {
+            tjCaptionEl.textContent = meta.level === 1
+                ? `Started at LVL 1 (Make Habits) · Clear ${meta.remainingDays} day${meta.remainingDays === 1 ? '' : 's'} to reach LVL 2.`
+                : `Started LVL 1 → Reached LVL ${meta.level} (${meta.shortPower})${meta.nextLevel ? ` · ${meta.remainingDays}d to LVL ${meta.nextLevel}.` : ' · Max rank reached!'}`;
+        }
+        if (Array.isArray(meta.tiers)) {
+            meta.tiers.forEach(t => {
+                const node = document.getElementById(`arc-tj-node-${t.level}`);
+                const tag = document.getElementById(`arc-tj-tag-${t.level}`);
+                const conn = document.getElementById(`arc-tj-conn-${t.level}`);
+                node?.classList?.toggle?.('is-reached', Boolean(t.unlocked));
+                node?.classList?.toggle?.('is-current', Boolean(t.current));
+                if (tag) tag.textContent = t.current ? 'NOW' : (t.level === 1 ? 'START ✓' : (t.unlocked ? 'ON ✓' : `${t.minDays}D`));
+                conn?.classList?.toggle?.('is-filled', meta.level > t.level);
+            });
+        }
         if (questionInput && !questionInput.value && threadView?.classList?.contains?.('hidden')) {
             questionInput.placeholder = `Ask ${meta.aiName} anything...`;
         }
@@ -857,7 +931,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             <article class="ha-arc-answer-card">
                 <div class="ha-arc-resp-hdr">
                     <span class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>${HabitArc.escapeHTML(meta.chatLabel)}</span>
-                    </div>
+                    <div class="ha-arc-resp-tools"><span class="ha-arc-resp-lvl">LVL ${meta.level}</span></div>
+                </div>
                 <div class="ha-arc-answer-body"><div class="ha-arc-answer-text ha-md-prose">${renderArcChatAnswer(turn.answer, HabitArc.escapeHTML)}</div></div>
             </article>
         `).join('');

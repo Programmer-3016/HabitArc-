@@ -563,6 +563,35 @@ try {
   assert.equal(arcLvl2.theme, 'dark');
   assert.equal(arcLvl2.overflow, false, 'ARC AI dark theme LVL 2 fits 390px without overflow');
 
+  const threadJourney = await ev(`(() => {
+    document.body.classList.add('is-arc-thread-active');
+    document.getElementById('arc-zen-home').classList.add('hidden');
+    document.getElementById('arc-thread-view').classList.remove('hidden');
+    document.getElementById('ai-coach-asked-wrap').classList.remove('hidden');
+    document.getElementById('ai-coach-asked').textContent = 'Change my Stretch reminder to 07:30';
+    document.getElementById('ai-coach-answer-card').classList.remove('hidden');
+    document.getElementById('ai-coach-answer').innerHTML = '<p class="ha-md-p">Updated <strong>Stretch</strong> reminder to 07:30 with LVL 2 powers.</p>';
+    return {
+      threadLvl: document.getElementById('arc-thread-lvl-badge')?.textContent.trim(),
+      respLvl: document.getElementById('ai-coach-resp-lvl')?.textContent.trim(),
+      tjTitle: document.getElementById('arc-tj-title')?.textContent.trim(),
+      tjNow: document.getElementById('arc-tj-now')?.textContent.trim(),
+      tag1: document.getElementById('arc-tj-tag-1')?.textContent.trim(),
+      tag2: document.getElementById('arc-tj-tag-2')?.textContent.trim(),
+      conn1Filled: document.getElementById('arc-tj-conn-1')?.classList.contains('is-filled'),
+      overflow: document.documentElement.scrollWidth > innerWidth
+    };
+  })()`);
+  await saveShot('arc-ai-thread-journey-390.png');
+  assert.equal(threadJourney.threadLvl, 'LVL 2');
+  assert.equal(threadJourney.respLvl, 'LVL 2');
+  assert.equal(threadJourney.tjTitle, 'STARTED LVL 1 → REACHED LVL 2 (1D)');
+  assert.equal(threadJourney.tjNow, 'NOW LVL 2');
+  assert.equal(threadJourney.tag1, 'START ✓');
+  assert.equal(threadJourney.tag2, 'NOW');
+  assert.equal(threadJourney.conn1Filled, true);
+  assert.equal(threadJourney.overflow, false, 'In-chat Pixel Level Journey fits 390px without overflow');
+
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);
 
   console.log(JSON.stringify({

@@ -420,6 +420,13 @@ test('Arc_AI displays pixel Level roadmap, custom AI name, try-chip prefill, and
     assert.equal(l1.elements.get('arc-tier-1').classList.contains('is-unlocked'), true);
     assert.equal(l1.elements.get('arc-tier-state-1').textContent, 'ACTIVE');
     assert.equal(l1.elements.get('arc-tier-state-2').textContent, 'LOCKED');
+    assert.equal(l1.elements.get('arc-thread-lvl-badge').textContent, 'LVL 1');
+    assert.equal(l1.elements.get('ai-coach-resp-lvl').textContent, 'LVL 1');
+    assert.equal(l1.elements.get('arc-tj-title').textContent, 'STARTED: LVL 1 (0D)');
+    assert.equal(l1.elements.get('arc-tj-now').textContent, 'NOW LVL 1');
+    assert.equal(l1.elements.get('arc-tj-tag-1').textContent, 'NOW');
+    assert.equal(l1.elements.get('arc-tj-tag-2').textContent, '1D');
+    assert.equal(l1.elements.get('arc-tj-conn-1').classList.contains('is-filled'), false);
     assert.match(l1.elements.get('arc-ai-power-copy').textContent, /Right now at Level 1 you can use ARC to create habits for you/);
 
     l1.elements.get('arc-lvl1-try-btn').handlers.click();
@@ -442,6 +449,14 @@ test('Arc_AI displays pixel Level roadmap, custom AI name, try-chip prefill, and
     assert.equal(l2.elements.get('arc-ai-lvl-badge').textContent, 'LVL 2');
     assert.equal(l2.elements.get('arc-ai-rank').textContent, 'ROUTINE TUNER');
     assert.equal(l2.elements.get('arc-thread-name').textContent, 'NOVA THREAD');
+    assert.equal(l2.elements.get('arc-thread-lvl-badge').textContent, 'LVL 2');
+    assert.equal(l2.elements.get('ai-coach-resp-lvl').textContent, 'LVL 2');
+    assert.equal(l2.elements.get('arc-tj-title').textContent, 'STARTED LVL 1 → REACHED LVL 2 (1D)');
+    assert.equal(l2.elements.get('arc-tj-now').textContent, 'NOW LVL 2');
+    assert.equal(l2.elements.get('arc-tj-tag-1').textContent, 'START ✓');
+    assert.equal(l2.elements.get('arc-tj-tag-2').textContent, 'NOW');
+    assert.equal(l2.elements.get('arc-tj-conn-1').classList.contains('is-filled'), true);
+    assert.equal(l2.elements.get('arc-tj-conn-2').classList.contains('is-filled'), false);
     assert.equal(l2.elements.get('arc-tier-2').classList.contains('is-unlocked'), true);
     assert.equal(l2.elements.get('arc-tier-state-1').textContent, 'ON ✓');
     assert.equal(l2.elements.get('arc-tier-state-2').textContent, 'ACTIVE');
