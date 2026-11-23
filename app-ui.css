@@ -2358,8 +2358,8 @@ body.ha-arc-body > main.ha-arc-ai {
 @media (max-width: 767px) {
     body > main { padding-top: 16px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
     body.ha-arc-body > main.ha-arc-ai { padding-top: 10px; }
-    body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer:focus-within)) > nav.fixed { display: none !important; }
-    body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer:focus-within)) > main.ha-arc-ai { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; }
+    body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer textarea:focus)) > nav.fixed { display: none !important; }
+    body.ha-arc-body:is(.is-arc-typing, :has(.ha-arc-composer textarea:focus)) > main.ha-arc-ai { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; }
     .ha-dashboard .ha-dashboard-greeting { margin-bottom: 10px; }
     body main .ha-progress-card.ha-dashboard-hero { padding: 14px 16px; }
     .ha-dashboard-progress { grid-template-columns: minmax(0, 1fr) 72px; gap: 12px; }
@@ -2885,10 +2885,10 @@ html.ha-spa-navigated .animate-in {
   body.ha-arc-body:not(:has(#arc-zen-home:not(.hidden))) > main.ha-arc-ai {
     padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));
   }
-  body.ha-arc-body:is(.is-arc-typing,:has(.ha-arc-composer:focus-within)) {
+  body.ha-arc-body:is(.is-arc-typing,:has(.ha-arc-composer textarea:focus)) {
     padding-bottom:calc(8px + env(safe-area-inset-bottom,0px)) !important;
   }
-  body.ha-arc-body:has(#arc-zen-home:not(.hidden)):is(.is-arc-typing,:has(.ha-arc-composer:focus-within)) > main.ha-arc-ai {
+  body.ha-arc-body:has(#arc-zen-home:not(.hidden)):is(.is-arc-typing,:has(.ha-arc-composer textarea:focus)) > main.ha-arc-ai {
     padding-bottom:8px !important;
   }
   /* On short landscape screens keep the launcher accessible without
@@ -3611,13 +3611,14 @@ body.ha-arc-body.is-arc-thread-active .ha-arc-disclaimer {display: none;}
   body.ha-arc-body.is-arc-thread-active .ha-arc-scroll {
     padding: 2px 2px 10px;
     margin-inline: 0;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    scrollbar-width: none !important;
+    scrollbar-color: transparent transparent !important;
+    -ms-overflow-style: none !important;
   }
   body.ha-arc-body.is-arc-thread-active .ha-arc-scroll::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
   body.ha-arc-body.is-arc-thread-active .ha-arc-user-msg {
     max-width: 87%; font-size: 13px; padding: 9px 12px;

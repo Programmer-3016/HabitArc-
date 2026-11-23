@@ -152,9 +152,11 @@ export function mountArcContext({
   refreshLabel();
  },{signal});
  document.addEventListener('pointerdown',event=>{
+  if(!panel.isConnected){api.dispose();return;}
   if(isOpen()&&!panel.contains(event.target)&&!button.contains(event.target))close();
  },{signal});
  document.addEventListener('keydown',event=>{
+  if(!panel.isConnected){api.dispose();return;}
   if(isOpen()&&event.key==='Escape'){close({focus:true});event.preventDefault();}
  },{signal});
  q('arc-data-close').addEventListener('click',()=>close({focus:true}),{signal});

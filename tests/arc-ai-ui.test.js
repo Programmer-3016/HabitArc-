@@ -255,6 +255,12 @@ test('ARC AI replaces skeleton bars with a compact accessible typing indicator',
     scroll.clientHeight = 320;
     view.elements.get('arc-card-momentum').handlers.click();
     await waitFor(() => view.requests.length === 1);
+    const questionInput = view.elements.get('ai-coach-question');
+    const submitBtn = view.elements.get('ai-coach-submit');
+    assert.equal(questionInput.value, '', 'Submitted prompt must clear from the type bar immediately');
+    assert.equal(Boolean(questionInput.disabled), false, 'Composer must stay unlocked so users can type a follow-up while ARC thinks');
+    assert.equal(submitBtn.disabled, true);
+    questionInput.value = 'Draft while ARC thinks';
     const answer = view.elements.get('ai-coach-answer').innerHTML;
     assert.match(answer, /class="ha-arc-thinking"/);
     assert.match(answer, /ha-arc-thinking-dots/);
@@ -265,6 +271,8 @@ test('ARC AI replaces skeleton bars with a compact accessible typing indicator',
     assert.equal(scroll.scrollTop, 1480, 'Sending a new prompt must land at bottom of chat');
     view.releaseStream();
     await waitFor(() => /6 ARC AI messages/.test(view.elements.get('ai-coach-status').textContent));
+    assert.equal(questionInput.value, 'Draft while ARC thinks', 'Completion must not erase a follow-up draft typed while thinking');
+    assert.equal(submitBtn.disabled, false);
     assert.equal(view.elements.get('ai-coach-copy-btn').classList.contains('hidden'), false);
 });
 
