@@ -749,7 +749,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         setStatus('Syncing your latest habits before asking ARC AI…');
         const controller = new AbortController();
         requestController = controller;
-        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45000)]);
+        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(65000)]);
         let streamedDraft = '';
         let receivedDraft = '';
         let streamFellBack = false;
@@ -901,11 +901,14 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             window.HabitArcUI?.announce?.('ARC AI response is ready.');
         } catch (error) {
             if (controller !== requestController || controller.signal.aborted) return;
+            // If a fast upstream disconnect happens before the first word
+            // could paint, still preserve the *received* (not fabricated) text.
+            const incompleteReply = streamedDraft || (streamFellBack ? '' : receivedDraft);
             wordReveal.cancel();
-            if (streamedDraft) {
+            if (incompleteReply) {
                 // Keep an interrupted reply visible, but never save it as a
                 // completed turn or expose a suggested action from partial text.
-                if (answerEl) answerEl.innerHTML = renderArcChatAnswer(streamedDraft, HabitArc.escapeHTML);
+                if (answerEl) answerEl.innerHTML = renderArcChatAnswer(incompleteReply, HabitArc.escapeHTML);
                 if (evidenceEl) evidenceEl.textContent = 'Partial reply · not saved. Your question is ready to retry.';
                 answerCard?.classList.remove('hidden');
                 showThreadView(true);
