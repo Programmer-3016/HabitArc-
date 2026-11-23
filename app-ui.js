@@ -37,6 +37,33 @@
     }
 
     const appPages = new Set(['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Leaderboard.html', 'Arc_AI.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html']);
+    function hasSavedActiveArcChat() {
+        try {
+            const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+            if (!storage) return false;
+            const uid = storage.getItem('habitarc_active_uid') || 'local';
+            const activeId = String(storage.getItem('habitarc_arc_active_chat:' + uid) || '').trim();
+            if (activeId) {
+                const rawChats = storage.getItem('habitarc_arc_chats:' + uid);
+                if (rawChats) {
+                    const list = JSON.parse(rawChats);
+                    if (Array.isArray(list)) {
+                        return list.some(c => c && c.id === activeId && !c.deleted && Array.isArray(c.turns) && c.turns.length > 0);
+                    }
+                }
+            } else if (!storage.getItem('habitarc_arc_active_meta:' + uid)) {
+                const legacyRaw = storage.getItem('habitarc_arc_thread:' + uid);
+                if (legacyRaw) {
+                    const legacy = JSON.parse(legacyRaw);
+                    if (Array.isArray(legacy?.turns) && legacy.turns.length > 0) return true;
+                }
+            }
+        } catch { /* Ignore corrupt storage */ }
+        return false;
+    }
+    if (typeof location === 'object' && location.pathname?.endsWith?.('/Arc_AI.html') && hasSavedActiveArcChat()) {
+        document.documentElement?.classList?.add?.('ha-arc-restoring-thread');
+    }
     let pageAbortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
     let capturingPageListeners = false;
 
@@ -203,6 +230,7 @@
             return pending;
         }
         let analyticsModulePromise = null;
+        let arcChatStoreModulePromise = null;
         let notesModulePromise = null;
         let notesStylesPromise = null;
         let leaderboardStylesPromise = null;
@@ -423,6 +451,18 @@
             return analyticsModulePromise || Promise.resolve(null);
         }
 
+        function ensureArcChatStoreModule() {
+            if (window.__haArcChatStoreModule) return Promise.resolve(window.__haArcChatStoreModule);
+            if (!arcChatStoreModulePromise && typeof location === 'object') {
+                const modUrl = new URL('./arc-chat-store.js', location.href).href;
+                arcChatStoreModulePromise = import(modUrl).then(mod => {
+                    window.__haArcChatStoreModule = mod;
+                    return mod;
+                }).catch(() => null);
+            }
+            return arcChatStoreModulePromise || Promise.resolve(null);
+        }
+
         function fetchPageHtml(pathname) {
             if (pageCache.has(pathname)) return Promise.resolve(pageCache.get(pathname));
             if (inFlightPages.has(pathname)) return inFlightPages.get(pathname);
@@ -454,7 +494,10 @@
             const target = navigationLink(event);
             if (!target || target.url.pathname === location.pathname) return;
             void fetchPageHtml(target.url.pathname);
-            if (target.targetPage === 'Insights.html' || target.targetPage === 'Arc_AI.html') {
+            if (target.targetPage === 'Arc_AI.html') {
+                void ensureAnalyticsModule();
+                void ensureArcChatStoreModule();
+            } else if (target.targetPage === 'Insights.html') {
                 void ensureAnalyticsModule();
             } else if (target.targetPage === 'Leaderboard.html') {
                 void ensureLeaderboardStyles();
@@ -480,6 +523,7 @@
                 const [html] = await Promise.all([
                     fetchPageHtml(targetUrl.pathname),
                     (targetPage === 'Insights.html' || targetPage === 'Arc_AI.html') ? ensureAnalyticsModule() : Promise.resolve(null),
+                    targetPage === 'Arc_AI.html' ? ensureArcChatStoreModule() : Promise.resolve(null),
                 ]);
                 if (seq !== navSequence) return;
                 if (!html) {
@@ -538,7 +582,20 @@
                     oldHeaders.forEach(h => h.remove());
                     nextHeaders.forEach(h => document.body.insertBefore(h, currentMain));
 
-                    currentMain.replaceWith(nextMain.cloneNode(true));
+                    const preparedMain = nextMain.cloneNode(true);
+                    if (targetPage === 'Arc_AI.html') {
+                        const restoring = hasSavedActiveArcChat();
+                        document.documentElement?.classList?.toggle?.('ha-arc-restoring-thread', restoring);
+                        if (restoring) {
+                            document.body.classList.add('is-arc-thread-active');
+                            preparedMain.querySelector('#arc-zen-home')?.classList.add('hidden');
+                            preparedMain.querySelector('#arc-thread-view')?.classList.remove('hidden');
+                        }
+                    } else {
+                        document.documentElement?.classList?.remove?.('ha-arc-restoring-thread');
+                    }
+
+                    currentMain.replaceWith(preparedMain);
                     if (leavingNotes) removeNotesStyles();
 
                     if (!document.querySelector('body > nav.fixed')) {
@@ -561,9 +618,14 @@
                         let code = inlineScript.textContent;
                         if (inlineScript.type === 'module') {
                             if (!window.__haAnalyticsModule) await ensureAnalyticsModule();
+                            if (targetPage === 'Arc_AI.html' && !window.__haArcChatStoreModule) await ensureArcChatStoreModule();
                             code = code.replace(
                                 /^\s*import\s*\{([^}]+)\}\s*from\s*['"]\.\/habit-analytics\.js['"];?\s*/m,
                                 'const {$1} = window.__haAnalyticsModule || {};\n'
+                            );
+                            code = code.replace(
+                                /^\s*import\s*\{([\s\S]*?)\}\s*from\s*['"]\.\/arc-chat-store\.js['"];?\s*/m,
+                                'const {$1} = window.__haArcChatStoreModule || {};\n'
                             );
                         }
                         capturingPageListeners = true;

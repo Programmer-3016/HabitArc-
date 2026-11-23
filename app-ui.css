@@ -1950,6 +1950,8 @@ body > main:has(#theme-selector-grid) #restore-backup-file { max-width: 100%; ov
 #settings-sign-out-btn { border-radius: 12px !important; border: 2px solid rgba(var(--ha-outline-variant) / 0.35) !important; font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
 
 /* ─── ARC AI Tab (4A Zen Console + 4D 28-Day Momentum Card) ─────────────────── */
+html.ha-arc-restoring-thread #arc-zen-home { display: none !important; }
+html.ha-arc-restoring-thread #arc-thread-view { display: flex !important; }
 body.ha-arc-body {
     height: 100dvh;
     min-height: 0;

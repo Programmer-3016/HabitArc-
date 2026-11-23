@@ -351,8 +351,6 @@
         <p class="ha-arc-disclaimer">Dedicated HabitArc AI · Thread saved for your account on this device</p>
     </div>
 
-</main>
-
 <dialog id="arc-hub-dialog" class="ha-ai-hub-dialog" aria-labelledby="arc-hub-name">
     <div class="ha-ai-hub-sheet">
         <div class="ha-ai-hub-hdr">
@@ -512,6 +510,8 @@
         </div>
     </div>
 </dialog>
+
+</main>
 
 <!-- Floating Bottom Nav Bar (Mobile Only) -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
@@ -1671,6 +1671,13 @@ import {
     }
 
     function applySyncedRemoteChats(uid, rawRemote) {
+        if (scrollArea?.isConnected === false) {
+            if (cloudChatUnsubscribe) {
+                try { cloudChatUnsubscribe(); } catch {}
+                cloudChatUnsubscribe = null;
+            }
+            return;
+        }
         if ((HabitArc.getAuthUser?.()?.uid || hydratedChatUid) !== uid) return;
         const storage = getChatStorage();
         const remote = normaliseRemoteChatPayload(rawRemote);
@@ -2279,6 +2286,7 @@ import {
     });
 
     function handleAccountRefresh() {
+        if (scrollArea?.isConnected === false) return;
         const authUser = HabitArc.getAuthUser?.();
         const currentUid = authUser?.uid || '';
         if (hydratedChatUid && currentUid && currentUid !== hydratedChatUid) {
@@ -2291,6 +2299,7 @@ import {
     }
 
     function triggerForegroundSync() {
+        if (scrollArea?.isConnected === false) return;
         renderArcConsole();
         const authUser = HabitArc.getAuthUser?.();
         const nowMs = Date.now();
@@ -2308,8 +2317,12 @@ import {
     window.addEventListener('focus', triggerForegroundSync);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) triggerForegroundSync(); });
 
-    renderArcConsole();
-    restoreSavedThread();
+    try {
+        renderArcConsole();
+        restoreSavedThread();
+    } finally {
+        document.documentElement?.classList?.remove?.('ha-arc-restoring-thread');
+    }
     HabitArc.whenAuthReady?.()?.then((user) => {
         if (user?.uid && !user.isAnonymous) {
             void syncCloudChatsForUser(user);

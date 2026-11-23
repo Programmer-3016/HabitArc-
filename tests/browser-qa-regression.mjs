@@ -789,6 +789,57 @@ try {
   assert.equal(hubDrawer.toneLock, 'LOCKED · LVL 4');
   assert.equal(hubDrawer.overflow, false, 'Quest hub drawer fits 390px without horizontal overflow');
 
+  // 6) Switching from another tab to ARC AI renders active chat in-place with zero Zen Home flash
+  await ev(`(() => {
+    const uid = HabitArc.getAuthUser?.()?.uid || localStorage.getItem('habitarc_active_uid') || 'local';
+    localStorage.setItem('habitarc_arc_active_chat:' + uid, 'chat_seed_1');
+  })()`);
+  await go(`${base}/Dashboard.html`);
+  await ev(`(() => {
+    window.__haSpaDocMarker = 'same-doc';
+    window.__haZenFlashSeen = false;
+    window.__haObs = new MutationObserver(() => {
+      const z = document.getElementById('arc-zen-home');
+      if (z && getComputedStyle(z).display !== 'none' && !document.documentElement.classList.contains('ha-arc-restoring-thread')) {
+        window.__haZenFlashSeen = true;
+      }
+    });
+    window.__haObs.observe(document.body, { childList: true, subtree: true, attributes: true });
+    document.querySelector('nav.ha-bottom-nav a[href="Arc_AI.html"]')?.click();
+  })()`);
+  await sleep(350);
+  const spaSwitch = await ev(`(() => {
+    try { window.__haObs?.disconnect?.(); } catch {}
+    document.getElementById('arc-thread-history-btn')?.click();
+    const histOpened = Boolean(document.getElementById('arc-history-dialog')?.hasAttribute('open'));
+    document.getElementById('arc-hist-close-btn')?.click();
+    document.getElementById('arc-thread-lvl-badge')?.click();
+    const hubOpened = Boolean(document.getElementById('arc-hub-dialog')?.hasAttribute('open'));
+    document.getElementById('arc-hub-close')?.click();
+    return {
+      path: location.pathname.split('/').pop(),
+      sameDoc: window.__haSpaDocMarker === 'same-doc',
+      zenFlashSeen: Boolean(window.__haZenFlashSeen),
+      zenHidden: Boolean(document.getElementById('arc-zen-home')?.classList.contains('hidden')),
+      threadVisible: !document.getElementById('arc-thread-view')?.classList.contains('hidden'),
+      bodyActive: document.body.classList.contains('is-arc-thread-active'),
+      restoringCleared: !document.documentElement.classList.contains('ha-arc-restoring-thread'),
+      asked: document.getElementById('ai-coach-asked')?.textContent.trim(),
+      histOpened,
+      hubOpened
+    };
+  })()`);
+  assert.equal(spaSwitch.path, 'Arc_AI.html', 'SPA dock tap navigated to Arc_AI.html');
+  assert.equal(spaSwitch.sameDoc, true, 'Dashboard -> ARC AI tab switch runs in-place without triggering a full-page fallback reload');
+  assert.equal(spaSwitch.zenFlashSeen, false, 'Switching to ARC AI never flashes Zen Home before showing active thread');
+  assert.equal(spaSwitch.zenHidden, true);
+  assert.equal(spaSwitch.threadVisible, true);
+  assert.equal(spaSwitch.bodyActive, true);
+  assert.equal(spaSwitch.restoringCleared, true);
+  assert.equal(spaSwitch.asked, 'Delete Stretch habit and add review task');
+  assert.equal(spaSwitch.histOpened, true, 'History drawer works cleanly after SPA navigation to Arc_AI.html');
+  assert.equal(spaSwitch.hubOpened, true, 'Quest hub drawer works cleanly after SPA navigation to Arc_AI.html');
+
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);
 
   console.log(JSON.stringify({
