@@ -60,3 +60,15 @@ test('all 8 themes define complete surface, text, hero, header, and dock tokens 
         }
     }
 });
+
+test('PWA splash index.html paints Pixel Buddy Run animation with synchronous theme resolution and reduced-motion guard', () => {
+    const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+    assert.match(html, /class="ha-splash"/);
+    assert.match(html, /class="ha-splash-buddy"/);
+    assert.match(html, /class="ha-splash-track"/);
+    assert.match(html, /prefers-reduced-motion:\s*reduce/);
+    assert.match(html, /HabitArc\.whenAuthReady\(\)/);
+    for (const theme of ['light', 'sage', 'dark', 'forest', 'midnight', 'purple', 'ocean', 'sunset']) {
+        assert.match(html, new RegExp(`\\b${theme}:`), `index.html splash missing theme palette for ${theme}`);
+    }
+});

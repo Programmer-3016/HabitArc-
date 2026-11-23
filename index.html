@@ -4,14 +4,120 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="application-name" content="HabitArc" />
-    <meta name="theme-color" content="#141212" />
+    <meta name="theme-color" content="#f6f4ef" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="HabitArc" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+    <script>
+        // Apply saved theme palette synchronously before first paint to prevent cold-launch flashes.
+        (() => {
+            const palettes = {
+                light:    { bg: '#f6f4ef', fg: '#121215', sub: '#52525b', outline: '#121215', dark: false },
+                sage:     { bg: '#eef6f0', fg: '#0e2a1d', sub: '#2d5440', outline: '#0e2a1d', dark: false },
+                dark:     { bg: '#121215', fg: '#fafafc', sub: '#a1a1aa', outline: '#fafafc', dark: true },
+                forest:   { bg: '#0b1a14', fg: '#ecfdf5', sub: '#86efac', outline: '#ecfdf5', dark: true },
+                midnight: { bg: '#0c131e', fg: '#f1f5f9', sub: '#94a3b8', outline: '#f1f5f9', dark: true },
+                purple:   { bg: '#171026', fg: '#f5f3ff', sub: '#c4b5fd', outline: '#f5f3ff', dark: true },
+                ocean:    { bg: '#091c24', fg: '#ecfeff', sub: '#67e8f9', outline: '#ecfeff', dark: true },
+                sunset:   { bg: '#231116', fg: '#fff1f2', sub: '#fda4af', outline: '#fff1f2', dark: true }
+            };
+            let theme = 'light';
+            try {
+                const uid = localStorage.getItem('habitarc_active_uid');
+                const data = JSON.parse(localStorage.getItem(uid ? `habitarc_data:${uid}` : 'habitarc_data') || '{}');
+                const s = data?.settings || {};
+                const raw = s.theme;
+                if (raw && palettes[raw] && (s.cleanThemeChosen || !['light', 'dark'].includes(raw))) {
+                    theme = raw;
+                }
+            } catch {
+                // Storage unavailable; keep Paper Light palette.
+            }
+            const p = palettes[theme] || palettes.light;
+            const root = document.documentElement;
+            root.setAttribute('data-theme', theme);
+            root.style.colorScheme = p.dark ? 'dark' : 'light';
+            root.style.setProperty('--sp-bg', p.bg);
+            root.style.setProperty('--sp-fg', p.fg);
+            root.style.setProperty('--sp-sub', p.sub);
+            root.style.setProperty('--sp-outline', p.outline);
+            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', p.bg);
+            document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.setAttribute('content', p.dark ? 'black-translucent' : 'default');
+        })();
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: var(--sp-bg, #f6f4ef);
+            color: var(--sp-fg, #121215);
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .ha-splash {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px env(safe-area-inset-right, 24px) 32px env(safe-area-inset-left, 24px);
+            text-align: center;
+        }
+        .ha-splash-stage {
+            width: 148px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .ha-splash-buddy {
+            display: block;
+            width: 48px;
+            height: 48px;
+            animation: haBuddyHop 520ms steps(4, end) infinite;
+        }
+        .ha-splash-track {
+            width: 100%;
+            height: 3px;
+            border-radius: 999px;
+            margin-top: 6px;
+            background: repeating-linear-gradient(90deg, #47e393 0 10px, transparent 10px 16px);
+            background-size: 16px 3px;
+            animation: haRoadScroll 420ms linear infinite;
+        }
+        .ha-splash-brand {
+            margin: 16px 0 0;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+            color: var(--sp-fg, #121215);
+        }
+        .ha-splash-status {
+            margin: 4px 0 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--sp-sub, #52525b);
+        }
+        @keyframes haBuddyHop {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-7px); }
+        }
+        @keyframes haRoadScroll {
+            from { background-position: 0 0; }
+            to { background-position: -16px 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ha-splash-buddy, .ha-splash-track { animation: none; }
+        }
+    </style>
     <script defer src="pwa-register.js"></script>
     <title>HabitArc - AI-Powered Smart Habit Tracking</title>
     <script src="app.js"></script>
@@ -35,6 +141,24 @@
     </script>
 </head>
 <body>
-    <p>Loading HabitArc...</p>
+    <main class="ha-splash" role="status" aria-live="polite">
+        <div class="ha-splash-stage" aria-hidden="true">
+            <svg class="ha-splash-buddy" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                <rect x="7" y="1" width="2" height="2" fill="#47e393"/>
+                <rect x="4" y="3" width="8" height="1" fill="var(--sp-outline, #121215)"/>
+                <rect x="3" y="4" width="1" height="8" fill="var(--sp-outline, #121215)"/>
+                <rect x="12" y="4" width="1" height="8" fill="var(--sp-outline, #121215)"/>
+                <rect x="4" y="4" width="8" height="8" fill="#47e393"/>
+                <rect x="5" y="6" width="2" height="2" fill="#121215"/>
+                <rect x="9" y="6" width="2" height="2" fill="#121215"/>
+                <rect x="4" y="12" width="8" height="1" fill="var(--sp-outline, #121215)"/>
+                <rect x="5" y="13" width="2" height="2" fill="var(--sp-outline, #121215)"/>
+                <rect x="9" y="13" width="2" height="2" fill="var(--sp-outline, #121215)"/>
+            </svg>
+            <div class="ha-splash-track"></div>
+        </div>
+        <h1 class="ha-splash-brand">HabitArc</h1>
+        <p class="ha-splash-status">Loading workspace...</p>
+    </main>
 </body>
 </html>
