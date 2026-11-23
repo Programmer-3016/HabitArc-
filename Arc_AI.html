@@ -803,17 +803,13 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             }
 
             owner = user.uid;
-            await cancellable(HabitArc.flushCloudSync(), signal);
-            const idToken = await cancellable(HabitArc.getAuthToken(), signal);
-            // The user explicitly picked these sources. Not saved in threads,
-            // and never sent on an unrelated ARC question.
-            const contextPicker = await cancellable(arcContextPromise,signal);
-            const workspaceContext=contextPicker
-                ? await cancellable(contextPicker.collect(),signal) : null;
+            // Place the member's new bubble in view immediately after auth,
+            // BEFORE cloud sync or the model request, so the phone never
+            // leaves them looking at old replies after pressing Send.
             renderHistoryList(conversation.slice(-4));
             if (askedEl) askedEl.textContent = question;
             askedWrap?.classList.remove('hidden');
-            showArcThinking();
+            showArcThinking('Checking your recent habits…');
             if (evidenceEl) evidenceEl.textContent = '';
             copyAnswerButton?.classList?.add('hidden');
             renderSuggestedAction(null);
@@ -821,11 +817,19 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             answerCard?.setAttribute?.('aria-live', 'off');
             showThreadView(true);
             scrollChatToLatest(true);
-            // The prompt may move when the phone keyboard closes or CSS
-            // switches Zen -> thread; land on the new message after layout.
+            // The chat viewport recalculates after the mobile keyboard closes.
             setTimeout(() => {
                 if (controller === requestController && !controller.signal.aborted) scrollChatToLatest();
             }, 0);
+            await cancellable(HabitArc.flushCloudSync(), signal);
+            const idToken = await cancellable(HabitArc.getAuthToken(), signal);
+            // The user explicitly picked these sources. Not saved in threads,
+            // and never sent on an unrelated ARC question.
+            const contextPicker = await cancellable(arcContextPromise,signal);
+            const workspaceContext=contextPicker
+                ? await cancellable(contextPicker.collect(),signal) : null;
+            showArcThinking();
+            scrollChatToLatest();
             setStatus('');
             const response = await fetch('/api/coach', {
                 method: 'POST',
