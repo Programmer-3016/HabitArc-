@@ -826,7 +826,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             setTimeout(() => {
                 if (controller === requestController && !controller.signal.aborted) scrollChatToLatest();
             }, 0);
-            setStatus('ARC is thinking…');
+            setStatus('');
             const response = await fetch('/api/coach', {
                 method: 'POST',
                 headers: {
@@ -863,7 +863,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                         }
                         // Only genuine Gemini chunks enter the word queue.
                         wordReveal.push(value.text);
-                        setStatus('ARC is writing…');
                     } else if (event === 'reset') {
                         // Gemini SSE failed; the server is fetching a normal
                         // response. Do not mislabel fallback text as live tokens.
@@ -873,7 +872,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                         receivedDraft = '';
                         showArcThinking('Finishing your reply…');
                         scrollChatToLatest();
-                        setStatus('Completing reply in standard mode…');
                     } else if (event === 'done') {
                         if (!streamFellBack) await wordReveal.finish();
                         payload = value;
