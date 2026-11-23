@@ -2176,13 +2176,48 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 .ha-md-table tr:last-child td { border-bottom: 0; }
 
-.ha-arc-skeleton { display: flex; flex-direction: column; gap: 8px; padding: 2px 0; }
-.ha-arc-skel-line {
-    height: 11px; background: rgb(var(--ha-surface-container-high));
-    animation: ha-skel-pulse 1.2s ease-in-out infinite;
+/* Compact conversational waiting state — no skeleton paragraphs. */
+.ha-arc-thinking {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    min-height: 35px;
+    padding: 6px 2px;
+    color: rgb(var(--ha-on-surface-variant));
 }
-.ha-arc-skel-line.is-short { width: 64%; }
-@keyframes ha-skel-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }
+.ha-arc-thinking-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    padding: 5px 0;
+}
+.ha-arc-thinking-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ha-primary-fixed-dim, #bba9ff);
+    animation: ha-arc-dot-wave 1.18s ease-in-out infinite;
+}
+.ha-arc-thinking-dots i:nth-child(2) { animation-delay: 140ms; }
+.ha-arc-thinking-dots i:nth-child(3) { animation-delay: 280ms; }
+.ha-arc-thinking-label {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+@keyframes ha-arc-dot-wave {
+    0%, 60%, 100% { opacity: .4; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ha-arc-thinking-dots i { animation: none; opacity: .8; }
+}
 
 .ha-arc-evidence {
     margin-top: 12px; padding-top: 9px; border-top: 1px dashed rgb(var(--ha-outline-variant) / .75);
@@ -2374,7 +2409,7 @@ body.ha-arc-body > main.ha-arc-ai {
 }
 @media (prefers-reduced-motion: reduce) {
     .ha-habit-card, .ha-progress-card, .ha-rpg-xp-seg, .ha-arc-spot, .ha-arc-sq, .ha-arc-momentum { transition: none; }
-    .ha-rpg-buddy, .ha-rpg-star-a, .ha-rpg-star-b, .ha-arc-skel-line { animation: none !important; opacity: 1 !important; }
+    .ha-rpg-buddy, .ha-rpg-star-a, .ha-rpg-star-b { animation: none !important; opacity: 1 !important; }
     html.ha-spa-navigated body > main,
     .fade-up,
     .animate-in { animation: none !important; opacity: 1 !important; transform: none !important; }
