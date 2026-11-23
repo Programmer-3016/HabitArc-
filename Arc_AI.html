@@ -176,27 +176,21 @@
                 <span class="ha-arc-dot" aria-hidden="true"></span>
                 <span id="arc-telemetry-text">Loading synced habit history…</span>
             </p>
-        </div>
-
-        <section id="arc-level-card" class="ha-arc-level-card" aria-label="HabitArc AI Level and Unlocked Powers">
-            <div class="ha-arc-level-head">
-                <div class="ha-arc-level-ident">
+            <div class="ha-arc-zen-bar" role="toolbar" aria-label="Chat history and AI level controls">
+                <button id="arc-zen-history-btn" type="button" class="ha-arc-hist-btn" aria-haspopup="dialog" aria-controls="arc-history-dialog">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+                    <span>Chats</span>
+                    <span id="arc-zen-hist-count" class="ha-arc-hist-cnt hidden">0</span>
+                </button>
+                <button id="arc-open-hub-btn" type="button" class="ha-arc-hub-pill" aria-haspopup="dialog" aria-controls="arc-hub-dialog">
                     <span id="arc-ai-lvl-badge" class="ha-arc-lvl-pill">LVL 1</span>
                     <span id="arc-ai-buddy-name" class="ha-arc-lvl-name">ARC</span>
-                    <span id="arc-ai-rank" class="ha-arc-lvl-rank">HABIT BUILDER</span>
-                </div>
-                <button id="arc-open-hub-btn" type="button" class="ha-arc-hub-pill" aria-haspopup="dialog" aria-controls="arc-hub-dialog">
-                    <span id="arc-ai-next-txt">0/3 QUESTS</span><span aria-hidden="true">›</span>
+                    <span class="ha-arc-lvl-sep" aria-hidden="true">·</span>
+                    <span id="arc-ai-next-txt">0/3 QUESTS</span>
+                    <span aria-hidden="true">›</span>
                 </button>
             </div>
-            <div class="ha-arc-level-body">
-                <div id="arc-px-bar" class="ha-arc-px-bar" role="progressbar" aria-label="Progress toward next AI level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
-                <div class="ha-arc-power-row">
-                    <p id="arc-ai-power-copy" class="ha-arc-power-copy">Right now at Level 1 you can use ARC to create habits for you.</p>
-                    <button id="arc-lvl1-try-btn" type="button" class="ha-arc-try-chip">Try it</button>
-                </div>
-            </div>
-        </section>
+        </div>
 
         <div class="ha-arc-cards" aria-label="Suggested AI actions">
             <!-- 1. Highlighted Halftone Spotlight Card -->
@@ -278,6 +272,9 @@
     <section id="arc-thread-view" class="hidden ha-arc-thread" aria-label="ARC AI conversation">
         <div class="ha-arc-thread-hdr">
             <div class="ha-arc-thread-id">
+                <button id="arc-thread-history-btn" type="button" class="ha-arc-icon-btn" aria-label="Open chat history" aria-haspopup="dialog" aria-controls="arc-history-dialog" title="Chat history">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+                </button>
                 <span class="ha-arc-thread-avatar" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges">
                         <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
@@ -302,49 +299,6 @@
             <span id="arc-lvlup-text">🎉 LEVEL UP!</span>
             <button id="arc-lvlup-close" type="button" class="ha-arc-lvlup-close" aria-label="Dismiss level up">OK</button>
         </div>
-
-        <section id="arc-thread-journey" class="ha-arc-tj" aria-label="AI Level journey in chat">
-            <div class="ha-arc-tj-head">
-                <span id="arc-tj-title" class="ha-arc-tj-title">STARTED: LVL 1 (0D)</span>
-                <button id="arc-tj-open-hub-btn" type="button" class="ha-arc-tj-hub-btn" aria-haspopup="dialog" aria-controls="arc-hub-dialog">
-                    <span id="arc-tj-now">0/3 QUESTS</span><span aria-hidden="true">›</span>
-                </button>
-            </div>
-            <div id="arc-tj-track" class="ha-arc-tj-track" role="list" aria-label="Level 1 to Level 4 progression">
-                <button type="button" id="arc-tj-node-1" class="ha-arc-tj-node is-reached is-current" role="listitem">
-                    <div class="ha-arc-tj-rail">
-                        <span class="ha-arc-tj-box">L1</span>
-                        <span id="arc-tj-conn-1" class="ha-arc-tj-conn" aria-hidden="true"></span>
-                    </div>
-                    <span class="ha-arc-tj-pwr">Make</span>
-                    <span id="arc-tj-tag-1" class="ha-arc-tj-tag">NOW</span>
-                </button>
-                <button type="button" id="arc-tj-node-2" class="ha-arc-tj-node" role="listitem">
-                    <div class="ha-arc-tj-rail">
-                        <span class="ha-arc-tj-box">L2</span>
-                        <span id="arc-tj-conn-2" class="ha-arc-tj-conn" aria-hidden="true"></span>
-                    </div>
-                    <span class="ha-arc-tj-pwr">Manage</span>
-                    <span id="arc-tj-tag-2" class="ha-arc-tj-tag">3Q</span>
-                </button>
-                <button type="button" id="arc-tj-node-3" class="ha-arc-tj-node" role="listitem">
-                    <div class="ha-arc-tj-rail">
-                        <span class="ha-arc-tj-box">L3</span>
-                        <span id="arc-tj-conn-3" class="ha-arc-tj-conn" aria-hidden="true"></span>
-                    </div>
-                    <span class="ha-arc-tj-pwr">Shield</span>
-                    <span id="arc-tj-tag-3" class="ha-arc-tj-tag">7D+3Q</span>
-                </button>
-                <button type="button" id="arc-tj-node-4" class="ha-arc-tj-node" role="listitem">
-                    <div class="ha-arc-tj-rail">
-                        <span class="ha-arc-tj-box">L4</span>
-                    </div>
-                    <span class="ha-arc-tj-pwr">Master</span>
-                    <span id="arc-tj-tag-4" class="ha-arc-tj-tag">14D+3Q</span>
-                </button>
-            </div>
-            <p id="arc-tj-caption" class="ha-arc-tj-cap">Started LVL 1 (Make Habits) · Tap Quests › for unlock tasks.</p>
-        </section>
 
         <div id="ai-coach-history" class="ha-arc-thread-stack"></div>
 
@@ -406,7 +360,7 @@
                 <div>
                     <div class="ha-ai-hub-title-row">
                         <h2 id="arc-hub-name" class="ha-ai-hub-name">Arc</h2>
-                        <span id="arc-hub-rank" class="ha-arc-rank">SPARK</span>
+                        <span id="arc-ai-rank" class="ha-arc-rank">HABIT BUILDER</span>
                     </div>
                     <p class="ha-ai-hub-sub">Quests, powers &amp; personality unlocks</p>
                 </div>
@@ -416,6 +370,10 @@
 
         <div class="ha-ai-hub-px-wrap">
             <div id="arc-hub-px-bar" class="ha-arc-px-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Level progression"></div>
+            <div class="ha-ai-hub-power">
+                <p id="arc-ai-power-copy" class="ha-arc-power-copy">Right now at Level 1 you can use ARC to create habits for you.</p>
+                <button id="arc-lvl1-try-btn" type="button" class="ha-arc-try-chip">Try it</button>
+            </div>
         </div>
 
         <div class="ha-ai-hub-body">
@@ -521,6 +479,39 @@
     </div>
 </dialog>
 
+<dialog id="arc-history-dialog" class="ha-ai-hist-dialog" aria-labelledby="arc-hist-title">
+    <div class="ha-ai-hist-drawer">
+        <div class="ha-ai-hist-hdr">
+            <div class="ha-ai-hist-brand">
+                <span class="ha-arc-thread-avatar" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                        <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
+                        <rect x="4" y="4" width="8" height="1" fill="#000000"/>
+                        <rect x="4" y="5" width="8" height="8" fill="#121010"/>
+                        <rect x="5" y="7" width="2" height="2" fill="#ffffff"/>
+                        <rect x="9" y="7" width="2" height="2" fill="#ffffff"/>
+                    </svg>
+                </span>
+                <h2 id="arc-hist-title" class="ha-ai-hist-title">Chats</h2>
+            </div>
+            <div class="ha-ai-hist-hdr-actions">
+                <button id="arc-hist-new-btn" type="button" class="ha-arc-new-btn">+ NEW</button>
+                <button id="arc-hist-close-btn" type="button" class="ha-ai-hub-close" aria-label="Close chat history">✕</button>
+            </div>
+        </div>
+        <div class="ha-ai-hist-search-wrap">
+            <input id="arc-hist-search" type="search" class="ha-ai-hist-search" placeholder="Search saved chats..." aria-label="Search saved chats" autocomplete="off"/>
+        </div>
+        <div id="arc-hist-list" class="ha-ai-hist-list" role="list" aria-label="Saved AI conversations"></div>
+        <div id="arc-hist-empty" class="ha-ai-hist-empty hidden">
+            <p>Your conversations save here automatically—just like ChatGPT.</p>
+        </div>
+        <div class="ha-ai-hist-foot">
+            <span id="arc-hist-sync-note" class="ha-ai-hist-sync">Saved on this device</span>
+        </div>
+    </div>
+</dialog>
+
 <!-- Floating Bottom Nav Bar (Mobile Only) -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
   <a class="ha-bottom-nav-link" href="Dashboard.html">
@@ -556,6 +547,21 @@
 <script src="app.js"></script>
 <script type="module">
 import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal } from './habit-analytics.js';
+import {
+    MAX_LOCAL_TURNS,
+    generateArcChatId,
+    deriveArcChatTitle,
+    getLiveArcChats,
+    upsertArcChat,
+    deleteArcChat,
+    mergeArcChats,
+    sanitizeArcChatsForCloud,
+    loadLocalArcChats,
+    saveLocalArcChats,
+    loadActiveArcChatId,
+    saveActiveArcChatId,
+    groupArcChatsByRecency
+} from './arc-chat-store.js';
 (function initArcAI() {
     if (typeof HabitArc === 'undefined') return;
 
@@ -568,9 +574,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const telemetryText = document.getElementById('arc-telemetry-text');
     const respIdEl = document.getElementById('ai-coach-resp-id');
     const respLvlEl = document.getElementById('ai-coach-resp-lvl');
-    const tjTitleEl = document.getElementById('arc-tj-title');
-    const tjNowEl = document.getElementById('arc-tj-now');
-    const tjCaptionEl = document.getElementById('arc-tj-caption');
     const lvlUpBanner = document.getElementById('arc-lvlup-banner');
     const lvlUpText = document.getElementById('arc-lvlup-text');
     const lvlUpClose = document.getElementById('arc-lvlup-close');
@@ -578,7 +581,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const rankEl = document.getElementById('arc-ai-rank');
     const lvlBadgeEl = document.getElementById('arc-ai-lvl-badge');
     const nextTxtEl = document.getElementById('arc-ai-next-txt');
-    const pxBarEl = document.getElementById('arc-px-bar');
     const powerCopyEl = document.getElementById('arc-ai-power-copy');
     const questHdrTitleEl = document.getElementById('arc-quest-hdr-title');
     const questCntEl = document.getElementById('arc-quest-cnt');
@@ -589,10 +591,18 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const hubCloseBtn = document.getElementById('arc-hub-close');
     const hubLvlBadge = document.getElementById('arc-hub-lvl-badge');
     const hubNameEl = document.getElementById('arc-hub-name');
-    const hubRankEl = document.getElementById('arc-hub-rank');
     const hubPxBar = document.getElementById('arc-hub-px-bar');
     const openHubBtn = document.getElementById('arc-open-hub-btn');
-    const tjOpenHubBtn = document.getElementById('arc-tj-open-hub-btn');
+    const zenHistBtn = document.getElementById('arc-zen-history-btn');
+    const zenHistCount = document.getElementById('arc-zen-hist-count');
+    const threadHistBtn = document.getElementById('arc-thread-history-btn');
+    const histDialog = document.getElementById('arc-history-dialog');
+    const histCloseBtn = document.getElementById('arc-hist-close-btn');
+    const histNewBtn = document.getElementById('arc-hist-new-btn');
+    const histSearch = document.getElementById('arc-hist-search');
+    const histList = document.getElementById('arc-hist-list');
+    const histEmpty = document.getElementById('arc-hist-empty');
+    const histSyncNote = document.getElementById('arc-hist-sync-note');
     const loadTaskStore = () => (typeof window.HabitArcTaskStore !== 'undefined'
         ? Promise.resolve(window.HabitArcTaskStore)
         : import('./task-store.js').catch(() => null));
@@ -641,8 +651,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const applyActionButton = document.getElementById('ai-coach-apply-btn');
     const copyAnswerButton = document.getElementById('ai-coach-copy-btn');
 
-    const THREAD_STORAGE_PREFIX = 'habitarc_arc_thread:';
-
     const prompts = {
         priority: 'Where am I losing consistency this week, and what small change would help most?',
         streak: 'How can I build a low-energy backup routine to keep my streak alive on tight days?',
@@ -651,7 +659,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     };
 
     let conversation = [];
+    let chatThreads = [];
+    let activeChatId = '';
     let owner = null;
+    let hydratedChatUid = '';
+    let cloudChatUnsubscribe = null;
+    let cloudChatSaveTimer = null;
     let requestController = null;
     let activeAction = null;
     let activeActionApplied = false;
@@ -728,7 +741,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         if (lvlBadgeEl) lvlBadgeEl.textContent = `LVL ${meta.level}`;
         const doneQ = meta.questsDoneCount ?? 0;
         const totalQ = meta.questsTotalCount ?? 3;
-        const remQ = Math.max(0, totalQ - doneQ);
         if (nextTxtEl) {
             nextTxtEl.textContent = meta.nextLevel
                 ? `${doneQ}/${totalQ} QUESTS`
@@ -738,13 +750,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         const pxSegmentsMarkup = Array.from({ length: 8 }, (_, idx) =>
             `<span class="ha-arc-px-seg${idx < filledCount ? ' is-filled' : ''}"></span>`
         ).join('');
-        if (pxBarEl) {
-            pxBarEl.setAttribute?.('aria-valuenow', String(meta.progressPct || 0));
-            pxBarEl.innerHTML = pxSegmentsMarkup;
-        }
         if (hubLvlBadge) hubLvlBadge.textContent = `LVL ${meta.level}`;
         if (hubNameEl) hubNameEl.textContent = meta.aiName;
-        if (hubRankEl) hubRankEl.textContent = meta.rank;
         if (hubPxBar) {
             hubPxBar.setAttribute?.('aria-valuenow', String(meta.progressPct || 0));
             hubPxBar.innerHTML = pxSegmentsMarkup;
@@ -810,30 +817,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         if (threadLvlBadge) threadLvlBadge.textContent = `LVL ${meta.level}`;
         if (respIdEl) respIdEl.innerHTML = `<span class="ha-arc-dot" aria-hidden="true"></span>${HabitArc.escapeHTML(meta.chatLabel)}`;
         if (respLvlEl) respLvlEl.textContent = `LVL ${meta.level}`;
-        const shownDays = Number.isInteger(meta.activeDays) ? meta.activeDays : (meta.clearDays || 0);
-        if (tjTitleEl) {
-            tjTitleEl.textContent = meta.level === 1
-                ? `STARTED: LVL 1 (${shownDays}D)`
-                : `STARTED LVL 1 → REACHED LVL ${meta.level} (${shownDays}D)`;
-        }
-        if (tjNowEl) {
-            tjNowEl.textContent = meta.nextLevel ? `${doneQ}/${totalQ} QUESTS` : 'MAX';
-        }
-        if (tjCaptionEl) {
-            tjCaptionEl.textContent = `Started LVL 1 → Reached LVL ${meta.level} (${meta.shortPower}).`;
-        }
-        if (Array.isArray(meta.tiers)) {
-            meta.tiers.forEach(t => {
-                const node = document.getElementById(`arc-tj-node-${t.level}`);
-                const tag = document.getElementById(`arc-tj-tag-${t.level}`);
-                const conn = document.getElementById(`arc-tj-conn-${t.level}`);
-                node?.classList?.toggle?.('is-reached', Boolean(t.unlocked));
-                node?.classList?.toggle?.('is-current', Boolean(t.current));
-                const shortReq = t.reqLabel === '3 Quests' ? '3Q' : (t.reqLabel || 'LOCK');
-                if (tag) tag.textContent = t.current ? 'NOW' : (t.level === 1 ? 'START ✓' : (t.unlocked ? 'ON ✓' : shortReq));
-                conn?.classList?.toggle?.('is-filled', meta.level > t.level);
-            });
-        }
+        updateHistoryUI?.();
         if (questionInput && !questionInput.value && threadView?.classList?.contains?.('hidden')) {
             questionInput.placeholder = `Ask ${meta.aiName} anything...`;
         }
@@ -1036,35 +1020,164 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         questionInput.style.overflowY = scrollH > 112 ? 'auto' : 'hidden';
     }
 
+    function getChatStorage() {
+        return typeof localStorage !== 'undefined' ? localStorage : null;
+    }
+
+    function getCloudAuthClient() {
+        return typeof window !== 'undefined' ? window.HabitArcAuth : null;
+    }
+
     function getActiveThreadUid() {
         const authUid = HabitArc.getAuthUser?.()?.uid;
         if (authUid) return authUid;
         try {
-            return typeof localStorage !== 'undefined' ? (localStorage.getItem('habitarc_active_uid') || '') : '';
+            const storage = getChatStorage();
+            return storage ? (storage.getItem('habitarc_active_uid') || 'local') : '';
         } catch { return ''; }
     }
 
-    function saveThreadState(uid = owner || getActiveThreadUid()) {
-        if (!uid || typeof localStorage === 'undefined') return;
-        try {
-            if (!conversation.length) {
-                localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${uid}`);
-                return;
+    function toggleModalDialog(dialogEl, shouldOpen) {
+        if (!dialogEl) return;
+        if (shouldOpen) {
+            if (typeof dialogEl.showModal === 'function') {
+                if (!dialogEl.open) dialogEl.showModal();
+            } else {
+                dialogEl.setAttribute?.('open', '');
             }
-            localStorage.setItem(`${THREAD_STORAGE_PREFIX}${uid}`, JSON.stringify({
-                turns: conversation.slice(-6),
-                lastEvidence,
-                lastVerifiedSnapshot,
-                lastCasualGreeting,
-                lastAction: activeAction,
-                lastActionApplied: activeActionApplied,
-                lastActionAutoCreated: activeActionAutoCreated,
-                lastCreatedHabitId: activeCreatedHabitId,
-                lastPrevHabitPatch: activePrevHabitPatch,
-                lastActionUndo: activeActionUndo,
-                updatedAt: Date.now()
-            }));
-        } catch { /* Optional device cache */ }
+            dialogEl.classList?.add?.('is-open');
+        } else {
+            if (typeof dialogEl.close === 'function' && dialogEl.open) {
+                dialogEl.close();
+            } else {
+                dialogEl.removeAttribute?.('open');
+            }
+            dialogEl.classList?.remove?.('is-open');
+        }
+    }
+
+    function formatChatTimeShort(ts) {
+        if (!Number.isFinite(ts) || ts <= 0) return '';
+        try {
+            return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date(ts));
+        } catch { return ''; }
+    }
+
+    function updateHistoryUI() {
+        const live = getLiveArcChats(chatThreads);
+        if (zenHistCount) {
+            zenHistCount.textContent = String(live.length);
+            zenHistCount.classList?.toggle?.('hidden', live.length === 0);
+        }
+        if (histSyncNote) {
+            const authUser = HabitArc.getAuthUser?.();
+            histSyncNote.textContent = (authUser && !authUser.isAnonymous)
+                ? 'Synced to your HabitArc account'
+                : 'Saved on this device';
+        }
+        if (!histList) return;
+        const query = String(histSearch?.value || '').trim().toLowerCase();
+        const filtered = query
+            ? live.filter(chat => chat.title.toLowerCase().includes(query)
+                || chat.turns.some(t => t.question.toLowerCase().includes(query) || t.answer.toLowerCase().includes(query)))
+            : live;
+        const groups = groupArcChatsByRecency(filtered);
+        histEmpty?.classList?.toggle?.('hidden', filtered.length > 0);
+        if (!filtered.length) {
+            histList.innerHTML = '';
+            return;
+        }
+        histList.innerHTML = groups.map(group => `
+            <section class="ha-ai-hist-group" aria-label="${HabitArc.escapeHTML(group.label)}">
+                <div class="ha-ai-hist-group-lbl">${HabitArc.escapeHTML(group.label)}</div>
+                ${group.items.map(chat => {
+                    const isActive = chat.id === activeChatId && !threadView?.classList?.contains?.('hidden');
+                    const metaTxt = `${chat.turns.length} turn${chat.turns.length === 1 ? '' : 's'}${chat.updatedAt ? ` · ${formatChatTimeShort(chat.updatedAt)}` : ''}`;
+                    return `
+                        <div class="ha-ai-hist-item${isActive ? ' is-active' : ''}" role="listitem">
+                            <button type="button" class="ha-ai-hist-open" data-chat-open="${HabitArc.escapeHTML(chat.id)}">
+                                <span class="ha-ai-hist-item-title">${HabitArc.escapeHTML(chat.title)}</span>
+                                <span class="ha-ai-hist-item-meta">${HabitArc.escapeHTML(metaTxt)}</span>
+                            </button>
+                            <button type="button" class="ha-ai-hist-del" data-chat-del="${HabitArc.escapeHTML(chat.id)}" aria-label="Delete ${HabitArc.escapeHTML(chat.title)}">✕</button>
+                        </div>
+                    `;
+                }).join('')}
+            </section>
+        `).join('');
+    }
+
+    function ensureChatsLoaded(uid) {
+        if (!uid) return;
+        if (hydratedChatUid === uid) return;
+        if (cloudChatUnsubscribe) {
+            try { cloudChatUnsubscribe(); } catch {}
+            cloudChatUnsubscribe = null;
+        }
+        hydratedChatUid = uid;
+        owner = uid;
+        const storage = getChatStorage();
+        const { chats, migratedLegacyId } = loadLocalArcChats(uid, storage);
+        chatThreads = chats;
+        if (migratedLegacyId && !loadActiveArcChatId(uid, storage)) {
+            saveActiveArcChatId(uid, migratedLegacyId, storage);
+        }
+        updateHistoryUI();
+    }
+
+    async function flushCloudChatSave(uid = owner || getActiveThreadUid()) {
+        const user = HabitArc.getAuthUser?.();
+        const cloud = getCloudAuthClient();
+        if (!uid || !user || user.isAnonymous || user.uid !== uid || !cloud?.saveArcChats) return;
+        try {
+            await cloud.saveArcChats(sanitizeArcChatsForCloud(chatThreads), user);
+            if (histSyncNote) histSyncNote.textContent = 'Synced to your HabitArc account ✓';
+        } catch {
+            if (histSyncNote) histSyncNote.textContent = 'Saved on this device · Cloud retry pending';
+        }
+    }
+
+    function scheduleCloudChatSave(uid = owner || getActiveThreadUid()) {
+        if (cloudChatSaveTimer) clearTimeout(cloudChatSaveTimer);
+        cloudChatSaveTimer = setTimeout(() => {
+            cloudChatSaveTimer = null;
+            void flushCloudChatSave(uid);
+        }, 350);
+    }
+
+    function saveThreadState(uid = owner || getActiveThreadUid()) {
+        const resolvedUid = uid || getActiveThreadUid();
+        if (!resolvedUid) return;
+        ensureChatsLoaded(resolvedUid);
+        const storage = getChatStorage();
+        if (!conversation.length) {
+            saveActiveArcChatId(resolvedUid, '', storage);
+            updateHistoryUI();
+            return;
+        }
+        if (!activeChatId) activeChatId = generateArcChatId();
+        const existing = getLiveArcChats(chatThreads).find(c => c.id === activeChatId);
+        const nowTs = Date.now();
+        chatThreads = upsertArcChat(chatThreads, {
+            id: activeChatId,
+            title: existing?.title || deriveArcChatTitle(conversation[0]?.question),
+            createdAt: existing?.createdAt || conversation[0]?.timestamp || nowTs,
+            updatedAt: nowTs,
+            turns: conversation.slice(-MAX_LOCAL_TURNS),
+            lastEvidence,
+            lastVerifiedSnapshot,
+            lastCasualGreeting,
+            lastAction: activeAction,
+            lastActionApplied: activeActionApplied,
+            lastActionAutoCreated: activeActionAutoCreated,
+            lastCreatedHabitId: activeCreatedHabitId,
+            lastPrevHabitPatch: activePrevHabitPatch,
+            lastActionUndo: activeActionUndo
+        }, nowTs);
+        chatThreads = saveLocalArcChats(resolvedUid, chatThreads, storage);
+        saveActiveArcChatId(resolvedUid, activeChatId, storage);
+        updateHistoryUI();
+        scheduleCloudChatSave(resolvedUid);
     }
 
     function formatActionMeta(action) {
@@ -1418,7 +1531,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             showThreadView(false);
             return;
         }
-        const prior = conversation.slice(0, -1).slice(-4);
+        const prior = conversation.slice(0, -1).slice(-(MAX_LOCAL_TURNS - 1));
         const latest = conversation[conversation.length - 1];
         renderHistoryList(prior);
         if (askedEl) askedEl.textContent = latest.question;
@@ -1437,41 +1550,133 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         showThreadView(true);
     }
 
-    function restoreSavedThread() {
-        const uid = getActiveThreadUid();
-        if (!uid || typeof localStorage === 'undefined') return;
-        try {
-            const raw = localStorage.getItem(`${THREAD_STORAGE_PREFIX}${uid}`);
-            if (!raw) return;
-            const parsed = JSON.parse(raw);
-            if (!Array.isArray(parsed?.turns) || !parsed.turns.length) return;
-            const validTurns = parsed.turns.filter(t => t && typeof t.question === 'string' && typeof t.answer === 'string');
-            if (!validTurns.length) return;
-            owner = uid;
-            conversation = validTurns.slice(-6);
-            lastEvidence = typeof parsed.lastEvidence === 'string' ? parsed.lastEvidence : '';
-            lastVerifiedSnapshot = parsed.lastVerifiedSnapshot || null;
-            lastCasualGreeting = Boolean(parsed.lastCasualGreeting);
-            activeAction = parsed.lastAction || null;
-            activeActionApplied = Boolean(parsed.lastActionApplied);
-            activeActionAutoCreated = Boolean(parsed.lastActionAutoCreated);
-            activeCreatedHabitId = typeof parsed.lastCreatedHabitId === 'string' ? parsed.lastCreatedHabitId : '';
-            activePrevHabitPatch = parsed.lastPrevHabitPatch || null;
-            activeActionUndo = parsed.lastActionUndo || null;
-            renderThreadFromState();
+    function openSavedChat(chatId, { closeDrawer = true, scroll = true } = {}) {
+        const thread = getLiveArcChats(chatThreads).find(c => c.id === chatId);
+        if (!thread) return false;
+        const uid = hydratedChatUid || owner || getActiveThreadUid();
+        if (uid) owner = uid;
+        activeChatId = thread.id;
+        conversation = thread.turns.map(t => ({ ...t }));
+        lastEvidence = typeof thread.lastEvidence === 'string' ? thread.lastEvidence : '';
+        lastVerifiedSnapshot = thread.lastVerifiedSnapshot || null;
+        lastCasualGreeting = Boolean(thread.lastCasualGreeting);
+        activeAction = thread.lastAction || null;
+        activeActionApplied = Boolean(thread.lastActionApplied);
+        activeActionAutoCreated = Boolean(thread.lastActionAutoCreated);
+        activeCreatedHabitId = typeof thread.lastCreatedHabitId === 'string' ? thread.lastCreatedHabitId : '';
+        activePrevHabitPatch = thread.lastPrevHabitPatch || null;
+        activeActionUndo = thread.lastActionUndo || null;
+        if (uid) saveActiveArcChatId(uid, activeChatId, getChatStorage());
+        renderThreadFromState();
+        updateHistoryUI();
+        if (closeDrawer) closeHistoryDialog();
+        if (scroll) {
             scrollChatToLatest(true);
             setTimeout(() => {
                 if (conversation.length) scrollChatToLatest();
             }, 0);
-        } catch { /* Ignore corrupt storage */ }
+        }
+        return true;
     }
 
-    function resetConversation({ clearStored = false } = {}) {
-        const previousUid = owner || getActiveThreadUid();
+    function deleteSavedChat(chatId) {
+        const uid = hydratedChatUid || owner || getActiveThreadUid();
+        if (!uid) return;
+        chatThreads = deleteArcChat(chatThreads, chatId);
+        chatThreads = saveLocalArcChats(uid, chatThreads, getChatStorage());
+        scheduleCloudChatSave(uid);
+        if (chatId === activeChatId) {
+            activeChatId = '';
+            saveActiveArcChatId(uid, '', getChatStorage());
+            resetConversation();
+        }
+        updateHistoryUI();
+    }
+
+    function startNewChat() {
+        const uid = hydratedChatUid || owner || getActiveThreadUid();
+        if (uid && conversation.length) saveThreadState(uid);
+        activeChatId = '';
+        if (uid) saveActiveArcChatId(uid, '', getChatStorage());
+        resetConversation();
+        closeHistoryDialog();
+        updateHistoryUI();
+    }
+
+    function restoreSavedThread() {
+        const uid = getActiveThreadUid();
+        if (!uid) return;
+        ensureChatsLoaded(uid);
+        const savedActiveId = loadActiveArcChatId(uid, getChatStorage());
+        if (savedActiveId) {
+            openSavedChat(savedActiveId, { closeDrawer: false, scroll: true });
+        }
+    }
+
+    let subscribedCloudUid = '';
+    async function syncCloudChatsForUser(user) {
+        if (!user?.uid || user.isAnonymous) return;
+        const uid = user.uid;
+        ensureChatsLoaded(uid);
+        if (!conversation.length && !requestController && !questionInput?.value?.trim()) {
+            const localActive = loadActiveArcChatId(uid, getChatStorage());
+            if (localActive) openSavedChat(localActive, { closeDrawer: false, scroll: true });
+        }
+        const cloud = getCloudAuthClient();
+        if (!cloud?.loadArcChats) return;
+        try {
+            const remote = await cloud.loadArcChats(user);
+            if ((HabitArc.getAuthUser?.()?.uid || hydratedChatUid) !== uid) return;
+            const prevUpdated = chatThreads.find(c => c.id === activeChatId)?.updatedAt || 0;
+            const merged = mergeArcChats(chatThreads, remote);
+            chatThreads = saveLocalArcChats(uid, merged, getChatStorage());
+            updateHistoryUI();
+            if (JSON.stringify(sanitizeArcChatsForCloud(chatThreads)) !== JSON.stringify(remote)) {
+                scheduleCloudChatSave(uid);
+            }
+            if (activeChatId && !requestController && !questionInput?.value?.trim()) {
+                const updatedThread = getLiveArcChats(chatThreads).find(c => c.id === activeChatId);
+                if (updatedThread && updatedThread.updatedAt > prevUpdated) {
+                    openSavedChat(activeChatId, { closeDrawer: false, scroll: false });
+                }
+            }
+        } catch {
+            if (histSyncNote) histSyncNote.textContent = 'Saved on this device';
+        }
+        if (subscribedCloudUid !== uid && typeof cloud.subscribeArcChats === 'function') {
+            subscribedCloudUid = uid;
+            cloudChatUnsubscribe = cloud.subscribeArcChats((remote) => {
+                if ((HabitArc.getAuthUser?.()?.uid || hydratedChatUid) !== uid) return;
+                const prevUpdated = chatThreads.find(c => c.id === activeChatId)?.updatedAt || 0;
+                const merged = mergeArcChats(chatThreads, remote);
+                if (JSON.stringify(merged) === JSON.stringify(chatThreads)) return;
+                chatThreads = saveLocalArcChats(uid, merged, getChatStorage());
+                updateHistoryUI();
+                if (activeChatId && !requestController && !questionInput?.value?.trim()) {
+                    const updatedThread = getLiveArcChats(chatThreads).find(c => c.id === activeChatId);
+                    if (updatedThread && updatedThread.updatedAt > prevUpdated) {
+                        openSavedChat(activeChatId, { closeDrawer: false, scroll: false });
+                    }
+                }
+            }, () => {});
+        }
+    }
+
+    function resetConversation({ switchAccount = false } = {}) {
         requestController?.abort();
         requestController = null;
         conversation = [];
-        owner = null;
+        activeChatId = '';
+        if (switchAccount) {
+            owner = null;
+            hydratedChatUid = '';
+            subscribedCloudUid = '';
+            chatThreads = [];
+            if (cloudChatUnsubscribe) {
+                try { cloudChatUnsubscribe(); } catch {}
+                cloudChatUnsubscribe = null;
+            }
+        }
         lastEvidence = '';
         lastVerifiedSnapshot = null;
         lastCasualGreeting = false;
@@ -1482,9 +1687,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         activePrevHabitPatch = null;
         activeActionUndo = null;
         lvlUpBanner?.classList?.add?.('hidden');
-        if (clearStored && previousUid && typeof localStorage !== 'undefined') {
-            try { localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${previousUid}`); } catch {}
-        }
         if (historyEl) historyEl.innerHTML = '';
         if (answerEl) answerEl.innerHTML = '';
         if (askedEl) askedEl.textContent = '';
@@ -1498,6 +1700,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         resizeTextarea();
         setStatus('');
         setLoading(false);
+        updateHistoryUI();
     }
 
     async function cancellable(promise, signal) {
@@ -1554,9 +1757,10 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             }
 
             owner = user.uid;
+            ensureChatsLoaded(user.uid);
             // Place the member's new bubble in view immediately after auth
             // and clear/unlock the composer so they can draft while waiting.
-            renderHistoryList(conversation.slice(-4));
+            renderHistoryList(conversation.slice(-(MAX_LOCAL_TURNS - 1)));
             if (askedEl) askedEl.textContent = question;
             askedWrap?.classList?.remove('hidden');
             questionInput.value = '';
@@ -1597,7 +1801,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 },
                 body: JSON.stringify({
                     question,
-                    conversation: conversation.slice(-3),
+                    conversation: conversation.slice(-3).map(({ question: q, answer: a }) => ({ question: q, answer: a })),
                     ...(workspaceContext ? { workspaceContext } : {}),
                     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 }),
@@ -1654,7 +1858,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             if (form?.isConnected === false || controller !== requestController || HabitArc.getAuthUser()?.uid !== owner) return;
 
             const safeAnswer = String(payload.answer).slice(0, 12000);
-            conversation = [...conversation.slice(-5), { question, answer: safeAnswer.slice(0, 4000) }];
+            conversation = [...conversation.slice(-(MAX_LOCAL_TURNS - 1)), { question, answer: safeAnswer.slice(0, 4000), timestamp: Date.now() }];
             lastCasualGreeting = Boolean(payload.casualGreeting || payload.routineDataUsed === false);
             const source = lastCasualGreeting ? null : payload.snapshot;
             lastVerifiedSnapshot = source && [source.habitCount,source.totalScheduled,source.totalLogged]
@@ -1795,8 +1999,10 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     cardTrend?.addEventListener('click', () => launchStarterPrompt('trend'));
     cardMomentum?.addEventListener('click', () => launchStarterPrompt('momentum'));
     tryLvl1Button?.addEventListener('click', () => {
+        closeHubDialog();
         if (requestController) return;
-        questionInput.value = 'Create a 10-min stretching habit at 08:00';
+        const meta = getAiMeta();
+        questionInput.value = nodePrompts[meta.level] || nodePrompts[1];
         resizeTextarea();
         questionInput.focus();
     });
@@ -1888,32 +2094,58 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
     function openHubDialog() {
         renderArcConsole();
-        if (!hubDialog) return;
-        if (typeof hubDialog.showModal === 'function') {
-            if (!hubDialog.open) hubDialog.showModal();
-        } else {
-            hubDialog.setAttribute?.('open', '');
-        }
-        hubDialog.classList?.add?.('is-open');
+        toggleModalDialog(hubDialog, true);
     }
 
     function closeHubDialog() {
-        if (!hubDialog) return;
-        if (typeof hubDialog.close === 'function' && hubDialog.open) {
-            hubDialog.close();
-        } else {
-            hubDialog.removeAttribute?.('open');
-        }
-        hubDialog.classList?.remove?.('is-open');
+        toggleModalDialog(hubDialog, false);
+    }
+
+    function openHistoryDialog() {
+        const uid = hydratedChatUid || owner || getActiveThreadUid();
+        if (uid) ensureChatsLoaded(uid);
+        updateHistoryUI();
+        toggleModalDialog(histDialog, true);
+    }
+
+    function closeHistoryDialog() {
+        toggleModalDialog(histDialog, false);
     }
 
     openHubBtn?.addEventListener('click', openHubDialog);
-    tjOpenHubBtn?.addEventListener('click', openHubDialog);
     document.getElementById('arc-thread-lvl-badge')?.addEventListener('click', openHubDialog);
     hubCloseBtn?.addEventListener('click', closeHubDialog);
     hubDialog?.addEventListener?.('close', () => hubDialog.classList?.remove?.('is-open'));
     hubDialog?.addEventListener?.('click', (event) => {
         if (event?.target === hubDialog) closeHubDialog();
+    });
+
+    zenHistBtn?.addEventListener('click', openHistoryDialog);
+    threadHistBtn?.addEventListener('click', openHistoryDialog);
+    histCloseBtn?.addEventListener('click', closeHistoryDialog);
+    histDialog?.addEventListener?.('close', () => histDialog.classList?.remove?.('is-open'));
+    histDialog?.addEventListener?.('click', (event) => {
+        if (event?.target === histDialog) closeHistoryDialog();
+    });
+    histSearch?.addEventListener('input', updateHistoryUI);
+    histNewBtn?.addEventListener('click', () => {
+        startNewChat();
+        if (scrollArea) scrollArea.scrollTop = 0;
+        questionInput.focus();
+    });
+    histList?.addEventListener('click', (event) => {
+        const target = event?.target;
+        const delEl = target?.closest?.('[data-chat-del]');
+        if (delEl) {
+            const delId = delEl.getAttribute?.('data-chat-del') || delEl.dataset?.chatDel;
+            if (delId) deleteSavedChat(delId);
+            return;
+        }
+        const openEl = target?.closest?.('[data-chat-open]');
+        if (openEl) {
+            const openId = openEl.getAttribute?.('data-chat-open') || openEl.dataset?.chatOpen;
+            if (openId) openSavedChat(openId);
+        }
     });
 
     const nodePrompts = {
@@ -1923,21 +2155,18 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         4: 'Rebalance my daily habit schedule so mornings feel lighter',
     };
     [1, 2, 3, 4].forEach(lvl => {
-        const handleTierAction = (fromHub = false) => {
+        document.getElementById(`arc-hub-try-${lvl}`)?.addEventListener('click', () => {
             const meta = getAiMeta();
             if (lvl > meta.level) {
-                openHubDialog();
                 setStatus(`Finish quests to unlock LVL ${lvl} (${meta.aiName}).`, 'muted');
                 return;
             }
-            if (fromHub) closeHubDialog();
+            closeHubDialog();
             if (requestController) return;
             questionInput.value = nodePrompts[lvl] || '';
             resizeTextarea();
             questionInput.focus();
-        };
-        document.getElementById(`arc-tj-node-${lvl}`)?.addEventListener('click', () => handleTierAction(false));
-        document.getElementById(`arc-hub-try-${lvl}`)?.addEventListener('click', () => handleTierAction(true));
+        });
     });
 
     ['default', 'calm', 'drill', 'hinglish'].forEach(toneId => {
@@ -1960,18 +2189,25 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     });
 
     clearButton?.addEventListener('click', () => {
-        resetConversation({ clearStored: true });
+        startNewChat();
         if (scrollArea) scrollArea.scrollTop = 0;
         questionInput.focus();
     });
 
-    window.addEventListener('habitarc:data-changed', () => {
-        const currentUid = HabitArc.getAuthUser?.()?.uid || '';
-        if (owner && currentUid && currentUid !== owner) {
-            resetConversation();
+    function handleAccountRefresh() {
+        const authUser = HabitArc.getAuthUser?.();
+        const currentUid = authUser?.uid || '';
+        if (hydratedChatUid && currentUid && currentUid !== hydratedChatUid) {
+            resetConversation({ switchAccount: true });
+        }
+        if (authUser && !authUser.isAnonymous && currentUid !== hydratedChatUid) {
+            void syncCloudChatsForUser(authUser);
         }
         renderArcConsole();
-    });
+    }
+
+    window.addEventListener('habitarc:data-changed', handleAccountRefresh);
+    window.addEventListener('habitarc-auth-state-changed', handleAccountRefresh);
     window.addEventListener('habitarc:sync-status-changed', renderArcConsole);
     window.addEventListener('habitarc:cloud-sync-error', renderArcConsole);
     window.addEventListener('pageshow', renderArcConsole);
@@ -1979,6 +2215,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
     renderArcConsole();
     restoreSavedThread();
+    HabitArc.whenAuthReady?.()?.then((user) => {
+        if (user?.uid && !user.isAnonymous) {
+            void syncCloudChatsForUser(user);
+        }
+        renderArcConsole();
+    }).catch(() => {});
     const shouldOpenHub = typeof location !== 'undefined'
         && typeof URLSearchParams !== 'undefined'
         && new URLSearchParams(location.search).get('hub') === '1';

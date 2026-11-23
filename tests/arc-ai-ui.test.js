@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal } from '../habit-analytics.js';
+import * as chatStore from '../arc-chat-store.js';
 import { aiProgressionForClearDays } from '../runner-treasures.js';
 
 const html = readFileSync(new URL('../Arc_AI.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
-    .replace(/^import\s+\{[^}]+\}\s+from\s+['"].+?['"];?\s*/m, '');
+    .replace(/^import\s+(?:\{[\s\S]*?\}|\*\s+as\s+\w+|\w+)\s+from\s+['"].+?['"];?\s*/gm, '');
 const now = Date.parse('2026-11-15T12:00:00Z');
 
 class Clock extends Date {
@@ -16,7 +17,7 @@ class Clock extends Date {
 }
 const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false, holdStream = false, autoExecute = false, actionName = '10-Min Wind-Down', aiName = 'ARC', clearDays = 0, suggestedAction = null } = {}) {
+function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false, holdStream = false, autoExecute = false, actionName = '10-Min Wind-Down', aiName = 'ARC', clearDays = 0, suggestedAction = null, storage = null, cloudAuth = null } = {}) {
     const elements = new Map();
     const events = new Map();
     const requests = [];
@@ -101,7 +102,9 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
     };
     const body = element();
     vm.runInNewContext(source, {
-        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal, Date: Clock, Intl, AbortSignal, AbortController,
+        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal, ...chatStore,
+        Date: Clock, Intl, AbortSignal, AbortController,
+        localStorage: storage,
         setTimeout, clearTimeout,
         navigator: { onLine: true },
         console: { warn() {} },
@@ -109,6 +112,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
         window: {
             addEventListener: (name, handler) => events.set(name, handler),
             HabitArcUI: { announce: msg => announced.push(msg) },
+            HabitArcAuth: cloudAuth,
             HabitArcTaskStore: {
                 newTask: fields => ({ id: `task-${taskCreated.length}`, ...fields }),
                 taskStore: { start() {}, put: t => { taskCreated.push(t); return t; }, remove: id => { taskRemoved.push(id); } }
@@ -431,7 +435,10 @@ test('Level 1 autoExecute creates habit directly with 1-tap UNDO and skips dupli
     assert.equal(dup.elements.get('ai-coach-apply-btn').textContent, 'ADD HABIT');
 });
 
-test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2-4 powers & UNDO flows', async () => {
+test('Arc_AI removes top clutter cards and keeps Quest Hub modal, History drawer, Level 2-4 powers & UNDO flows', async () => {
+    assert.equal(html.includes('id="arc-level-card"'), false);
+    assert.equal(html.includes('id="arc-thread-journey"'), false);
+
     const l1 = arcAi();
     assert.equal(l1.elements.get('arc-ai-buddy-name').textContent, 'ARC');
     assert.equal(l1.elements.get('arc-ai-lvl-badge').textContent, 'LVL 1');
@@ -449,24 +456,18 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     assert.equal(l1.elements.get('arc-tone-hinglish').disabled, true);
     assert.equal(l1.elements.get('arc-thread-lvl-badge').textContent, 'LVL 1');
     assert.equal(l1.elements.get('ai-coach-resp-lvl').textContent, 'LVL 1');
-    assert.equal(l1.elements.get('arc-tj-title').textContent, 'STARTED: LVL 1 (0D)');
-    assert.equal(l1.elements.get('arc-tj-now').textContent, '0/3 QUESTS');
-    assert.equal(l1.elements.get('arc-tj-tag-1').textContent, 'NOW');
-    assert.equal(l1.elements.get('arc-tj-tag-2').textContent, '3Q');
-    assert.equal(l1.elements.get('arc-tj-conn-1').classList.contains('is-filled'), false);
     assert.match(l1.elements.get('arc-ai-power-copy').textContent, /Right now at Level 1 you can use ARC to create habits for you/);
 
     l1.elements.get('arc-open-hub-btn').handlers.click();
     assert.equal(l1.elements.get('arc-hub-dialog').classList.contains('is-open'), true);
-    l1.elements.get('arc-hub-close').handlers.click();
-    assert.equal(l1.elements.get('arc-hub-dialog').classList.contains('is-open'), false);
-
     l1.elements.get('arc-lvl1-try-btn').handlers.click();
     assert.equal(l1.elements.get('ai-coach-question').value, 'Create a 10-min stretching habit at 08:00');
-    l1.elements.get('arc-tj-node-4').handlers.click();
-    assert.equal(l1.elements.get('arc-hub-dialog').classList.contains('is-open'), true);
-    assert.match(l1.elements.get('ai-coach-status').textContent, /Finish quests to unlock LVL 4/);
-    l1.elements.get('arc-hub-close').handlers.click();
+    assert.equal(l1.elements.get('arc-hub-dialog').classList.contains('is-open'), false);
+
+    l1.elements.get('arc-zen-history-btn').handlers.click();
+    assert.equal(l1.elements.get('arc-history-dialog').classList.contains('is-open'), true);
+    l1.elements.get('arc-hist-close-btn').handlers.click();
+    assert.equal(l1.elements.get('arc-history-dialog').classList.contains('is-open'), false);
 
     // Auto-update at LVL 2 + 1-tap UNDO
     const l2 = arcAi({
@@ -489,12 +490,6 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     assert.equal(l2.elements.get('arc-thread-name').textContent, 'NOVA THREAD');
     assert.equal(l2.elements.get('arc-thread-lvl-badge').textContent, 'LVL 2');
     assert.equal(l2.elements.get('ai-coach-resp-lvl').textContent, 'LVL 2');
-    assert.equal(l2.elements.get('arc-tj-title').textContent, 'STARTED LVL 1 → REACHED LVL 2 (1D)');
-    assert.equal(l2.elements.get('arc-tj-now').textContent, '0/3 QUESTS');
-    assert.equal(l2.elements.get('arc-tj-tag-1').textContent, 'START ✓');
-    assert.equal(l2.elements.get('arc-tj-tag-2').textContent, 'NOW');
-    assert.equal(l2.elements.get('arc-tj-conn-1').classList.contains('is-filled'), true);
-    assert.equal(l2.elements.get('arc-tj-conn-2').classList.contains('is-filled'), false);
     assert.equal(l2.elements.get('arc-tier-2').classList.contains('is-unlocked'), true);
     assert.equal(l2.elements.get('arc-tier-state-1').textContent, 'ON ✓');
     assert.equal(l2.elements.get('arc-tier-state-2').textContent, 'ACTIVE');
@@ -585,4 +580,91 @@ test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2
     l4.events.get('habitarc:ai-level-up')({ detail: { fromLevel: 3, toLevel: 4, prog: { aiName: 'NOVA', shortPower: 'Batch Tune & Tones', rank: 'Routine Architect' } } });
     assert.equal(l4.elements.get('arc-lvlup-banner').classList.contains('hidden'), false);
     assert.match(l4.elements.get('arc-lvlup-text').textContent, /LEVEL UP! NOVA LVL 3 → LVL 4/);
+});
+
+function memoryStorage(initial = {}) {
+    const map = new Map(Object.entries(initial));
+    return {
+        getItem: key => (map.has(key) ? map.get(key) : null),
+        setItem: (key, val) => map.set(key, String(val)),
+        removeItem: key => map.delete(key),
+        dump: () => Object.fromEntries(map.entries())
+    };
+}
+
+test('arc-chat-store persists multi-chat history, migrates legacy thread & two-way merges cloud updates', () => {
+    const store = memoryStorage({
+        'habitarc_arc_thread:user-1': JSON.stringify({
+            turns: [{ question: 'Old single thread question', answer: 'Old answer' }],
+            updatedAt: now - 3 * 24 * 60 * 60 * 1000
+        })
+    });
+    const initial = chatStore.loadLocalArcChats('user-1', store);
+    assert.equal(initial.chats.length, 1);
+    assert.equal(initial.chats[0].title, 'Old single thread question');
+    assert.equal(store.getItem('habitarc_arc_thread:user-1'), null);
+
+    let list = chatStore.upsertArcChat(initial.chats, {
+        id: 'chat_today_1',
+        turns: [{ question: 'Design morning stretch routine', answer: 'Start with 5m neck rolls.' }],
+        updatedAt: now - 60000
+    }, now);
+    list = chatStore.deleteArcChat(list, initial.migratedLegacyId, now);
+    const merged = chatStore.mergeArcChats(list, [
+        { id: initial.migratedLegacyId, turns: [{ question: 'Old single thread question', answer: 'Old answer' }], updatedAt: now - 3 * 24 * 60 * 60 * 1000 },
+        { id: 'chat_yesterday_1', turns: [{ question: 'Fix evening consistency', answer: 'Set 21:00 cue.' }], updatedAt: now - 24 * 60 * 60 * 1000 - 1000 }
+    ], { nowMs: now });
+
+    const groups = chatStore.groupArcChatsByRecency(merged, now);
+    assert.deepEqual(groups.map(g => g.label), ['Today', 'Yesterday']);
+    assert.equal(groups[0].items[0].id, 'chat_today_1');
+    assert.equal(groups[1].items[0].id, 'chat_yesterday_1');
+});
+
+test('Arc_AI keeps ChatGPT-style history across +NEW, reloads & cloud sync without deleting saved threads', async () => {
+    const storage = memoryStorage({ 'habitarc_active_uid': 'qa-user' });
+    let cloudRemote = [];
+    const cloudAuth = {
+        loadArcChats: async () => cloudRemote,
+        saveArcChats: async (chats) => { cloudRemote = chats; return chats; }
+    };
+
+    const s1 = arcAi({ signedIn: true, storage, cloudAuth });
+    s1.elements.get('ai-coach-question').value = 'First saved chat about sleep';
+    s1.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => s1.requests.length === 1 && !s1.elements.get('arc-thread-view').classList.contains('hidden'));
+    assert.equal(s1.elements.get('arc-zen-hist-count').textContent, '1');
+
+    // Pressing + NEW starts a fresh chat while preserving Chat 1 in history!
+    s1.elements.get('ai-coach-clear').handlers.click();
+    assert.equal(s1.elements.get('arc-zen-home').classList.contains('hidden'), false);
+    assert.equal(s1.elements.get('arc-zen-hist-count').textContent, '1');
+
+    s1.elements.get('ai-coach-question').value = 'Second active chat about hydration';
+    s1.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => s1.requests.length === 2 && s1.elements.get('ai-coach-asked').textContent === 'Second active chat about hydration');
+    assert.equal(s1.elements.get('arc-zen-hist-count').textContent, '2');
+
+    // Simulate another device adding a remote chat in Firestore before reloading.
+    cloudRemote = [
+        ...cloudRemote,
+        {
+            id: 'chat_cloud_1',
+            title: 'Synced tablet streak plan',
+            createdAt: now - 86400000 - 5000,
+            updatedAt: now - 86400000 - 5000,
+            deleted: false,
+            turns: [{ question: 'Synced tablet streak plan', answer: 'Focus on 1 daily anchor.', timestamp: now - 86400000 - 5000 }]
+        }
+    ];
+
+    // Simulate full page reload with the same browser storage + cloud account.
+    const s2 = arcAi({ signedIn: true, storage, cloudAuth });
+    await waitFor(() => s2.elements.get('arc-zen-hist-count').textContent === '3');
+    assert.equal(s2.elements.get('arc-thread-view').classList.contains('hidden'), false);
+    assert.equal(s2.elements.get('ai-coach-asked').textContent, 'Second active chat about hydration');
+    const histMarkup = s2.elements.get('arc-hist-list').innerHTML;
+    assert.match(histMarkup, /First saved chat about sleep/);
+    assert.match(histMarkup, /Second active chat about hydration/);
+    assert.match(histMarkup, /Synced tablet streak plan/);
 });

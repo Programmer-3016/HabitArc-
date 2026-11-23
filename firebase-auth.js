@@ -411,6 +411,82 @@ window.HabitArcAuthReady = (async () => {
             await batch.commit();
         }
 
+        function sanitizeCloudArcChats(rawChats) {
+            if (!Array.isArray(rawChats)) return [];
+            const live = [];
+            const tombstones = [];
+            const seen = new Set();
+            for (const raw of rawChats) {
+                if (!raw || typeof raw !== 'object') continue;
+                const id = typeof raw.id === 'string' && /^[a-zA-Z0-9_-]{3,48}$/.test(raw.id) ? raw.id : '';
+                if (!id || seen.has(id)) continue;
+                seen.add(id);
+                const updatedAt = Number.isFinite(raw.updatedAt) && raw.updatedAt > 0 ? Math.trunc(raw.updatedAt) : Date.now();
+                const createdAt = Number.isFinite(raw.createdAt) && raw.createdAt > 0 ? Math.min(Math.trunc(raw.createdAt), updatedAt) : updatedAt;
+                if (raw.deleted === true) {
+                    tombstones.push({ id, deleted: true, createdAt, updatedAt, turns: [] });
+                    continue;
+                }
+                const turns = (Array.isArray(raw.turns) ? raw.turns : [])
+                    .map(t => (t && typeof t.question === 'string' && typeof t.answer === 'string'
+                        ? {
+                            question: t.question.trim().slice(0, 600),
+                            answer: t.answer.trim().slice(0, 3000),
+                            timestamp: Number.isFinite(t.timestamp) && t.timestamp > 0 ? Math.trunc(t.timestamp) : updatedAt,
+                        }
+                        : null))
+                    .filter(t => t && t.question && t.answer)
+                    .slice(-12);
+                if (!turns.length) continue;
+                live.push({
+                    id,
+                    title: typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim().slice(0, 60) : turns[0].question.slice(0, 58),
+                    createdAt,
+                    updatedAt,
+                    deleted: false,
+                    turns,
+                    lastEvidence: typeof raw.lastEvidence === 'string' ? raw.lastEvidence.slice(0, 300) : '',
+                    lastVerifiedSnapshot: raw.lastVerifiedSnapshot && typeof raw.lastVerifiedSnapshot === 'object' ? cloneData(raw.lastVerifiedSnapshot) : null,
+                    lastCasualGreeting: Boolean(raw.lastCasualGreeting),
+                    lastAction: raw.lastAction && typeof raw.lastAction === 'object' ? cloneData(raw.lastAction) : null,
+                    lastActionApplied: Boolean(raw.lastActionApplied),
+                    lastActionAutoCreated: Boolean(raw.lastActionAutoCreated),
+                });
+            }
+            live.sort((a, b) => b.updatedAt - a.updatedAt);
+            tombstones.sort((a, b) => b.updatedAt - a.updatedAt);
+            return [...live.slice(0, 15), ...tombstones.slice(0, 30)];
+        }
+
+        async function loadArcChats(user = currentUser) {
+            if (!user) throw new Error('Sign in to sync AI chats.');
+            const snap = await getDoc(userDocument(user));
+            const data = snap.exists() ? snap.data() : {};
+            return sanitizeCloudArcChats(data?.arcChats);
+        }
+
+        async function saveArcChats(chats, user = currentUser) {
+            if (!user) throw new Error('Sign in to sync AI chats.');
+            const safeChats = sanitizeCloudArcChats(chats);
+            const batch = writeBatch(firestore);
+            batch.set(userDocument(user), {
+                arcChats: safeChats,
+                arcChatsUpdatedAt: serverTimestamp()
+            }, { merge: true });
+            await batch.commit();
+            return safeChats;
+        }
+
+        function subscribeArcChats(onChange, onError, user = currentUser) {
+            if (!user) return () => {};
+            return onSnapshot(userDocument(user), (snapshot) => {
+                const data = snapshot.exists() ? snapshot.data() : {};
+                onChange(sanitizeCloudArcChats(data?.arcChats), {
+                    fromCache: snapshot.metadata.fromCache
+                });
+            }, onError);
+        }
+
         async function saveCompletionHistory({ upserts = [], deletions = [] } = {}, user = currentUser) {
             if (!user) {
                 throw Object.assign(new Error('No signed-in user.'), { code: 'auth/no-current-user' });
@@ -581,7 +657,10 @@ window.HabitArcAuthReady = (async () => {
             getNoteMedia,
             subscribeNotes,
             saveFocusSession,
-            subscribeFocusSessions
+            subscribeFocusSessions,
+            loadArcChats,
+            saveArcChats,
+            subscribeArcChats
         });
 
         window.HabitArcAuth = authClient;

@@ -519,13 +519,20 @@ try {
   const arcLvl1 = await ev(`(() => {
     const comp = document.getElementById('ai-coach-form')?.getBoundingClientRect();
     const dock = document.querySelector('nav.ha-bottom-nav')?.getBoundingClientRect();
-    const hud = document.getElementById('arc-level-card')?.getBoundingClientRect();
+    const hasTopLevelCard = Boolean(document.getElementById('arc-level-card'));
+    const hasChatJourney = Boolean(document.getElementById('arc-thread-journey'));
+    document.getElementById('arc-open-hub-btn')?.click();
+    const hubOpen = Boolean(document.getElementById('arc-hub-dialog')?.hasAttribute('open'));
     document.getElementById('arc-lvl1-try-btn')?.click();
+    const hubClosedAfterTry = !document.getElementById('arc-hub-dialog')?.hasAttribute('open');
     return {
+      hasTopLevelCard,
+      hasChatJourney,
+      hubOpen,
+      hubClosedAfterTry,
       buddy: document.getElementById('arc-ai-buddy-name')?.textContent.trim(),
       lvl: document.getElementById('arc-ai-lvl-badge')?.textContent.trim(),
       nextTxt: document.getElementById('arc-ai-next-txt')?.textContent.trim(),
-      hudHeight: hud ? Math.round(hud.height) : 0,
       t1: document.getElementById('arc-tier-state-1')?.textContent.trim(),
       t2: document.getElementById('arc-tier-state-2')?.textContent.trim(),
       t4: document.getElementById('arc-tier-state-4')?.textContent.trim(),
@@ -535,17 +542,20 @@ try {
       overflow: document.documentElement.scrollWidth > innerWidth
     };
   })()`);
+  assert.equal(arcLvl1.hasTopLevelCard, false, 'Top Zen level card must stay removed cleanly');
+  assert.equal(arcLvl1.hasChatJourney, false, 'Top chat journey card must stay removed cleanly');
+  assert.equal(arcLvl1.hubOpen, true, 'Compact pill opens #arc-hub-dialog');
+  assert.equal(arcLvl1.hubClosedAfterTry, true, 'Try button closes hub modal and prefills prompt');
   assert.equal(arcLvl1.buddy, 'NOVA');
   assert.equal(arcLvl1.lvl, 'LVL 1');
   assert.equal(arcLvl1.nextTxt, '0/3 QUESTS');
-  assert.ok(arcLvl1.hudHeight > 0 && arcLvl1.hudHeight <= 170, `Expected compact Zen HUD height <= 170px, got ${arcLvl1.hudHeight}px`);
   assert.equal(arcLvl1.t1, 'ACTIVE');
   assert.equal(arcLvl1.t2, 'LOCKED');
   assert.equal(arcLvl1.t4, 'LOCKED');
   assert.match(arcLvl1.powerCopy, /Right now at Level 1 you can use NOVA to create habits for you/);
   assert.equal(arcLvl1.prefill, 'Create a 10-min stretching habit at 08:00');
   assert.equal(arcLvl1.composerClear, true, 'ARC AI Zen composer sits cleanly above bottom dock with zero overlap');
-  assert.equal(arcLvl1.overflow, false, 'ARC AI Pixel Level HUD fits 390px without overflow');
+  assert.equal(arcLvl1.overflow, false, 'ARC AI Zen top pill bar fits 390px without overflow');
 
   await ev(`(() => {
     HabitArc.completeHabit('h1');
@@ -575,44 +585,92 @@ try {
   assert.equal(arcLvl2.theme, 'dark');
   assert.equal(arcLvl2.overflow, false, 'ARC AI dark theme LVL 2 fits 390px without overflow');
 
-  const threadJourney = await ev(`(() => {
+  await ev(`(() => {
+    const uid = localStorage.getItem('habitarc_active_uid') || 'local';
+    const now = Date.now();
+    const chats = [
+      {
+        id: 'chat_seed_1',
+        title: 'Delete Stretch habit and add review task',
+        createdAt: now - 120000,
+        updatedAt: now - 60000,
+        deleted: false,
+        turns: [{
+          question: 'Delete Stretch habit and add review task',
+          answer: 'With LVL 2 powers unlocked, I can now edit, delete, complete habits, or add tasks directly with 1-tap Undo.',
+          timestamp: now - 60000
+        }],
+        lastEvidence: 'Window: 28d · Guidance only.'
+      },
+      {
+        id: 'chat_seed_2',
+        title: 'Morning water habit check-in',
+        createdAt: now - 86400000 - 5000,
+        updatedAt: now - 86400000 - 5000,
+        deleted: false,
+        turns: [{ question: 'Morning water habit check-in', answer: 'Keep a glass right beside your alarm clock.', timestamp: now - 86400000 - 5000 }],
+        lastEvidence: ''
+      }
+    ];
+    localStorage.setItem('habitarc_arc_chats:' + uid, JSON.stringify(chats));
+    localStorage.setItem('habitarc_arc_active_chat:' + uid, 'chat_seed_1');
+  })()`);
+  await go(`${base}/Arc_AI.html`);
+  const reloadedChat = await ev(`(() => {
     window.dispatchEvent(new CustomEvent('habitarc:ai-level-up', { detail: { fromLevel: 1, toLevel: 2, prog: HabitArc.getAiProgression() } }));
-    document.body.classList.add('is-arc-thread-active');
-    document.getElementById('arc-zen-home').classList.add('hidden');
-    document.getElementById('arc-thread-view').classList.remove('hidden');
-    document.getElementById('ai-coach-asked-wrap').classList.remove('hidden');
-    document.getElementById('ai-coach-asked').textContent = 'Delete Stretch habit and add review task';
-    document.getElementById('ai-coach-answer-card').classList.remove('hidden');
-    document.getElementById('ai-coach-answer').innerHTML = '<p class="ha-md-p">With LVL 2 powers unlocked, I can now edit, delete, complete habits, or add tasks directly with 1-tap Undo.</p>';
     return {
+      inThread: !document.getElementById('arc-thread-view')?.classList.contains('hidden'),
+      asked: document.getElementById('ai-coach-asked')?.textContent.trim(),
       threadLvl: document.getElementById('arc-thread-lvl-badge')?.textContent.trim(),
       respLvl: document.getElementById('ai-coach-resp-lvl')?.textContent.trim(),
       lvlUpShown: !document.getElementById('arc-lvlup-banner')?.classList.contains('hidden'),
       lvlUpText: document.getElementById('arc-lvlup-text')?.textContent.trim(),
-      tjTitle: document.getElementById('arc-tj-title')?.textContent.trim(),
-      tjNow: document.getElementById('arc-tj-now')?.textContent.trim(),
-      tag1: document.getElementById('arc-tj-tag-1')?.textContent.trim(),
-      tag2: document.getElementById('arc-tj-tag-2')?.textContent.trim(),
-      conn1Filled: document.getElementById('arc-tj-conn-1')?.classList.contains('is-filled'),
-      oldChipsCount: document.querySelectorAll('#arc-tj-quests .ha-arc-tj-qchip').length,
+      histCount: document.getElementById('arc-zen-hist-count')?.textContent.trim(),
       overflow: document.documentElement.scrollWidth > innerWidth
     };
   })()`);
-  await saveShot('arc-ai-thread-journey-390.png');
-  assert.equal(threadJourney.threadLvl, 'LVL 2');
-  assert.equal(threadJourney.respLvl, 'LVL 2');
-  assert.equal(threadJourney.lvlUpShown, true);
-  assert.match(threadJourney.lvlUpText, /LEVEL UP! NOVA LVL 1 → LVL 2/);
-  assert.equal(threadJourney.tjTitle, 'STARTED LVL 1 → REACHED LVL 2 (1D)');
-  assert.match(threadJourney.tjNow, /^[0-3]\/3 QUESTS$/);
-  assert.equal(threadJourney.tag1, 'START ✓');
-  assert.equal(threadJourney.tag2, 'NOW');
-  assert.equal(threadJourney.conn1Filled, true);
-  assert.equal(threadJourney.oldChipsCount, 0);
-  assert.equal(threadJourney.overflow, false, 'In-chat Pixel Level Journey fits 390px without overflow');
+  await saveShot('arc-ai-thread-clean-390.png');
+  assert.equal(reloadedChat.inThread, true, 'Active conversation restores automatically on page reload');
+  assert.equal(reloadedChat.asked, 'Delete Stretch habit and add review task');
+  assert.equal(reloadedChat.threadLvl, 'LVL 2');
+  assert.equal(reloadedChat.respLvl, 'LVL 2');
+  assert.equal(reloadedChat.lvlUpShown, true);
+  assert.match(reloadedChat.lvlUpText, /LEVEL UP! NOVA LVL 1 → LVL 2/);
+  assert.equal(reloadedChat.histCount, '2');
+  assert.equal(reloadedChat.overflow, false, 'Clean active thread fits 390px without overflow');
+
+  const histDrawer = await ev(`(() => {
+    document.getElementById('arc-thread-history-btn')?.click();
+    const dlg = document.getElementById('arc-history-dialog');
+    return {
+      isOpen: Boolean(dlg?.hasAttribute('open')),
+      groups: [...document.querySelectorAll('#arc-hist-list .ha-ai-hist-group-lbl')].map(el => el.textContent.trim()),
+      items: document.querySelectorAll('#arc-hist-list .ha-ai-hist-item').length,
+      overflow: document.documentElement.scrollWidth > innerWidth
+    };
+  })()`);
+  await saveShot('arc-ai-history-drawer-390.png');
+  assert.equal(histDrawer.isOpen, true, 'History button opens ChatGPT-style drawer');
+  assert.deepEqual(histDrawer.groups, ['Today', 'Yesterday']);
+  assert.equal(histDrawer.items, 2);
+  assert.equal(histDrawer.overflow, false, 'Chat history drawer fits 390px without overflow');
+
+  const afterSwitchAndNew = await ev(`(() => {
+    document.querySelector('#arc-hist-list [data-chat-open="chat_seed_2"]')?.click();
+    const switchedAsked = document.getElementById('ai-coach-asked')?.textContent.trim();
+    document.getElementById('ai-coach-clear')?.click();
+    return {
+      switchedAsked,
+      backOnZen: !document.getElementById('arc-zen-home')?.classList.contains('hidden'),
+      histCountAfterNew: document.getElementById('arc-zen-hist-count')?.textContent.trim()
+    };
+  })()`);
+  assert.equal(afterSwitchAndNew.switchedAsked, 'Morning water habit check-in');
+  assert.equal(afterSwitchAndNew.backOnZen, true, '+ NEW returns cleanly to Zen Home');
+  assert.equal(afterSwitchAndNew.histCountAfterNew, '2', '+ NEW keeps all archived chats in History');
 
   const hubDrawer = await ev(`(() => {
-    document.getElementById('arc-tj-open-hub-btn')?.click();
+    document.getElementById('arc-open-hub-btn')?.click();
     const dlg = document.getElementById('arc-hub-dialog');
     const visibleQuests = [...document.querySelectorAll('#arc-hub-dialog .ha-arc-quest-row:not(.hidden) .ha-arc-q-lbl')];
     const anyEllipsis = visibleQuests.some(el => el.textContent.includes('...') || el.scrollWidth > el.clientWidth + 2);
@@ -625,7 +683,7 @@ try {
     };
   })()`);
   await saveShot('arc-ai-hub-drawer-390.png');
-  assert.equal(hubDrawer.isOpen, true, 'Clicking thread quest pill opens #arc-hub-dialog');
+  assert.equal(hubDrawer.isOpen, true, 'Clicking Zen pill opens #arc-hub-dialog');
   assert.equal(hubDrawer.questCount, 3, 'Quest hub dialog shows all 3 quests');
   assert.equal(hubDrawer.anyEllipsis, false, 'Quest labels inside hub drawer render untruncated');
   assert.equal(hubDrawer.toneLock, 'LOCKED · LVL 4');
