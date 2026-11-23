@@ -126,23 +126,27 @@ test('focused dashboard renders custom AI name pill, level badge, and pixel bann
     assert.equal(minimal.elements.get('dash-ai-name').textContent, 'ARC');
     assert.equal(minimal.elements.get('dash-ai-level-badge').textContent, 'LVL 1');
     assert.match(minimal.elements.get('dash-ai-power-copy').textContent, /Right now ARC can make habits for you/);
+    assert.match(minimal.elements.get('dash-ai-quest-line').textContent, /Quests to LVL 2: 0\/3 done/);
 
     const custom = dashboard({
         aiName: 'NOVA',
         progression: {
             aiName: 'NOVA',
             level: 2,
-            rank: 'Routine Tuner',
+            rank: 'Routine Manager',
             remainingDays: 6,
             nextLevel: 3,
-            nextPower: 'Streak Shield',
-            summary: 'Update reminders, schedules, and notes directly.'
+            nextPower: 'Streak Shield & Plan-B',
+            questsDoneCount: 1,
+            questsTotalCount: 3,
+            summary: 'Delete or edit habits, mark completions, and add tasks in chat.'
         }
     });
     assert.equal(custom.elements.get('dash-ai-pill-label').textContent, 'NOVA · LVL 2');
     assert.equal(custom.elements.get('dash-ai-pill').attrs['aria-label'], 'NOVA Level 2 · Open AI');
     assert.equal(custom.elements.get('dash-ai-name').textContent, 'NOVA');
-    assert.equal(custom.elements.get('dash-ai-rank').textContent, 'ROUTINE TUNER');
+    assert.equal(custom.elements.get('dash-ai-rank').textContent, 'ROUTINE MANAGER');
     assert.equal(custom.elements.get('dash-ai-level-badge').textContent, 'LVL 2');
-    assert.match(custom.elements.get('dash-ai-power-copy').textContent, /Update reminders, schedules, and notes directly.*6d to LVL 3/);
+    assert.match(custom.elements.get('dash-ai-power-copy').textContent, /Delete or edit habits.*6d to LVL 3/);
+    assert.match(custom.elements.get('dash-ai-quest-line').textContent, /Quests to LVL 3: 1\/3 done/);
 });

@@ -63,10 +63,18 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
     const addedHabits = [];
     const updatedHabits = [];
     const deletedHabits = [];
-    const progression = { aiName, ...aiProgressionForClearDays(clearDays) };
+    const restoredHabits = [];
+    const completedHabits = [];
+    const uncompletedHabits = [];
+    const aiActions = [];
+    const taskCreated = [];
+    const taskRemoved = [];
+    const progression = { ...aiProgressionForClearDays(clearDays), aiName };
     const app = {
-        getSettings: () => ({ userName: 'Alex', aiName }),
+        getSettings: () => ({ userName: 'Alex', aiName, aiTone: progression.aiTone || 'default' }),
+        updateSettings: patch => { if (patch?.aiTone) progression.aiTone = patch.aiTone; progression.activeTone = progression.level >= 4 ? (patch?.aiTone || 'default') : 'default'; },
         getAiProgression: () => progression,
+        recordAiAction: kind => { aiActions.push(kind); return progression; },
         getHabits: () => habits,
         getHabitById: id => habits.find(h => h.id === id) || null,
         getCompletionHistory: () => [],
@@ -81,6 +89,10 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             return true;
         },
         deleteHabit: id => { deletedHabits.push(id); const idx = habits.findIndex(h => h.id === id); if (idx !== -1) habits.splice(idx, 1); },
+        restoreHabit: backup => { restoredHabits.push(backup); if (!habits.some(h => h.id === backup.id)) habits.push(backup); return true; },
+        completeHabit: id => { completedHabits.push(id); const h = habits.find(h => h.id === id); if (h) { h.completions = h.completions || {}; h.completions['2026-11-15'] = true; } return true; },
+        uncompleteHabit: id => { uncompletedHabits.push(id); const h = habits.find(h => h.id === id); if (h?.completions) delete h.completions['2026-11-15']; return true; },
+        isCompletedToday: id => Boolean(habits.find(h => h.id === id)?.completions?.['2026-11-15']),
         escapeHTML,
         whenAuthReady: async () => signedIn ? { uid: 'qa-user' } : null,
         getAuthUser: () => signedIn ? { uid: 'qa-user' } : null,
@@ -94,7 +106,14 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
         navigator: { onLine: true },
         console: { warn() {} },
         document: { getElementById: id => elements.get(id) || null, addEventListener: () => {}, hidden: false, body, activeElement: null },
-        window: { addEventListener: (name, handler) => events.set(name, handler), HabitArcUI: { announce: msg => announced.push(msg) } },
+        window: {
+            addEventListener: (name, handler) => events.set(name, handler),
+            HabitArcUI: { announce: msg => announced.push(msg) },
+            HabitArcTaskStore: {
+                newTask: fields => ({ id: `task-${taskCreated.length}`, ...fields }),
+                taskStore: { start() {}, put: t => { taskCreated.push(t); return t; }, remove: id => { taskRemoved.push(id); } }
+            }
+        },
         fetch: async (url, options) => {
             requests.push({ url, options });
             if (streamGate) {
@@ -144,7 +163,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             return { ok: true, json: async () => payload };
         },
     });
-    return { elements, events, requests, announced, addedHabits, updatedHabits, deletedHabits, habits, body, releaseStream };
+    return { elements, events, requests, announced, addedHabits, updatedHabits, deletedHabits, restoredHabits, completedHabits, uncompletedHabits, aiActions, taskCreated, taskRemoved, habits, body, releaseStream };
 }
 
 test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and locked 100dvh shell', () => {
@@ -412,26 +431,34 @@ test('Level 1 autoExecute creates habit directly with 1-tap UNDO and skips dupli
     assert.equal(dup.elements.get('ai-coach-apply-btn').textContent, 'ADD HABIT');
 });
 
-test('Arc_AI displays pixel Level roadmap, custom AI name, try-chip prefill, and Level 2 auto-update with UNDO', async () => {
+test('Arc_AI displays quest checklist, pixel Level journey, custom name, Level 2-4 powers & UNDO flows', async () => {
     const l1 = arcAi();
     assert.equal(l1.elements.get('arc-ai-buddy-name').textContent, 'ARC');
     assert.equal(l1.elements.get('arc-ai-lvl-badge').textContent, 'LVL 1');
     assert.equal(l1.elements.get('arc-ai-rank').textContent, 'HABIT BUILDER');
+    assert.equal(l1.elements.get('arc-quest-hdr-title').textContent, 'QUESTS TO LVL 2');
+    assert.equal(l1.elements.get('arc-quest-cnt').textContent, '0/3');
+    assert.equal(l1.elements.get('arc-q-prog-0').textContent, '0/1');
+    assert.equal(l1.elements.get('arc-q-prog-1').textContent, '0/3');
     assert.equal(l1.elements.get('arc-tier-1').classList.contains('is-unlocked'), true);
     assert.equal(l1.elements.get('arc-tier-state-1').textContent, 'ACTIVE');
     assert.equal(l1.elements.get('arc-tier-state-2').textContent, 'LOCKED');
+    assert.equal(l1.elements.get('arc-tone-row').classList.contains('hidden'), true);
     assert.equal(l1.elements.get('arc-thread-lvl-badge').textContent, 'LVL 1');
     assert.equal(l1.elements.get('ai-coach-resp-lvl').textContent, 'LVL 1');
     assert.equal(l1.elements.get('arc-tj-title').textContent, 'STARTED: LVL 1 (0D)');
     assert.equal(l1.elements.get('arc-tj-now').textContent, 'NOW LVL 1');
     assert.equal(l1.elements.get('arc-tj-tag-1').textContent, 'NOW');
-    assert.equal(l1.elements.get('arc-tj-tag-2').textContent, '1D');
+    assert.equal(l1.elements.get('arc-tj-tag-2').textContent, '3Q');
     assert.equal(l1.elements.get('arc-tj-conn-1').classList.contains('is-filled'), false);
     assert.match(l1.elements.get('arc-ai-power-copy').textContent, /Right now at Level 1 you can use ARC to create habits for you/);
 
     l1.elements.get('arc-lvl1-try-btn').handlers.click();
     assert.equal(l1.elements.get('ai-coach-question').value, 'Create a 10-min stretching habit at 08:00');
+    l1.elements.get('arc-tj-node-4').handlers.click();
+    assert.match(l1.elements.get('ai-coach-status').textContent, /Unlock LVL 4 first/);
 
+    // Auto-update at LVL 2 + 1-tap UNDO
     const l2 = arcAi({
         signedIn: true,
         aiName: 'NOVA',
@@ -447,7 +474,8 @@ test('Arc_AI displays pixel Level roadmap, custom AI name, try-chip prefill, and
     });
     assert.equal(l2.elements.get('arc-ai-buddy-name').textContent, 'NOVA');
     assert.equal(l2.elements.get('arc-ai-lvl-badge').textContent, 'LVL 2');
-    assert.equal(l2.elements.get('arc-ai-rank').textContent, 'ROUTINE TUNER');
+    assert.equal(l2.elements.get('arc-ai-rank').textContent, 'ROUTINE MANAGER');
+    assert.equal(l2.elements.get('arc-quest-hdr-title').textContent, 'QUESTS TO LVL 3');
     assert.equal(l2.elements.get('arc-thread-name').textContent, 'NOVA THREAD');
     assert.equal(l2.elements.get('arc-thread-lvl-badge').textContent, 'LVL 2');
     assert.equal(l2.elements.get('ai-coach-resp-lvl').textContent, 'LVL 2');
@@ -479,4 +507,64 @@ test('Arc_AI displays pixel Level roadmap, custom AI name, try-chip prefill, and
     assert.equal(l2.habits[1].why, 'Daily anchor');
     assert.equal(l2.elements.get('ai-coach-action-kicker').textContent, 'PROPOSED HABIT UPDATE');
     assert.equal(actionBtn.textContent, 'APPLY UPDATE');
+
+    // LVL 2 auto-delete + 1-tap UNDO restores deleted habit
+    const delView = arcAi({
+        signedIn: true,
+        aiName: 'NOVA',
+        clearDays: 1,
+        autoExecute: true,
+        suggestedAction: { type: 'delete_habit', habitId: 'habit-1', habitName: 'Walk' }
+    });
+    delView.elements.get('ai-coach-question').value = 'Delete Walk habit';
+    delView.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => delView.deletedHabits.length === 1);
+    assert.deepEqual(delView.deletedHabits, ['habit-1']);
+    assert.equal(delView.elements.get('ai-coach-action-kicker').textContent, 'DELETED BY NOVA');
+    assert.equal(delView.elements.get('ai-coach-apply-btn').textContent, 'UNDO');
+    delView.elements.get('ai-coach-apply-btn').handlers.click();
+    assert.equal(delView.restoredHabits.length, 1);
+    assert.equal(delView.restoredHabits[0].name, 'Walk');
+    assert.equal(delView.elements.get('ai-coach-apply-btn').textContent, 'DELETE HABIT');
+
+    // LVL 2 auto-complete + UNDO uncompletes
+    const compView = arcAi({
+        signedIn: true,
+        aiName: 'NOVA',
+        clearDays: 1,
+        autoExecute: true,
+        suggestedAction: { type: 'complete_habit', habitId: 'habit-1', habitName: 'Walk' }
+    });
+    compView.elements.get('ai-coach-question').value = 'Mark Walk done';
+    compView.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => compView.completedHabits.length === 1);
+    assert.equal(compView.elements.get('ai-coach-apply-btn').textContent, 'UNDO');
+    compView.elements.get('ai-coach-apply-btn').handlers.click();
+    assert.deepEqual(compView.uncompletedHabits, ['habit-1']);
+
+    // LVL 2 auto-create task + UNDO removes task
+    const taskView = arcAi({
+        signedIn: true,
+        aiName: 'NOVA',
+        clearDays: 1,
+        autoExecute: true,
+        suggestedAction: { type: 'create_task', title: 'Buy running shoes', priority: 'high' }
+    });
+    taskView.elements.get('ai-coach-question').value = 'Add a task to buy running shoes';
+    taskView.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => taskView.taskCreated.length === 1);
+    assert.equal(taskView.taskCreated[0].title, 'Buy running shoes');
+    assert.equal(taskView.elements.get('ai-coach-apply-btn').textContent, 'UNDO');
+    taskView.elements.get('ai-coach-apply-btn').handlers.click();
+    await waitFor(() => taskView.taskRemoved.length === 1);
+
+    // LVL 4 exposes AI Tone chips and displays celebration banner on level-up event
+    const l4 = arcAi({ aiName: 'NOVA', clearDays: 14 });
+    assert.equal(l4.elements.get('arc-ai-lvl-badge').textContent, 'LVL 4');
+    assert.equal(l4.elements.get('arc-tone-row').classList.contains('hidden'), false);
+    l4.elements.get('arc-tone-drill').handlers.click();
+    assert.equal(l4.elements.get('arc-tone-drill').classList.contains('is-active'), true);
+    l4.events.get('habitarc:ai-level-up')({ detail: { fromLevel: 3, toLevel: 4, prog: { aiName: 'NOVA', shortPower: 'Batch Tune & Tones', rank: 'Routine Architect' } } });
+    assert.equal(l4.elements.get('arc-lvlup-banner').classList.contains('hidden'), false);
+    assert.match(l4.elements.get('arc-lvlup-text').textContent, /LEVEL UP! NOVA LVL 3 → LVL 4/);
 });

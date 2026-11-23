@@ -296,7 +296,10 @@
                 <span id="dash-ai-level-badge" class="ha-dash-ai-lvl">LVL 1</span>
             </div>
             <div class="ha-dash-ai-body">
-                <p id="dash-ai-power-copy" class="ha-dash-ai-copy">Right now ARC can build habits for you in chat. Clear 1 day for LVL 2.</p>
+                <div class="min-w-0 flex-1">
+                    <p id="dash-ai-power-copy" class="ha-dash-ai-copy">Right now ARC can make habits for you in chat.</p>
+                    <p id="dash-ai-quest-line" class="ha-dash-ai-quest">Quests to LVL 2: 0/3 done · Open to view tasks</p>
+                </div>
                 <span id="dash-ai-cta" class="ha-dash-ai-cta">OPEN →</span>
             </div>
         </a>
@@ -385,10 +388,11 @@
             aiName: HabitArc.normaliseAiName?.(HabitArc.getSettings?.()?.aiName) || HabitArc.getSettings?.()?.aiName || 'ARC',
             level: 1,
             rank: 'Habit Builder',
-            remainingDays: 1,
             nextLevel: 2,
-            nextPower: 'Edit Reminders',
-            summary: 'Create and add habits directly in chat.'
+            nextPower: 'Delete, Edit & Tasks',
+            questsDoneCount: 0,
+            questsTotalCount: 3,
+            summary: 'Create and add habits directly in chat with 1-tap Undo.'
         };
         const pillLabel = document.getElementById('dash-ai-pill-label');
         if (pillLabel) pillLabel.textContent = `${prog.aiName} · LVL ${prog.level}`;
@@ -403,8 +407,14 @@
         const dashAiCopy = document.getElementById('dash-ai-power-copy');
         if (dashAiCopy) {
             dashAiCopy.textContent = prog.level === 1
-                ? `Right now ${prog.aiName} can make habits for you. Clear 1 day to unlock LVL 2.`
-                : `${prog.summary}${prog.nextLevel ? ` · ${prog.remainingDays}d to LVL ${prog.nextLevel}` : ' · Max rank active!'}`;
+                ? `Right now ${prog.aiName} can make habits for you.`
+                : `${prog.summary}${prog.nextLevel && Number.isInteger(prog.remainingDays) ? ` · ${prog.remainingDays}d to LVL ${prog.nextLevel}` : (!prog.nextLevel ? ' · Max rank active!' : '')}`;
+        }
+        const dashAiQuest = document.getElementById('dash-ai-quest-line');
+        if (dashAiQuest) {
+            dashAiQuest.textContent = prog.nextLevel
+                ? `Quests to LVL ${prog.nextLevel}: ${prog.questsDoneCount ?? 0}/${prog.questsTotalCount ?? 3} done · Unlocks ${prog.nextPower || 'next power'}`
+                : 'All 4 AI Levels unlocked · Batch Tune & Tones active!';
         }
     }
 

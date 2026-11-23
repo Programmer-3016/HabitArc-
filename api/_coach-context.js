@@ -12,6 +12,8 @@ const ALLOWED_ACTION_CATEGORIES = new Map([
     ['general', 'General']
 ]);
 const ALLOWED_ACTION_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+const ALLOWED_TASK_PRIORITIES = new Set(['high', 'medium', 'low', 'none']);
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_24H_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const ACTION_BLOCK_RE = /<habitarc_action>([\s\S]*?)<\/habitarc_action>/i;
 const ACTION_STRIP_RE = /<habitarc_action>[\s\S]*?(?:<\/habitarc_action>|$)/gi;
@@ -107,6 +109,72 @@ export function extractAndValidateCoachAction(rawText, habits = []) {
                 ...(repeat ? { repeat } : {}),
                 ...(why ? { why } : {})
             }
+        };
+    }
+
+    if (parsed.type === 'delete_habit' || parsed.type === 'complete_habit') {
+        const habitId = typeof parsed.habitId === 'string' ? parsed.habitId.trim() : '';
+        if (!habitId || habitId.length > 128) return { answer, suggestedAction: null };
+        const target = (Array.isArray(habits) ? habits : []).find(item => item && item.id === habitId);
+        if (!target) return { answer, suggestedAction: null };
+        return {
+            answer,
+            suggestedAction: {
+                type: parsed.type,
+                habitId: target.id,
+                habitName: normaliseActionText(target.name, 60) || 'Habit'
+            }
+        };
+    }
+
+    if (parsed.type === 'create_task') {
+        const title = normaliseActionText(parsed.title, 100);
+        if (title.length < 2) return { answer, suggestedAction: null };
+        const dueDate = typeof parsed.dueDate === 'string' && DATE_KEY_RE.test(parsed.dueDate.trim())
+            ? parsed.dueDate.trim()
+            : '';
+        const priorityRaw = typeof parsed.priority === 'string' ? parsed.priority.trim().toLowerCase() : '';
+        const priority = ALLOWED_TASK_PRIORITIES.has(priorityRaw) ? priorityRaw : 'medium';
+        const description = normaliseActionText(parsed.description, 240);
+        return {
+            answer,
+            suggestedAction: {
+                type: 'create_task',
+                title,
+                ...(dueDate ? { dueDate } : {}),
+                priority,
+                ...(description ? { description } : {})
+            }
+        };
+    }
+
+    if (parsed.type === 'batch_update_habits' && Array.isArray(parsed.updates)) {
+        const valid = [];
+        const seenIds = new Set();
+        for (const item of parsed.updates.slice(0, 5)) {
+            if (!item || typeof item !== 'object') continue;
+            const habitId = typeof item.habitId === 'string' ? item.habitId.trim() : '';
+            if (!habitId || habitId.length > 128 || seenIds.has(habitId)) continue;
+            const target = (Array.isArray(habits) ? habits : []).find(h => h && h.id === habitId);
+            if (!target) continue;
+            const reminder = typeof item.reminder === 'string' && TIME_24H_RE.test(item.reminder.trim())
+                ? item.reminder.trim() : undefined;
+            const repeat = normaliseActionRepeat(item.repeat) || undefined;
+            const why = normaliseActionText(item.why, 140) || undefined;
+            if (!reminder && !repeat && !why) continue;
+            seenIds.add(habitId);
+            valid.push({
+                habitId: target.id,
+                habitName: normaliseActionText(target.name, 60) || 'Habit',
+                ...(reminder ? { reminder } : {}),
+                ...(repeat ? { repeat } : {}),
+                ...(why ? { why } : {})
+            });
+        }
+        if (!valid.length) return { answer, suggestedAction: null };
+        return {
+            answer,
+            suggestedAction: { type: 'batch_update_habits', updates: valid }
         };
     }
 

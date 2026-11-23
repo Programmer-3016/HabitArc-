@@ -544,6 +544,11 @@ try {
 
   await ev(`(() => {
     HabitArc.completeHabit('h1');
+    const h2 = HabitArc.addHabit({ name: 'Read 10m' }).habit;
+    const h3 = HabitArc.addHabit({ name: 'Walk 15m' }).habit;
+    HabitArc.completeHabit(h2.id);
+    HabitArc.completeHabit(h3.id);
+    HabitArc.recordAiAction('create');
     HabitArc.setTheme('dark');
   })()`);
   await go(`${base}/Arc_AI.html`);
@@ -552,44 +557,53 @@ try {
     rank: document.getElementById('arc-ai-rank')?.textContent.trim(),
     t1: document.getElementById('arc-tier-state-1')?.textContent.trim(),
     t2: document.getElementById('arc-tier-state-2')?.textContent.trim(),
+    questTitle: document.getElementById('arc-quest-hdr-title')?.textContent.trim(),
     theme: document.documentElement.dataset.theme,
     overflow: document.documentElement.scrollWidth > innerWidth
   })`);
   await saveShot('arc-ai-lvl2-dark-390.png');
   assert.equal(arcLvl2.lvl, 'LVL 2');
-  assert.equal(arcLvl2.rank, 'ROUTINE TUNER');
+  assert.equal(arcLvl2.rank, 'ROUTINE MANAGER');
   assert.equal(arcLvl2.t1, 'ON ✓');
   assert.equal(arcLvl2.t2, 'ACTIVE');
+  assert.equal(arcLvl2.questTitle, 'QUESTS TO LVL 3');
   assert.equal(arcLvl2.theme, 'dark');
   assert.equal(arcLvl2.overflow, false, 'ARC AI dark theme LVL 2 fits 390px without overflow');
 
   const threadJourney = await ev(`(() => {
+    window.dispatchEvent(new CustomEvent('habitarc:ai-level-up', { detail: { fromLevel: 1, toLevel: 2, prog: HabitArc.getAiProgression() } }));
     document.body.classList.add('is-arc-thread-active');
     document.getElementById('arc-zen-home').classList.add('hidden');
     document.getElementById('arc-thread-view').classList.remove('hidden');
     document.getElementById('ai-coach-asked-wrap').classList.remove('hidden');
-    document.getElementById('ai-coach-asked').textContent = 'Change my Stretch reminder to 07:30';
+    document.getElementById('ai-coach-asked').textContent = 'Delete Stretch habit and add review task';
     document.getElementById('ai-coach-answer-card').classList.remove('hidden');
-    document.getElementById('ai-coach-answer').innerHTML = '<p class="ha-md-p">Updated <strong>Stretch</strong> reminder to 07:30 with LVL 2 powers.</p>';
+    document.getElementById('ai-coach-answer').innerHTML = '<p class="ha-md-p">With LVL 2 powers unlocked, I can now edit, delete, complete habits, or add tasks directly with 1-tap Undo.</p>';
     return {
       threadLvl: document.getElementById('arc-thread-lvl-badge')?.textContent.trim(),
       respLvl: document.getElementById('ai-coach-resp-lvl')?.textContent.trim(),
+      lvlUpShown: !document.getElementById('arc-lvlup-banner')?.classList.contains('hidden'),
+      lvlUpText: document.getElementById('arc-lvlup-text')?.textContent.trim(),
       tjTitle: document.getElementById('arc-tj-title')?.textContent.trim(),
       tjNow: document.getElementById('arc-tj-now')?.textContent.trim(),
       tag1: document.getElementById('arc-tj-tag-1')?.textContent.trim(),
       tag2: document.getElementById('arc-tj-tag-2')?.textContent.trim(),
       conn1Filled: document.getElementById('arc-tj-conn-1')?.classList.contains('is-filled'),
+      questChips: document.querySelectorAll('#arc-tj-quests .ha-arc-tj-qchip').length,
       overflow: document.documentElement.scrollWidth > innerWidth
     };
   })()`);
   await saveShot('arc-ai-thread-journey-390.png');
   assert.equal(threadJourney.threadLvl, 'LVL 2');
   assert.equal(threadJourney.respLvl, 'LVL 2');
+  assert.equal(threadJourney.lvlUpShown, true);
+  assert.match(threadJourney.lvlUpText, /LEVEL UP! NOVA LVL 1 → LVL 2/);
   assert.equal(threadJourney.tjTitle, 'STARTED LVL 1 → REACHED LVL 2 (1D)');
   assert.equal(threadJourney.tjNow, 'NOW LVL 2');
   assert.equal(threadJourney.tag1, 'START ✓');
   assert.equal(threadJourney.tag2, 'NOW');
   assert.equal(threadJourney.conn1Filled, true);
+  assert.equal(threadJourney.questChips, 3);
   assert.equal(threadJourney.overflow, false, 'In-chat Pixel Level Journey fits 390px without overflow');
 
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);

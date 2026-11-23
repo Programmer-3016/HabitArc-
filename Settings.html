@@ -611,9 +611,10 @@
             aiInput.value = prog.aiName;
         }
         if (aiLevelPill) aiLevelPill.textContent = `LVL ${prog.level} · ${prog.rank.toUpperCase()}`;
+        const left = Math.max(0, (prog.questsTotalCount ?? 3) - (prog.questsDoneCount ?? 0));
         if (aiPowerSummary) aiPowerSummary.textContent = prog.level === 1
-            ? `Right now ${prog.aiName} can make habits for you. Clear days to level up.`
-            : `${prog.aiName} power active: ${prog.summary}`;
+            ? `Right now ${prog.aiName} can make habits for you. Finish ${left} quest${left === 1 ? '' : 's'} for LVL 2.`
+            : `${prog.aiName} LVL ${prog.level}: ${prog.summary}`;
     }
 
     function saveSettingsAiName() {

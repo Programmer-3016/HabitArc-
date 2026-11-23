@@ -68,6 +68,14 @@ const HabitArc = (() => {
         settings: {
             theme: 'dark', // "dark" | "light" | "forest" | "midnight"
             aiName: 'ARC',
+            aiTone: 'default',
+            aiQuestStats: {
+                createdViaAi: 0,
+                managedViaAi: 0,
+                tasksDone: 0,
+                focusDone: 0,
+                highestUnlockedLevel: 1,
+            },
             goalDuration: 30,
             startWeekOn: 'monday',
             defaultReminderTime: '09:00',
@@ -555,6 +563,8 @@ const HabitArc = (() => {
             ..._cloneData(settings)
         };
         mergedSettings.aiName = normaliseAiName(mergedSettings.aiName);
+        mergedSettings.aiTone = normaliseAiTone(mergedSettings.aiTone);
+        mergedSettings.aiQuestStats = normaliseAiStats(mergedSettings.aiQuestStats);
 
         return {
             habits,
@@ -783,6 +793,23 @@ const HabitArc = (() => {
         _save(data);
     }
 
+    function restoreHabit(backup) {
+        if (!backup || !backup.id) return false;
+        const data = _getData();
+        if (data.habits.length >= 20 || data.habits.some(h => h.id === backup.id)) return false;
+        const restored = _cloneData(backup);
+        data.habits.push(restored);
+        const completions = restored.completions && typeof restored.completions === 'object' ? restored.completions : {};
+        Object.entries(completions).forEach(([dateKey, done]) => {
+            if (!done || !_isDateKey(dateKey)) return;
+            const rec = _createCompletionHistoryRecord(restored.id, dateKey, true);
+            data.completionHistory[rec.id] = rec;
+            _queueCompletionHistoryOperation(rec.id, 'upsert');
+        });
+        _save(data);
+        return true;
+    }
+
     function updateHabit(id, updates) {
         const data = _getData();
         const idx = data.habits.findIndex(h => h.id === id);
@@ -808,13 +835,26 @@ const HabitArc = (() => {
         const data = _getData();
         const habit = data.habits.find(h => h.id === id);
         if (!habit || !_isDateKey(date)) return false;
+        const prevLevel = _computeAiProgressionFrom(data).level;
         if (!habit.completions) habit.completions = {};
         habit.completions[date] = true;
         const record = _createCompletionHistoryRecord(id, date, true);
         data.completionHistory[record.id] = record;
         _queueCompletionHistoryOperation(record.id, 'upsert');
+        const nextProg = _computeAiProgressionFrom(data);
+        if (nextProg.level > (data.settings?.aiQuestStats?.highestUnlockedLevel || 1)) {
+            data.settings = {
+                ...data.settings,
+                aiQuestStats: { ...normaliseAiStats(data.settings?.aiQuestStats), highestUnlockedLevel: nextProg.level }
+            };
+        }
         _save(data);
         playCompletionSound();
+        if (typeof window !== 'undefined' && nextProg.level > prevLevel) {
+            window.dispatchEvent(new CustomEvent('habitarc:ai-level-up', {
+                detail: { fromLevel: prevLevel, toLevel: nextProg.level, prog: getAiProgression() }
+            }));
+        }
         return true;
     }
 
@@ -1231,6 +1271,12 @@ const HabitArc = (() => {
 
         if ('aiName' in settingsUpdates) {
             settingsUpdates.aiName = normaliseAiName(settingsUpdates.aiName);
+        }
+        if ('aiTone' in settingsUpdates) {
+            settingsUpdates.aiTone = normaliseAiTone(settingsUpdates.aiTone);
+        }
+        if ('aiQuestStats' in settingsUpdates) {
+            settingsUpdates.aiQuestStats = normaliseAiStats(settingsUpdates.aiQuestStats);
         }
         data.settings = { ...data.settings, ...settingsUpdates };
         if (typeof onboardingComplete === 'boolean') {
@@ -2192,11 +2238,17 @@ const HabitArc = (() => {
 
     _initializeAuthAndCloudSync();
 
+    const AI_TONES = Object.freeze([
+        { id: 'default', label: 'Balanced' },
+        { id: 'calm', label: 'Zen Monk' },
+        { id: 'drill', label: 'Drill Coach' },
+        { id: 'hinglish', label: 'Hinglish Dost' },
+    ]);
     const AI_LEVEL_TIERS = Object.freeze([
-        { level: 1, minDays: 0, rank: 'Habit Builder', shortPower: 'Make Habits', summary: 'Create and add habits directly in chat.' },
-        { level: 2, minDays: 1, rank: 'Routine Tuner', shortPower: 'Edit Reminders', summary: 'Update reminders, schedules, and notes directly.' },
-        { level: 3, minDays: 7, rank: 'Streak Tactician', shortPower: 'Streak Shield', summary: 'Build low-energy backups and smart backlog rescues.' },
-        { level: 4, minDays: 14, rank: 'Routine Architect', shortPower: 'Deep Optimizer', summary: 'Unlock multi-week tuning and deep routine insights.' },
+        { level: 1, minDays: 0, reqLabel: 'START', rank: 'Habit Builder', shortPower: 'Make Habits', summary: 'Create and add habits directly in chat with 1-tap Undo.' },
+        { level: 2, minDays: 0, reqLabel: '3 Quests', rank: 'Routine Manager', shortPower: 'Delete, Edit & Tasks', summary: 'Delete or edit habits, mark completions, and add tasks in chat.' },
+        { level: 3, minDays: 7, reqLabel: '7D + 3Q', rank: 'Streak Tactician', shortPower: 'Streak Shield & Plan-B', summary: 'Build low-energy Plan-B backups and smart backlog rescues.' },
+        { level: 4, minDays: 14, reqLabel: '14D + 3Q', rank: 'Routine Architect', shortPower: 'Batch Tune & Tones', summary: 'Rebalance multi-habit schedules and unlock custom AI coach tones.' },
     ]);
     const _aiDays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -2207,10 +2259,51 @@ const HabitArc = (() => {
         return clean || 'ARC';
     }
 
-    function _clearedDayCount() {
-        const data = _getData();
+    function normaliseAiTone(value) {
+        const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
+        return AI_TONES.some(t => t.id === id) ? id : 'default';
+    }
+
+    function normaliseAiStats(raw) {
+        const src = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+        const nonNeg = (n) => (Number.isInteger(n) && n > 0 ? n : (Number.isFinite(Number(n)) && Number(n) > 0 ? Math.floor(Number(n)) : 0));
+        const lvl = Number.isInteger(src.highestUnlockedLevel) && src.highestUnlockedLevel >= 1 && src.highestUnlockedLevel <= 4
+            ? src.highestUnlockedLevel
+            : 1;
+        return {
+            createdViaAi: nonNeg(src.createdViaAi),
+            managedViaAi: nonNeg(src.managedViaAi),
+            tasksDone: nonNeg(src.tasksDone),
+            focusDone: nonNeg(src.focusDone),
+            highestUnlockedLevel: lvl,
+        };
+    }
+
+    function _readDeviceProductivityCounts() {
+        const scope = activeUserId || _readStorageValue(ACTIVE_USER_KEY) || 'local';
+        let tasksDone = 0;
+        let focusDone = 0;
+        try {
+            const rawTasks = _readStorageValue(`habitarc_tasks_data:${scope}`);
+            if (rawTasks) {
+                const parsed = JSON.parse(rawTasks);
+                if (Array.isArray(parsed)) tasksDone = parsed.filter(t => t && t.completed).length;
+            }
+            const rawFocus = _readStorageValue(`habitarc_focus_v1:${scope}`);
+            if (rawFocus) {
+                const parsed = JSON.parse(rawFocus);
+                if (Array.isArray(parsed?.sessions)) focusDone = parsed.sessions.length;
+            }
+        } catch { /* Optional device stores */ }
+        return { tasksDone, focusDone };
+    }
+
+    function _measureAiMetrics(dataOverride = null, statsOverride = null) {
+        const data = dataOverride || _getData();
         const habits = Array.isArray(data.habits) ? data.habits : [];
         const records = Object.values(data.completionHistory || {});
+        const stats = normaliseAiStats(statsOverride || data.settings?.aiQuestStats);
+        const device = _readDeviceProductivityCounts();
         const today = _today();
         const weekdayFor = (key) => {
             if (typeof key !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
@@ -2218,17 +2311,19 @@ const HabitArc = (() => {
             return Number.isFinite(+d) && d.toISOString().startsWith(key + 'T') ? _aiDays[d.getUTCDay()] : null;
         };
         const byId = new Map(habits.map(h => [h.id, h]));
-        const adopted = new Map(), done = new Map();
+        const adopted = new Map(), done = new Map(), activeSet = new Set(), completedKeys = new Set();
         for (const r of records) {
             const h = byId.get(r?.habitId);
             if (!h || !weekdayFor(r?.date) || r.date > today || r.date < h.createdAt) continue;
             if (h.starterHabit && r.updatedAt === r.date + 'T12:00:00.000Z' && r.completedAt === r.updatedAt) continue;
             if (!adopted.has(h.id) || r.date < adopted.get(h.id)) adopted.set(h.id, r.date);
             if (r.status !== 'completed') continue;
+            activeSet.add(r.date);
+            completedKeys.add(`${h.id}_${r.date}`);
             if (!done.has(r.date)) done.set(r.date, new Set());
             done.get(r.date).add(h.id);
         }
-        let count = 0;
+        let clearCount = 0;
         for (const [date, completed] of done) {
             const day = weekdayFor(date);
             const scheduled = habits.filter(h => {
@@ -2236,53 +2331,148 @@ const HabitArc = (() => {
                 const period = Array.isArray(h.scheduleHistory) && h.scheduleHistory.findLast(s => s.from <= date && Array.isArray(s.days));
                 return (period?.days ?? h.repeat ?? _aiDays).includes(day);
             });
-            if (scheduled.length > 0 && scheduled.every(h => completed.has(h.id))) count++;
+            if (scheduled.length > 0 && scheduled.every(h => completed.has(h.id))) clearCount++;
         }
-        return count;
+        const tasksDone = Math.max(stats.tasksDone, device.tasksDone);
+        const focusDone = Math.max(stats.focusDone, device.focusDone);
+        return {
+            clearDays: clearCount,
+            activeDays: Math.max(activeSet.size, clearCount),
+            totalCheckins: Math.max(completedKeys.size, clearCount),
+            aiCreated: stats.createdViaAi,
+            aiManaged: stats.managedViaAi,
+            tasksDone,
+            focusDone,
+            productivityDone: tasksDone + focusDone,
+            highestUnlockedLevel: stats.highestUnlockedLevel,
+        };
     }
 
-    function getAiProgression() {
-        const settings = getSettings();
-        const clearDays = _clearedDayCount();
-        let current = AI_LEVEL_TIERS[0];
-        for (const tier of AI_LEVEL_TIERS) {
-            if (clearDays >= tier.minDays) current = tier;
+    function _buildLevelQuests(targetLevel, metrics, aiName) {
+        if (targetLevel === 2) {
+            const q1 = Math.min(1, metrics.aiCreated);
+            const q2 = Math.min(3, metrics.totalCheckins);
+            const q3 = (metrics.clearDays >= 1 || metrics.productivityDone >= 1) ? 1 : 0;
+            return [
+                { id: 'q2_ai_create', label: `Create 1 habit with ${aiName}`, current: q1, target: 1, done: q1 >= 1, hint: 'Ask AI: "Create a 10m walk habit"' },
+                { id: 'q2_checkins', label: 'Complete 3 habit check-ins', current: q2, target: 3, done: q2 >= 3, hint: 'Tick habits on Dashboard' },
+                { id: 'q2_clear_or_prod', label: 'Clear 1 day or finish 1 task/focus', current: q3, target: 1, done: q3 >= 1, hint: 'Finish all today habits or 1 task' },
+            ];
         }
+        if (targetLevel === 3) {
+            const q1 = Math.min(7, metrics.activeDays);
+            const q2 = Math.min(3, metrics.clearDays);
+            const q3 = (metrics.aiManaged >= 1 || metrics.productivityDone >= 3) ? 1 : 0;
+            return [
+                { id: 'q3_active_days', label: 'Reach 7 active logged days', current: q1, target: 7, done: q1 >= 7, hint: 'Log at least 1 habit on 7 distinct days' },
+                { id: 'q3_clear_days', label: 'Clear 3 full scheduled days', current: q2, target: 3, done: q2 >= 3, hint: 'Complete all scheduled habits for a day' },
+                { id: 'q3_manage_or_prod', label: 'Use LVL 2 AI action or 3 tasks/focus', current: q3, target: 1, done: q3 >= 1, hint: 'Edit/delete/tick via AI or log 3 tasks' },
+            ];
+        }
+        if (targetLevel === 4) {
+            const q1 = Math.min(14, metrics.activeDays);
+            const q2 = Math.min(7, metrics.clearDays);
+            const q3Done = metrics.totalCheckins >= 15 && (metrics.productivityDone >= 5 || (metrics.aiCreated + metrics.aiManaged) >= 3);
+            return [
+                { id: 'q4_active_days', label: 'Reach 14 active logged days', current: q1, target: 14, done: q1 >= 14, hint: 'Show up on 14 distinct days' },
+                { id: 'q4_clear_days', label: 'Clear 7 full scheduled days', current: q2, target: 7, done: q2 >= 7, hint: '7 complete days' },
+                { id: 'q4_mastery', label: '15 check-ins + 5 tasks/focus or 3 AI ops', current: q3Done ? 1 : 0, target: 1, done: q3Done, hint: 'Build deep consistency across app' },
+            ];
+        }
+        return [];
+    }
+
+    function _computeAiProgressionFrom(data, statsOverride = null) {
+        const settings = data.settings || {};
+        const aiName = normaliseAiName(settings.aiName);
+        const aiTone = normaliseAiTone(settings.aiTone);
+        const metrics = _measureAiMetrics(data, statsOverride);
+        const q2 = _buildLevelQuests(2, metrics, aiName);
+        const q3 = _buildLevelQuests(3, metrics, aiName);
+        const q4 = _buildLevelQuests(4, metrics, aiName);
+
+        let earnedLevel = metrics.highestUnlockedLevel;
+        if (q2.every(q => q.done) && earnedLevel < 2) earnedLevel = 2;
+        if (earnedLevel >= 2 && q3.every(q => q.done) && earnedLevel < 3) earnedLevel = 3;
+        if (earnedLevel >= 3 && q4.every(q => q.done) && earnedLevel < 4) earnedLevel = 4;
+
+        const current = AI_LEVEL_TIERS.find(t => t.level === earnedLevel) || AI_LEVEL_TIERS[0];
         const next = AI_LEVEL_TIERS.find(t => t.level === current.level + 1) || null;
-        const span = next ? Math.max(1, next.minDays - current.minDays) : 1;
-        const progress = next ? Math.min(span, Math.max(0, clearDays - current.minDays)) : span;
+        const quests = next ? _buildLevelQuests(next.level, metrics, aiName) : [];
+        const questsDoneCount = quests.filter(q => q.done).length;
+        const questsTotalCount = quests.length;
         return {
-            aiName: normaliseAiName(settings?.aiName),
+            aiName,
+            aiTone,
+            activeTone: current.level >= 4 ? aiTone : 'default',
             level: current.level,
             rank: current.rank,
             shortPower: current.shortPower,
             summary: current.summary,
-            clearDays,
-            currentMinDays: current.minDays,
+            clearDays: metrics.clearDays,
+            activeDays: metrics.activeDays,
+            totalCheckins: metrics.totalCheckins,
+            aiCreated: metrics.aiCreated,
+            aiManaged: metrics.aiManaged,
+            productivityDone: metrics.productivityDone,
             nextLevel: next?.level || null,
             nextRank: next?.rank || null,
             nextPower: next?.shortPower || null,
-            nextMinDays: next?.minDays ?? null,
-            remainingDays: next ? Math.max(0, next.minDays - clearDays) : 0,
-            progressPct: next ? Math.round((progress / span) * 100) : 100,
+            nextReqLabel: next?.reqLabel || null,
+            quests,
+            questsDoneCount,
+            questsTotalCount,
+            progressPct: next && questsTotalCount > 0 ? Math.round((questsDoneCount / questsTotalCount) * 100) : 100,
             tiers: AI_LEVEL_TIERS.map(t => ({
                 ...t,
-                unlocked: clearDays >= t.minDays,
+                unlocked: t.level <= current.level,
                 current: t.level === current.level,
             })),
         };
     }
 
+    function getAiProgression() {
+        return _computeAiProgressionFrom(_getData());
+    }
+
+    function recordAiAction(kind) {
+        const data = _getData();
+        const prevProg = _computeAiProgressionFrom(data);
+        const nextStats = normaliseAiStats(data.settings?.aiQuestStats);
+        const device = _readDeviceProductivityCounts();
+        nextStats.tasksDone = Math.max(nextStats.tasksDone, device.tasksDone);
+        nextStats.focusDone = Math.max(nextStats.focusDone, device.focusDone);
+        if (kind === 'create') nextStats.createdViaAi += 1;
+        else if (kind === 'undo_create') nextStats.createdViaAi = Math.max(0, nextStats.createdViaAi - 1);
+        else if (kind === 'manage') nextStats.managedViaAi += 1;
+        else if (kind === 'undo_manage') nextStats.managedViaAi = Math.max(0, nextStats.managedViaAi - 1);
+        const after = _computeAiProgressionFrom(data, nextStats);
+        nextStats.highestUnlockedLevel = Math.max(nextStats.highestUnlockedLevel, after.level);
+        data.settings = { ...data.settings, aiQuestStats: nextStats };
+        _save(data);
+        const finalProg = getAiProgression();
+        if (typeof window !== 'undefined' && finalProg.level > prevProg.level) {
+            window.dispatchEvent(new CustomEvent('habitarc:ai-level-up', {
+                detail: { fromLevel: prevProg.level, toLevel: finalProg.level, prog: finalProg }
+            }));
+        }
+        return finalProg;
+    }
+
     // ─── Public API ─────────────────────────────────
     return {
         // AI Buddy & Progression
+        AI_TONES,
         normaliseAiName,
+        normaliseAiTone,
         getAiProgression,
+        recordAiAction,
         // Habits
         getHabits,
         getHabitById,
         addHabit,
         deleteHabit,
+        restoreHabit,
         updateHabit,
 
         // Completions

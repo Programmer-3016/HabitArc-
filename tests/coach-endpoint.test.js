@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createSign, generateKeyPairSync } from 'node:crypto';
-import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields, createCoachStreamCollector, streamWithGemini, isExplicitHabitCreateRequest, isExplicitHabitUpdateRequest } from '../api/coach.js';
+import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields, createCoachStreamCollector, streamWithGemini, isExplicitHabitCreateRequest, isExplicitHabitUpdateRequest, isExplicitHabitDeleteRequest, isExplicitHabitCompleteRequest, isExplicitTaskCreateRequest, isExplicitBatchRebalanceRequest } from '../api/coach.js';
 
 function fixture({ anonymous = false, authCode, configured = true, limit = 15 } = {}) {
     let usage;
@@ -532,14 +532,21 @@ test('Level 1 autoExecute triggers only on explicit habit-creation requests, nev
     assert.equal(resSuggest.body.autoExecute, false);
 });
 
-test('custom AI name & level progression gate Level 2 autonomous habit updates', async () => {
+test('quest progression gates Level 2 delete/edit/complete/task powers and Level 4 batch rebalance', async () => {
     assert.equal(isExplicitHabitUpdateRequest('Change Walk reminder to 06:45', [{ name: 'Walk' }]), true);
-    assert.equal(isExplicitHabitUpdateRequest('Update Walk reminder to 7am', [{ name: 'Walk' }]), true);
-    assert.equal(isExplicitHabitUpdateRequest('Suggest a better reminder time for Walk', [{ name: 'Walk' }]), false);
     assert.equal(isExplicitHabitUpdateRequest('Walk update mat karna', [{ name: 'Walk' }]), false);
+    assert.equal(isExplicitHabitDeleteRequest('Delete my Walk habit', [{ name: 'Walk' }]), true);
+    assert.equal(isExplicitHabitDeleteRequest("Don't delete Walk habit", [{ name: 'Walk' }]), false);
+    assert.equal(isExplicitHabitCompleteRequest('Mark Walk done for today', [{ name: 'Walk' }]), true);
+    assert.equal(isExplicitHabitCompleteRequest('Walk mat tick karna abhi', [{ name: 'Walk' }]), false);
+    assert.equal(isExplicitTaskCreateRequest('Add a task to buy groceries'), true);
+    assert.equal(isExplicitTaskCreateRequest("Don't add a task now"), false);
+    assert.equal(isExplicitBatchRebalanceRequest('Rebalance all my habit times'), true);
 
     let usage;
     let completionDocs = [];
+    let aiStats = {};
+    let nextReply = 'Updated **Walk** reminder to 06:45.\n<habitarc_action>{"type":"update_habit","habitId":"h1","reminder":"06:45"}</habitarc_action>';
     const capturedPrompts = [];
     const ref = path => ({
         collection: n => ref(`${path}/${n}`),
@@ -549,7 +556,7 @@ test('custom AI name & level progression gate Level 2 autonomous habit updates',
         limit() { return this; },
         async get() {
             if (path === 'users/u1') {
-                return { exists: true, data: () => ({ settings: { aiName: 'Nova' } }) };
+                return { exists: true, data: () => ({ settings: { aiName: 'Nova', aiQuestStats: aiStats, aiTone: 'hinglish' } }) };
             }
             if (path.endsWith('/habits')) {
                 return {
@@ -590,27 +597,51 @@ test('custom AI name & level progression gate Level 2 autonomous habit updates',
         }),
         generate: async (options) => {
             capturedPrompts.push(JSON.parse(options.prompt));
-            return {
-                text: 'Updated **Walk** reminder to 06:45.\n<habitarc_action>{"type":"update_habit","habitId":"h1","reminder":"06:45"}</habitarc_action>'
-            };
+            return { text: nextReply };
         }
     });
 
+    // At LVL 1 (0 quests), update_habit & delete_habit stay autoExecute: false
     const resL1 = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
     await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Change Walk reminder to 06:45', timeZone: 'Asia/Kolkata' } }, resL1);
     assert.equal(resL1.code, 200);
-    assert.deepEqual(capturedPrompts[0].assistantProfile, { name: 'Nova', level: 1, rank: 'Habit Builder', clearDays: 0 });
+    assert.equal(capturedPrompts[0].assistantProfile.name, 'Nova');
+    assert.equal(capturedPrompts[0].assistantProfile.level, 1);
+    assert.equal(capturedPrompts[0].assistantProfile.tone, 'default');
+    assert.equal(capturedPrompts[0].assistantProfile.quests.length, 3);
     assert.equal(resL1.body.aiProgression?.level, 1);
     assert.equal(resL1.body.autoExecute, false);
 
+    // Unlock LVL 2 by finishing all 3 quests (1 AI habit + 3 check-ins + 1 clear day)
     usage.lastRequestAtMs = 0;
-    completionDocs = [{ id: 'c1', data: () => ({ habitId: 'h1', date: '2026-11-22', status: 'completed', updatedAt: '2026-11-22T10:00:00Z' }) }];
-    const resL2 = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
-    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Change Walk reminder to 06:45', timeZone: 'Asia/Kolkata' } }, resL2);
-    assert.equal(resL2.code, 200);
-    assert.deepEqual(capturedPrompts[1].assistantProfile, { name: 'Nova', level: 2, rank: 'Routine Tuner', clearDays: 1 });
-    assert.equal(resL2.body.aiProgression?.level, 2);
-    assert.equal(resL2.body.autoExecute, true);
-    assert.equal(resL2.body.suggestedAction?.type, 'update_habit');
-    assert.equal(resL2.body.suggestedAction?.habitId, 'h1');
+    aiStats = { createdViaAi: 1 };
+    completionDocs = ['2026-11-20', '2026-11-21', '2026-11-22'].map((d, i) => ({
+        id: `c${i}`,
+        data: () => ({ habitId: 'h1', date: d, status: 'completed', updatedAt: `${d}T10:00:00Z` })
+    }));
+    nextReply = 'Deleted **Walk**.\n<habitarc_action>{"type":"delete_habit","habitId":"h1"}</habitarc_action>';
+    const resL2Delete = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Delete my Walk habit', timeZone: 'Asia/Kolkata' } }, resL2Delete);
+    assert.equal(resL2Delete.code, 200);
+    assert.equal(resL2Delete.body.aiProgression?.level, 2);
+    assert.equal(resL2Delete.body.autoExecute, true);
+    assert.equal(resL2Delete.body.suggestedAction?.type, 'delete_habit');
+    assert.equal(resL2Delete.body.suggestedAction?.habitId, 'h1');
+
+    // Batch rebalance stays locked (autoExecute: false) at LVL 2 and unlocks at LVL 4
+    usage.lastRequestAtMs = 0;
+    nextReply = 'Rebalanced.\n<habitarc_action>{"type":"batch_update_habits","updates":[{"habitId":"h1","reminder":"07:00"}]}</habitarc_action>';
+    const resBatchLocked = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Rebalance all my habit times', timeZone: 'Asia/Kolkata' } }, resBatchLocked);
+    assert.equal(resBatchLocked.body.aiProgression?.level, 2);
+    assert.equal(resBatchLocked.body.autoExecute, false);
+
+    usage.lastRequestAtMs = 0;
+    aiStats = { createdViaAi: 2, managedViaAi: 2, highestUnlockedLevel: 4 };
+    const resL4Batch = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Rebalance all my habit times', timeZone: 'Asia/Kolkata' } }, resL4Batch);
+    assert.equal(resL4Batch.body.aiProgression?.level, 4);
+    assert.equal(resL4Batch.body.aiProgression?.tone, 'hinglish');
+    assert.equal(resL4Batch.body.autoExecute, true);
+    assert.equal(resL4Batch.body.suggestedAction?.type, 'batch_update_habits');
 });

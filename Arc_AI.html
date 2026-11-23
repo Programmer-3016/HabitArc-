@@ -185,19 +185,36 @@
                     <span id="arc-ai-buddy-name" class="ha-arc-lvl-name">ARC</span>
                     <span id="arc-ai-rank" class="ha-arc-lvl-rank">HABIT BUILDER</span>
                 </div>
-                <span id="arc-ai-next-txt" class="ha-arc-lvl-next">0/1D → LVL 2</span>
+                <span id="arc-ai-next-txt" class="ha-arc-lvl-next">0/3Q → LVL 2</span>
             </div>
             <div class="ha-arc-level-body">
                 <div id="arc-px-bar" class="ha-arc-px-bar" role="progressbar" aria-label="Progress toward next AI level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
                 <div class="ha-arc-power-row">
-                    <p id="arc-ai-power-copy" class="ha-arc-power-copy">Right now ARC can build and add habits for you in chat. Clear days to level up.</p>
+                    <p id="arc-ai-power-copy" class="ha-arc-power-copy">Right now at Level 1 you can use ARC to make habits for you.</p>
                     <button id="arc-lvl1-try-btn" type="button" class="ha-arc-try-chip">Try: Make a habit</button>
                 </div>
+                <div id="arc-quest-box" class="ha-arc-quest-box" aria-label="Quests to unlock next level">
+                    <div class="ha-arc-quest-hdr">
+                        <span id="arc-quest-hdr-title">QUESTS TO LVL 2</span>
+                        <span id="arc-quest-cnt" class="ha-arc-quest-cnt">0/3</span>
+                    </div>
+                    <div id="arc-quest-list" class="ha-arc-quest-list">
+                        <div id="arc-q-row-0" class="ha-arc-q-row"><span class="ha-arc-q-lbl"><span id="arc-q-box-0" class="ha-arc-q-box">·</span><span id="arc-q-lbl-0">Create 1 habit with ARC</span></span><span id="arc-q-prog-0" class="ha-arc-q-badge">0/1</span></div>
+                        <div id="arc-q-row-1" class="ha-arc-q-row"><span class="ha-arc-q-lbl"><span id="arc-q-box-1" class="ha-arc-q-box">·</span><span id="arc-q-lbl-1">Complete 3 habit check-ins</span></span><span id="arc-q-prog-1" class="ha-arc-q-badge">0/3</span></div>
+                        <div id="arc-q-row-2" class="ha-arc-q-row"><span class="ha-arc-q-lbl"><span id="arc-q-box-2" class="ha-arc-q-box">·</span><span id="arc-q-lbl-2">Clear 1 day or finish 1 task/focus</span></span><span id="arc-q-prog-2" class="ha-arc-q-badge">0/1</span></div>
+                    </div>
+                </div>
+                <div id="arc-tone-row" class="hidden ha-arc-tone-row" aria-label="AI personality tones">
+                    <button id="arc-tone-default" type="button" data-ai-tone="default" class="ha-arc-tone-chip is-active">Balanced</button>
+                    <button id="arc-tone-calm" type="button" data-ai-tone="calm" class="ha-arc-tone-chip">Zen Monk</button>
+                    <button id="arc-tone-drill" type="button" data-ai-tone="drill" class="ha-arc-tone-chip">Drill Coach</button>
+                    <button id="arc-tone-hinglish" type="button" data-ai-tone="hinglish" class="ha-arc-tone-chip">Hinglish Dost</button>
+                </div>
                 <div id="arc-tier-grid" class="ha-arc-tier-grid" aria-label="AI power levels">
-                    <div id="arc-tier-1" class="ha-arc-tier is-unlocked"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 1</span><span class="ha-arc-tier-label">Make Habits</span></span><span id="arc-tier-state-1" class="ha-arc-tier-state">ACTIVE</span></div>
-                    <div id="arc-tier-2" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 2 · 1D</span><span class="ha-arc-tier-label">Edit Reminders</span></span><span id="arc-tier-state-2" class="ha-arc-tier-state">LOCKED</span></div>
-                    <div id="arc-tier-3" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 3 · 7D</span><span class="ha-arc-tier-label">Streak Shield</span></span><span id="arc-tier-state-3" class="ha-arc-tier-state">LOCKED</span></div>
-                    <div id="arc-tier-4" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 4 · 14D</span><span class="ha-arc-tier-label">Deep Coach</span></span><span id="arc-tier-state-4" class="ha-arc-tier-state">LOCKED</span></div>
+                    <div id="arc-tier-1" class="ha-arc-tier is-unlocked"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 1 · START</span><span class="ha-arc-tier-label">Make Habits</span></span><span id="arc-tier-state-1" class="ha-arc-tier-state">ACTIVE</span></div>
+                    <div id="arc-tier-2" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 2 · 3Q</span><span class="ha-arc-tier-label">Delete, Edit &amp; Tasks</span></span><span id="arc-tier-state-2" class="ha-arc-tier-state">LOCKED</span></div>
+                    <div id="arc-tier-3" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 3 · 7D+3Q</span><span class="ha-arc-tier-label">Streak Shield</span></span><span id="arc-tier-state-3" class="ha-arc-tier-state">LOCKED</span></div>
+                    <div id="arc-tier-4" class="ha-arc-tier"><span class="ha-arc-tier-txt"><span class="ha-arc-tier-lvl">LVL 4 · 14D+3Q</span><span class="ha-arc-tier-label">Batch &amp; Tones</span></span><span id="arc-tier-state-4" class="ha-arc-tier-state">LOCKED</span></div>
                 </div>
             </div>
         </section>
@@ -302,45 +319,51 @@
             <button id="ai-coach-clear" type="button" class="ha-arc-new-btn">+ NEW</button>
         </div>
 
+        <div id="arc-lvlup-banner" class="hidden ha-arc-lvlup-banner" role="status" aria-live="polite">
+            <span id="arc-lvlup-text">🎉 LEVEL UP!</span>
+            <button id="arc-lvlup-close" type="button" class="ha-arc-lvlup-close" aria-label="Dismiss level up">OK</button>
+        </div>
+
         <section id="arc-thread-journey" class="ha-arc-tj" aria-label="AI Level journey in chat">
             <div class="ha-arc-tj-head">
                 <span id="arc-tj-title" class="ha-arc-tj-title">STARTED: LVL 1 (0D)</span>
                 <span id="arc-tj-now" class="ha-arc-tj-now">NOW LVL 1</span>
             </div>
             <div id="arc-tj-track" class="ha-arc-tj-track" role="list" aria-label="Level 1 to Level 4 progression">
-                <div id="arc-tj-node-1" class="ha-arc-tj-node is-reached is-current" role="listitem">
+                <button type="button" id="arc-tj-node-1" class="ha-arc-tj-node is-reached is-current" role="listitem">
                     <div class="ha-arc-tj-rail">
                         <span class="ha-arc-tj-box">L1</span>
                         <span id="arc-tj-conn-1" class="ha-arc-tj-conn" aria-hidden="true"></span>
                     </div>
                     <span class="ha-arc-tj-pwr">Make</span>
                     <span id="arc-tj-tag-1" class="ha-arc-tj-tag">NOW</span>
-                </div>
-                <div id="arc-tj-node-2" class="ha-arc-tj-node" role="listitem">
+                </button>
+                <button type="button" id="arc-tj-node-2" class="ha-arc-tj-node" role="listitem">
                     <div class="ha-arc-tj-rail">
                         <span class="ha-arc-tj-box">L2</span>
                         <span id="arc-tj-conn-2" class="ha-arc-tj-conn" aria-hidden="true"></span>
                     </div>
-                    <span class="ha-arc-tj-pwr">Edit</span>
-                    <span id="arc-tj-tag-2" class="ha-arc-tj-tag">1D</span>
-                </div>
-                <div id="arc-tj-node-3" class="ha-arc-tj-node" role="listitem">
+                    <span class="ha-arc-tj-pwr">Manage</span>
+                    <span id="arc-tj-tag-2" class="ha-arc-tj-tag">3Q</span>
+                </button>
+                <button type="button" id="arc-tj-node-3" class="ha-arc-tj-node" role="listitem">
                     <div class="ha-arc-tj-rail">
                         <span class="ha-arc-tj-box">L3</span>
                         <span id="arc-tj-conn-3" class="ha-arc-tj-conn" aria-hidden="true"></span>
                     </div>
                     <span class="ha-arc-tj-pwr">Shield</span>
-                    <span id="arc-tj-tag-3" class="ha-arc-tj-tag">7D</span>
-                </div>
-                <div id="arc-tj-node-4" class="ha-arc-tj-node" role="listitem">
+                    <span id="arc-tj-tag-3" class="ha-arc-tj-tag">7D+3Q</span>
+                </button>
+                <button type="button" id="arc-tj-node-4" class="ha-arc-tj-node" role="listitem">
                     <div class="ha-arc-tj-rail">
                         <span class="ha-arc-tj-box">L4</span>
                     </div>
-                    <span class="ha-arc-tj-pwr">Coach</span>
-                    <span id="arc-tj-tag-4" class="ha-arc-tj-tag">14D</span>
-                </div>
+                    <span class="ha-arc-tj-pwr">Master</span>
+                    <span id="arc-tj-tag-4" class="ha-arc-tj-tag">14D+3Q</span>
+                </button>
             </div>
-            <p id="arc-tj-caption" class="ha-arc-tj-cap">Started at LVL 1 (Make Habits) · Clear 1 day to reach LVL 2.</p>
+            <p id="arc-tj-caption" class="ha-arc-tj-cap">Started at LVL 1 (Make Habits) · Complete 3 quests to reach LVL 2.</p>
+            <div id="arc-tj-quests" class="ha-arc-tj-quests" aria-label="Current level quest progress"></div>
         </section>
 
         <div id="ai-coach-history" class="ha-arc-thread-stack"></div>
@@ -445,13 +468,23 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const tjTitleEl = document.getElementById('arc-tj-title');
     const tjNowEl = document.getElementById('arc-tj-now');
     const tjCaptionEl = document.getElementById('arc-tj-caption');
+    const tjQuestsEl = document.getElementById('arc-tj-quests');
+    const lvlUpBanner = document.getElementById('arc-lvlup-banner');
+    const lvlUpText = document.getElementById('arc-lvlup-text');
+    const lvlUpClose = document.getElementById('arc-lvlup-close');
     const buddyNameEl = document.getElementById('arc-ai-buddy-name');
     const rankEl = document.getElementById('arc-ai-rank');
     const lvlBadgeEl = document.getElementById('arc-ai-lvl-badge');
     const nextTxtEl = document.getElementById('arc-ai-next-txt');
     const pxBarEl = document.getElementById('arc-px-bar');
     const powerCopyEl = document.getElementById('arc-ai-power-copy');
+    const questHdrTitleEl = document.getElementById('arc-quest-hdr-title');
+    const questCntEl = document.getElementById('arc-quest-cnt');
+    const toneRowEl = document.getElementById('arc-tone-row');
     const tryLvl1Button = document.getElementById('arc-lvl1-try-btn');
+    const loadTaskStore = () => (typeof window.HabitArcTaskStore !== 'undefined'
+        ? Promise.resolve(window.HabitArcTaskStore)
+        : import('./task-store.js').catch(() => null));
 
     const cardPriority = document.getElementById('arc-card-priority');
     const priorityKicker = document.getElementById('arc-priority-kicker');
@@ -514,6 +547,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     let activeActionAutoCreated = false;
     let activeCreatedHabitId = '';
     let activePrevHabitPatch = null;
+    let activeActionUndo = null;
     let lastEvidence = '';
     let lastVerifiedSnapshot = null;
     let lastCasualGreeting = false;
@@ -523,25 +557,41 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         const fallbackName = HabitArc.normaliseAiName?.(settings?.aiName) || String(settings?.aiName || '').trim().slice(0, 16) || 'ARC';
         const prog = HabitArc.getAiProgression?.() || {
             aiName: fallbackName,
+            aiTone: 'default',
+            activeTone: 'default',
             level: 1,
             rank: 'Habit Builder',
             shortPower: 'Make Habits',
-            summary: 'Create and add habits directly in chat.',
+            summary: 'Create and add habits directly in chat with 1-tap Undo.',
             clearDays: 0,
+            activeDays: 0,
+            totalCheckins: 0,
             nextLevel: 2,
-            nextMinDays: 1,
-            remainingDays: 1,
+            nextPower: 'Delete, Edit & Tasks',
+            questsDoneCount: 0,
+            questsTotalCount: 3,
+            quests: [
+                { id: 'q2_ai_create', label: `Create 1 habit with ${fallbackName}`, current: 0, target: 1, done: false },
+                { id: 'q2_checkins', label: 'Complete 3 habit check-ins', current: 0, target: 3, done: false },
+                { id: 'q2_clear_or_prod', label: 'Clear 1 day or finish 1 task/focus', current: 0, target: 1, done: false },
+            ],
             progressPct: 0,
             tiers: [
-                { level: 1, unlocked: true, current: true },
-                { level: 2, unlocked: false, current: false },
-                { level: 3, unlocked: false, current: false },
-                { level: 4, unlocked: false, current: false },
+                { level: 1, reqLabel: 'START', unlocked: true, current: true },
+                { level: 2, reqLabel: '3Q', unlocked: false, current: false },
+                { level: 3, reqLabel: '7D+3Q', unlocked: false, current: false },
+                { level: 4, reqLabel: '14D+3Q', unlocked: false, current: false },
             ],
         };
         const aiName = prog.aiName || fallbackName;
         const chatLabel = aiName === 'ARC' ? 'ARC AI' : aiName;
         return { ...prog, aiName, chatLabel };
+    }
+
+    function showLevelUpCelebration(fromLevel, toLevel, meta = getAiMeta()) {
+        if (!lvlUpBanner || !lvlUpText || toLevel <= fromLevel) return;
+        lvlUpText.textContent = `🎉 LEVEL UP! ${meta.aiName} LVL ${fromLevel} → LVL ${toLevel} · ${meta.shortPower || meta.rank} unlocked!`;
+        lvlUpBanner.classList?.remove?.('hidden');
     }
 
     function shorten(text, max) {
@@ -565,9 +615,12 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         if (buddyNameEl) buddyNameEl.textContent = meta.aiName;
         if (rankEl) rankEl.textContent = meta.rank.toUpperCase();
         if (lvlBadgeEl) lvlBadgeEl.textContent = `LVL ${meta.level}`;
+        const doneQ = meta.questsDoneCount ?? 0;
+        const totalQ = meta.questsTotalCount ?? 3;
+        const remQ = Math.max(0, totalQ - doneQ);
         if (nextTxtEl) {
             nextTxtEl.textContent = meta.nextLevel
-                ? `${meta.clearDays}/${meta.nextMinDays}D → LVL ${meta.nextLevel}`
+                ? `${doneQ}/${totalQ}Q → LVL ${meta.nextLevel}`
                 : 'MAX RANK';
         }
         if (pxBarEl) {
@@ -579,8 +632,40 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         }
         if (powerCopyEl) {
             powerCopyEl.textContent = meta.level === 1
-                ? `Right now at Level 1 you can use ${meta.aiName} to create habits for you. Clear 1 day to unlock LVL 2.`
-                : `Level ${meta.level} Active — ${meta.summary}${meta.nextLevel ? ` Clear ${meta.remainingDays} more day${meta.remainingDays === 1 ? '' : 's'} for LVL ${meta.nextLevel}.` : ''}`;
+                ? `Right now at Level 1 you can use ${meta.aiName} to create habits for you. Complete ${remQ} quest${remQ === 1 ? '' : 's'} for LVL 2.`
+                : `Level ${meta.level} Active — ${meta.summary}${meta.nextLevel ? ` Complete ${remQ} quest${remQ === 1 ? '' : 's'} for LVL ${meta.nextLevel}.` : ''}`;
+        }
+        const quests = Array.isArray(meta.quests) ? meta.quests : [];
+        if (questHdrTitleEl) {
+            questHdrTitleEl.textContent = meta.nextLevel ? `QUESTS TO LVL ${meta.nextLevel}` : 'ALL LEVELS UNLOCKED ✓';
+        }
+        if (questCntEl) {
+            questCntEl.textContent = meta.nextLevel ? `${doneQ}/${totalQ}` : 'MAX';
+        }
+        for (let idx = 0; idx < 3; idx++) {
+            const q = quests[idx];
+            const row = document.getElementById(`arc-q-row-${idx}`);
+            const box = document.getElementById(`arc-q-box-${idx}`);
+            const lbl = document.getElementById(`arc-q-lbl-${idx}`);
+            const progBadge = document.getElementById(`arc-q-prog-${idx}`);
+            if (!row) continue;
+            if (!q) {
+                row.classList?.add?.('hidden');
+                continue;
+            }
+            row.classList?.remove?.('hidden');
+            row.classList?.toggle?.('is-done', Boolean(q.done));
+            if (box) box.textContent = q.done ? '✓' : '·';
+            if (lbl) lbl.textContent = q.label;
+            if (progBadge) progBadge.textContent = q.done ? 'DONE' : `${q.current}/${q.target}`;
+        }
+        if (toneRowEl) {
+            toneRowEl.classList?.toggle?.('hidden', meta.level < 4);
+            const curTone = meta.activeTone || meta.aiTone || 'default';
+            ['default', 'calm', 'drill', 'hinglish'].forEach(toneId => {
+                const btn = document.getElementById(`arc-tone-${toneId}`);
+                btn?.classList?.toggle?.('is-active', toneId === curTone);
+            });
         }
         if (Array.isArray(meta.tiers)) {
             meta.tiers.forEach(t => {
@@ -594,16 +679,26 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         if (threadLvlBadge) threadLvlBadge.textContent = `LVL ${meta.level}`;
         if (respIdEl) respIdEl.innerHTML = `<span class="ha-arc-dot" aria-hidden="true"></span>${HabitArc.escapeHTML(meta.chatLabel)}`;
         if (respLvlEl) respLvlEl.textContent = `LVL ${meta.level}`;
+        const shownDays = Number.isInteger(meta.activeDays) ? meta.activeDays : (meta.clearDays || 0);
         if (tjTitleEl) {
             tjTitleEl.textContent = meta.level === 1
-                ? 'STARTED: LVL 1 (0D)'
-                : `STARTED LVL 1 → REACHED LVL ${meta.level} (${meta.clearDays}D)`;
+                ? `STARTED: LVL 1 (${shownDays}D)`
+                : `STARTED LVL 1 → REACHED LVL ${meta.level} (${shownDays}D)`;
         }
         if (tjNowEl) tjNowEl.textContent = `NOW LVL ${meta.level}`;
         if (tjCaptionEl) {
             tjCaptionEl.textContent = meta.level === 1
-                ? `Started at LVL 1 (Make Habits) · Clear ${meta.remainingDays} day${meta.remainingDays === 1 ? '' : 's'} to reach LVL 2.`
-                : `Started LVL 1 → Reached LVL ${meta.level} (${meta.shortPower})${meta.nextLevel ? ` · ${meta.remainingDays}d to LVL ${meta.nextLevel}.` : ' · Max rank reached!'}`;
+                ? `Started at LVL 1 (Make Habits) · Complete ${doneQ}/${totalQ} quests to reach LVL 2.`
+                : `Started LVL 1 → Reached LVL ${meta.level} (${meta.shortPower})${meta.nextLevel ? ` · ${doneQ}/${totalQ} quests to LVL ${meta.nextLevel}.` : ' · All powers active!'}`;
+        }
+        if (tjQuestsEl) {
+            if (meta.nextLevel && quests.length) {
+                tjQuestsEl.innerHTML = quests.map(q =>
+                    `<span class="ha-arc-tj-qchip${q.done ? ' is-done' : ''}">${q.done ? '✓ ' : ''}${HabitArc.escapeHTML(shorten(q.label, 24))} ${q.done ? 'DONE' : `${q.current}/${q.target}`}</span>`
+                ).join('');
+            } else {
+                tjQuestsEl.innerHTML = '<span class="ha-arc-tj-qchip is-done">✓ All 4 AI Levels Unlocked</span>';
+            }
         }
         if (Array.isArray(meta.tiers)) {
             meta.tiers.forEach(t => {
@@ -612,7 +707,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 const conn = document.getElementById(`arc-tj-conn-${t.level}`);
                 node?.classList?.toggle?.('is-reached', Boolean(t.unlocked));
                 node?.classList?.toggle?.('is-current', Boolean(t.current));
-                if (tag) tag.textContent = t.current ? 'NOW' : (t.level === 1 ? 'START ✓' : (t.unlocked ? 'ON ✓' : `${t.minDays}D`));
+                const shortReq = t.reqLabel === '3 Quests' ? '3Q' : (t.reqLabel || 'LOCK');
+                if (tag) tag.textContent = t.current ? 'NOW' : (t.level === 1 ? 'START ✓' : (t.unlocked ? 'ON ✓' : shortReq));
                 conn?.classList?.toggle?.('is-filled', meta.level > t.level);
             });
         }
@@ -843,6 +939,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 lastActionAutoCreated: activeActionAutoCreated,
                 lastCreatedHabitId: activeCreatedHabitId,
                 lastPrevHabitPatch: activePrevHabitPatch,
+                lastActionUndo: activeActionUndo,
                 updatedAt: Date.now()
             }));
         } catch { /* Optional device cache */ }
@@ -851,6 +948,17 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     function formatActionMeta(action) {
         if (!action) return '';
         const parts = [];
+        if (action.type === 'create_task') {
+            if (action.dueDate) parts.push(`Due ${action.dueDate}`);
+            if (action.priority && action.priority !== 'none') parts.push(`${action.priority.toUpperCase()} priority`);
+            if (action.description) parts.push(shorten(action.description, 52));
+            return parts.join(' · ') || 'Planner task';
+        }
+        if (action.type === 'batch_update_habits') {
+            return (action.updates || []).map(u => `${u.habitName}${u.reminder ? ` (${u.reminder})` : ''}`).join(', ');
+        }
+        if (action.type === 'delete_habit') return 'Remove habit & log history';
+        if (action.type === 'complete_habit') return 'Mark completed for today';
         if (action.category) parts.push(action.category);
         if (action.reminder) parts.push(`Reminder ${action.reminder}`);
         if (Array.isArray(action.repeat) && action.repeat.length) {
@@ -864,49 +972,290 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         return String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
     }
 
-    function renderSuggestedAction(action, { applied = false, autoCreated = false, createdHabitId = '', prevPatch = null } = {}) {
+    const SUPPORTED_ACTION_TYPES = new Set(['create_habit', 'update_habit', 'delete_habit', 'complete_habit', 'create_task', 'batch_update_habits']);
+
+    function renderSuggestedAction(action, { applied = false, autoCreated = false, createdHabitId = '', prevPatch = null, undoData = null } = {}) {
         activeAction = action || null;
         activeActionApplied = Boolean(applied);
         activeActionAutoCreated = Boolean(applied && autoCreated);
         activeCreatedHabitId = (activeActionApplied && createdHabitId) ? String(createdHabitId) : '';
         activePrevHabitPatch = (activeActionApplied && prevPatch) ? prevPatch : null;
+        activeActionUndo = (activeActionApplied && undoData) ? undoData : null;
         if (!actionBox || !actionTitle || !actionMeta || !applyActionButton) return;
-        if (!action || (action.type !== 'create_habit' && action.type !== 'update_habit')) {
+        if (!action || !SUPPORTED_ACTION_TYPES.has(action.type)) {
             actionBox.classList.add('hidden');
             return;
         }
         const meta = getAiMeta();
         const isAutoUpdated = Boolean(activeActionApplied && activePrevHabitPatch && action.type === 'update_habit');
+        const hasGenericUndo = Boolean(activeActionApplied && activeActionUndo);
         const stillExists = !activeActionAutoCreated || !activeCreatedHabitId
             || typeof HabitArc.getHabitById !== 'function'
             || Boolean(HabitArc.getHabitById(activeCreatedHabitId));
+
         if (actionKicker) {
-            actionKicker.textContent = activeActionAutoCreated
-                ? (stillExists ? 'ADDED BY HABITARC AI' : 'REMOVED FROM HABITARC')
-                : isAutoUpdated
-                    ? `UPDATED BY ${meta.aiName.toUpperCase()}`
-                    : (action.type === 'create_habit' ? 'PROPOSED NEW HABIT' : 'PROPOSED HABIT UPDATE');
+            if (activeActionAutoCreated) {
+                actionKicker.textContent = stillExists ? 'ADDED BY HABITARC AI' : 'REMOVED FROM HABITARC';
+            } else if (isAutoUpdated) {
+                actionKicker.textContent = `UPDATED BY ${meta.aiName.toUpperCase()}`;
+            } else if (hasGenericUndo) {
+                const verb = { delete_habit: 'DELETED', complete_habit: 'COMPLETED', create_task: 'TASK ADDED', batch_update_habits: 'REBALANCED' }[action.type] || 'DONE';
+                actionKicker.textContent = `${verb} BY ${meta.aiName.toUpperCase()}`;
+            } else {
+                const propose = {
+                    create_habit: 'PROPOSED NEW HABIT',
+                    update_habit: 'PROPOSED HABIT UPDATE',
+                    delete_habit: 'PROPOSED HABIT DELETE',
+                    complete_habit: 'PROPOSED CHECK-IN',
+                    create_task: 'PROPOSED PLAN TASK',
+                    batch_update_habits: 'PROPOSED ROUTINE REBALANCE',
+                };
+                actionKicker.textContent = propose[action.type] || 'HABITARC ACTION';
+            }
         }
-        actionTitle.textContent = action.type === 'create_habit'
-            ? (activeActionAutoCreated ? `Added "${action.name}"` : `Add "${action.name}"`)
-            : (isAutoUpdated ? `Updated "${action.habitName || 'Habit'}"` : `Update "${action.habitName || 'Habit'}"`);
+
+        const titles = {
+            create_habit: activeActionAutoCreated ? `Added "${action.name}"` : `Add "${action.name}"`,
+            update_habit: isAutoUpdated ? `Updated "${action.habitName || 'Habit'}"` : `Update "${action.habitName || 'Habit'}"`,
+            delete_habit: hasGenericUndo ? `Deleted "${action.habitName || 'Habit'}"` : `Delete "${action.habitName || 'Habit'}"`,
+            complete_habit: hasGenericUndo ? `Completed "${action.habitName || 'Habit'}"` : `Mark "${action.habitName || 'Habit'}" done`,
+            create_task: hasGenericUndo ? `Added task "${action.title}"` : `Add task "${action.title}"`,
+            batch_update_habits: hasGenericUndo ? `Rebalanced ${(action.updates || []).length} habits` : `Rebalance ${(action.updates || []).length} habits`,
+        };
+        actionTitle.textContent = titles[action.type] || 'HabitArc Action';
         actionMeta.textContent = formatActionMeta(action);
+
         if (activeActionAutoCreated && action.type === 'create_habit') {
             const canUndo = stillExists && Boolean(activeCreatedHabitId) && typeof HabitArc.deleteHabit === 'function';
             applyActionButton.disabled = !canUndo;
             applyActionButton.textContent = stillExists ? (canUndo ? 'UNDO' : 'ADDED ✓') : 'REMOVED';
             applyActionButton.setAttribute?.('aria-label', canUndo ? `Undo added habit ${action.name}` : 'Habit added');
-        } else if (isAutoUpdated) {
-            const canUndo = typeof HabitArc.updateHabit === 'function';
-            applyActionButton.disabled = !canUndo;
+        } else if (isAutoUpdated || hasGenericUndo) {
+            applyActionButton.disabled = false;
             applyActionButton.textContent = 'UNDO';
-            applyActionButton.setAttribute?.('aria-label', `Undo update to ${action.habitName || 'habit'}`);
+            applyActionButton.setAttribute?.('aria-label', `Undo ${action.type}`);
         } else {
+            const ctaMap = {
+                create_habit: 'ADD HABIT',
+                update_habit: 'APPLY UPDATE',
+                delete_habit: 'DELETE HABIT',
+                complete_habit: 'MARK DONE',
+                create_task: 'ADD TASK',
+                batch_update_habits: 'APPLY ALL',
+            };
             applyActionButton.disabled = activeActionApplied;
-            applyActionButton.textContent = activeActionApplied ? 'APPLIED ✓' : (action.type === 'create_habit' ? 'ADD HABIT' : 'APPLY UPDATE');
-            applyActionButton.setAttribute?.('aria-label', activeActionApplied ? 'Applied' : (action.type === 'create_habit' ? 'Add habit' : 'Apply update'));
+            applyActionButton.textContent = activeActionApplied ? 'APPLIED ✓' : (ctaMap[action.type] || 'APPLY');
+            applyActionButton.setAttribute?.('aria-label', activeActionApplied ? 'Applied' : (ctaMap[action.type] || 'Apply'));
         }
         actionBox.classList.remove('hidden');
+    }
+
+    function syncAiLevelAfterAction(kind, beforeLevel) {
+        if (typeof HabitArc.recordAiAction === 'function') {
+            const after = HabitArc.recordAiAction(kind);
+            if (after?.level > beforeLevel) showLevelUpCelebration(beforeLevel, after.level, after);
+        }
+        renderArcConsole();
+    }
+
+    function executeHabitActionSync(action, { auto = false } = {}) {
+        if (!action) return { ok: false, message: 'No action.' };
+        const beforeLevel = getAiMeta().level;
+
+        if (action.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
+            if (auto) {
+                const targetKey = normaliseHabitKey(action.name);
+                const existing = (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === targetKey);
+                if (existing) return { ok: false, duplicate: true, message: `"${action.name}" is already in your habits.` };
+            }
+            const created = HabitArc.addHabit({
+                name: action.name,
+                category: action.category || 'General',
+                reminder: action.reminder || '09:00',
+                repeat: action.repeat,
+                why: action.why || ''
+            });
+            if (!created?.success) return { ok: false, message: created?.message || 'Could not add habit.' };
+            syncAiLevelAfterAction('create', beforeLevel);
+            return {
+                ok: true,
+                applied: true,
+                autoCreated: true,
+                createdHabitId: created.habit?.id || '',
+                message: `Added "${action.name}" to HabitArc.`,
+            };
+        }
+
+        if (action.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
+            const targetHabit = HabitArc.getHabitById?.(action.habitId)
+                || (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === normaliseHabitKey(action.habitName));
+            const updates = {};
+            const prevPatch = {};
+            if (action.reminder !== undefined && action.reminder !== null && action.reminder !== '') {
+                prevPatch.reminder = targetHabit?.reminder ?? '';
+                updates.reminder = action.reminder;
+            }
+            if (Array.isArray(action.repeat) && action.repeat.length) {
+                prevPatch.repeat = Array.isArray(targetHabit?.repeat)
+                    ? [...targetHabit.repeat]
+                    : ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                updates.repeat = action.repeat;
+            }
+            if (typeof action.why === 'string' && action.why.trim()) {
+                prevPatch.why = targetHabit?.why ?? '';
+                updates.why = action.why;
+            }
+            const targetId = targetHabit?.id || action.habitId;
+            if (!targetId || !Object.keys(updates).length || !HabitArc.updateHabit(targetId, updates)) {
+                return { ok: false, message: 'Could not find that habit to update.' };
+            }
+            action.habitId = targetId;
+            action.habitName = targetHabit?.name || action.habitName || 'Habit';
+            syncAiLevelAfterAction('manage', beforeLevel);
+            return {
+                ok: true,
+                applied: true,
+                prevPatch: auto && Object.keys(prevPatch).length ? prevPatch : null,
+                message: `Updated "${action.habitName}" in HabitArc.`,
+            };
+        }
+
+        if (action.type === 'delete_habit' && typeof HabitArc.deleteHabit === 'function') {
+            const targetHabit = HabitArc.getHabitById?.(action.habitId)
+                || (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === normaliseHabitKey(action.habitName));
+            if (!targetHabit?.id) return { ok: false, message: 'Could not find that habit to delete.' };
+            const backup = JSON.parse(JSON.stringify(targetHabit));
+            HabitArc.deleteHabit(targetHabit.id);
+            action.habitId = targetHabit.id;
+            action.habitName = targetHabit.name || action.habitName || 'Habit';
+            syncAiLevelAfterAction('manage', beforeLevel);
+            return {
+                ok: true,
+                applied: true,
+                undoData: { kind: 'delete_habit', backup },
+                message: `Deleted "${action.habitName}" from HabitArc.`,
+            };
+        }
+
+        if (action.type === 'complete_habit' && typeof HabitArc.completeHabit === 'function') {
+            const targetHabit = HabitArc.getHabitById?.(action.habitId)
+                || (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === normaliseHabitKey(action.habitName));
+            if (!targetHabit?.id) return { ok: false, message: 'Could not find that habit to complete.' };
+            const wasDone = Boolean(HabitArc.isCompletedToday?.(targetHabit.id));
+            HabitArc.completeHabit(targetHabit.id);
+            action.habitId = targetHabit.id;
+            action.habitName = targetHabit.name || action.habitName || 'Habit';
+            syncAiLevelAfterAction('manage', beforeLevel);
+            return {
+                ok: true,
+                applied: true,
+                undoData: !wasDone ? { kind: 'complete_habit', habitId: targetHabit.id } : null,
+                message: `Completed "${action.habitName}" for today.`,
+            };
+        }
+
+        if (action.type === 'batch_update_habits' && typeof HabitArc.updateHabit === 'function') {
+            const prevList = [];
+            for (const item of (action.updates || [])) {
+                const target = HabitArc.getHabitById?.(item.habitId);
+                if (!target) continue;
+                const prevPatch = {};
+                const updates = {};
+                if (item.reminder) { prevPatch.reminder = target.reminder ?? ''; updates.reminder = item.reminder; }
+                if (Array.isArray(item.repeat) && item.repeat.length) {
+                    prevPatch.repeat = Array.isArray(target.repeat) ? [...target.repeat] : ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                    updates.repeat = item.repeat;
+                }
+                if (typeof item.why === 'string' && item.why.trim()) { prevPatch.why = target.why ?? ''; updates.why = item.why; }
+                if (Object.keys(updates).length && HabitArc.updateHabit(target.id, updates)) {
+                    prevList.push({ habitId: target.id, prevPatch });
+                }
+            }
+            if (!prevList.length) return { ok: false, message: 'No matching habits to rebalance.' };
+            syncAiLevelAfterAction('manage', beforeLevel);
+            return {
+                ok: true,
+                applied: true,
+                undoData: { kind: 'batch_update_habits', prevList },
+                message: `Rebalanced ${prevList.length} habit${prevList.length === 1 ? '' : 's'} in HabitArc.`,
+            };
+        }
+
+        return { ok: false, message: 'Action unavailable.' };
+    }
+
+    async function executeCreateTaskAction(action) {
+        const beforeLevel = getAiMeta().level;
+        const mod = await loadTaskStore();
+        if (!mod?.taskStore?.put || !mod?.newTask) {
+            return { ok: false, message: 'Tasks module unavailable right now.' };
+        }
+        mod.taskStore.start?.();
+        const created = mod.taskStore.put(mod.newTask({
+            title: action.title,
+            dueDate: action.dueDate || '',
+            priority: action.priority || 'medium',
+            description: action.description || '',
+        }));
+        syncAiLevelAfterAction('manage', beforeLevel);
+        return {
+            ok: true,
+            applied: true,
+            undoData: { kind: 'create_task', taskId: created.id },
+            message: `Added task "${action.title}" to Plan.`,
+        };
+    }
+
+    function undoHabitActionSync() {
+        if (!activeAction || !activeActionApplied) return '';
+        if (activeActionAutoCreated && activeCreatedHabitId && typeof HabitArc.deleteHabit === 'function') {
+            const removedName = activeAction.name;
+            HabitArc.deleteHabit(activeCreatedHabitId);
+            HabitArc.recordAiAction?.('undo_create');
+            activeCreatedHabitId = '';
+            activeActionAutoCreated = false;
+            activeActionApplied = false;
+            renderSuggestedAction(activeAction, { applied: false });
+            return `Removed "${removedName}" from HabitArc.`;
+        }
+        if (activePrevHabitPatch && activeAction.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
+            HabitArc.updateHabit(activeAction.habitId, activePrevHabitPatch);
+            HabitArc.recordAiAction?.('undo_manage');
+            activePrevHabitPatch = null;
+            activeActionApplied = false;
+            renderSuggestedAction(activeAction, { applied: false });
+            return `Restored "${activeAction.habitName || 'habit'}" in HabitArc.`;
+        }
+        const undo = activeActionUndo;
+        if (!undo) return '';
+        if (undo.kind === 'delete_habit' && undo.backup && typeof HabitArc.restoreHabit === 'function') {
+            HabitArc.restoreHabit(undo.backup);
+            HabitArc.recordAiAction?.('undo_manage');
+        } else if (undo.kind === 'complete_habit' && undo.habitId && typeof HabitArc.uncompleteHabit === 'function') {
+            HabitArc.uncompleteHabit(undo.habitId);
+            HabitArc.recordAiAction?.('undo_manage');
+        } else if (undo.kind === 'batch_update_habits' && Array.isArray(undo.prevList) && typeof HabitArc.updateHabit === 'function') {
+            undo.prevList.forEach(entry => HabitArc.updateHabit(entry.habitId, entry.prevPatch));
+            HabitArc.recordAiAction?.('undo_manage');
+        } else {
+            return '';
+        }
+        activeActionUndo = null;
+        activeActionApplied = false;
+        renderSuggestedAction(activeAction, { applied: false });
+        return 'Undid AI action.';
+    }
+
+    async function undoCreateTaskAction() {
+        const undo = activeActionUndo;
+        if (!undo || undo.kind !== 'create_task' || !undo.taskId) return '';
+        const mod = await loadTaskStore();
+        mod?.taskStore?.remove?.(undo.taskId);
+        HabitArc.recordAiAction?.('undo_manage');
+        activeActionUndo = null;
+        activeActionApplied = false;
+        renderSuggestedAction(activeAction, { applied: false });
+        return `Removed task "${activeAction?.title || 'task'}" from Plan.`;
     }
 
     // Keep code block copy buttons usable in both current and archived replies.
@@ -959,7 +1308,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             applied: activeActionApplied,
             autoCreated: activeActionAutoCreated,
             createdHabitId: activeCreatedHabitId,
-            prevPatch: activePrevHabitPatch
+            prevPatch: activePrevHabitPatch,
+            undoData: activeActionUndo
         });
         answerCard?.classList.remove('hidden');
         showThreadView(true);
@@ -985,6 +1335,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             activeActionAutoCreated = Boolean(parsed.lastActionAutoCreated);
             activeCreatedHabitId = typeof parsed.lastCreatedHabitId === 'string' ? parsed.lastCreatedHabitId : '';
             activePrevHabitPatch = parsed.lastPrevHabitPatch || null;
+            activeActionUndo = parsed.lastActionUndo || null;
             renderThreadFromState();
             scrollChatToLatest(true);
             setTimeout(() => {
@@ -1007,6 +1358,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         activeActionAutoCreated = false;
         activeCreatedHabitId = '';
         activePrevHabitPatch = null;
+        activeActionUndo = null;
+        lvlUpBanner?.classList?.add?.('hidden');
         if (clearStored && previousUid && typeof localStorage !== 'undefined') {
             try { localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${previousUid}`); } catch {}
         }
@@ -1204,62 +1557,22 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             activeActionAutoCreated = false;
             activeCreatedHabitId = '';
             activePrevHabitPatch = null;
+            activeActionUndo = null;
             let autoActionMessage = '';
             let duplicateAutoBlocked = false;
-            if (payload.autoExecute && activeAction?.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
-                const targetKey = normaliseHabitKey(activeAction.name);
-                const existing = (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === targetKey);
-                if (existing) {
-                    duplicateAutoBlocked = true;
-                    autoActionMessage = `"${activeAction.name}" is already in your habits.`;
-                } else {
-                    const created = HabitArc.addHabit({
-                        name: activeAction.name,
-                        category: activeAction.category || 'General',
-                        reminder: activeAction.reminder || '09:00',
-                        repeat: activeAction.repeat,
-                        why: activeAction.why || ''
-                    });
-                    if (created?.success) {
-                        activeActionApplied = true;
-                        activeActionAutoCreated = true;
-                        activeCreatedHabitId = created.habit?.id || '';
-                        renderArcConsole();
-                        autoActionMessage = `Added "${activeAction.name}" to HabitArc.`;
-                    } else {
-                        autoActionMessage = created?.message || 'Could not auto-add habit.';
-                    }
+            if (payload.autoExecute && activeAction) {
+                const outcome = activeAction.type === 'create_task'
+                    ? await executeCreateTaskAction(activeAction)
+                    : executeHabitActionSync(activeAction, { auto: true });
+                duplicateAutoBlocked = Boolean(outcome.duplicate);
+                if (outcome.ok) {
+                    activeActionApplied = Boolean(outcome.applied);
+                    activeActionAutoCreated = Boolean(outcome.autoCreated);
+                    activeCreatedHabitId = outcome.createdHabitId || '';
+                    activePrevHabitPatch = outcome.prevPatch || null;
+                    activeActionUndo = outcome.undoData || null;
                 }
-            } else if (payload.autoExecute && activeAction?.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
-                const targetHabit = HabitArc.getHabitById?.(activeAction.habitId)
-                    || (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === normaliseHabitKey(activeAction.habitName));
-                const updates = {};
-                const prevPatch = {};
-                if (activeAction.reminder !== undefined && activeAction.reminder !== null && activeAction.reminder !== '') {
-                    prevPatch.reminder = targetHabit?.reminder ?? '';
-                    updates.reminder = activeAction.reminder;
-                }
-                if (Array.isArray(activeAction.repeat) && activeAction.repeat.length) {
-                    prevPatch.repeat = Array.isArray(targetHabit?.repeat)
-                        ? [...targetHabit.repeat]
-                        : ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-                    updates.repeat = activeAction.repeat;
-                }
-                if (typeof activeAction.why === 'string' && activeAction.why.trim()) {
-                    prevPatch.why = targetHabit?.why ?? '';
-                    updates.why = activeAction.why;
-                }
-                const targetId = targetHabit?.id || activeAction.habitId;
-                if (targetId && Object.keys(updates).length && HabitArc.updateHabit(targetId, updates)) {
-                    activeAction.habitId = targetId;
-                    activeAction.habitName = targetHabit?.name || activeAction.habitName || 'Habit';
-                    activeActionApplied = true;
-                    activePrevHabitPatch = Object.keys(prevPatch).length ? prevPatch : null;
-                    renderArcConsole();
-                    autoActionMessage = `Updated "${activeAction.habitName}" in HabitArc.`;
-                } else {
-                    autoActionMessage = 'Could not find that habit to update.';
-                }
+                autoActionMessage = outcome.message || '';
             }
             renderThreadFromState();
             copyAnswerButton?.classList?.remove('hidden');
@@ -1405,68 +1718,89 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         } catch { /* Clipboard permission optional */ }
     });
 
+    function finishManualActionOutcome(outcome) {
+        if (!outcome?.ok) {
+            setStatus(outcome?.message || 'Action unavailable.', 'error');
+            return;
+        }
+        renderSuggestedAction(activeAction, {
+            applied: true,
+            autoCreated: false,
+            createdHabitId: outcome.createdHabitId || '',
+            prevPatch: outcome.prevPatch || null,
+            undoData: outcome.undoData || null,
+        });
+        saveThreadState(owner);
+        renderArcConsole();
+        setStatus(outcome.message, 'success');
+        window.HabitArcUI?.announce?.(outcome.message);
+    }
+
     applyActionButton?.addEventListener('click', () => {
         if (!activeAction) return;
-        if (activeActionAutoCreated && activeActionApplied && activeCreatedHabitId && typeof HabitArc.deleteHabit === 'function') {
-            const removedName = activeAction.name;
-            HabitArc.deleteHabit(activeCreatedHabitId);
-            activeCreatedHabitId = '';
-            activeActionAutoCreated = false;
-            activeActionApplied = false;
-            renderSuggestedAction(activeAction, { applied: false });
-            saveThreadState(owner);
-            renderArcConsole();
-            setStatus(`Removed "${removedName}" from HabitArc.`, 'muted');
-            window.HabitArcUI?.announce?.(`Removed ${removedName} from HabitArc.`);
-            return;
-        }
-        if (activeActionApplied && activePrevHabitPatch && activeAction.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
-            HabitArc.updateHabit(activeAction.habitId, activePrevHabitPatch);
-            activePrevHabitPatch = null;
-            activeActionApplied = false;
-            renderSuggestedAction(activeAction, { applied: false });
-            saveThreadState(owner);
-            renderArcConsole();
-            setStatus(`Restored "${activeAction.habitName || 'habit'}" in HabitArc.`, 'muted');
-            window.HabitArcUI?.announce?.(`Restored ${activeAction.habitName || 'habit'} in HabitArc.`);
-            return;
-        }
-        if (activeActionApplied) return;
-        if (activeAction.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
-            const created = HabitArc.addHabit({
-                name: activeAction.name,
-                category: activeAction.category || 'General',
-                reminder: activeAction.reminder || '09:00',
-                repeat: activeAction.repeat,
-                why: activeAction.why || ''
-            });
-            if (!created?.success) {
-                setStatus(created?.message || 'Could not add habit.', 'error');
+        if (activeActionApplied) {
+            if (activeActionUndo?.kind === 'create_task') {
+                void undoCreateTaskAction().then(msg => {
+                    if (!msg) return;
+                    saveThreadState(owner);
+                    renderArcConsole();
+                    setStatus(msg, 'muted');
+                    window.HabitArcUI?.announce?.(msg);
+                });
                 return;
             }
-            renderSuggestedAction(activeAction, { applied: true });
+            const msg = undoHabitActionSync();
+            if (!msg) return;
             saveThreadState(owner);
             renderArcConsole();
-            setStatus(`Added "${activeAction.name}" to HabitArc.`, 'success');
-            window.HabitArcUI?.announce?.(`Added ${activeAction.name} to HabitArc.`);
+            setStatus(msg, 'muted');
+            window.HabitArcUI?.announce?.(msg);
             return;
         }
-        if (activeAction.type === 'update_habit' && typeof HabitArc.updateHabit === 'function') {
-            const updates = {};
-            if (activeAction.reminder) updates.reminder = activeAction.reminder;
-            if (activeAction.repeat) updates.repeat = activeAction.repeat;
-            if (activeAction.why) updates.why = activeAction.why;
-            const ok = HabitArc.updateHabit(activeAction.habitId, updates);
-            if (!ok) {
-                setStatus('Could not find that habit to update.', 'error');
+        if (activeAction.type === 'create_task') {
+            void executeCreateTaskAction(activeAction).then(finishManualActionOutcome);
+            return;
+        }
+        finishManualActionOutcome(executeHabitActionSync(activeAction, { auto: false }));
+    });
+
+    const nodePrompts = {
+        1: 'Create a 10-min stretching habit at 08:00',
+        2: 'Change my first habit reminder to 08:30',
+        3: 'Create a 5-min low-energy Plan-B backup habit for tight days',
+        4: 'Rebalance my daily habit schedule so mornings feel lighter',
+    };
+    [1, 2, 3, 4].forEach(lvl => {
+        document.getElementById(`arc-tj-node-${lvl}`)?.addEventListener('click', () => {
+            if (requestController) return;
+            const meta = getAiMeta();
+            if (lvl > meta.level) {
+                setStatus(`Unlock LVL ${lvl} first: finish the quests shown in ${meta.aiName}'s Level Journey.`, 'muted');
                 return;
             }
-            renderSuggestedAction(activeAction, { applied: true });
-            saveThreadState(owner);
+            questionInput.value = nodePrompts[lvl] || '';
+            resizeTextarea();
+            questionInput.focus();
+        });
+    });
+
+    ['default', 'calm', 'drill', 'hinglish'].forEach(toneId => {
+        document.getElementById(`arc-tone-${toneId}`)?.addEventListener('click', () => {
+            const meta = getAiMeta();
+            if (meta.level < 4) return;
+            HabitArc.updateSettings?.({ aiTone: toneId });
             renderArcConsole();
-            setStatus(`Updated "${activeAction.habitName || 'habit'}" in HabitArc.`, 'success');
-            window.HabitArcUI?.announce?.(`Updated ${activeAction.habitName || 'habit'} in HabitArc.`);
+            setStatus(`Switched ${meta.aiName} voice to ${toneId === 'default' ? 'Balanced' : toneId}.`, 'success');
+        });
+    });
+
+    lvlUpClose?.addEventListener('click', () => lvlUpBanner?.classList?.add?.('hidden'));
+    window.addEventListener('habitarc:ai-level-up', (event) => {
+        const detail = event?.detail;
+        if (detail?.toLevel > detail?.fromLevel) {
+            showLevelUpCelebration(detail.fromLevel, detail.toLevel, detail.prog || getAiMeta());
         }
+        renderArcConsole();
     });
 
     clearButton?.addEventListener('click', () => {

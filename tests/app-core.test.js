@@ -165,11 +165,12 @@ test('habit chime reuses one shared AudioContext across 60 completions and emits
     assert.equal(dispatched.some(e => e.type === 'habitarc:data-changed' && e.detail?.source === 'visibility'), true);
 });
 
-test('custom aiName sanitizes safely and getAiProgression unlocks Level 2 on first cleared day', () => {
+test('custom aiName sanitizes safely, quests unlock Level 2 cleanly, and restoreHabit preserves history', () => {
     const { app } = application();
     assert.equal(app.getSettings().aiName, 'ARC');
     assert.equal(app.getAiProgression().level, 1);
-    assert.equal(app.getAiProgression().aiName, 'ARC');
+    assert.equal(app.getAiProgression().questsDoneCount, 0);
+    assert.equal(app.getAiProgression().questsTotalCount, 3);
 
     app.updateSettings({ aiName: '  Nova   <Coach>  ' });
     assert.equal(app.getSettings().aiName, 'Nova Coach');
@@ -179,14 +180,29 @@ test('custom aiName sanitizes safely and getAiProgression unlocks Level 2 on fir
     assert.equal(app.getSettings().aiName, 'ARC');
 
     app.updateSettings({ aiName: 'Nova' });
-    const { habit } = app.addHabit({ name: 'Stretch' });
-    assert.equal(app.getAiProgression().clearDays, 0);
+    const { habit: h1 } = app.addHabit({ name: 'Stretch' });
+    const { habit: h2 } = app.addHabit({ name: 'Read' });
+    const { habit: h3 } = app.addHabit({ name: 'Hydrate' });
+    app.recordAiAction('create');
+    app.completeHabit(h1.id);
+    // 1 check-in + 1 AI create is 1/3 quests done (need 3 check-ins + 1 clear day/task)
     assert.equal(app.getAiProgression().level, 1);
+    assert.equal(app.getAiProgression().questsDoneCount, 1);
 
-    app.completeHabit(habit.id);
+    app.completeHabit(h2.id);
+    app.completeHabit(h3.id);
     const l2 = app.getAiProgression();
     assert.equal(l2.aiName, 'Nova');
     assert.equal(l2.clearDays, 1);
+    assert.equal(l2.totalCheckins, 3);
     assert.equal(l2.level, 2);
-    assert.equal(l2.shortPower, 'Edit Reminders');
+    assert.equal(l2.rank, 'Routine Manager');
+    assert.equal(l2.shortPower, 'Delete, Edit & Tasks');
+
+    const backup = JSON.parse(JSON.stringify(app.getHabitById(h3.id)));
+    app.deleteHabit(h3.id);
+    assert.equal(app.getHabitById(h3.id), null);
+    assert.equal(app.restoreHabit(backup), true);
+    assert.equal(app.getHabitById(h3.id)?.name, 'Hydrate');
+    assert.equal(app.isCompletedToday(h3.id), true);
 });

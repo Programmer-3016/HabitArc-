@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clearedDays, changeTreasure, inventory, AI_DEFAULT_NAME, AI_LEVEL_TIERS, normaliseAiName, computeAiProgression } from '../runner-treasures.js';
+import { clearedDays, changeTreasure, inventory, AI_DEFAULT_NAME, AI_TONES, AI_LEVEL_TIERS, normaliseAiName, normaliseAiTone, computeAiProgression } from '../runner-treasures.js';
 
 const habit = (id, repeat, extra = {}) => ({id, createdAt:'2026-11-01', repeat, ...extra});
 const done = (habitId, date, extra = {}) => ({habitId, date, status:'completed', updatedAt:date+'T10:32:11Z', ...extra});
@@ -47,44 +47,83 @@ test('tiers require 1/7/14/30 clears; opening auto-equips, remounting and re-equ
   assert.deepEqual(inventory({opened:['wood','wood','bogus'],equipped:'gold'}),{opened:['wood'],equipped:null,xp:30});
 });
 
-test('AI progression unlocks LVL 1/2/3/4 at 0/1/7/14 clear days and sanitizes custom AI names', () => {
+test('AI quest progression unlocks LVL 1/2/3/4 cleanly with 7d/14d requirements, tones, and custom names', () => {
   assert.equal(AI_DEFAULT_NAME, 'ARC');
   assert.equal(AI_LEVEL_TIERS.length, 4);
+  assert.equal(AI_TONES.length, 4);
   assert.equal(normaliseAiName(''), 'ARC');
   assert.equal(normaliseAiName('  Nova   Bot  '), 'Nova Bot');
   assert.equal(normaliseAiName('  Nova   <Coach>  '), 'Nova Coach');
   assert.equal(normaliseAiName('SuperLongCustomAssistantName'), 'SuperLongCustomA');
+  assert.equal(normaliseAiTone('DRILL'), 'drill');
+  assert.equal(normaliseAiTone('invalid-tone'), 'default');
 
-  const l1 = computeAiProgression({ clearCount: 0 });
+  // Fresh start: LVL 1, 0/3 quests done
+  const l1 = computeAiProgression({ aiName: 'Nova' });
   assert.equal(l1.level, 1);
   assert.equal(l1.shortPower, 'Make Habits');
-  assert.equal(l1.nextLevel, 2);
-  assert.equal(l1.remainingDays, 1);
-  assert.equal(l1.tiers.filter(t => t.unlocked).length, 1);
+  assert.equal(l1.questsDoneCount, 0);
+  assert.equal(l1.questsTotalCount, 3);
+  assert.equal(l1.progressPct, 0);
+  assert.equal(l1.activeTone, 'default');
+  assert.match(l1.quests[0].label, /Create 1 habit with Nova/);
 
-  const l2 = computeAiProgression({ clearCount: 1 });
-  assert.equal(l2.level, 2);
-  assert.equal(l2.nextLevel, 3);
-  assert.equal(l2.remainingDays, 6);
-  assert.equal(l2.tiers.filter(t => t.unlocked).length, 2);
-
-  const l3 = computeAiProgression({ clearCount: 7 });
-  assert.equal(l3.level, 3);
-  assert.equal(l3.nextLevel, 4);
-  assert.equal(l3.remainingDays, 7);
-
-  const l4 = computeAiProgression({ clearCount: 14 });
-  assert.equal(l4.level, 4);
-  assert.equal(l4.nextLevel, null);
-  assert.equal(l4.remainingDays, 0);
-  assert.equal(l4.progressPct, 100);
-  assert.equal(l4.tiers.every(t => t.unlocked), true);
-
-  const fromHabits = computeAiProgression({
-    habits: [habit('walk', ['mon', 'wed', 'fri'])],
-    completionHistory: [done('walk', '2026-11-16'), done('walk', '2026-11-18')],
+  // Clearing 1 day without creating an AI habit keeps LVL 1 (quests partial)
+  const partial = computeAiProgression({
+    habits: [habit('walk', ['mon'])],
+    completionHistory: [done('walk', '2026-11-16')],
     today
   });
-  assert.equal(fromHabits.clearDays, 2);
-  assert.equal(fromHabits.level, 2);
+  assert.equal(partial.level, 1);
+  assert.equal(partial.questsDoneCount, 1);
+  assert.equal(partial.progressPct, 33);
+
+  // Completing all 3 LVL 1 quests (1 AI habit + 3 check-ins + 1 clear day/task) unlocks LVL 2
+  const l2 = computeAiProgression({
+    habits: [habit('walk', ['mon', 'wed', 'fri'])],
+    completionHistory: [done('walk', '2026-11-16'), done('walk', '2026-11-18'), done('walk', '2026-11-20')],
+    today,
+    aiStats: { createdViaAi: 1 }
+  });
+  assert.equal(l2.level, 2);
+  assert.equal(l2.rank, 'Routine Manager');
+  assert.equal(l2.shortPower, 'Delete, Edit & Tasks');
+  assert.equal(l2.nextLevel, 3);
+  assert.equal(l2.tiers.filter(t => t.unlocked).length, 2);
+
+  // LVL 3 requires 7 active days + 3 cleared days + LVL 2 AI use or 3 tasks/focus
+  const weekDays = ['2026-11-09','2026-11-11','2026-11-13','2026-11-16','2026-11-18','2026-11-20','2026-11-21'];
+  const l3 = computeAiProgression({
+    habits: [habit('walk', ['mon', 'wed', 'fri'])],
+    completionHistory: weekDays.map(d => done('walk', d)),
+    today,
+    aiStats: { createdViaAi: 1, managedViaAi: 1 }
+  });
+  assert.equal(l3.activeDays, 7);
+  assert.equal(l3.clearDays >= 3, true);
+  assert.equal(l3.level, 3);
+  assert.equal(l3.rank, 'Streak Tactician');
+  assert.equal(l3.activeTone, 'default');
+
+  // LVL 4 requires 14 active days + 7 cleared days + 15 check-ins + mastery actions, and unlocks tones
+  const scheduledMWF = ['02','04','06','09','11','13','16','18','20'].map(n => `2026-11-${n}`);
+  const extraActiveDays = ['03','05','07','14','21'].map(n => `2026-11-${n}`);
+  const l4 = computeAiProgression({
+    habits: [habit('walk', ['mon', 'wed', 'fri']), habit('read', ['mon', 'wed', 'fri'])],
+    completionHistory: [
+      ...scheduledMWF.map(d => done('walk', d)),
+      ...scheduledMWF.map(d => done('read', d)),
+      ...extraActiveDays.map(d => done('walk', d)),
+    ],
+    today: '2026-11-23',
+    aiStats: { createdViaAi: 2, managedViaAi: 2 },
+    aiTone: 'drill'
+  });
+  assert.equal(l4.activeDays, 14);
+  assert.equal(l4.level, 4);
+  assert.equal(l4.rank, 'Routine Architect');
+  assert.equal(l4.nextLevel, null);
+  assert.equal(l4.progressPct, 100);
+  assert.equal(l4.activeTone, 'drill');
+  assert.equal(l4.tiers.every(t => t.unlocked), true);
 });
