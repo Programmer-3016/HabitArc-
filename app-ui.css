@@ -1924,10 +1924,16 @@ body.ha-arc-body > main.ha-arc-ai {
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: rgb(var(--ha-outline-variant) / .28) transparent;
-    padding: 2px 5px 8px 2px;
-    margin: -2px -5px 0 -2px;
+    scrollbar-width: none !important;
+    scrollbar-color: transparent transparent !important;
+    -ms-overflow-style: none !important;
+    padding: 2px 2px 8px;
+    margin: 0;
+}
+.ha-arc-scroll::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .ha-arc-zen-top { text-align: center; padding: 0 8px 0; }

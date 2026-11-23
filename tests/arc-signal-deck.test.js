@@ -153,6 +153,8 @@ test('Legacy habit identifiers are hidden from the reading layout but code fence
  assert.doesNotMatch(renderArcSignalDeck(response),/h_mv1|h_mwq/);
  assert.equal(cleanArcDisplayText('Multiple entries sharing Daily Meditation & Mindful Reflection (such as IDs `h_abc123`, `h_def456`, `h_ghi789`, and `h_jkl012`) today.'), 'Multiple entries sharing Daily Meditation & Mindful Reflection today.');
  assert.equal(cleanArcDisplayText('Multiple entries sharing Daily Meditation (such as IDs , , , and).'), 'Multiple entries sharing Daily Meditation.');
+ assert.equal(cleanArcDisplayText('Aapke snapshot mein \\"Daily Meditation\\" 5 alag-alag entries hain (jaise `h_abc123`, aur `h_def456`), jo 09:00 par hain.'), 'Aapke snapshot mein "Daily Meditation" 5 alag-alag entries hain, jo 09:00 par hain.');
+ assert.equal(cleanArcDisplayText('5 entries hain (jaise , aur), jo 09:00 par hain.'), '5 entries hain, jo 09:00 par hain.');
 });
 
 test('Actual analytics determine completion statistics, not generated text',()=>{
