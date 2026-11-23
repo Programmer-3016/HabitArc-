@@ -351,7 +351,7 @@
 
 <script src="app.js"></script>
 <script type="module">
-import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream } from './habit-analytics.js';
+import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal } from './habit-analytics.js';
 (function initArcAI() {
     if (typeof HabitArc === 'undefined') return;
 
@@ -749,22 +749,20 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         setStatus('Syncing your latest habits before asking ARC AI…');
         const controller = new AbortController();
         requestController = controller;
-        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45000)]);
+        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(65000)]);
         let streamedDraft = '';
-        let draftTimer = null;
-        const renderDraft = () => {
-            draftTimer = null;
+        let receivedDraft = '';
+        let streamFellBack = false;
+        const wordReveal = createArcWordReveal(text => {
             if (controller !== requestController || controller.signal.aborted) return;
-            if (answerEl) answerEl.innerHTML = renderArcChatAnswer(streamedDraft, HabitArc.escapeHTML);
+            streamedDraft = text;
+            if (answerEl) answerEl.innerHTML = renderArcChatAnswer(text, HabitArc.escapeHTML);
             if (scrollArea && Number.isFinite(scrollArea.scrollHeight) && Number.isFinite(scrollArea.clientHeight)
                 && scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 180) {
                 scrollArea.scrollTop = scrollArea.scrollHeight;
             }
-        };
-        const scheduleDraft = () => {
-            if (draftTimer !== null) return;
-            draftTimer = setTimeout(renderDraft, 75);
-        };
+        }, { intervalMs: 42 });
+        controller.signal.addEventListener('abort', () => wordReveal.cancel(), { once: true });
 
         try {
             if (navigator.onLine === false) {
@@ -816,40 +814,37 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             }
             const contentType = response.headers?.get?.('content-type') || '';
             if (/text\/event-stream/i.test(contentType)) {
-                await consumeArcCoachStream(response, (event, value) => {
+                await consumeArcCoachStream(response, async (event, value) => {
                     if (controller !== requestController || controller.signal.aborted ||
                         HabitArc.getAuthUser()?.uid !== owner) {
                         controller.abort();
                         throw new Error('ARC AI conversation changed during streaming.');
                     }
                     if (event === 'delta' && typeof value?.text === 'string') {
-                        streamedDraft += value.text;
-                        if (streamedDraft.length > 12000) {
+                        receivedDraft += value.text;
+                        if (receivedDraft.length > 12000) {
                             throw new Error('ARC AI reply exceeded the display limit.');
                         }
-                        scheduleDraft();
-                        setStatus('ARC is responding…');
+                        // Only genuine Gemini chunks enter the word queue.
+                        wordReveal.push(value.text);
+                        setStatus('ARC is writing…');
                     } else if (event === 'reset') {
-                        // Provider streaming failed, but the same authenticated
-                        // request is completing through the stable JSON path.
+                        // Gemini SSE failed; the server is fetching a normal
+                        // response. Do not mislabel fallback text as live tokens.
+                        streamFellBack = true;
+                        wordReveal.reset();
                         streamedDraft = '';
-                        if (draftTimer !== null) {
-                            clearTimeout(draftTimer);
-                            draftTimer = null;
-                        }
+                        receivedDraft = '';
                         if (answerEl) answerEl.innerHTML = '<div class="ha-arc-skeleton" aria-hidden="true"><span class="ha-arc-skel-line"></span><span class="ha-arc-skel-line is-short"></span></div>';
-                        setStatus('Finishing your response…');
+                        setStatus('Completing reply in standard mode…');
                     } else if (event === 'done') {
+                        if (!streamFellBack) await wordReveal.finish();
                         payload = value;
                     }
                 });
             } else {
                 // Older server build / test fixture: preserve JSON support.
                 try { payload = await response.json(); } catch {}
-            }
-            if (draftTimer !== null) {
-                clearTimeout(draftTimer);
-                draftTimer = null;
             }
             if (!payload?.answer) {
                 throw new Error('ARC AI did not finish a response. Please retry.');
@@ -906,14 +901,14 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             window.HabitArcUI?.announce?.('ARC AI response is ready.');
         } catch (error) {
             if (controller !== requestController || controller.signal.aborted) return;
-            if (draftTimer !== null) {
-                clearTimeout(draftTimer);
-                draftTimer = null;
-            }
-            if (streamedDraft) {
+            // If a fast upstream disconnect happens before the first word
+            // could paint, still preserve the *received* (not fabricated) text.
+            const incompleteReply = streamedDraft || (streamFellBack ? '' : receivedDraft);
+            wordReveal.cancel();
+            if (incompleteReply) {
                 // Keep an interrupted reply visible, but never save it as a
                 // completed turn or expose a suggested action from partial text.
-                if (answerEl) answerEl.innerHTML = renderArcChatAnswer(streamedDraft, HabitArc.escapeHTML);
+                if (answerEl) answerEl.innerHTML = renderArcChatAnswer(incompleteReply, HabitArc.escapeHTML);
                 if (evidenceEl) evidenceEl.textContent = 'Partial reply · not saved. Your question is ready to retry.';
                 answerCard?.classList.remove('hidden');
                 showThreadView(true);
@@ -930,7 +925,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             if (controller === requestController) {
                 requestController = null;
                 answerCard?.setAttribute?.('aria-live', 'polite');
-                if (draftTimer !== null) clearTimeout(draftTimer);
+                wordReveal.cancel();
                 setLoading(false);
             }
         }

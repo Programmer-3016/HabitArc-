@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {splitArcAnswer,renderArcSignalDeck,renderArcChatAnswer,consumeArcCoachStream,renderCoachMarkdown,cleanArcDisplayText,buildHabitCoachContext} from '../habit-analytics.js';
+import {splitArcAnswer,renderArcSignalDeck,renderArcChatAnswer,consumeArcCoachStream,createArcWordReveal,renderCoachMarkdown,cleanArcDisplayText,buildHabitCoachContext} from '../habit-analytics.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
@@ -240,4 +240,44 @@ test('Mobile SSE reader rejects truncated responses and provider error frames', 
         consumeArcCoachStream({ body: bodyFrom('event: error\ndata: {"message":"Retry later"}\n\n') }, () => {}),
         /Retry later/
     );
+});
+
+
+test('Word reveal uses received SSE text only and visibly advances before completion', async () => {
+    const frames = [];
+    const reveal = createArcWordReveal(text => frames.push(text), { intervalMs: 2 });
+    reveal.push('Hel');
+    assert.equal(frames.length, 0, 'incomplete upstream word must not render');
+    reveal.push('lo world');
+    reveal.push(', this is live!');
+    const final = await reveal.finish();
+    assert.equal(final, 'Hello world, this is live!');
+    assert.deepEqual(frames, [
+        'Hello ', 'Hello world, ', 'Hello world, this ',
+        'Hello world, this is ', 'Hello world, this is live!'
+    ]);
+});
+
+test('Word reveal reset discards old stream and cancellation terminates pending animation', async () => {
+    const frames = [];
+    const reveal = createArcWordReveal(text => frames.push(text), { intervalMs: 1 });
+    reveal.push('Old partial data ');
+    reveal.reset();
+    reveal.push('New response');
+    assert.equal(await reveal.finish(), 'New response');
+    assert.deepEqual(frames, ['New ', 'New response']);
+    const next = createArcWordReveal(text => frames.push(text), { intervalMs: 20 });
+    next.push('Never paint this text ');
+    const pending = next.finish();
+    next.cancel();
+    assert.equal(await pending, '');
+    assert.doesNotMatch(frames.join(''), /Never paint/);
+});
+
+test('Visible word streaming is bound to real deltas; full fallback remains instant', () => {
+    const html = read('Arc_AI.html');
+    assert.match(html, /wordReveal\.push\(value\.text\)/);
+    assert.match(html, /await wordReveal\.finish\(\)/);
+    assert.match(html, /streamFellBack = true;\s*wordReveal\.reset\(\)/);
+    assert.doesNotMatch(html, /scheduleDraft\(\)/);
 });
