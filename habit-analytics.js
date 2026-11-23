@@ -549,7 +549,7 @@ export function renderArcSignalDeck(markdown, escapeHTML = defaultEscapeHtml, ve
  * no duplicated preview/readout, no forced sections, and no unverified AI
  * numbers introduced by the presentation layer.
  */
-export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, verifiedSnapshot = null) {
+export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, _verifiedSnapshot = null) {
     const esc = typeof escapeHTML === 'function' ? escapeHTML : defaultEscapeHtml;
     // Keep dates and routine reminder times easy to read in normal prose,
     // without boxed inline-code chips that fragment lines on narrow phones.
@@ -562,17 +562,7 @@ export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, ve
     const content = arcDeckResponsiveTables(
         arcDeckCodeBlocks(renderCoachMarkdown(source, esc)), esc
     );
-    const snapshot = verifiedSnapshot;
-    const verified = snapshot && ['habitCount', 'totalScheduled', 'totalLogged']
-        .every(key => Number.isSafeInteger(snapshot[key]) && snapshot[key] >= 0 && snapshot[key] <= 100000)
-        && snapshot.totalLogged <= snapshot.totalScheduled;
-    const sourceNote = verified
-        ? '<div class="ha-arc-chat-source" role="note"><span>HABITARC ROUTINE</span><span>' +
-          esc(String(snapshot.habitCount)) + ' habits · ' +
-          esc(String(snapshot.totalLogged)) + '/' + esc(String(snapshot.totalScheduled)) +
-          ' logged checks</span></div>'
-        : '';
-    return '<div class="ha-arc-chat-answer ha-md-prose">' + content + sourceNote + '</div>';
+    return '<div class="ha-arc-chat-answer ha-md-prose">' + content + '</div>';
 }
 
 

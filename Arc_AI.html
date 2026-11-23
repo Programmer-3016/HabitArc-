@@ -1572,6 +1572,15 @@ import {
         `).join('');
     }
 
+    function formatVisibleEvidence(raw) {
+        const text = String(raw || '').trim();
+        if (!text) return '';
+        const mismatchMatch = text.match(/Cloud account shows \d+ habits, but this device shows \d+\. Check sync before comparing rates\./);
+        if (mismatchMatch) return mismatchMatch[0];
+        if (/^(?:Window:|Based on your synced HabitArc records)/i.test(text)) return '';
+        return text;
+    }
+
     function renderThreadFromState() {
         if (!conversation.length) {
             if (historyEl) historyEl.innerHTML = '';
@@ -1588,7 +1597,7 @@ import {
         askedWrap?.classList.remove('hidden');
         if (answerEl) answerEl.innerHTML = renderArcChatAnswer(latest.answer, HabitArc.escapeHTML, lastVerifiedSnapshot);
         if (copyAnswerButton) copyAnswerButton.textContent = 'COPY';
-        if (evidenceEl) evidenceEl.textContent = lastCasualGreeting ? '' : (lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.');
+        if (evidenceEl) evidenceEl.textContent = lastCasualGreeting ? '' : formatVisibleEvidence(lastEvidence);
         renderSuggestedAction(activeAction, {
             applied: activeActionApplied,
             autoCreated: activeActionAutoCreated,
@@ -1956,19 +1965,11 @@ import {
                 .every(Number.isSafeInteger)
                 ? {habitCount:source.habitCount,totalScheduled:source.totalScheduled,totalLogged:source.totalLogged}
                 : null;
-            lastEvidence = lastCasualGreeting
-                ? ''
-                : (source?.dateWindow
-                    ? `Window: ${source.dateWindow.start} – ${source.dateWindow.end} (${source.timeZone}). ` +
-                      (source.insufficientData ? 'Limited history: suggestions are experiments. ' : '') +
-                      (source.truncated ? 'Some history was outside the context limit. ' : '') +
-                      'Today is in progress · Guidance only.'
-                    : 'Based on your synced HabitArc records · Guidance only.');
             const deviceHabitCount = HabitArc.getHabits?.()?.length;
-            if (lastVerifiedSnapshot && Number.isSafeInteger(deviceHabitCount)
-                && deviceHabitCount !== lastVerifiedSnapshot.habitCount) {
-                lastEvidence += ` Cloud account shows ${lastVerifiedSnapshot.habitCount} habits, but this device shows ${deviceHabitCount}. Check sync before comparing rates.`;
-            }
+            lastEvidence = (lastVerifiedSnapshot && Number.isSafeInteger(deviceHabitCount)
+                && deviceHabitCount !== lastVerifiedSnapshot.habitCount)
+                ? `Cloud account shows ${lastVerifiedSnapshot.habitCount} habits, but this device shows ${deviceHabitCount}. Check sync before comparing rates.`
+                : '';
             activeAction = payload.suggestedAction || null;
             activeActionApplied = false;
             activeActionAutoCreated = false;

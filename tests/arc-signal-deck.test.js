@@ -184,8 +184,7 @@ test('Conversation layout renders one complete Markdown answer without duplicate
  assert.match(html,/<h4 class="ha-md-h">One small next step<\/h4>/);
  assert.match(html,/<ul class="ha-md-ul">/);
  assert.match(html,/A short closing thought/);
- assert.match(html,/HABITARC ROUTINE/);
- assert.match(html,/12 habits · 0\/220 logged checks/);
+ assert.doesNotMatch(html,/HABITARC ROUTINE|ha-arc-chat-source|logged checks/);
  assert.equal((html.match(/One small next step/g)||[]).length,1);
  assert.doesNotMatch(html,/SIGNAL|READOUT|data-arc-mode|ha-arc-signal-hero/);
 });
