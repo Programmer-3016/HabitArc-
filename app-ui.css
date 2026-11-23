@@ -2219,6 +2219,7 @@ body.ha-arc-body > main.ha-arc-ai {
     .ha-arc-thinking-dots i { animation: none; opacity: .8; }
 }
 
+.ha-arc-evidence:empty { display: none !important; }
 .ha-arc-evidence {
     margin-top: 12px; padding-top: 9px; border-top: 1px dashed rgb(var(--ha-outline-variant) / .75);
     font-family: 'JetBrains Mono', monospace; font-size: 10.5px; line-height: 1.45;
