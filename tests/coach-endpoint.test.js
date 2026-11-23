@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createSign, generateKeyPairSync } from 'node:crypto';
-import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields, createCoachStreamCollector, streamWithGemini } from '../api/coach.js';
+import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields, createCoachStreamCollector, streamWithGemini, isExplicitHabitCreateRequest } from '../api/coach.js';
 
 function fixture({ anonymous = false, authCode, configured = true, limit = 15 } = {}) {
     let usage;
@@ -483,4 +483,51 @@ test('Casual check-ins route to greeting prompt without routine-audit bloat', as
     assert.equal(resHabit.body.routineDataUsed, true);
     assert.match(systems[3], /when analyzing habits/);
     assert.match(systems[3], /NEVER write the word "snapshot"/);
+});
+
+test('Level 1 autoExecute triggers only on explicit habit-creation requests, never passive suggestions or negations', async () => {
+    assert.equal(isExplicitHabitCreateRequest('Mere liye subah 7 baje Morning Walk habit bana do'), true);
+    assert.equal(isExplicitHabitCreateRequest('Create a 10-min meditation habit at 21:00'), true);
+    assert.equal(isExplicitHabitCreateRequest('Haan bana do', [{ question: 'Propose one', answer: 'How about Reading?' }]), true);
+    assert.equal(isExplicitHabitCreateRequest('Suggest one easy health habit'), false);
+    assert.equal(isExplicitHabitCreateRequest("Don't create a habit yet"), false);
+    assert.equal(isExplicitHabitCreateRequest('Habit add mat karna abhi'), false);
+
+    let usage;
+    const ref = path => ({
+        collection: n => ref(`${path}/${n}`), doc: n => ref(`${path}/${n}`),
+        select() { return this; }, where() { return this; }, limit() { return this; },
+        async get() { return { docs: [] }; }
+    });
+    const handler = createCoachHandler({
+        configured: () => true,
+        now: () => new Date('2026-11-23T12:00:00Z'),
+        timestamp: () => 't',
+        logError() {},
+        getAdmin: () => ({
+            db: {
+                collection: n => ref(n),
+                runTransaction: fn => fn({
+                    get: async () => ({ exists: !!usage, data: () => usage }),
+                    set: (_, v) => { usage = { ...usage, ...v }; }
+                })
+            },
+            auth: { verifyIdToken: async () => ({ uid: 'u1', firebase: { sign_in_provider: 'google.com' } }) }
+        }),
+        generate: async () => ({
+            text: 'Added **Morning Walk** at 07:00.\n<habitarc_action>{"type":"create_habit","name":"Morning Walk","category":"Fitness","reminder":"07:00","repeat":["mon","tue","wed","thu","fri","sat","sun"]}</habitarc_action>'
+        })
+    });
+
+    const resExplicit = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Create a Morning Walk habit at 7am', timeZone: 'Asia/Kolkata' } }, resExplicit);
+    assert.equal(resExplicit.code, 200);
+    assert.equal(resExplicit.body.autoExecute, true);
+    assert.equal(resExplicit.body.suggestedAction?.category, 'Fitness');
+
+    usage.lastRequestAtMs = 0;
+    const resSuggest = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Suggest an easy morning routine', timeZone: 'Asia/Kolkata' } }, resSuggest);
+    assert.equal(resSuggest.code, 200);
+    assert.equal(resSuggest.body.autoExecute, false);
 });

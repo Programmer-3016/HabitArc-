@@ -6,6 +6,9 @@ const ALLOWED_ACTION_CATEGORIES = new Map([
     ['mindfulness', 'Mindfulness'],
     ['learning', 'Learning'],
     ['focus', 'Focus'],
+    ['wellness', 'Wellness'],
+    ['fitness', 'Fitness'],
+    ['productivity', 'Productivity'],
     ['general', 'General']
 ]);
 const ALLOWED_ACTION_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];

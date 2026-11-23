@@ -15,7 +15,7 @@ class Clock extends Date {
 }
 const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false, holdStream = false } = {}) {
+function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false, holdStream = false, autoExecute = false, actionName = '10-Min Wind-Down' } = {}) {
     const elements = new Map();
     const events = new Map();
     const requests = [];
@@ -61,14 +61,17 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
     });
     const addedHabits = [];
     const updatedHabits = [];
+    const deletedHabits = [];
     const app = {
         getSettings: () => ({ userName: 'Alex' }),
         getHabits: () => habits,
+        getHabitById: id => habits.find(h => h.id === id) || null,
         getCompletionHistory: () => [],
         getOverallCurrentStreak: () => empty ? 0 : 14,
         getOverallLongestStreak: () => empty ? 0 : 14,
         addHabit: payload => { const h = { id: `new-${addedHabits.length}`, ...payload }; addedHabits.push(h); habits.push(h); return { success: true, habit: h }; },
         updateHabit: (id, updates) => { updatedHabits.push({ id, updates }); return true; },
+        deleteHabit: id => { deletedHabits.push(id); const idx = habits.findIndex(h => h.id === id); if (idx !== -1) habits.splice(idx, 1); },
         escapeHTML,
         whenAuthReady: async () => signedIn ? { uid: 'qa-user' } : null,
         getAuthUser: () => signedIn ? { uid: 'qa-user' } : null,
@@ -98,12 +101,13 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
                 answer: 'Try reading 10 minutes right after dinner.',
                 suggestedAction: {
                     type: 'create_habit',
-                    name: '10-Min Wind-Down',
+                    name: actionName,
                     category: 'Mindfulness',
                     reminder: '21:15',
                     repeat: ['mon', 'wed', 'fri'],
                     why: 'Anchor bedtime consistency'
                 },
+                autoExecute,
                 usage: { remaining: 6 },
                 snapshot: { habitCount: 2, totalScheduled: 56, totalLogged: 28, dateWindow: { start: '2026-10-18', end: '2026-11-15' }, timeZone: 'UTC', insufficientData: false, truncated: false }
             };
@@ -131,7 +135,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             return { ok: true, json: async () => payload };
         },
     });
-    return { elements, events, requests, announced, addedHabits, updatedHabits, body, releaseStream };
+    return { elements, events, requests, announced, addedHabits, updatedHabits, deletedHabits, habits, body, releaseStream };
 }
 
 test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and locked 100dvh shell', () => {
@@ -367,4 +371,34 @@ test('ARC AI keeps valid color channel tokens, inline SVGs, and square thread ac
     assert.doesNotMatch(arcCtx, /material-symbols-outlined/);
     assert.doesNotMatch(hub, /button\.innerHTML=.*material-symbols-outlined/);
     assert.doesNotMatch(css, /\.ha-arc-answer-card[^{]*\{[^}]*border-radius:\s*14px\s*!important/);
+});
+
+test('Level 1 autoExecute creates habit directly with 1-tap UNDO and skips duplicates', async () => {
+    const view = arcAi({ signedIn: true, autoExecute: true, actionName: 'Evening Stretch' });
+    view.elements.get('ai-coach-question').value = 'Create Evening Stretch habit';
+    view.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => view.addedHabits.length === 1);
+
+    assert.equal(view.addedHabits[0].name, 'Evening Stretch');
+    assert.equal(view.elements.get('ai-coach-action-box').classList.contains('hidden'), false);
+    assert.equal(view.elements.get('ai-coach-action-kicker').textContent, 'ADDED BY HABITARC AI');
+    assert.equal(view.elements.get('ai-coach-action-title').textContent, 'Added "Evening Stretch"');
+    const actionBtn = view.elements.get('ai-coach-apply-btn');
+    assert.equal(actionBtn.textContent, 'UNDO');
+    assert.equal(actionBtn.disabled, false);
+    assert.match(view.elements.get('ai-coach-status').textContent, /Added "Evening Stretch" to HabitArc/);
+
+    // Clicking UNDO deletes the auto-created habit and returns the card to ADD HABIT
+    actionBtn.handlers.click();
+    assert.deepEqual(view.deletedHabits, ['new-0']);
+    assert.equal(view.elements.get('ai-coach-action-kicker').textContent, 'PROPOSED NEW HABIT');
+    assert.equal(actionBtn.textContent, 'ADD HABIT');
+
+    // Duplicate habit guard prevents auto-creating an existing habit name
+    const dup = arcAi({ signedIn: true, autoExecute: true, actionName: '  walk  ' });
+    dup.elements.get('ai-coach-question').value = 'Add Walk habit';
+    dup.elements.get('ai-coach-form').handlers.submit({ preventDefault() {} });
+    await waitFor(() => /already in your habits/.test(dup.elements.get('ai-coach-status').textContent));
+    assert.equal(dup.addedHabits.length, 0);
+    assert.equal(dup.elements.get('ai-coach-apply-btn').textContent, 'ADD HABIT');
 });

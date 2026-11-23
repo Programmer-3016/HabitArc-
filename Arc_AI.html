@@ -428,6 +428,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     let requestController = null;
     let activeAction = null;
     let activeActionApplied = false;
+    let activeActionAutoCreated = false;
+    let activeCreatedHabitId = '';
     let lastEvidence = '';
     let lastVerifiedSnapshot = null;
     let lastCasualGreeting = false;
@@ -667,6 +669,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 lastCasualGreeting,
                 lastAction: activeAction,
                 lastActionApplied: activeActionApplied,
+                lastActionAutoCreated: activeActionAutoCreated,
+                lastCreatedHabitId: activeCreatedHabitId,
                 updatedAt: Date.now()
             }));
         } catch { /* Optional device cache */ }
@@ -684,23 +688,42 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         return parts.join(' · ');
     }
 
-    function renderSuggestedAction(action, { applied = false } = {}) {
+    function normaliseHabitKey(name) {
+        return String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    function renderSuggestedAction(action, { applied = false, autoCreated = false, createdHabitId = '' } = {}) {
         activeAction = action || null;
         activeActionApplied = Boolean(applied);
+        activeActionAutoCreated = Boolean(applied && autoCreated);
+        activeCreatedHabitId = (activeActionApplied && createdHabitId) ? String(createdHabitId) : '';
         if (!actionBox || !actionTitle || !actionMeta || !applyActionButton) return;
         if (!action || (action.type !== 'create_habit' && action.type !== 'update_habit')) {
             actionBox.classList.add('hidden');
             return;
         }
+        const stillExists = !activeActionAutoCreated || !activeCreatedHabitId
+            || typeof HabitArc.getHabitById !== 'function'
+            || Boolean(HabitArc.getHabitById(activeCreatedHabitId));
         if (actionKicker) {
-            actionKicker.textContent = action.type === 'create_habit' ? 'PROPOSED NEW HABIT' : 'PROPOSED HABIT UPDATE';
+            actionKicker.textContent = activeActionAutoCreated
+                ? (stillExists ? 'ADDED BY HABITARC AI' : 'REMOVED FROM HABITARC')
+                : (action.type === 'create_habit' ? 'PROPOSED NEW HABIT' : 'PROPOSED HABIT UPDATE');
         }
         actionTitle.textContent = action.type === 'create_habit'
-            ? `Add "${action.name}"`
+            ? (activeActionAutoCreated ? `Added "${action.name}"` : `Add "${action.name}"`)
             : `Update "${action.habitName || 'Habit'}"`;
         actionMeta.textContent = formatActionMeta(action);
-        applyActionButton.disabled = activeActionApplied;
-        applyActionButton.textContent = activeActionApplied ? 'APPLIED ✓' : (action.type === 'create_habit' ? 'ADD HABIT' : 'APPLY UPDATE');
+        if (activeActionAutoCreated && action.type === 'create_habit') {
+            const canUndo = stillExists && Boolean(activeCreatedHabitId) && typeof HabitArc.deleteHabit === 'function';
+            applyActionButton.disabled = !canUndo;
+            applyActionButton.textContent = stillExists ? (canUndo ? 'UNDO' : 'ADDED ✓') : 'REMOVED';
+            applyActionButton.setAttribute?.('aria-label', canUndo ? `Undo added habit ${action.name}` : 'Habit added');
+        } else {
+            applyActionButton.disabled = activeActionApplied;
+            applyActionButton.textContent = activeActionApplied ? 'APPLIED ✓' : (action.type === 'create_habit' ? 'ADD HABIT' : 'APPLY UPDATE');
+            applyActionButton.setAttribute?.('aria-label', activeActionApplied ? 'Applied' : (action.type === 'create_habit' ? 'Add habit' : 'Apply update'));
+        }
         actionBox.classList.remove('hidden');
     }
 
@@ -748,7 +771,11 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         if (answerEl) answerEl.innerHTML = renderArcChatAnswer(latest.answer, HabitArc.escapeHTML, lastVerifiedSnapshot);
         if (copyAnswerButton) copyAnswerButton.textContent = 'COPY';
         if (evidenceEl) evidenceEl.textContent = lastCasualGreeting ? '' : (lastEvidence || 'Based on your synced HabitArc records. Advice is not a guarantee.');
-        renderSuggestedAction(activeAction, { applied: activeActionApplied });
+        renderSuggestedAction(activeAction, {
+            applied: activeActionApplied,
+            autoCreated: activeActionAutoCreated,
+            createdHabitId: activeCreatedHabitId
+        });
         answerCard?.classList.remove('hidden');
         showThreadView(true);
     }
@@ -770,6 +797,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             lastCasualGreeting = Boolean(parsed.lastCasualGreeting);
             activeAction = parsed.lastAction || null;
             activeActionApplied = Boolean(parsed.lastActionApplied);
+            activeActionAutoCreated = Boolean(parsed.lastActionAutoCreated);
+            activeCreatedHabitId = typeof parsed.lastCreatedHabitId === 'string' ? parsed.lastCreatedHabitId : '';
             renderThreadFromState();
             scrollChatToLatest(true);
             setTimeout(() => {
@@ -789,6 +818,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         lastCasualGreeting = false;
         activeAction = null;
         activeActionApplied = false;
+        activeActionAutoCreated = false;
+        activeCreatedHabitId = '';
         if (clearStored && previousUid && typeof localStorage !== 'undefined') {
             try { localStorage.removeItem(`${THREAD_STORAGE_PREFIX}${previousUid}`); } catch {}
         }
@@ -982,6 +1013,35 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             }
             activeAction = payload.suggestedAction || null;
             activeActionApplied = false;
+            activeActionAutoCreated = false;
+            activeCreatedHabitId = '';
+            let autoActionMessage = '';
+            let duplicateAutoBlocked = false;
+            if (payload.autoExecute && activeAction?.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
+                const targetKey = normaliseHabitKey(activeAction.name);
+                const existing = (HabitArc.getHabits?.() || []).find(h => normaliseHabitKey(h?.name) === targetKey);
+                if (existing) {
+                    duplicateAutoBlocked = true;
+                    autoActionMessage = `"${activeAction.name}" is already in your habits.`;
+                } else {
+                    const created = HabitArc.addHabit({
+                        name: activeAction.name,
+                        category: activeAction.category || 'General',
+                        reminder: activeAction.reminder || '09:00',
+                        repeat: activeAction.repeat,
+                        why: activeAction.why || ''
+                    });
+                    if (created?.success) {
+                        activeActionApplied = true;
+                        activeActionAutoCreated = true;
+                        activeCreatedHabitId = created.habit?.id || '';
+                        renderArcConsole();
+                        autoActionMessage = `Added "${activeAction.name}" to HabitArc.`;
+                    } else {
+                        autoActionMessage = created?.message || 'Could not auto-add habit.';
+                    }
+                }
+            }
             renderThreadFromState();
             copyAnswerButton?.classList?.remove('hidden');
             saveThreadState(owner);
@@ -998,13 +1058,16 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             scrollChatToLatest();
 
             const remaining = payload.usage?.remaining;
+            const remainingLabel = Number.isFinite(remaining)
+                ? `${remaining} ARC AI messages remaining today.`
+                : 'ARC AI response ready.';
             setStatus(
-                Number.isFinite(remaining)
-                    ? `${remaining} ARC AI messages remaining today.`
-                    : 'ARC AI response ready.',
-                'success'
+                autoActionMessage
+                    ? (Number.isFinite(remaining) ? `${autoActionMessage} ${remaining} ARC AI messages remaining.` : autoActionMessage)
+                    : remainingLabel,
+                duplicateAutoBlocked ? 'muted' : 'success'
             );
-            window.HabitArcUI?.announce?.('ARC AI response is ready.');
+            window.HabitArcUI?.announce?.(autoActionMessage || 'ARC AI response is ready.');
         } catch (error) {
             if (controller !== requestController) return;
             const stoppedByUser = Boolean(controller._haStoppedByUser);
@@ -1118,7 +1181,21 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     });
 
     applyActionButton?.addEventListener('click', () => {
-        if (!activeAction || activeActionApplied) return;
+        if (!activeAction) return;
+        if (activeActionAutoCreated && activeActionApplied && activeCreatedHabitId && typeof HabitArc.deleteHabit === 'function') {
+            const removedName = activeAction.name;
+            HabitArc.deleteHabit(activeCreatedHabitId);
+            activeCreatedHabitId = '';
+            activeActionAutoCreated = false;
+            activeActionApplied = false;
+            renderSuggestedAction(activeAction, { applied: false });
+            saveThreadState(owner);
+            renderArcConsole();
+            setStatus(`Removed "${removedName}" from HabitArc.`, 'muted');
+            window.HabitArcUI?.announce?.(`Removed ${removedName} from HabitArc.`);
+            return;
+        }
+        if (activeActionApplied) return;
         if (activeAction.type === 'create_habit' && typeof HabitArc.addHabit === 'function') {
             const created = HabitArc.addHabit({
                 name: activeAction.name,
