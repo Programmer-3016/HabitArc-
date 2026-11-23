@@ -24,37 +24,85 @@ async function localNotes(owner) {
  }finally{db.close();}
 }
 
-export function mountArcContext({button=document.getElementById('arc-context-open')}={}){
- if(!button)return {collect:async()=>null,dispose:()=>{}};
+export function mountArcContext({
+ button = document.getElementById('arc-context-open'),
+ host = document.getElementById('arc-context-panel-host'),
+ chips = document.getElementById('arc-context-chips')
+} = {}) {
+ if(!button||!host)return {collect:async()=>null,clearAfterSend(){},dispose(){}};
  if(active?.button===button)return active.api;
  active?.api?.dispose?.();
  const controller=new AbortController(),signal=controller.signal;
- const dialog=document.createElement('dialog');
- dialog.className='ha-arc-data-dialog';dialog.id='ha-arc-data-dialog';
- dialog.setAttribute('aria-label','Choose private workspace data for ARC AI');
- dialog.innerHTML=[
- '<div class="ha-arc-data-shell"><header><div><small>ARC AI · OPTIONAL CONTEXT</small><h2>Choose what ARC can read</h2></div><button type="button" id="arc-data-close" aria-label="Close"><span class="material-symbols-outlined">close</span></button></header>',
- '<p class="ha-arc-data-explain">Habits already come from your signed-in profile. These extras are sent only with the next question when selected. Nothing shares automatically and attachments stay private.</p>',
- '<label class="ha-arc-data-option"><input id="arc-data-tasks" type="checkbox"><span><strong>Tasks</strong><small>Up to 12 active tasks: title, due date and priority</small></span></label>',
- '<label class="ha-arc-data-option"><input id="arc-data-focus" type="checkbox"><span><strong>Focus sessions</strong><small>Up to 20 completed sessions: date and minutes</small></span></label>',
- '<div class="ha-arc-data-notes"><strong>Selected Notes <small>(max 3, text only)</small></strong><p id="arc-data-notes-status">Loading note titles…</p><div id="arc-data-notes-list"></div></div>',
- '<footer><button id="arc-data-clear" type="button">Clear selection</button><button id="arc-data-save" type="button">Use this context</button></footer>',
- '<p id="arc-data-status" role="status" aria-live="polite"></p></div>'
+ const panel=document.createElement('section');
+ panel.className='ha-arc-attach-panel';
+ panel.id='arc-context-inline-panel';
+ panel.setAttribute('role','dialog');
+ panel.setAttribute('aria-modal','false');
+ panel.setAttribute('aria-label','Attach optional workspace context to the next ARC AI message');
+ panel.hidden=true;
+ panel.innerHTML=[
+  '<header class="ha-arc-attach-head"><div><small>ARC AI · ADD CONTEXT</small><strong>Attach to your message</strong></div><button type="button" id="arc-data-close" aria-label="Close context picker"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header>',
+  '<p class="ha-arc-attach-hint">Choose what ARC can read. Only sent with your next question.</p>',
+  '<label class="ha-arc-attach-option"><span class="material-symbols-outlined" aria-hidden="true">checklist</span><span><strong>Tasks</strong><small>Up to 12 active tasks</small></span><input id="arc-data-tasks" type="checkbox"></label>',
+  '<label class="ha-arc-attach-option"><span class="material-symbols-outlined" aria-hidden="true">timer</span><span><strong>Focus sessions</strong><small>Up to 20 completed sessions</small></span><input id="arc-data-focus" type="checkbox"></label>',
+  '<div class="ha-arc-attach-notes"><div class="ha-arc-attach-notes-heading"><span class="material-symbols-outlined" aria-hidden="true">description</span><strong>Notes <small>(choose up to 3)</small></strong></div><p id="arc-data-notes-status">Loading note titles…</p><div id="arc-data-notes-list"></div></div>',
+  '<footer class="ha-arc-attach-footer"><button id="arc-data-clear" type="button">Clear all</button><button id="arc-data-save" type="button">Done</button></footer>',
+  '<p id="arc-data-status" class="sr-only" role="status" aria-live="polite"></p>'
  ].join('');
- document.body.append(dialog);
- const q=id=>dialog.querySelector('#'+id);
+ host.append(panel);
+ const q=id=>panel.querySelector('#'+id);
  const selected=new Set();
  let notes=[],owner=uid(),loaded=false;
  const taskBox=q('arc-data-tasks'),focusBox=q('arc-data-focus'),noteList=q('arc-data-notes-list');
+ const countBadge=document.createElement('span');
+ countBadge.className='ha-arc-attach-count';
+ countBadge.setAttribute('aria-hidden','true');
+ countBadge.hidden=true;
+ button.append(countBadge);
+ function isOpen(){return !panel.hidden}
+ function close({focus=false}={}){
+  panel.hidden=true;
+  button.setAttribute('aria-expanded','false');
+  if(focus)button.focus();
+ }
+ function addChip(text, onRemove) {
+  if(!chips)return;
+  const chip=document.createElement('button');
+  chip.type='button';
+  chip.className='ha-arc-context-chip';
+  chip.textContent=text+' ×';
+  chip.setAttribute('aria-label','Remove '+text+' from next ARC AI message');
+  chip.addEventListener('click',onRemove,{signal});
+  chips.append(chip);
+ }
  function refreshLabel(){
   const parts=[];
   if(taskBox.checked)parts.push('Tasks');
   if(focusBox.checked)parts.push('Focus');
   if(selected.size)parts.push(selected.size+' Notes');
-  const count=parts.length;
-  button.textContent=count?'Context: '+parts.join(' + '):'Customize context';
-  button.setAttribute('aria-label',count?'Customize ARC context: '+parts.join(', '):'Choose additional ARC AI context');
-  button.classList.toggle('ha-arc-context-active',count>0);
+  const count=Number(taskBox.checked)+Number(focusBox.checked)+selected.size;
+  countBadge.textContent=String(count);
+  countBadge.hidden=count===0;
+  button.classList.toggle('ha-arc-attach-active',count>0);
+  button.setAttribute('aria-label',count?'Change attached ARC context: '+parts.join(', '):'Attach Tasks, Focus sessions or Notes');
+  if(chips){
+   chips.replaceChildren();
+   if(taskBox.checked)addChip('Tasks',()=>{taskBox.checked=false;refreshLabel()});
+   if(focusBox.checked)addChip('Focus',()=>{focusBox.checked=false;refreshLabel()});
+   for(const id of selected){
+    const note=notes.find(n=>n.id===id);
+    const title=shorten(note?.title||'Note',22);
+    addChip(title,()=>{
+     selected.delete(id);
+     noteList.querySelectorAll('input[type=checkbox]').forEach(box=>{
+      if(box.value===id)box.checked=false;
+      box.disabled=!box.checked&&selected.size>=MAX_NOTES;
+     });
+     refreshLabel();
+    });
+   }
+   chips.classList.toggle('hidden',count===0);
+  }
  }
  function reset(){
   taskBox.checked=false;focusBox.checked=false;selected.clear();
@@ -64,12 +112,12 @@ export function mountArcContext({button=document.getElementById('arc-context-ope
  }
  async function loadNotes(){
   const captured=uid();
-  if(captured!==owner){owner=captured;notes=[];reset();}
-  if(loaded&&notes.length){renderNotes();return;}
-  loaded=false;q('arc-data-notes-status').textContent='Loading note titles…';
+  if(captured!==owner){owner=captured;notes=[];loaded=false;reset();}
+  if(loaded){renderNotes();return;}
+  q('arc-data-notes-status').textContent='Loading note titles…';
   try{
-   const result=await localNotes(owner);
-   if(owner!==uid()||!dialog.isConnected)return;
+   const result=await localNotes(captured);
+   if(owner!==uid()||!panel.isConnected)return;
    notes=result;loaded=true;renderNotes();
   }catch{
    notes=[];loaded=false;q('arc-data-notes-status').textContent='Notes unavailable on this device.';
@@ -77,62 +125,82 @@ export function mountArcContext({button=document.getElementById('arc-context-ope
  }
  function renderNotes(){
   noteList.replaceChildren();
-  q('arc-data-notes-status').textContent=notes.length?'Choose up to 3 notes. Text will be sent to ARC only with your question.':'No device-local Notes found.';
+  q('arc-data-notes-status').textContent=notes.length?'Choose up to 3 notes. Text is shared only for this question.':'No device-local Notes found.';
   for(const n of notes.slice(0,30)){
-   const label=document.createElement('label');label.className='ha-arc-data-note';
+   const label=document.createElement('label');label.className='ha-arc-attach-note';
    const check=document.createElement('input');check.type='checkbox';check.value=n.id;check.checked=selected.has(n.id);
    check.disabled=!check.checked&&selected.size>=MAX_NOTES;
    const title=document.createElement('span');title.textContent=shorten(n.title||'Untitled Note',80);
    label.append(check,title);noteList.append(label);
   }
+  refreshLabel();
  }
- dialog.addEventListener('change',event=>{
+ function open(){
+  if(owner!==uid()){owner=uid();notes=[];loaded=false;reset();}
+  panel.hidden=false;
+  button.setAttribute('aria-expanded','true');
+  void loadNotes();
+ }
+ button.addEventListener('click',()=>isOpen()?close():open(),{signal});
+ panel.addEventListener('change',event=>{
   const input=event.target;
-  if(input.closest('#arc-data-notes-list')){
+  if(input?.closest?.('#arc-data-notes-list')){
    if(input.checked&&selected.size>=MAX_NOTES){input.checked=false;return;}
    if(input.checked)selected.add(input.value);else selected.delete(input.value);
    noteList.querySelectorAll('input').forEach(x=>x.disabled=!x.checked&&selected.size>=MAX_NOTES);
   }
   refreshLabel();
  },{signal});
- button.addEventListener('click',()=>{
-  if(owner!==uid()){owner=uid();loaded=false;reset();}
-  dialog.showModal();void loadNotes();
+ document.addEventListener('pointerdown',event=>{
+  if(isOpen()&&!panel.contains(event.target)&&!button.contains(event.target))close();
  },{signal});
- q('arc-data-close').addEventListener('click',()=>dialog.close(),{signal});
- q('arc-data-save').addEventListener('click',()=>{dialog.close();refreshLabel()},{signal});
+ document.addEventListener('keydown',event=>{
+  if(isOpen()&&event.key==='Escape'){close({focus:true});event.preventDefault();}
+ },{signal});
+ q('arc-data-close').addEventListener('click',()=>close({focus:true}),{signal});
+ q('arc-data-save').addEventListener('click',()=>close({focus:true}),{signal});
  q('arc-data-clear').addEventListener('click',reset,{signal});
  async function collect(){
   const current=uid();
-  if(current!==owner){owner=current;loaded=false;reset();return null;}
+  if(current!==owner){owner=current;loaded=false;notes=[];reset();return null;}
   const extra={};
   if(taskBox.checked){
    taskStore.start();
    if(taskStore.getStatus().owner!==current)throw new Error('Tasks are still switching accounts. Try again.');
    extra.tasks=taskStore.getTasks().filter(t=>!t.completed).slice(0,MAX_TASKS).map(t=>({
-     title:shorten(t.title,120),dueDate:shorten(t.dueDate,10),
-     priority:['none','low','medium','high'].includes(t.priority)?t.priority:'none',completed:Boolean(t.completed)
+    title:shorten(t.title,120),dueDate:shorten(t.dueDate,10),
+    priority:['none','low','medium','high'].includes(t.priority)?t.priority:'none',completed:Boolean(t.completed)
    }));
   }
   if(focusBox.checked){
    const focus=getFocusState();
    if(focus.owner!==current)throw new Error('Focus data is still switching accounts. Try again.');
    extra.focus=(focus.sessions||[]).slice(-MAX_FOCUS).map(s=>({
-     date:shorten(s.date,10),minutes:Math.max(1,Math.min(180,Math.round(Number(s.minutes)||1)))
+    date:shorten(s.date,10),minutes:Math.max(1,Math.min(180,Math.round(Number(s.minutes)||1)))
    }));
   }
   if(selected.size){
    const fresh=await localNotes(current);
    if(uid()!==current)throw new Error('Account changed while loading selected Notes.');
    extra.notes=fresh.filter(n=>selected.has(n.id)).slice(0,MAX_NOTES).map(n=>({
-     title:shorten(n.title,100),excerpt:shorten(n.body,850)
+    title:shorten(n.title,100),excerpt:shorten(n.body,850)
    }));
   }
-  if(!Object.keys(extra).length)return null;
-  return extra;
+  return Object.keys(extra).length?extra:null;
  }
  refreshLabel();
- const api={collect,dispose(){controller.abort();dialog.remove();if(active?.button===button)active=null;}};
+ const api={
+  collect,
+  clearAfterSend(){reset();close();},
+  dispose(){
+   controller.abort();
+   panel.remove();
+   countBadge.remove();
+   chips?.replaceChildren();
+   chips?.classList?.add('hidden');
+   if(active?.button===button)active=null;
+  }
+ };
  active={button,api};
  return api;
 }

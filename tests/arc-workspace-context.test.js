@@ -46,3 +46,45 @@ test('ARC five-tab navigation and PWA offline cache still remain intact',()=>{
  assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
  assert.match(source('sw.js'),/arc-context\.js/);
 });
+
+
+test('ARC prompts are visibly distinct blue bubbles while ARC answers stay unboxed',()=>{
+ const html=source('Arc_AI.html'), css=source('app-ui.css');
+ assert.match(html,/id="ai-coach-asked-wrap" class="hidden ha-arc-user-msg"/);
+ assert.match(html,/class="ha-arc-user-msg"><p>/);
+ assert.match(css,/\.ha-arc-thread-stack \.ha-arc-user-msg/);
+ assert.match(css,/background:#29375e;color:#f4f6ff/);
+ assert.match(css,/background:#e6edff;color:#223560/);
+ assert.match(css,/body\.ha-arc-body\.is-arc-thread-active \.ha-arc-answer-card/);
+});
+
+test('ARC attachment picker is anchored to the composer plus-button, not a full-screen modal',()=>{
+ const html=source('Arc_AI.html'), picker=source('arc-context.js'), css=source('app-ui.css');
+ const form=html.match(/<form id="ai-coach-form"[\s\S]*?<\/form>/)?.[0]||'';
+ assert.match(form,/id="arc-context-open" class="ha-arc-attach-btn"/);
+ assert.match(form,/aria-haspopup="dialog" aria-expanded="false"/);
+ assert.match(form,/id="arc-context-chips"/);
+ assert.match(html,/id="arc-context-panel-host"/);
+ assert.match(picker,/host\.append\(panel\)/);
+ assert.match(picker,/panel\.hidden=true/);
+ assert.match(picker,/panel\.setAttribute\('aria-modal','false'\)/);
+ assert.doesNotMatch(picker,/showModal\(|document\.createElement\('dialog'\)/);
+ assert.match(css,/\.ha-arc-context-host/);
+ assert.match(css,/\.ha-arc-attach-panel\[hidden\]/);
+ assert.match(picker,/event\.key==='Escape'/);
+ assert.match(picker,/!panel\.contains\(event\.target\)&&!button\.contains\(event\.target\)/);
+});
+
+test('Task, Focus and Notes attachments remain explicit, removable and one-question-only',()=>{
+ const picker=source('arc-context.js'), html=source('Arc_AI.html');
+ assert.match(picker,/taskBox\.checked=false;focusBox\.checked=false;selected\.clear\(\)/);
+ assert.match(picker,/addChip\('Tasks',/);
+ assert.match(picker,/addChip\('Focus',/);
+ assert.match(picker,/selected\.delete\(id\)/);
+ assert.match(picker,/selected\.size>=MAX_NOTES/);
+ assert.match(picker,/fresh\.filter\(n=>selected\.has\(n\.id\)\)/);
+ assert.match(picker,/notes\.filter\(n=>n\.owner===owner/);
+ assert.match(html,/contextPicker\?\.clearAfterSend\?\.\(\)/);
+ assert.match(picker,/clearAfterSend\(\)\{reset\(\);close\(\);\}/);
+ assert.match(html,/workspaceContext\s*\?\s*\{\s*workspaceContext\s*\}/);
+});

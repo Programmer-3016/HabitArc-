@@ -303,11 +303,17 @@
 
     <!-- Docked Composer Bar -->
     <div id="arc-composer-wrap" class="ha-arc-composer">
-        <button type="button" id="arc-context-open" class="ha-arc-context-open" aria-label="Choose additional ARC AI context">Customize context</button>
+        <div id="arc-context-panel-host" class="ha-arc-context-host"></div>
         <p id="ai-coach-status" class="ha-arc-prompt-status" role="status" aria-live="polite"></p>
         <form id="ai-coach-form" class="ha-arc-prompt-box" novalidate>
-            <label for="ai-coach-question" class="sr-only">Ask ARC AI a question about your habits</label>
-            <textarea id="ai-coach-question" name="question" rows="1" maxlength="600" placeholder="Ask ARC anything..." required></textarea>
+            <button type="button" id="arc-context-open" class="ha-arc-attach-btn" aria-label="Attach Tasks, Focus sessions or Notes" aria-haspopup="dialog" aria-expanded="false" aria-controls="arc-context-inline-panel" title="Add context">
+                <span class="material-symbols-outlined" aria-hidden="true">add</span>
+            </button>
+            <div class="ha-arc-prompt-stack">
+                <div id="arc-context-chips" class="ha-arc-context-chips hidden" aria-label="Selected context for next question"></div>
+                <label for="ai-coach-question" class="sr-only">Ask ARC AI a question about your habits</label>
+                <textarea id="ai-coach-question" name="question" rows="1" maxlength="600" placeholder="Ask ARC anything..." required></textarea>
+            </div>
             <button id="ai-coach-submit" type="submit" class="ha-arc-send-btn" aria-label="Ask ARC AI">
                 <span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>
             </button>
@@ -381,7 +387,11 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     const momentumSub = document.getElementById('arc-momentum-sub');
 
     const arcContextPromise=import('./arc-context.js')
-        .then(mod=>mod.mountArcContext({button:document.getElementById('arc-context-open')}))
+        .then(mod=>mod.mountArcContext({
+            button:document.getElementById('arc-context-open'),
+            host:document.getElementById('arc-context-panel-host'),
+            chips:document.getElementById('arc-context-chips')
+        }))
         .catch(error=>{console.warn('Optional ARC context unavailable:',error);return null;});
     const form = document.getElementById('ai-coach-form');
     const questionInput = document.getElementById('ai-coach-question');
@@ -917,6 +927,9 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             renderThreadFromState();
             copyAnswerButton?.classList?.remove('hidden');
             saveThreadState(owner);
+            // Optional attachments are one-question only, never silently sent
+            // to a future follow-up without a new explicit selection.
+            contextPicker?.clearAfterSend?.();
 
             questionInput.value = '';
             questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
