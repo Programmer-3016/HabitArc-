@@ -555,6 +555,38 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         statusEl.classList.toggle('text-on-surface-variant', tone === 'muted');
     }
 
+
+    // The conversation, not the whole document, is the mobile scrollport.
+    // Follow the new prompt immediately, then follow incoming words only
+    // while the member is reading at the bottom. Manual scroll-up opts out.
+    let followLatestMessage = true;
+    let programmaticChatScroll = false;
+    function scrollChatToLatest(force = false) {
+        if (!scrollArea || (!force && !followLatestMessage)) return;
+        if (force) followLatestMessage = true;
+        const bottom = Math.max(0, (scrollArea.scrollHeight || 0) - (scrollArea.clientHeight || 0));
+        programmaticChatScroll = true;
+        scrollArea.scrollTop = bottom;
+        const release = () => { programmaticChatScroll = false; };
+        if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(release);
+        else setTimeout(release, 0);
+    }
+    scrollArea?.addEventListener?.('scroll', () => {
+        if (programmaticChatScroll) return;
+        const gap = (scrollArea.scrollHeight || 0) -
+            (scrollArea.scrollTop || 0) - (scrollArea.clientHeight || 0);
+        followLatestMessage = gap <= 100;
+    }, { passive: true });
+
+    function showArcThinking(label = 'Thinking through your routines…') {
+        if (!answerEl) return;
+        answerEl.innerHTML = '<div class="ha-arc-thinking" role="status" aria-label="' +
+            HabitArc.escapeHTML(label) + '">' +
+            '<span class="ha-arc-thinking-dots" aria-hidden="true">' +
+            '<i></i><i></i><i></i></span>' +
+            '<span class="ha-arc-thinking-label">' + HabitArc.escapeHTML(label) + '</span></div>';
+    }
+
     function setLoading(isLoading) {
         submitButton.disabled = isLoading;
         submitButton.setAttribute('aria-busy', String(isLoading));
@@ -694,6 +726,10 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             activeAction = parsed.lastAction || null;
             activeActionApplied = Boolean(parsed.lastActionApplied);
             renderThreadFromState();
+            scrollChatToLatest(true);
+            setTimeout(() => {
+                if (conversation.length) scrollChatToLatest();
+            }, 0);
         } catch { /* Ignore corrupt storage */ }
     }
 
@@ -757,10 +793,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             if (controller !== requestController || controller.signal.aborted) return;
             streamedDraft = text;
             if (answerEl) answerEl.innerHTML = renderArcChatAnswer(text, HabitArc.escapeHTML);
-            if (scrollArea && Number.isFinite(scrollArea.scrollHeight) && Number.isFinite(scrollArea.clientHeight)
-                && scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 180) {
-                scrollArea.scrollTop = scrollArea.scrollHeight;
-            }
+            scrollChatToLatest();
         }, { intervalMs: 42 });
         controller.signal.addEventListener('abort', () => wordReveal.cancel(), { once: true });
 
@@ -774,6 +807,24 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             }
 
             owner = user.uid;
+            // Place the member's new bubble in view immediately after auth,
+            // BEFORE cloud sync or the model request, so the phone never
+            // leaves them looking at old replies after pressing Send.
+            renderHistoryList(conversation.slice(-4));
+            if (askedEl) askedEl.textContent = question;
+            askedWrap?.classList.remove('hidden');
+            showArcThinking('Checking your recent habits…');
+            if (evidenceEl) evidenceEl.textContent = '';
+            copyAnswerButton?.classList?.add('hidden');
+            renderSuggestedAction(null);
+            answerCard?.classList.remove('hidden');
+            answerCard?.setAttribute?.('aria-live', 'off');
+            showThreadView(true);
+            scrollChatToLatest(true);
+            // The chat viewport recalculates after the mobile keyboard closes.
+            setTimeout(() => {
+                if (controller === requestController && !controller.signal.aborted) scrollChatToLatest();
+            }, 0);
             await cancellable(HabitArc.flushCloudSync(), signal);
             const idToken = await cancellable(HabitArc.getAuthToken(), signal);
             // The user explicitly picked these sources. Not saved in threads,
@@ -781,16 +832,9 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             const contextPicker = await cancellable(arcContextPromise,signal);
             const workspaceContext=contextPicker
                 ? await cancellable(contextPicker.collect(),signal) : null;
-            renderHistoryList(conversation.slice(-4));
-            if (askedEl) askedEl.textContent = question;
-            askedWrap?.classList.remove('hidden');
-            if (answerEl) answerEl.innerHTML = '<div class="ha-arc-skeleton" aria-hidden="true"><span class="ha-arc-skel-line"></span><span class="ha-arc-skel-line"></span><span class="ha-arc-skel-line is-short"></span></div>';
-            if (evidenceEl) evidenceEl.textContent = 'Analyzing your 28-day habit history…';
-            renderSuggestedAction(null);
-            answerCard?.classList.remove('hidden');
-            answerCard?.setAttribute?.('aria-live', 'off');
-            showThreadView(true);
-            setStatus('ARC is thinking…');
+            showArcThinking();
+            scrollChatToLatest();
+            setStatus('');
             const response = await fetch('/api/coach', {
                 method: 'POST',
                 headers: {
@@ -827,7 +871,6 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                         }
                         // Only genuine Gemini chunks enter the word queue.
                         wordReveal.push(value.text);
-                        setStatus('ARC is writing…');
                     } else if (event === 'reset') {
                         // Gemini SSE failed; the server is fetching a normal
                         // response. Do not mislabel fallback text as live tokens.
@@ -835,8 +878,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                         wordReveal.reset();
                         streamedDraft = '';
                         receivedDraft = '';
-                        if (answerEl) answerEl.innerHTML = '<div class="ha-arc-skeleton" aria-hidden="true"><span class="ha-arc-skel-line"></span><span class="ha-arc-skel-line is-short"></span></div>';
-                        setStatus('Completing reply in standard mode…');
+                        showArcThinking('Finishing your reply…');
+                        scrollChatToLatest();
                     } else if (event === 'done') {
                         if (!streamFellBack) await wordReveal.finish();
                         payload = value;
@@ -872,20 +915,15 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             activeAction = payload.suggestedAction || null;
             activeActionApplied = false;
             renderThreadFromState();
+            copyAnswerButton?.classList?.remove('hidden');
             saveThreadState(owner);
 
             questionInput.value = '';
             questionInput.placeholder = 'Ask a follow-up, or share a constraint…';
             resizeTextarea();
-            const anchorEl = askedWrap || answerCard;
-            const targetTop = scrollArea && anchorEl && typeof scrollArea.getBoundingClientRect === 'function' && typeof anchorEl.getBoundingClientRect === 'function'
-                ? Math.max(0, (scrollArea.scrollTop || 0) + anchorEl.getBoundingClientRect().top - scrollArea.getBoundingClientRect().top - 8)
-                : 0;
-            if (scrollArea && typeof scrollArea.scrollTo === 'function') {
-                scrollArea.scrollTo({ top: targetTop, behavior: 'smooth' });
-            } else if (scrollArea) {
-                scrollArea.scrollTop = targetTop;
-            }
+            // Finish at the end of the reply if auto-follow is still enabled.
+            // Do not snap back to the question or fight manual scrolling.
+            scrollChatToLatest();
             if (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767px)').matches) {
                 questionInput.blur?.();
                 setTypingMode(false);
@@ -909,6 +947,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
                 // Keep an interrupted reply visible, but never save it as a
                 // completed turn or expose a suggested action from partial text.
                 if (answerEl) answerEl.innerHTML = renderArcChatAnswer(incompleteReply, HabitArc.escapeHTML);
+                copyAnswerButton?.classList?.add('hidden');
+                scrollChatToLatest();
                 if (evidenceEl) evidenceEl.textContent = 'Partial reply · not saved. Your question is ready to retry.';
                 answerCard?.classList.remove('hidden');
                 showThreadView(true);
@@ -924,6 +964,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         } finally {
             if (controller === requestController) {
                 requestController = null;
+                if (!conversation.length || !conversation.at(-1)?.answer) copyAnswerButton?.classList?.add('hidden');
                 answerCard?.setAttribute?.('aria-live', 'polite');
                 wordReveal.cancel();
                 setLoading(false);
