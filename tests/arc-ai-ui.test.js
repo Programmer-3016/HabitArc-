@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream } from '../habit-analytics.js';
+import { buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal } from '../habit-analytics.js';
 
 const html = readFileSync(new URL('../Arc_AI.html', import.meta.url), 'utf8');
 const source = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1]
@@ -73,7 +73,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
     };
     const body = element();
     vm.runInNewContext(source, {
-        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, Date: Clock, Intl, AbortSignal, AbortController,
+        HabitArc: app, buildHabitCoachContext, renderCoachMarkdown, renderArcSignalDeck, renderArcChatAnswer, cleanArcDisplayText, consumeArcCoachStream, createArcWordReveal, Date: Clock, Intl, AbortSignal, AbortController,
         setTimeout, clearTimeout,
         navigator: { onLine: true },
         console: { warn() {} },
@@ -207,25 +207,38 @@ test('Arc_AI guest guard blocks network calls and authenticated starter card sub
 });
 
 
-test('ARC AI uses real SSE deltas then saves only the completed answer', async () => {
+
+async function waitFor(predicate, message = 'Expected UI state not reached', timeoutMs = 3500) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        if (predicate()) return;
+        await new Promise(resolve => setTimeout(resolve, 12));
+    }
+    assert.fail(message);
+}
+
+test('ARC AI reveals genuine SSE words progressively before saving the final answer', async () => {
     const authed = arcAi({ signedIn: true, streaming: true });
     authed.elements.get('arc-card-momentum').handlers.click();
-    await new Promise(resolve => setTimeout(resolve, 30));
-    assert.equal(authed.requests.length, 1);
+    await waitFor(() => authed.requests.length === 1);
     assert.equal(authed.requests[0].options.headers.Accept, 'text/event-stream');
+    await waitFor(() => /Try reading/.test(authed.elements.get('ai-coach-answer').innerHTML),
+        'ARC AI must reveal first words before done');
+    assert.doesNotMatch(authed.elements.get('ai-coach-answer').innerHTML, /after dinner/,
+        'First visible words must not jump straight to the full answer');
+    await waitFor(() => /6 ARC AI messages/.test(authed.elements.get('ai-coach-status').textContent),
+        'Full response was not finalized');
     assert.match(authed.elements.get('ai-coach-answer').innerHTML, /Try reading 10 minutes right after dinner/);
-    assert.match(authed.elements.get('ai-coach-status').textContent, /6 ARC AI messages/);
     assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), false);
     assert.equal(authed.elements.get('ai-coach-question').value, '');
 });
 
-test('ARC AI interrupted SSE keeps a partial reply visible without saving it', async () => {
+test('ARC AI interrupted SSE preserves received text without saving it', async () => {
     const authed = arcAi({ signedIn: true, streaming: true, truncated: true });
     authed.elements.get('arc-card-momentum').handlers.click();
-    await new Promise(resolve => setTimeout(resolve, 30));
+    await waitFor(() => /connection closed before/.test(authed.elements.get('ai-coach-status').textContent));
     assert.match(authed.elements.get('ai-coach-answer').innerHTML, /Try reading 10 minutes right after dinner/);
     assert.match(authed.elements.get('ai-coach-evidence').textContent, /Partial reply/);
-    assert.match(authed.elements.get('ai-coach-status').textContent, /connection closed before/);
     assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), true);
     assert.match(authed.elements.get('ai-coach-question').value, /28-day momentum/);
 });
