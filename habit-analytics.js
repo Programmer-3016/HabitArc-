@@ -447,6 +447,10 @@ export function cleanArcDisplayText(text) {
         if(/^\s*\x60{3}/.test(part))return part;
         return part
           .replace(/\\(["'])/g,'$1')
+          .replace(/\baapke\s+(?:account\s+)?snapshot\s+mein\b/gi,m=>m[0]==='A'?'Aapki routine mein':'aapki routine mein')
+          .replace(/\b(?:in|from)\s+(?:the|your)(?:\s+synced)?(?:\s+account)?\s+snapshot\b/gi,m=>/^[A-Z]/.test(m)?'In your routine':'in your routine')
+          .replace(/\byour(?:\s+synced)?(?:\s+account)?\s+snapshot\b/gi,m=>m[0]==='Y'?'Your routine':'your routine')
+          .replace(/\bsnapshot\b/gi,m=>m[0]==='S'?'Routine summary':'routine summary')
           .replace(/\s*\(([^()]*\bh_[a-z0-9_-]{4,}[^()]*)\)/gi,(all,inner)=>{
               const leftover=inner
                 .replace(/\x60?h_[a-z0-9_-]{4,}\x60?/gi,'')
@@ -563,7 +567,7 @@ export function renderArcChatAnswer(markdown, escapeHTML = defaultEscapeHtml, ve
         .every(key => Number.isSafeInteger(snapshot[key]) && snapshot[key] >= 0 && snapshot[key] <= 100000)
         && snapshot.totalLogged <= snapshot.totalScheduled;
     const sourceNote = verified
-        ? '<div class="ha-arc-chat-source" role="note"><span>SYNCED ACCOUNT SNAPSHOT</span><span>' +
+        ? '<div class="ha-arc-chat-source" role="note"><span>HABITARC ROUTINE</span><span>' +
           esc(String(snapshot.habitCount)) + ' habits · ' +
           esc(String(snapshot.totalLogged)) + '/' + esc(String(snapshot.totalScheduled)) +
           ' logged checks</span></div>'

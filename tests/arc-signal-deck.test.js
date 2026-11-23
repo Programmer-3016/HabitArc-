@@ -153,7 +153,7 @@ test('Legacy habit identifiers are hidden from the reading layout but code fence
  assert.doesNotMatch(renderArcSignalDeck(response),/h_mv1|h_mwq/);
  assert.equal(cleanArcDisplayText('Multiple entries sharing Daily Meditation & Mindful Reflection (such as IDs `h_abc123`, `h_def456`, `h_ghi789`, and `h_jkl012`) today.'), 'Multiple entries sharing Daily Meditation & Mindful Reflection today.');
  assert.equal(cleanArcDisplayText('Multiple entries sharing Daily Meditation (such as IDs , , , and).'), 'Multiple entries sharing Daily Meditation.');
- assert.equal(cleanArcDisplayText('Aapke snapshot mein \\"Daily Meditation\\" 5 alag-alag entries hain (jaise `h_abc123`, aur `h_def456`), jo 09:00 par hain.'), 'Aapke snapshot mein "Daily Meditation" 5 alag-alag entries hain, jo 09:00 par hain.');
+ assert.equal(cleanArcDisplayText('Aapke snapshot mein \\"Daily Meditation\\" 5 alag-alag entries hain (jaise `h_abc123`, aur `h_def456`), jo 09:00 par hain.'), 'Aapki routine mein "Daily Meditation" 5 alag-alag entries hain, jo 09:00 par hain.');
  assert.equal(cleanArcDisplayText('5 entries hain (jaise , aur), jo 09:00 par hain.'), '5 entries hain, jo 09:00 par hain.');
 });
 
@@ -184,7 +184,7 @@ test('Conversation layout renders one complete Markdown answer without duplicate
  assert.match(html,/<h4 class="ha-md-h">One small next step<\/h4>/);
  assert.match(html,/<ul class="ha-md-ul">/);
  assert.match(html,/A short closing thought/);
- assert.match(html,/SYNCED ACCOUNT SNAPSHOT/);
+ assert.match(html,/HABITARC ROUTINE/);
  assert.match(html,/12 habits · 0\/220 logged checks/);
  assert.equal((html.match(/One small next step/g)||[]).length,1);
  assert.doesNotMatch(html,/SIGNAL|READOUT|data-arc-mode|ha-arc-signal-hero/);

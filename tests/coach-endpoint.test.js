@@ -463,12 +463,24 @@ test('Casual check-ins route to greeting prompt without routine-audit bloat', as
         await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: q, timeZone: 'Asia/Kolkata', conversation: [{ question: 'old', answer: 'old' }] } }, res);
         assert.equal(res.code, 200);
         assert.equal(res.body.casualGreeting, true);
+        assert.equal(res.body.routineDataUsed, false);
         usage.lastRequestAtMs = 0;
     }
-    assert.match(systems[0], /Do NOT recite habit counts/);
+    assert.match(systems[0], /Never write the word "snapshot", recite habit counts/);
+    assert.equal(prompts[0].habitArcSnapshot, undefined);
     assert.equal(prompts[1].recentConversation.length, 0);
+
+    usage.lastRequestAtMs = 0;
+    const resMeta = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
+    await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'What powers do you have here?', timeZone: 'Asia/Kolkata' } }, resMeta);
+    assert.equal(resMeta.body.casualGreeting, false);
+    assert.equal(resMeta.body.routineDataUsed, false);
+
+    usage.lastRequestAtMs = 0;
     const resHabit = { headers: {}, setHeader() {}, status(n) { this.code = n; return this; }, json(d) { this.body = d; return this; } };
     await handler({ method: 'POST', headers: { authorization: 'Bearer tok', 'content-type': 'application/json' }, body: { question: 'Why did my meditation streak drop?', timeZone: 'Asia/Kolkata' } }, resHabit);
     assert.equal(resHabit.body.casualGreeting, false);
-    assert.match(systems[2], /When analyzing habits/);
+    assert.equal(resHabit.body.routineDataUsed, true);
+    assert.match(systems[3], /when analyzing habits/);
+    assert.match(systems[3], /NEVER write the word "snapshot"/);
 });

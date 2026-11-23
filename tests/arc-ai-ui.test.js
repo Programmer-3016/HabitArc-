@@ -202,7 +202,7 @@ test('Arc_AI guest guard blocks network calls and authenticated starter card sub
     assert.match(authed.elements.get('ai-coach-answer').innerHTML, /Try reading 10 minutes right after dinner\./);
     assert.match(authed.elements.get('ai-coach-answer').innerHTML, /ha-arc-chat-answer/);
     assert.doesNotMatch(authed.elements.get('ai-coach-answer').innerHTML, /data-arc-mode="read"/);
-    assert.match(authed.elements.get('ai-coach-answer').innerHTML, /SYNCED ACCOUNT SNAPSHOT/);
+    assert.match(authed.elements.get('ai-coach-answer').innerHTML, /HABITARC ROUTINE/);
     assert.match(authed.elements.get('ai-coach-status').textContent, /6 ARC AI messages/);
     assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), false);
     assert.equal(authed.elements.get('ai-coach-action-title').textContent, 'Add "10-Min Wind-Down"');

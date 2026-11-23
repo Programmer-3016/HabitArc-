@@ -961,7 +961,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
 
             const safeAnswer = String(payload.answer).slice(0, 12000);
             conversation = [...conversation.slice(-5), { question, answer: safeAnswer.slice(0, 4000) }];
-            lastCasualGreeting = Boolean(payload.casualGreeting);
+            lastCasualGreeting = Boolean(payload.casualGreeting || payload.routineDataUsed === false);
             const source = lastCasualGreeting ? null : payload.snapshot;
             lastVerifiedSnapshot = source && [source.habitCount,source.totalScheduled,source.totalLogged]
                 .every(Number.isSafeInteger)
