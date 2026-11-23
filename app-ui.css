@@ -3712,3 +3712,11 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
 :root[data-theme="sage"] body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
  background:#e6edff;color:#223560;border-color:#b2c3fa;
 }
+
+
+@media (max-width:767px) {
+  body.ha-arc-body.is-arc-thread-active .ha-arc-prompt-box {
+    gap:7px;
+    padding-left:7px;
+  }
+}
