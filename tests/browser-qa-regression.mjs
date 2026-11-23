@@ -798,6 +798,8 @@ try {
   await ev(`(() => {
     window.__haSpaDocMarker = 'same-doc';
     window.__haZenFlashSeen = false;
+    const dockBefore = document.querySelector('nav.ha-bottom-nav')?.getBoundingClientRect();
+    window.__haDockBefore = dockBefore ? { top: Math.round(dockBefore.top), height: Math.round(dockBefore.height) } : null;
     window.__haObs = new MutationObserver(() => {
       const z = document.getElementById('arc-zen-home');
       if (z && getComputedStyle(z).display !== 'none' && !document.documentElement.classList.contains('ha-arc-restoring-thread')) {
@@ -810,6 +812,8 @@ try {
   await sleep(350);
   const spaSwitch = await ev(`(() => {
     try { window.__haObs?.disconnect?.(); } catch {}
+    const dockAfter = document.querySelector('nav.ha-bottom-nav')?.getBoundingClientRect();
+    const compAfter = document.getElementById('arc-composer-wrap')?.getBoundingClientRect();
     document.getElementById('arc-thread-history-btn')?.click();
     const histOpened = Boolean(document.getElementById('arc-history-dialog')?.hasAttribute('open'));
     document.getElementById('arc-hist-close-btn')?.click();
@@ -820,6 +824,8 @@ try {
       path: location.pathname.split('/').pop(),
       sameDoc: window.__haSpaDocMarker === 'same-doc',
       zenFlashSeen: Boolean(window.__haZenFlashSeen),
+      dockStable: Boolean(window.__haDockBefore && dockAfter && Math.abs(window.__haDockBefore.top - dockAfter.top) <= 1.5 && Math.abs(window.__haDockBefore.height - dockAfter.height) <= 1.5),
+      compClearOfDock: Boolean(compAfter && dockAfter && compAfter.bottom <= dockAfter.top - 2),
       zenHidden: Boolean(document.getElementById('arc-zen-home')?.classList.contains('hidden')),
       threadVisible: !document.getElementById('arc-thread-view')?.classList.contains('hidden'),
       bodyActive: document.body.classList.contains('is-arc-thread-active'),
@@ -832,6 +838,8 @@ try {
   assert.equal(spaSwitch.path, 'Arc_AI.html', 'SPA dock tap navigated to Arc_AI.html');
   assert.equal(spaSwitch.sameDoc, true, 'Dashboard -> ARC AI tab switch runs in-place without triggering a full-page fallback reload');
   assert.equal(spaSwitch.zenFlashSeen, false, 'Switching to ARC AI never flashes Zen Home before showing active thread');
+  assert.equal(spaSwitch.dockStable, true, 'Mobile bottom dock keeps uniform size and position on Dashboard -> ARC AI switch');
+  assert.equal(spaSwitch.compClearOfDock, true, 'Composer clears mobile bottom dock cleanly after SPA tab switch');
   assert.equal(spaSwitch.zenHidden, true);
   assert.equal(spaSwitch.threadVisible, true);
   assert.equal(spaSwitch.bodyActive, true);

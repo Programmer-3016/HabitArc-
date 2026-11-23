@@ -573,6 +573,9 @@
                     }
                     if (nextDoc.title) document.title = nextDoc.title;
 
+                    // Reset scroll before locking body.ha-arc-body (height: 100dvh; overflow: hidden)
+                    // so switching from a scrolled tab never traps an offset viewport.
+                    window.scrollTo(0, 0);
                     document.documentElement.classList.add('ha-spa-navigated');
                     document.body.className = nextDoc.body.className;
 
