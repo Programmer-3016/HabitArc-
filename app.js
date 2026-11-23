@@ -2307,25 +2307,29 @@ function _syncHeaderChrome() {
             img.src = photoUrl;
             img.alt = '';
             img.referrerPolicy = 'no-referrer';
+            const appendPersonSvg = target => {
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('width', '18');
+                svg.setAttribute('height', '18');
+                svg.setAttribute('viewBox', '0 0 24 24');
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('stroke', 'currentColor');
+                svg.setAttribute('stroke-width', '2');
+                svg.setAttribute('stroke-linecap', 'round');
+                svg.setAttribute('stroke-linejoin', 'round');
+                svg.setAttribute('aria-hidden', 'true');
+                svg.innerHTML = '<circle cx="12" cy="8" r="4"/><path d="M4 20c1.6-3.4 4.4-5 8-5s6.4 1.6 8 5"/>';
+                target.appendChild(svg);
+            };
             img.addEventListener('error', () => {
                 link.textContent = initial || '';
-                if (!initial) {
-                    const fallback = document.createElement('span');
-                    fallback.className = 'material-symbols-outlined text-[18px]';
-                    fallback.setAttribute('aria-hidden', 'true');
-                    fallback.textContent = 'person';
-                    link.appendChild(fallback);
-                }
+                if (!initial) appendPersonSvg(link);
             }, { once: true });
             link.appendChild(img);
         } else if (initial) {
             link.textContent = initial;
         } else {
-            const icon = document.createElement('span');
-            icon.className = 'material-symbols-outlined text-[18px]';
-            icon.setAttribute('aria-hidden', 'true');
-            icon.textContent = 'person';
-            link.appendChild(icon);
+            appendPersonSvg(link);
         }
     });
 }

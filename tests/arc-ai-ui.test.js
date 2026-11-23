@@ -297,3 +297,14 @@ test('ARC AI typing and scrolling code is wired to the bounded conversation scro
     assert.match(html, /showArcThinking\('Finishing your reply…'\)/);
     assert.doesNotMatch(html, /ha-arc-skeleton|ha-arc-skel-line/);
 });
+
+test('ARC AI keeps valid color channel tokens, inline SVGs, and square thread accent bar', () => {
+    const css = readFileSync(new URL('../app-ui.css', import.meta.url), 'utf8');
+    const arcCtx = readFileSync(new URL('../arc-context.js', import.meta.url), 'utf8');
+    const hub = readFileSync(new URL('../productivity-hub.js', import.meta.url), 'utf8');
+    assert.doesNotMatch(css, /(?:color|background|fill|border[a-z-]*)\s*:\s*var\(--ha-primary-fixed-dim/);
+    assert.doesNotMatch(html, /material-symbols-outlined/);
+    assert.doesNotMatch(arcCtx, /material-symbols-outlined/);
+    assert.doesNotMatch(hub, /button\.innerHTML=.*material-symbols-outlined/);
+    assert.doesNotMatch(css, /\.ha-arc-answer-card[^{]*\{[^}]*border-radius:\s*14px\s*!important/);
+});

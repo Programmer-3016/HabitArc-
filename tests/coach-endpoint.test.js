@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createSign, generateKeyPairSync } from 'node:crypto';
 import { createCoachHandler, createRestFirebaseBackend, decodeFirestoreFields, createCoachStreamCollector, streamWithGemini } from '../api/coach.js';
 

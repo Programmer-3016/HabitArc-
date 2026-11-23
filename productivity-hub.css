@@ -7,6 +7,7 @@
  border-radius:11px;cursor:pointer;box-shadow:2px 2px 0 var(--rpg-shadow-ink,#121215);
 }
 .ha-command-trigger .material-symbols-outlined{font-size:21px}
+.ha-command-trigger svg{width:19px;height:19px}
 .ha-command-dialog {
  width:min(calc(100vw - 20px),600px);max-height:min(86dvh,800px);
  margin:auto;padding:0;overflow-y:auto;overscroll-behavior:contain;
@@ -49,6 +50,7 @@
 @media(max-width:359px){
  .ha-command-trigger{width:30px;height:30px;flex-basis:30px}
  .ha-command-trigger .material-symbols-outlined{font-size:18px}
+ .ha-command-trigger svg{width:16px;height:16px}
  body > header.md\:hidden .ha-brand-wordmark{font-size:14px}
  .ha-command-inner{padding:13px}
  .ha-command-date-label{justify-content:space-between}

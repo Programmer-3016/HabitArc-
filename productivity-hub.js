@@ -75,11 +75,11 @@ function initialize(){
  dialog.setAttribute('aria-label','Universal Search and Quick Capture');
  dialog.innerHTML=[
  '<div class="ha-command-inner"><header><div><span class="ha-command-eyebrow">HABITARC · COMMAND CENTER</span><h2>Find it. Capture it.</h2></div>',
- '<button type="button" id="ha-command-close" aria-label="Close"><span class="material-symbols-outlined">close</span></button></header>',
- '<label class="ha-command-search"><span class="material-symbols-outlined">search</span><input id="ha-command-query" type="search" placeholder="Search habits, tasks, notes…" autocomplete="off" aria-label="Search everything"></label>',
+ '<button type="button" id="ha-command-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></header>',
+ '<label class="ha-command-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="ha-command-query" type="search" placeholder="Search habits, tasks, notes…" autocomplete="off" aria-label="Search everything"></label>',
  '<p class="ha-command-status" id="ha-command-status" role="status" aria-live="polite"></p>',
  '<div id="ha-command-results" class="ha-command-results"></div>',
- '<section class="ha-command-capture"><h3><span class="material-symbols-outlined">bolt</span> Quick Capture</h3>',
+ '<section class="ha-command-capture"><h3><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg> Quick Capture</h3>',
  '<input id="ha-command-capture" type="text" maxlength="160" placeholder="What’s on your mind?" aria-label="New item title">',
  '<label class="ha-command-date-label">Task due date <input id="ha-command-due" type="date"></label>',
  '<div class="ha-command-actions"><button data-ha-capture="task" type="button">+ Task</button><button data-ha-capture="note" type="button">+ Note</button><button data-ha-capture="habit" type="button">+ Habit</button></div>',
@@ -109,7 +109,7 @@ export function mountCommandHub(){
   const button=document.createElement('button');
   button.type='button';button.className='ha-command-trigger';
   button.setAttribute('aria-label','Search and Quick Capture');button.title='Search (Ctrl+K)';
-  button.innerHTML='<span class="material-symbols-outlined" aria-hidden="true">search</span>';
+  button.innerHTML='<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
   button.addEventListener('click',open);
   const profile=header.querySelector('a.ha-hdr-profile');
   if(profile)profile.before(button);

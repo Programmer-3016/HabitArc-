@@ -307,7 +307,7 @@
                 if (!nav.querySelector('a[href="Notes.html"]')) {
                     const link = document.createElement('a');
                     link.href = 'Notes.html';
-                    link.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">description</span><span class="ha-bottom-nav-label">Notes</span>';
+                    link.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5M9 13h6M9 17h4"/></svg><span class="ha-bottom-nav-label">Notes</span>';
                     nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
                 }
                 const planLabel = nav.querySelector('a[href="Habits.html"] .ha-bottom-nav-label');

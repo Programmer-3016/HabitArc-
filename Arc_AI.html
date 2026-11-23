@@ -83,8 +83,6 @@
 <style>
     body { font-family: 'Hanken Grotesk', sans-serif; }
     .geist { font-family: 'Geist', sans-serif; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
     .grid-bg {
         background-image: linear-gradient(to right, #e1e3e4 1px, transparent 1px),
                           linear-gradient(to bottom, #e1e3e4 1px, transparent 1px);
@@ -114,11 +112,11 @@
     </a>
     <div class="flex items-center gap-2">
         <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
-            <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-amber-500 shrink-0" aria-hidden="true"><path d="M13.5 2.2c.3 3.2-1.8 5-3.4 6.5-1.5 1.4-2.6 2.7-2.6 4.7a4.5 4.5 0 0 0 9 0c0-1.9-.9-3.6-2-4.9-.2 1.2-.8 2.1-1.7 2.6.5-1.8.8-5.1.7-8.9z"/></svg>
             <span id="header-streak-count">0d</span>
         </div>
         <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
-            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.6-3.4 4.4-5 8-5s6.4 1.6 8 5"/></svg>
         </a>
     </div>
 </header>
@@ -143,21 +141,21 @@
         </nav>
         <div class="flex items-center gap-2">
             <a href="Add_Habit.html" class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.97] flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-base">add</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                 New
             </a>
             <div class="px-3 py-1.5 rounded-full bg-amber-500/8 border border-amber-500/15 text-amber-600 flex items-center gap-1.5 font-semibold text-xs geist">
-                <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-amber-500 shrink-0" aria-hidden="true"><path d="M13.5 2.2c.3 3.2-1.8 5-3.4 6.5-1.5 1.4-2.6 2.7-2.6 4.7a4.5 4.5 0 0 0 9 0c0-1.9-.9-3.6-2-4.9-.2 1.2-.8 2.1-1.7 2.6.5-1.8.8-5.1.7-8.9z"/></svg>
                 <span id="header-streak-count-web">0 Day Streak</span>
             </div>
             <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
-                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.6-3.4 4.4-5 8-5s6.4 1.6 8 5"/></svg>
             </a>
         </div>
     </div>
 </header>
 
-<!-- Main Content Canvas: Option 4A Zen Console + 4D 28-Day Momentum Card -->
+<!-- Main Content Canvas: Unified Zen Home + Single-Chat Thread -->
 <main class="ha-arc-ai flex-1 w-full mx-auto px-4 md:px-8 flex flex-col">
 
     <div id="arc-scroll-area" class="ha-arc-scroll">
@@ -165,7 +163,7 @@
     <section id="arc-zen-home" aria-labelledby="arc-zen-title">
         <div class="ha-arc-zen-top">
             <div class="ha-arc-mascot-sq" aria-hidden="true">
-                <svg width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges">
+                <svg width="24" height="24" viewBox="0 0 16 16" shape-rendering="crispEdges">
                     <rect x="7" y="1" width="3" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
                     <rect x="4" y="4" width="8" height="1" fill="#000000"/>
                     <rect x="4" y="5" width="8" height="8" fill="#121010"/>
@@ -181,74 +179,67 @@
         </div>
 
         <div class="ha-arc-cards" aria-label="Suggested AI actions">
-            <!-- 1. 4A White Halftone Spotlight Card -->
+            <!-- 1. Highlighted Priority Card -->
             <button id="arc-card-priority" type="button" class="ha-arc-spot">
-                <div class="ha-arc-ht-strip">
-                    <span id="arc-priority-kicker" class="ha-arc-spot-kicker">⚡ PRIORITY LEAK</span>
+                <div class="ha-arc-spot-top">
+                    <span id="arc-priority-kicker" class="ha-arc-spot-kicker">ROUTINE AUDIT</span>
                     <span id="arc-priority-stat" class="ha-arc-spot-stat">28D READY</span>
                 </div>
                 <div class="ha-arc-spot-body">
                     <div class="min-w-0">
                         <div id="arc-priority-title" class="ha-arc-spot-title">Find my consistency leaks</div>
-                        <div id="arc-priority-sub" class="ha-arc-spot-sub">Analyze missed days &amp; late hours</div>
+                        <div id="arc-priority-sub" class="ha-arc-spot-sub">Analyze missed days &amp; reminders</div>
                     </div>
-                    <span class="ha-arc-ask-pill">ASK ▶</span>
+                    <span class="ha-arc-spot-arrow" aria-hidden="true">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </span>
                 </div>
             </button>
 
-            <!-- 2. 4A Streak Shield Tile -->
+            <!-- 2. Streak Plan Tile -->
             <button id="arc-card-streak" type="button" class="ha-arc-sq">
-                <div class="ha-arc-ht-dark">
-                    <span>STREAK</span>
-                    <span id="arc-streak-badge" class="ha-arc-accent-txt">0D</span>
-                </div>
-                <div class="ha-arc-sq-body">
+                <div class="ha-arc-sq-head">
                     <div class="ha-arc-sq-ico is-coral" aria-hidden="true">
-                        <span class="material-symbols-outlined">shield</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.8-3 8.9-7 10-4-1.1-7-5.2-7-10V6l7-3z"/></svg>
                     </div>
-                    <div id="arc-streak-title" class="ha-arc-sq-title">Build a 7d streak</div>
-                    <div id="arc-streak-sub" class="ha-arc-sq-sub">Low-energy backup plan</div>
-                    <div class="ha-arc-sq-foot">
-                        <span>PLAN B</span>
-                        <span class="ha-arc-accent-txt">-&gt;</span>
-                    </div>
+                    <span id="arc-streak-badge" class="ha-arc-sq-stat">0D</span>
                 </div>
+                <div id="arc-streak-title" class="ha-arc-sq-title">Build a 7d streak</div>
+                <div id="arc-streak-sub" class="ha-arc-sq-sub">Low-energy backup plan</div>
             </button>
 
-            <!-- 3. 4A Weekly Trend Tile -->
+            <!-- 3. Weekly Trend Tile -->
             <button id="arc-card-trend" type="button" class="ha-arc-sq">
-                <div class="ha-arc-ht-dark">
-                    <span>TREND</span>
-                    <span id="arc-trend-badge" class="ha-arc-mint-txt">7D</span>
-                </div>
-                <div class="ha-arc-sq-body">
+                <div class="ha-arc-sq-head">
                     <div class="ha-arc-sq-ico is-white" aria-hidden="true">
-                        <span class="material-symbols-outlined">bar_chart</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19V11M12 19V5M19 19v-8"/></svg>
                     </div>
-                    <div id="arc-trend-title" class="ha-arc-sq-title">Weekly 7d recap</div>
-                    <div id="arc-trend-sub" class="ha-arc-sq-sub">Compare vs prior week</div>
-                    <div class="ha-arc-sq-foot">
-                        <span>REPORT</span>
-                        <span class="ha-arc-accent-txt">-&gt;</span>
-                    </div>
+                    <span id="arc-trend-badge" class="ha-arc-sq-stat is-mint">7D</span>
                 </div>
+                <div id="arc-trend-title" class="ha-arc-sq-title">Weekly 7d recap</div>
+                <div id="arc-trend-sub" class="ha-arc-sq-sub">Compare vs prior week</div>
             </button>
 
-            <!-- 4. 4D Swapped Wide Dashed Card: 28-Day Momentum Check -->
+            <!-- 4. 28-Day Momentum Check -->
             <button id="arc-card-momentum" type="button" class="ha-arc-momentum">
                 <div class="ha-arc-momentum-left">
-                    <span class="material-symbols-outlined ha-arc-gold-ico" aria-hidden="true">trending_up</span>
+                    <span class="ha-arc-row-ico" aria-hidden="true">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5.5-5.5 3.5 3.5L20 7"/><path d="M14.5 7H20v5.5"/></svg>
+                    </span>
                     <div class="min-w-0">
                         <span id="arc-momentum-title" class="ha-arc-momentum-title">28-day momentum check</span>
                         <span id="arc-momentum-sub" class="ha-arc-momentum-sub">Review your 4-week consistency trajectory</span>
                     </div>
                 </div>
-                <span class="material-symbols-outlined ha-arc-accent-txt" aria-hidden="true">arrow_forward</span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
+
             <a href="Habits.html?section=tasks&amp;rescue=1" class="ha-arc-rescue-shortcut" aria-label="Open ARC Daily Rescue Mode in Plan">
-                <span class="ha-arc-rescue-shortcut-icon" aria-hidden="true"><span class="material-symbols-outlined">auto_awesome</span></span>
-                <span class="ha-arc-rescue-shortcut-copy"><strong>Daily Rescue Mode</strong><small>Overdue tasks? Get a lighter plan with dates you approve.</small></span>
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                <span class="ha-arc-rescue-shortcut-icon" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.1L19.5 10l-5.3 1.9L12 17l-2.2-5.1L4.5 10l5.3-1.9z"/></svg>
+                </span>
+                <span class="ha-arc-rescue-shortcut-copy"><strong>Daily Rescue Mode</strong><small>Overdue tasks? Reschedule with a lighter plan.</small></span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-75" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
         </div>
     </section>
@@ -307,7 +298,7 @@
         <p id="ai-coach-status" class="ha-arc-prompt-status" role="status" aria-live="polite"></p>
         <form id="ai-coach-form" class="ha-arc-prompt-box" novalidate>
             <button type="button" id="arc-context-open" class="ha-arc-attach-btn" aria-label="Attach Tasks, Focus sessions or Notes" aria-haspopup="dialog" aria-expanded="false" aria-controls="arc-context-inline-panel" title="Add context">
-                <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
             </button>
             <div class="ha-arc-prompt-stack">
                 <div id="arc-context-chips" class="ha-arc-context-chips hidden" aria-label="Selected context for next question"></div>
@@ -315,7 +306,7 @@
                 <textarea id="ai-coach-question" name="question" rows="1" maxlength="600" placeholder="Ask ARC anything..." required></textarea>
             </div>
             <button id="ai-coach-submit" type="submit" class="ha-arc-send-btn" aria-label="Ask ARC AI">
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
             </button>
         </form>
         <p class="ha-arc-disclaimer">Dedicated HabitArc AI · Thread saved for your account on this device</p>
@@ -326,19 +317,19 @@
 <!-- Floating Bottom Nav Bar (Mobile Only) -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
   <a class="ha-bottom-nav-link" href="Dashboard.html">
-    <span class="material-symbols-outlined" aria-hidden="true">home</span>
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
     <span class="ha-bottom-nav-label">Dashboard</span>
   </a>
   <a class="ha-bottom-nav-link" href="Habits.html">
-    <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
     <span class="ha-bottom-nav-label">Plan</span>
   </a>
   <a class="ha-bottom-nav-link" href="Notes.html">
-    <span class="material-symbols-outlined" aria-hidden="true">description</span>
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
     <span class="ha-bottom-nav-label">Notes</span>
   </a>
   <a class="ha-bottom-nav-link" href="Insights.html">
-    <span class="material-symbols-outlined" aria-hidden="true">insights</span>
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg>
     <span class="ha-bottom-nav-label">Insights</span>
   </a>
   <a class="ha-bottom-nav-link" href="Arc_AI.html" aria-current="page">
@@ -468,7 +459,7 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         // Card 1: Priority Leak (4A White Halftone Card)
         const weakest = snapshot.weakestHabit;
         if (count === 0) {
-            priorityKicker.textContent = '⚡ GET STARTED';
+            priorityKicker.textContent = 'GET STARTED';
             priorityStat.textContent = '0 HABITS';
             priorityTitle.textContent = 'Design my first habit routine';
             prioritySub.textContent = 'Build a realistic 2-habit baseline for your week';
@@ -480,13 +471,13 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
             const logSummary = Number.isFinite(weakestStat?.completed) && Number.isFinite(weakestStat?.scheduled)
                 ? `${weakestStat.completed}/${weakestStat.scheduled} logged`
                 : `${weakest.rate}% completion`;
-            priorityKicker.textContent = '⚡ PRIORITY LEAK';
+            priorityKicker.textContent = 'PRIORITY LEAK';
             priorityStat.textContent = `${weakest.rate}% RATE`;
             priorityTitle.textContent = `Fix ${shorten(name, 22)} drop-offs`;
             prioritySub.textContent = `${logSummary} over 28d · find trigger & timing`;
             prompts.priority = `Analyze why "${name}" is at ${weakest.rate}% (${logSummary}) over the last 28 days and suggest one practical adjustment.`;
         } else {
-            priorityKicker.textContent = '⚡ ROUTINE AUDIT';
+            priorityKicker.textContent = 'ROUTINE AUDIT';
             priorityStat.textContent = snapshot.fourWeekRate !== null ? `${snapshot.fourWeekRate}% 28D` : '28D READY';
             priorityTitle.textContent = 'Find my consistency leaks';
             prioritySub.textContent = 'Analyze missed days, reminders & late hours';
@@ -571,18 +562,24 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
     // while the member is reading at the bottom. Manual scroll-up opts out.
     let followLatestMessage = true;
     let programmaticChatScroll = false;
+    let programmaticScrollTarget = 0;
     function scrollChatToLatest(force = false) {
         if (!scrollArea || (!force && !followLatestMessage)) return;
         if (force) followLatestMessage = true;
         const bottom = Math.max(0, (scrollArea.scrollHeight || 0) - (scrollArea.clientHeight || 0));
         programmaticChatScroll = true;
+        programmaticScrollTarget = bottom;
         scrollArea.scrollTop = bottom;
         const release = () => { programmaticChatScroll = false; };
         if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(release);
         else setTimeout(release, 0);
     }
     scrollArea?.addEventListener?.('scroll', () => {
-        if (programmaticChatScroll) return;
+        if (programmaticChatScroll && Math.abs((scrollArea.scrollTop || 0) - programmaticScrollTarget) <= 4) {
+            programmaticChatScroll = false;
+            return;
+        }
+        programmaticChatScroll = false;
         const gap = (scrollArea.scrollHeight || 0) -
             (scrollArea.scrollTop || 0) - (scrollArea.clientHeight || 0);
         followLatestMessage = gap <= 100;
@@ -602,8 +599,8 @@ import { buildHabitCoachContext, renderArcChatAnswer, cleanArcDisplayText, consu
         submitButton.setAttribute('aria-busy', String(isLoading));
         questionInput.disabled = isLoading;
         submitButton.innerHTML = isLoading
-            ? '<span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>'
-            : '<span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>';
+            ? '<svg class="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.56"/></svg>'
+            : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
     }
 
     function resizeTextarea() {
