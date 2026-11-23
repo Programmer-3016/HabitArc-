@@ -15,11 +15,13 @@ class Clock extends Date {
 }
 const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false } = {}) {
+function arcAi({ empty = false, signedIn = false, streaming = false, truncated = false, holdStream = false } = {}) {
     const elements = new Map();
     const events = new Map();
     const requests = [];
     const announced = [];
+    let releaseStream;
+    const streamGate = holdStream ? new Promise(resolve => { releaseStream = resolve; }) : null;
     function element() {
         const classes = new Set();
         let htmlMarkup = '';
@@ -30,7 +32,8 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             get innerHTML() { return htmlMarkup; },
             set innerHTML(v) { htmlMarkup = String(v ?? ''); plainText = htmlMarkup.replace(/<[^>]+>/g, ''); },
             value: '', placeholder: '', disabled: false,
-            attrs: {}, handlers: {}, scrollHeight: 36,
+            attrs: {}, handlers: {}, scrollHeight: 36, clientHeight: 320, scrollTop: 0,
+            scrollTo({ top }) { this.scrollTop = top; },
             style: { height: '', setProperty() {} },
             classList: {
                 add: value => classes.add(value),
@@ -81,6 +84,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
         window: { addEventListener: (name, handler) => events.set(name, handler), HabitArcUI: { announce: msg => announced.push(msg) } },
         fetch: async (url, options) => {
             requests.push({ url, options });
+            if (streamGate) await streamGate;
             const payload = {
                 answer: 'Try reading 10 minutes right after dinner.',
                 suggestedAction: {
@@ -118,7 +122,7 @@ function arcAi({ empty = false, signedIn = false, streaming = false, truncated =
             return { ok: true, json: async () => payload };
         },
     });
-    return { elements, events, requests, announced, addedHabits, updatedHabits, body };
+    return { elements, events, requests, announced, addedHabits, updatedHabits, body, releaseStream };
 }
 
 test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and locked 100dvh shell', () => {
@@ -241,4 +245,55 @@ test('ARC AI interrupted SSE preserves received text without saving it', async (
     assert.match(authed.elements.get('ai-coach-evidence').textContent, /Partial reply/);
     assert.equal(authed.elements.get('ai-coach-action-box').classList.contains('hidden'), true);
     assert.match(authed.elements.get('ai-coach-question').value, /28-day momentum/);
+});
+
+
+test('ARC AI replaces skeleton bars with a compact accessible typing indicator', async () => {
+    const view = arcAi({ signedIn: true, streaming: true, holdStream: true });
+    const scroll = view.elements.get('arc-scroll-area');
+    scroll.scrollHeight = 1800;
+    scroll.clientHeight = 320;
+    view.elements.get('arc-card-momentum').handlers.click();
+    await waitFor(() => view.requests.length === 1);
+    const answer = view.elements.get('ai-coach-answer').innerHTML;
+    assert.match(answer, /class="ha-arc-thinking"/);
+    assert.match(answer, /ha-arc-thinking-dots/);
+    assert.match(answer, /Thinking through your routines/);
+    assert.doesNotMatch(answer, /ha-arc-skeleton|ha-arc-skel-line/);
+    assert.equal(view.elements.get('ai-coach-copy-btn').classList.contains('hidden'), true);
+    assert.equal(view.elements.get('ai-coach-evidence').textContent, '');
+    assert.equal(scroll.scrollTop, 1480, 'Sending a new prompt must land at bottom of chat');
+    view.releaseStream();
+    await waitFor(() => /6 ARC AI messages/.test(view.elements.get('ai-coach-status').textContent));
+    assert.equal(view.elements.get('ai-coach-copy-btn').classList.contains('hidden'), false);
+});
+
+test('ARC AI follows answer while near bottom, then respects manual scroll-up', async () => {
+    const view = arcAi({ signedIn: true, streaming: true, holdStream: true });
+    const scroll = view.elements.get('arc-scroll-area');
+    scroll.scrollHeight = 1800;
+    scroll.clientHeight = 320;
+    view.elements.get('arc-card-momentum').handlers.click();
+    await waitFor(() => view.requests.length === 1);
+    assert.equal(scroll.scrollTop, 1480);
+    view.releaseStream();
+    await waitFor(() => /Try reading/.test(view.elements.get('ai-coach-answer').innerHTML));
+    // A new reply expands the scrollable thread; stream should stay pinned.
+    await new Promise(resolve => setTimeout(resolve, 20));
+    scroll.scrollHeight = 2100;
+    await waitFor(() => scroll.scrollTop === 1780, 'Streaming should auto-follow newly revealed content');
+    // The member scrolls up into the previous conversation.
+    scroll.scrollTop = 300;
+    scroll.handlers.scroll();
+    await waitFor(() => /6 ARC AI messages/.test(view.elements.get('ai-coach-status').textContent));
+    assert.equal(scroll.scrollTop, 300, 'Auto-follow must not fight a manual scroll-up');
+});
+
+test('ARC AI typing and scrolling code is wired to the bounded conversation scrollport', () => {
+    assert.match(html, /function scrollChatToLatest\(force = false\)/);
+    assert.match(html, /scrollArea\.scrollTop = bottom/);
+    assert.match(html, /scrollChatToLatest\(true\)/);
+    assert.match(html, /scrollArea\?\.addEventListener\?\.\('scroll'/);
+    assert.match(html, /showArcThinking\('Finishing your reply…'\)/);
+    assert.doesNotMatch(html, /ha-arc-skeleton|ha-arc-skel-line/);
 });
