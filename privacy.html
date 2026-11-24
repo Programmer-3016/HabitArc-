@@ -1,44 +1,118 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Privacy & Data · HabitArc</title>
-<meta name="description" content="How HabitArc stores and synchronizes habit data, notes, focus sessions, and AI questions."/>
-<link rel="icon" href="icons/favicon-32.png"/>
-<link rel="manifest" href="manifest.webmanifest"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Privacy &amp; Data Deletion Policy — HabitArc</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png"/>
 <style>
-:root{font-family:system-ui,-apple-system,sans-serif;background:#f6f4ef;color:#17131e}
-*{box-sizing:border-box}body{margin:0}header{background:#47e393;border-bottom:2px solid #17131e;padding:18px max(20px,calc((100vw - 800px)/2))}
-header a{color:#17131e;text-decoration:none;font-weight:800;font-size:18px}
-main{max-width:820px;margin:auto;padding:28px 20px 90px}h1{font-size:clamp(30px,6vw,44px);letter-spacing:-.04em}h2{font-size:20px;margin-top:30px}
-p,li{font-size:15px;line-height:1.65;color:#454152}a{color:#6246ad}article{background:white;border:2px solid #17131e;box-shadow:3px 3px 0 #17131e;border-radius:17px;padding:22px}
-.alert{background:#e7ddff;border-radius:11px;padding:13px;font-size:14px;color:#302244}
-footer{margin-top:25px;font-size:12px;color:#666}
+:root{color-scheme:light;--ink:#141212;--bg:#faf7f0;--card:#ffffff;--muted:#525854;--accent:#012d1d;--danger:#93000a;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.62 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px 16px 64px}
+main{max-width:760px;margin:0 auto;background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:26px 24px;box-shadow:5px 5px 0 var(--ink)}
+h1{font-size:26px;line-height:1.2;margin:0 0 6px}
+h2{font-size:18px;margin:24px 0 8px}
+p,li{color:#262a28}
+ul,ol{padding-left:20px}
+.meta{font-size:13px;color:var(--muted);margin:0 0 18px}
+.callout{background:#eef7f2;border:1.5px solid var(--accent);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px}
+.danger-box{background:#fff5f4;border:1.5px solid var(--danger);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{border:1px solid #d5dbd7;padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#f2f4f3;font-weight:700}
+a{color:var(--accent);font-weight:700}
+.nav-links{margin-top:26px;display:flex;flex-wrap:wrap;gap:14px}
 </style>
 </head>
 <body>
-<header><a href="Dashboard.html">↗ HabitArc</a></header>
-<main><article>
-<p style="letter-spacing:.1em;font-size:11px;font-weight:800;color:#6246ad">DATA HANDLING OVERVIEW · UPDATED NOVEMBER 21, 2026</p>
-<h1>Privacy &amp; your data.</h1>
-<p class="alert"><strong>Beta notice:</strong> This overview describes the current implementation and must be reviewed and completed by the project owner before a public Play Store release. It is not yet a finalized legal privacy policy.</p>
-<h2>What you choose to save</h2>
-<p>HabitArc stores habit names, completion history, tasks, dates, preferences, notes (including optional photographs and voice recordings) and focus-session history so that the features you request can function.</p>
-<h2>Where your information is stored</h2>
-<p>Habit and task records have device-local copies and can be synchronized through Firebase for signed-in accounts when the required service and security rules are enabled. Notes use device-local IndexedDB; note text and optional media backup use Firebase Firestore and Cloud Storage when those services are configured and available. Focus history has a local copy and an optional signed-in Firebase backup. Some records may remain only on the current device while offline or when cloud setup is unavailable.</p>
-<h2>AI questions</h2>
-<p>When you explicitly submit a question to ARC AI, the content you send and relevant HabitArc context needed for the response may be transmitted to the HabitArc server and its configured AI service. The Daily Rescue Mode itself uses transparent local scheduling rules and does not automatically send your task list to AI.</p>
-<h2>Optional League &amp; Friends Squads</h2>
-<p>Your habit streaks stay private unless you explicitly opt in to the Live League or a 6-character Friends Squad on the Leaderboard page. When opted in, only your chosen League display handle, avatar color tone, and aggregate points, streak, and clear-day counts are visible to signed-in League participants. Individual habit names, notes, tasks, and email addresses are never shared, and leaving the Live League deletes your public League card.</p>
-<h2>Notifications and permissions</h2>
-<p>Browser notification permission is optional. HabitArc's ordinary reminders work while the app is running and permitted. If you explicitly enable the optional background daily digest, this device's Web Push subscription endpoint and encrypted delivery keys are saved under your signed-in Firebase account so the server can send a daily notification even when the PWA is closed. The daily cron runs around 08:30–09:30 India time; exact delivery is not guaranteed. You can disable the subscription from Settings, and signing out attempts to unsubscribe the device. The browser and its push provider also process the push subscription. Photos and microphone access are used only when you choose those note features.</p>
-<h2>Backups and device changes</h2>
-<p>Settings offers a downloadable JSON archive with habits, tasks, notes, attachments and focus history, and a merge-only restore option for matching accounts. The archive is not encrypted. Store it somewhere private. Avoid clearing site storage or uninstalling the PWA before verifying your backup.</p>
-<h2 id="delete-data">Deleting data or closing your account</h2>
-<p>You can delete individual notes, tasks and habits in the app. A complete self-service account deletion workflow, including verification of all Firebase data deletion, is <strong>not yet available in this beta</strong>. The project owner must provide a functioning deletion-request process before public Play Store publication.</p>
-<h2>What still needs review</h2>
-<p>Before public release, the owner must verify the actual service providers, retention periods, security configuration, support contact, deletion procedures and Play Console Data safety disclosures, and publish an approved policy with contact details.</p>
-<footer><a href="Settings.html">Back to Settings</a> · HabitArc beta</footer>
-</article></main>
-</body></html>
+<main>
+<h1>HabitArc Privacy &amp; Data Deletion Policy</h1>
+<p class="meta">Effective Date: November 24, 2026 · Applies to HabitArc Web App &amp; Installable PWA</p>
+
+<div class="callout">
+  <strong>Privacy at a glance:</strong> HabitArc never sells personal data, never shows third-party ad trackers, and keeps your habits, planner tasks, focus timers, notes, and ARC AI chats private to your account. You can export or permanently delete your account and cloud data at any time from <a href="Settings.html">Settings</a>.
+</div>
+
+<h2>1. Data We Collect &amp; How It Is Stored</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Examples</th>
+      <th>Where Stored &amp; Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Account Identity</td>
+      <td>Email address, display name, profile avatar URL (when signing in with Google or Email/Password)</td>
+      <td>Firebase Authentication &amp; Firestore user profile for multi-device sign-in and account recovery.</td>
+    </tr>
+    <tr>
+      <td>Habits, Planner &amp; Focus</td>
+      <td>Habit titles, schedules, completion timestamps, tasks, due dates, focus timer sessions, theme &amp; week-start preferences</td>
+      <td>Browser <code>localStorage</code> for offline speed and private Firestore subcollections under <code>/users/{uid}</code> when signed in.</td>
+    </tr>
+    <tr>
+      <td>Notes &amp; Attachments</td>
+      <td>Rich notes, checklists, and optional user-attached images or voice notes</td>
+      <td>Browser <code>IndexedDB</code> offline store and private Firestore / Firebase Storage paths restricted to your authenticated UID.</td>
+    </tr>
+    <tr>
+      <td>ARC AI Coach</td>
+      <td>Questions you submit, saved chat threads, and optional context items you explicitly attach</td>
+      <td>Sent over HTTPS to HabitArc’s server endpoint (<code>/api/coach</code>) and processed via Google Gemini API solely to generate your coaching response. Saved threads sync only to your private account.</td>
+    </tr>
+    <tr>
+      <td>Push Reminders (Opt-In)</td>
+      <td>Browser Web Push endpoint, encryption keys, and local timezone</td>
+      <td>Stored under your private push-device record only when you explicitly enable Background Push in Settings.</td>
+    </tr>
+    <tr>
+      <td>Live League &amp; Squads (Opt-In)</td>
+      <td>Chosen public nickname (max 20 chars), avatar color tone, aggregate weekly/all-time points, streak count, and optional 6-character Squad code</td>
+      <td>Published to <code>/leagueMembers/{uid}</code> <strong>only if you opt in</strong>. Private habit names, tasks, notes, and email addresses are never shared in League or Squads.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. How Your Data Is Protected</h2>
+<ul>
+  <li><strong>Account isolation:</strong> Firestore and Firebase Storage security rules restrict every personal collection under <code>/users/{uid}</code> exclusively to your verified Firebase Authentication UID.</li>
+  <li><strong>Explicit context control:</strong> Planner tasks, focus sessions, and notes are never sent to ARC AI unless you explicitly attach them or submit a prompt.</li>
+  <li><strong>No ad networks or data brokers:</strong> HabitArc does not sell, rent, or share personal data for cross-app advertising.</li>
+</ul>
+
+<h2>3. Your Data Controls: Export, Backup &amp; Opt-Out</h2>
+<ul>
+  <li><strong>CSV &amp; Full JSON Backup:</strong> Open <a href="Settings.html">Settings</a> → <em>Export Data (CSV)</em> or <em>Download Full Backup</em> to download a portable copy of your habits, completions, tasks, notes, media, and focus history.</li>
+  <li><strong>Leave Live League:</strong> Open <a href="Leaderboard.html">Rewards → League</a> → <em>Manage</em> → <em>Leave Live League</em> at any time to remove your public nickname and points from the leaderboard.</li>
+  <li><strong>Disable Push Notifications:</strong> Turn off reminders or click <em>Disable on This Device</em> in <a href="Settings.html">Settings</a> to revoke Web Push delivery immediately.</li>
+</ul>
+
+<h2>4. Self-Service Account &amp; Cloud Data Deletion</h2>
+<div class="danger-box">
+  <strong>Permanent Deletion Inside the App:</strong> You can delete your HabitArc account and all associated cloud and local data at any time without emailing support:
+  <ol>
+    <li>Sign in to HabitArc and open <a href="Settings.html">Settings</a>.</li>
+    <li>Scroll to <strong>Data Management</strong> and select <strong>Delete Account &amp; Cloud Data</strong>.</li>
+    <li>Type <code>DELETE</code> in the confirmation dialog and press <strong>Delete Permanently</strong>.</li>
+  </ol>
+</div>
+<p>Confirming deletion immediately removes:</p>
+<ul>
+  <li>Your Firebase Authentication account login;</li>
+  <li>Your Firestore profile and all subcollections (<code>habits</code>, <code>habitCompletions</code>, <code>tasks</code>, <code>notes</code>, <code>focusSessions</code>, <code>pushDevices</code>, and saved <code>arcChats</code>);</li>
+  <li>Any note photos or audio files stored under <code>users/{uid}/</code> in Firebase Storage;</li>
+  <li>Your opt-in Live League profile and Squad membership; and</li>
+  <li>All HabitArc local caches (<code>localStorage</code>, <code>sessionStorage</code>, and <code>IndexedDB</code>) on the active device.</li>
+</ul>
+<p>If you only want to clear starter habits without deleting your login, use <strong>Reset App Data</strong> in <a href="Settings.html">Settings</a> instead.</p>
+
+<div class="nav-links">
+  <a href="Settings.html">← Back to Settings</a>
+  <a href="Dashboard.html">Open Dashboard</a>
+</div>
+</main>
+</body>
+</html>

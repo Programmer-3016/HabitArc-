@@ -27,7 +27,8 @@ function getAuthErrorMessage(error) {
         'auth/unauthorized-domain': 'This domain is not authorized for Google sign-in yet.',
         'auth/operation-not-allowed': 'This sign-in method is not enabled yet. Please contact HabitArc support.',
         'auth/network-request-failed': 'Check your internet connection and try again.',
-        'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.'
+        'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
+        'auth/requires-recent-login': 'For security, please sign out and sign in once again before deleting your account.'
     };
 
     return messages[error?.code] || 'We could not sign you in. Please try again.';
@@ -40,6 +41,7 @@ window.HabitArcAuthReady = (async () => {
             GoogleAuthProvider,
             browserLocalPersistence,
             createUserWithEmailAndPassword,
+            deleteUser,
             getAuth,
             getRedirectResult,
             onAuthStateChanged,
@@ -448,6 +450,8 @@ window.HabitArcAuthReady = (async () => {
                 live.push({
                     id,
                     title: typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim().slice(0, 60) : turns[0].question.slice(0, 58),
+                    customTitle: Boolean(raw.customTitle && typeof raw.title === 'string' && raw.title.trim()),
+                    pinned: Boolean(raw.pinned),
                     createdAt,
                     updatedAt,
                     deleted: false,
@@ -460,7 +464,7 @@ window.HabitArcAuthReady = (async () => {
                     lastActionAutoCreated: Boolean(raw.lastActionAutoCreated),
                 });
             }
-            live.sort((a, b) => b.updatedAt - a.updatedAt);
+            live.sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || b.updatedAt - a.updatedAt);
             tombstones.sort((a, b) => b.updatedAt - a.updatedAt);
             return [...live.slice(0, 15), ...tombstones.slice(0, 30)];
         }
@@ -835,6 +839,114 @@ window.HabitArcAuthReady = (async () => {
                     squadMembers,
                     squad: squadInfo
                 };
+            },
+            async deleteAccountAndCloudData(user = auth.currentUser || currentUser) {
+                if (!user?.uid) {
+                    throw new Error('Sign in to delete your account.');
+                }
+                const uid = user.uid;
+                let serverMode = '';
+
+                if (!user.isAnonymous) {
+                    try {
+                        const idToken = await user.getIdToken(true);
+                        const response = await fetch('/api/account-delete', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${idToken}`
+                            },
+                            body: JSON.stringify({ confirm: 'DELETE', deleteAuthOnServer: false })
+                        });
+                        const payload = await response.json().catch(() => null);
+                        if (response.ok && payload?.ok) {
+                            serverMode = String(payload.mode || '');
+                        }
+                    } catch { /* Proceed with direct authenticated SDK cleanup below */ }
+                }
+
+                if (serverMode !== 'admin') {
+                    // Best-effort League & Squad removal
+                    try {
+                        const memberRef = doc(collection(firestore, 'leagueMembers'), uid);
+                        const memberSnap = await getDoc(memberRef);
+                        if (memberSnap.exists()) {
+                            const prevCode = String(memberSnap.data()?.squadCode || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+                            if (/^[A-Z0-9]{6}$/.test(prevCode)) {
+                                const roomRef = doc(collection(firestore, 'leagueRooms'), prevCode);
+                                const roomSnap = await getDoc(roomRef);
+                                if (roomSnap.exists()) {
+                                    const rd = roomSnap.data() || {};
+                                    const nextUids = (Array.isArray(rd.memberUids) ? rd.memberUids : []).filter((id) => id !== uid);
+                                    await setDoc(roomRef, { ...rd, memberUids: nextUids, updatedAt: new Date().toISOString() }, { merge: true });
+                                }
+                            }
+                            await deleteDoc(memberRef).catch(() => {});
+                        }
+                    } catch { /* Optional league membership */ }
+
+                    // Best-effort Note media cleanup
+                    try {
+                        const notesSnap = await getDocs(notesCollection(user));
+                        for (const docSnap of notesSnap.docs) {
+                            const nd = docSnap.data() || {};
+                            if (nd.hasPhoto) {
+                                try {
+                                    const { api, target } = await noteMediaRef(user, docSnap.id, 'photo');
+                                    await api.deleteObject(target);
+                                } catch {}
+                            }
+                            if (nd.hasAudio) {
+                                try {
+                                    const { api, target } = await noteMediaRef(user, docSnap.id, 'audio');
+                                    await api.deleteObject(target);
+                                } catch {}
+                            }
+                        }
+                    } catch { /* Storage media optional */ }
+
+                    // Delete user subcollections and user root document
+                    const subCols = [
+                        habitsCollection(user),
+                        completionHistoryCollection(user),
+                        tasksCollection(user),
+                        notesCollection(user),
+                        focusCollection(user),
+                        collection(userDocument(user), 'pushDevices')
+                    ];
+                    for (const colRef of subCols) {
+                        try {
+                            const snap = await getDocs(colRef);
+                            if (!snap.empty) {
+                                const batch = writeBatch(firestore);
+                                snap.docs.forEach((d) => batch.delete(d.ref));
+                                await batch.commit();
+                            }
+                        } catch { /* Continue deleting remaining collections */ }
+                    }
+                    try {
+                        await deleteDoc(userDocument(user));
+                    } catch { /* Root user doc may not exist yet */ }
+
+                    // Finally delete Firebase Auth identity
+                    const liveAuthUser = auth.currentUser || user;
+                    if (liveAuthUser) {
+                        try {
+                            await deleteUser(liveAuthUser);
+                        } catch (error) {
+                            if (error?.code === 'auth/requires-recent-login') {
+                                const recentErr = new Error(getAuthErrorMessage(error));
+                                recentErr.code = 'auth/requires-recent-login';
+                                throw recentErr;
+                            }
+                            throw error;
+                        }
+                    }
+                } else {
+                    try { await signOut(auth); } catch {}
+                }
+
+                return { deleted: true, uid };
             }
         });
 

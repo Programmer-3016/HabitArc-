@@ -2202,6 +2202,107 @@ const HabitArc = (() => {
         await authClient.signOut();
     }
 
+    async function _wipeAccountNotesIndexedDB(uid) {
+        if (typeof indexedDB === 'undefined' || !uid) return;
+        try {
+            const db = await new Promise((resolve, reject) => {
+                const req = indexedDB.open('habitarc-notes-studio', 1);
+                req.onupgradeneeded = () => {
+                    if (!req.result.objectStoreNames.contains('notes')) {
+                        req.result.createObjectStore('notes', { keyPath: 'id' });
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+            try {
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction('notes', 'readwrite');
+                    const store = tx.objectStore('notes');
+                    const getAllReq = store.getAll();
+                    getAllReq.onsuccess = () => {
+                        for (const row of (getAllReq.result || [])) {
+                            if (row?.id && (row.owner === uid || row.owner === 'local')) {
+                                store.delete(row.id);
+                            }
+                        }
+                    };
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            } finally {
+                db.close();
+            }
+        } catch { /* IndexedDB cleanup is best-effort */ }
+    }
+
+    function _wipeScopedBrowserStorage(uid) {
+        for (const store of [
+            typeof localStorage !== 'undefined' ? localStorage : null,
+            typeof sessionStorage !== 'undefined' ? sessionStorage : null
+        ]) {
+            if (!store) continue;
+            try {
+                const keysToRemove = [];
+                for (let i = 0; i < store.length; i += 1) {
+                    const key = store.key(i);
+                    if (!key) continue;
+                    if (
+                        (uid && (key.endsWith(`:${uid}`) || key.endsWith(`_${uid}`))) ||
+                        key === STORAGE_KEY ||
+                        key === ACTIVE_USER_KEY ||
+                        key === 'habitarc_push_device_owner' ||
+                        key === 'habitarc_arc_rescue_prompt'
+                    ) {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach((k) => store.removeItem(k));
+            } catch { /* Storage cleanup best-effort */ }
+        }
+    }
+
+    async function deleteAccount({ confirmText = '' } = {}) {
+        if (String(confirmText || '').trim() !== 'DELETE') {
+            throw new Error('Type DELETE in all caps to confirm permanent account deletion.');
+        }
+
+        const authClient = await authReadyPromise;
+        await authClient?.waitForInitialAuthState?.().catch(() => {});
+        const currentUser = authClient?.getPublicUser?.() || getAuthUser();
+        const targetUid = currentUser?.uid || activeUserId || 'local';
+
+        // Stop background push subscription first while auth session is still valid
+        try {
+            if (typeof localStorage !== 'undefined' && localStorage.getItem('habitarc_push_device_owner')) {
+                await Promise.race([
+                    import('./push-subscriptions.js').then((mod) => mod.disableBackgroundPush()).catch(() => {}),
+                    new Promise((resolve) => setTimeout(resolve, 1800))
+                ]);
+            }
+        } catch { /* Optional push cleanup */ }
+
+        _clearCloudSubscription();
+        if (cloudSaveTimer) {
+            clearTimeout(cloudSaveTimer);
+            cloudSaveTimer = null;
+        }
+
+        if (currentUser?.uid && authClient?.deleteAccountAndCloudData) {
+            await authClient.deleteAccountAndCloudData();
+        }
+
+        await _wipeAccountNotesIndexedDB(targetUid);
+        _wipeScopedBrowserStorage(targetUid);
+        activeUserId = null;
+        cloudActivatedUserId = null;
+        cloudSyncReady = false;
+        activeStorageKey = STORAGE_KEY;
+        lastKnownStorageRaw = null;
+        _emitDataChange('account-deleted', true);
+        return { deleted: true, uid: targetUid };
+    }
+
     async function getAuthToken(forceRefresh = false) {
         const authClient = await authReadyPromise;
         if (!authClient?.getIdToken) {
@@ -2547,10 +2648,11 @@ const HabitArc = (() => {
         // Audio
         playCompletionSound,
 
-        // Export / Reset
+        // Export / Reset / Delete Account
         restoreArchiveHabits,
         exportCSV,
         resetAllData,
+        deleteAccount,
 
         // Utilities
         getGreeting,

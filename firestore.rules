@@ -70,7 +70,7 @@ service cloud.firestore {
         ]);
     }
     match /users/{userId}/focusSessions/{sessionId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.id == sessionId
@@ -84,6 +84,10 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'id', 'date', 'minutes', 'taskId', 'completedAt', '_updatedAt'
         ]);
+    }
+
+    match /users/{userId}/pushDevices/{deviceId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
     // Opt-in public League card: aggregate score & handle only, never private habit names.

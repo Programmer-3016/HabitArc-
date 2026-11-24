@@ -4103,15 +4103,70 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
   font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
   color: rgb(var(--ha-on-surface-variant));
 }
+.ha-ai-hist-item-actions {
+  display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0;
+}
+.ha-ai-hist-pin,
+.ha-ai-hist-rename,
 .ha-ai-hist-del {
   width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0; cursor: pointer;
   display: grid; place-items: center; border: 0; background: transparent;
-  color: rgb(var(--ha-on-surface-variant)); font-size: 13px; font-weight: 700;
+  color: rgb(var(--ha-on-surface-variant)); font-size: 12px; font-weight: 700;
+}
+.ha-ai-hist-pin:hover,
+.ha-ai-hist-rename:hover {
+  background: rgb(var(--ha-surface-container));
+  color: rgb(var(--ha-on-surface));
+}
+.ha-ai-hist-pin.is-pinned {
+  color: var(--rpg-cta, #ff6b4a);
+  background: color-mix(in srgb, var(--rpg-cta, #ff6b4a) 14%, transparent);
 }
 .ha-ai-hist-del:hover {
   background: color-mix(in srgb, #ef4444 14%, transparent);
   color: #dc2626;
 }
+.ha-ai-hist-rename-row {
+  display: flex; align-items: center; gap: 6px; width: 100%; padding: 6px 8px;
+}
+.ha-ai-hist-rename-input {
+  flex: 1; min-width: 0; padding: 5px 8px; border-radius: 8px;
+  border: 1.5px solid rgb(var(--ha-primary));
+  background: rgb(var(--ha-surface-container-lowest)) !important;
+  color: rgb(var(--ha-on-surface)) !important;
+  font-size: 12.5px; font-weight: 600; outline: none;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+.ha-ai-hist-rename-save,
+.ha-ai-hist-rename-cancel {
+  padding: 4px 8px; border-radius: 7px; font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 800; cursor: pointer;
+  border: 1px solid rgb(var(--ha-outline-variant));
+  background: rgb(var(--ha-surface-container-low));
+  color: rgb(var(--ha-on-surface));
+}
+.ha-ai-hist-rename-save {
+  background: var(--rpg-cta, #ff6b4a);
+  color: var(--rpg-cta-fg, #ffffff);
+  border-color: var(--rpg-shadow-ink, #121215);
+}
+.ha-arc-followups {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 9px;
+  border-top: 1px dashed rgb(var(--ha-outline-variant) / .45);
+}
+.ha-arc-followup-chip {
+  padding: 5px 10px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid rgb(var(--ha-outline-variant) / .85);
+  background: rgb(var(--ha-surface-container-low));
+  color: rgb(var(--ha-on-surface));
+  font-size: 11.5px; font-weight: 600; line-height: 1.25;
+  transition: transform 110ms ease, border-color 110ms ease, background-color 110ms ease;
+}
+.ha-arc-followup-chip:hover {
+  border-color: rgb(var(--ha-primary));
+  background: color-mix(in srgb, rgb(var(--ha-primary)) 10%, rgb(var(--ha-surface-container-low)));
+}
+.ha-arc-followup-chip:active { transform: scale(0.98); }
 .ha-ai-hist-empty {
   padding: 28px 16px; text-align: center;
   font-size: 12.5px; line-height: 1.5; color: rgb(var(--ha-on-surface-variant));

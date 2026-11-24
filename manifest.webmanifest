@@ -44,6 +44,22 @@
       "purpose": "maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/icons/pwa-screen-mobile.png",
+      "sizes": "720x1600",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "HabitArc Daily Dashboard, Streaks & Consistency"
+    },
+    {
+      "src": "/icons/pwa-screen-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "HabitArc Planner, Insights & ARC AI Coach Workspace"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Today's Plan",

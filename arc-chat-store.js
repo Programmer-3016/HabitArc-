@@ -105,9 +105,15 @@ export function sanitizeArcChatThread(raw, { forCloud = false } = {}) {
         .slice(-maxTurns);
     if (!turns.length) return null;
 
+    const customTitle = Boolean(raw.customTitle);
+    const rawCustomTitle = customTitle && typeof raw.title === 'string'
+        ? raw.title.replace(/[\u0000-\u001F\u007F]/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
+        : '';
     const clean = {
         id,
-        title: deriveArcChatTitle(raw.title || turns[0].question),
+        title: rawCustomTitle || deriveArcChatTitle(raw.title || turns[0].question),
+        customTitle: Boolean(rawCustomTitle),
+        pinned: Boolean(raw.pinned),
         createdAt,
         updatedAt,
         deleted: false,
@@ -159,7 +165,7 @@ export function mergeArcChats(localList = [], remoteList = [], { forCloud = fals
         }
     }
 
-    live.sort((a, b) => b.updatedAt - a.updatedAt);
+    live.sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || b.updatedAt - a.updatedAt);
     tombstones.sort((a, b) => b.updatedAt - a.updatedAt);
 
     const maxLive = forCloud ? MAX_CLOUD_CHATS : MAX_LOCAL_CHATS;
@@ -176,13 +182,36 @@ export function sanitizeArcChatsForCloud(chats = [], nowMs = Date.now()) {
 export function getLiveArcChats(chats = []) {
     return (Array.isArray(chats) ? chats : [])
         .filter(c => c && !c.deleted && Array.isArray(c.turns) && c.turns.length > 0)
-        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 
 export function upsertArcChat(chats = [], thread, nowMs = Date.now()) {
     const clean = sanitizeArcChatThread({ ...thread, deleted: false, updatedAt: thread?.updatedAt || nowMs });
     if (!clean) return mergeArcChats(chats, [], { nowMs });
     return mergeArcChats(chats, [clean], { nowMs });
+}
+
+export function togglePinArcChat(chats = [], chatId, nowMs = Date.now()) {
+    const id = sanitizeArcChatId(chatId);
+    if (!id) return mergeArcChats(chats, [], { nowMs });
+    const existing = getLiveArcChats(chats).find(c => c.id === id);
+    if (!existing) return mergeArcChats(chats, [], { nowMs });
+    const nextTs = Math.max(nowMs, (existing.updatedAt || 0) + 1);
+    return upsertArcChat(chats, { ...existing, pinned: !existing.pinned, updatedAt: nextTs }, nextTs);
+}
+
+export function renameArcChat(chats = [], chatId, newTitle, nowMs = Date.now()) {
+    const id = sanitizeArcChatId(chatId);
+    const cleaned = String(newTitle || '')
+        .replace(/[\u0000-\u001F\u007F]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 60);
+    if (!id || !cleaned) return mergeArcChats(chats, [], { nowMs });
+    const existing = getLiveArcChats(chats).find(c => c.id === id);
+    if (!existing) return mergeArcChats(chats, [], { nowMs });
+    const nextTs = Math.max(nowMs, (existing.updatedAt || 0) + 1);
+    return upsertArcChat(chats, { ...existing, title: cleaned, customTitle: true, updatedAt: nextTs }, nextTs);
 }
 
 export function deleteArcChat(chats = [], chatId, nowMs = Date.now()) {
@@ -307,17 +336,22 @@ export function groupArcChatsByRecency(chats = [], nowMs = Date.now()) {
     const weekStart = todayStart - 7 * 24 * 60 * 60 * 1000;
 
     const buckets = [
+        { label: 'Pinned', items: [] },
         { label: 'Today', items: [] },
         { label: 'Yesterday', items: [] },
         { label: 'Previous 7 Days', items: [] },
         { label: 'Earlier', items: [] },
     ];
     for (const chat of live) {
+        if (chat.pinned) {
+            buckets[0].items.push(chat);
+            continue;
+        }
         const ts = Number(chat.updatedAt) || 0;
-        if (ts >= todayStart) buckets[0].items.push(chat);
-        else if (ts >= yesterdayStart) buckets[1].items.push(chat);
-        else if (ts >= weekStart) buckets[2].items.push(chat);
-        else buckets[3].items.push(chat);
+        if (ts >= todayStart) buckets[1].items.push(chat);
+        else if (ts >= yesterdayStart) buckets[2].items.push(chat);
+        else if (ts >= weekStart) buckets[3].items.push(chat);
+        else buckets[4].items.push(chat);
     }
     return buckets.filter(b => b.items.length > 0);
 }

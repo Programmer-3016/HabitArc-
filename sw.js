@@ -1,12 +1,13 @@
 // Offline-capable app-shell service worker for HabitArc PWA.
 // Static shell files return from cache while they refresh; query navigations
 // stay network-first and never replace the public shell with their responses.
-const CACHE_NAME = 'habitarc-shell-v90';
+const CACHE_NAME = 'habitarc-shell-v91';
 const CDN_CACHE_NAME = 'habitarc-cdn-v1';
 const OFFLINE_URL = '/offline.html';
 const SHELL_ASSETS = [
   OFFLINE_URL,
   '/index.html',
+  '/tailwind.generated.css',
   '/Dashboard.html',
   '/Habits.html',
   '/Notes.html',

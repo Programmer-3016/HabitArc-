@@ -14,72 +14,10 @@
 <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
 <script defer src="pwa-register.js"></script>
 <title>ARC AI - HabitArc</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="tailwind.generated.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Space+Grotesk:wght@600;700&amp;family=Geist:wght@400;500;600&amp;family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-    tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                colors: {
-                    "on-surface": "#191c1d",
-                    "on-background": "#191c1d",
-                    "on-primary": "#ffffff",
-                    "error": "#ba1a1a",
-                    "error-container": "#ffdad6",
-                    "on-error-container": "#93000a",
-                    "inverse-surface": "#2e3132",
-                    "inverse-on-surface": "#f0f1f2",
-                    "surface-container-lowest": "#ffffff",
-                    "surface-container-low": "#f3f4f5",
-                    "primary": "#012d1d",
-                    "on-secondary": "#ffffff",
-                    "secondary-container": "#a0f4c8",
-                    "on-secondary-container": "#19724f",
-                    "on-surface-variant": "#414844",
-                    "primary-fixed": "#c1ecd4",
-                    "primary-fixed-dim": "#a5d0b9",
-                    "secondary": "#0e6c4a",
-                    "outline-variant": "#c1c8c2",
-                    "outline": "#717973",
-                    "surface-variant": "#e1e3e4",
-                    "surface-container": "#edeeef",
-                    "surface": "#f8f9fa",
-                    "primary-container": "#1b4332",
-                    "on-primary-container": "#86af99",
-                    "surface-container-high": "#e7e8e9",
-                    "surface-container-highest": "#e1e3e4",
-                    "background": "#f8f9fa"
-                },
-                borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
-                spacing: {
-                    "container-padding": "20px",
-                    "element-gap": "12px",
-                    "stack-gap": "16px",
-                    "card-padding": "20px",
-                    "section-margin": "32px"
-                },
-                fontFamily: {
-                    "headline-md": ["Hanken Grotesk"],
-                    "headline-lg": ["Hanken Grotesk"],
-                    "label-sm": ["Geist"],
-                    "label-md": ["Geist"],
-                    "body-md": ["Hanken Grotesk"],
-                    "body-lg": ["Hanken Grotesk"]
-                },
-                fontSize: {
-                    "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
-                    "label-sm": ["10px", { lineHeight: "12px", letterSpacing: "0.05em", fontWeight: "600" }],
-                    "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
-                    "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
-                    "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.02em", fontWeight: "600" }],
-                    "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }]
-                }
-            }
-        }
-    };
-</script>
+<script id="tailwind-config">window.tailwind = window.tailwind || { config: { darkMode: "class" } };</script>
 <style>
     body { font-family: 'Hanken Grotesk', sans-serif; }
     .geist { font-family: 'Geist', sans-serif; }
@@ -312,6 +250,7 @@
                 <span id="ai-coach-resp-id" class="ha-arc-resp-id"><span class="ha-arc-dot" aria-hidden="true"></span>ARC AI</span>
                 <div class="ha-arc-resp-tools">
                     <span id="ai-coach-resp-lvl" class="ha-arc-resp-lvl">LVL 1</span>
+                    <button id="ai-coach-retry-btn" type="button" class="ha-arc-copy-btn" aria-label="Regenerate response" title="Regenerate response">↻ RETRY</button>
                     <button id="ai-coach-copy-btn" type="button" class="ha-arc-copy-btn" aria-label="Copy response">COPY</button>
                 </div>
             </div>
@@ -326,6 +265,7 @@
                     </div>
                     <button id="ai-coach-apply-btn" type="button" class="ha-arc-action-btn">APPLY</button>
                 </div>
+                <div id="ai-coach-followups" class="hidden ha-arc-followups" role="group" aria-label="Suggested follow-ups"></div>
             </div>
         </article>
     </section>
@@ -554,6 +494,8 @@ import {
     deriveArcChatTitle,
     getLiveArcChats,
     upsertArcChat,
+    togglePinArcChat,
+    renameArcChat,
     deleteArcChat,
     mergeArcChats,
     sanitizeArcChatsForCloud,
@@ -652,6 +594,8 @@ import {
     const actionMeta = document.getElementById('ai-coach-action-meta');
     const applyActionButton = document.getElementById('ai-coach-apply-btn');
     const copyAnswerButton = document.getElementById('ai-coach-copy-btn');
+    const retryAnswerButton = document.getElementById('ai-coach-retry-btn');
+    const followupsEl = document.getElementById('ai-coach-followups');
 
     const prompts = {
         priority: 'Where am I losing consistency this week, and what small change would help most?',
@@ -663,6 +607,7 @@ import {
     let conversation = [];
     let chatThreads = [];
     let activeChatId = '';
+    let renamingChatId = '';
     let owner = null;
     let hydratedChatUid = '';
     let cloudSyncCompletedUid = '';
@@ -819,7 +764,12 @@ import {
                 tryBtn?.classList?.toggle?.('hidden', !t.unlocked);
             });
         }
-        if (threadNameEl) threadNameEl.textContent = `${meta.aiName.toUpperCase()} THREAD`;
+        const activeThread = getLiveArcChats(chatThreads).find(c => c.id === activeChatId);
+        if (threadNameEl) {
+            threadNameEl.textContent = (activeThread?.customTitle && activeThread.title)
+                ? activeThread.title
+                : `${meta.aiName.toUpperCase()} THREAD`;
+        }
         if (threadLvlBadge) threadLvlBadge.textContent = `LVL ${meta.level}`;
         if (respIdEl) respIdEl.innerHTML = `<span class="ha-arc-dot" aria-hidden="true"></span>${HabitArc.escapeHTML(meta.chatLabel)}`;
         if (respLvlEl) respLvlEl.textContent = `LVL ${meta.level}`;
@@ -1099,13 +1049,30 @@ import {
                 ${group.items.map(chat => {
                     const isActive = chat.id === activeChatId && !threadView?.classList?.contains?.('hidden');
                     const metaTxt = `${chat.turns.length} turn${chat.turns.length === 1 ? '' : 's'}${chat.updatedAt ? ` · ${formatChatTimeShort(chat.updatedAt)}` : ''}`;
+                    const safeId = HabitArc.escapeHTML(chat.id);
+                    const safeTitle = HabitArc.escapeHTML(chat.title);
+                    if (renamingChatId === chat.id) {
+                        return `
+                            <div class="ha-ai-hist-item is-renaming" role="listitem">
+                                <div class="ha-ai-hist-rename-row">
+                                    <input type="text" class="ha-ai-hist-rename-input" data-chat-rename-input="${safeId}" maxlength="60" value="${safeTitle}" aria-label="Rename conversation"/>
+                                    <button type="button" class="ha-ai-hist-rename-save" data-chat-rename-save="${safeId}">Save</button>
+                                    <button type="button" class="ha-ai-hist-rename-cancel" data-chat-rename-cancel="${safeId}">Cancel</button>
+                                </div>
+                            </div>
+                        `;
+                    }
                     return `
                         <div class="ha-ai-hist-item${isActive ? ' is-active' : ''}" role="listitem">
-                            <button type="button" class="ha-ai-hist-open" data-chat-open="${HabitArc.escapeHTML(chat.id)}">
-                                <span class="ha-ai-hist-item-title">${HabitArc.escapeHTML(chat.title)}</span>
+                            <button type="button" class="ha-ai-hist-open" data-chat-open="${safeId}">
+                                <span class="ha-ai-hist-item-title">${chat.pinned ? '📌 ' : ''}${safeTitle}</span>
                                 <span class="ha-ai-hist-item-meta">${HabitArc.escapeHTML(metaTxt)}</span>
                             </button>
-                            <button type="button" class="ha-ai-hist-del" data-chat-del="${HabitArc.escapeHTML(chat.id)}" aria-label="Delete ${HabitArc.escapeHTML(chat.title)}">✕</button>
+                            <div class="ha-ai-hist-item-actions">
+                                <button type="button" class="ha-ai-hist-pin${chat.pinned ? ' is-pinned' : ''}" data-chat-pin="${safeId}" aria-pressed="${chat.pinned ? 'true' : 'false'}" aria-label="${chat.pinned ? 'Unpin' : 'Pin'} ${safeTitle}" title="${chat.pinned ? 'Unpin chat' : 'Pin chat'}">📌</button>
+                                <button type="button" class="ha-ai-hist-rename" data-chat-rename="${safeId}" aria-label="Rename ${safeTitle}" title="Rename chat">✎</button>
+                                <button type="button" class="ha-ai-hist-del" data-chat-del="${safeId}" aria-label="Delete ${safeTitle}" title="Delete chat">✕</button>
+                            </div>
                         </div>
                     `;
                 }).join('')}
@@ -1211,6 +1178,8 @@ import {
         chatThreads = upsertArcChat(chatThreads, {
             id: activeChatId,
             title: existing?.title || deriveArcChatTitle(conversation[0]?.question),
+            customTitle: Boolean(existing?.customTitle),
+            pinned: Boolean(existing?.pinned),
             createdAt: existing?.createdAt || conversation[0]?.timestamp || nowTs,
             updatedAt: nowTs,
             turns: conversation.slice(-MAX_LOCAL_TURNS),
@@ -1581,12 +1550,70 @@ import {
         return text;
     }
 
+    function deriveFollowupChips(latestTurn, action, isCasual) {
+        if (!latestTurn?.answer) return [];
+        if (action?.type === 'create_habit') {
+            return [
+                'Make a 2-min Plan-B version of this habit',
+                'Pick the best reminder time for my schedule',
+                'How can I stack this onto an existing habit?'
+            ];
+        }
+        if (action?.type === 'update_habit' || action?.type === 'batch_update_habits') {
+            return [
+                'Check my 7-day consistency after this tweak',
+                'Create a low-energy backup routine for busy days',
+                'Which habit is my biggest bottleneck right now?'
+            ];
+        }
+        if (action?.type === 'create_task') {
+            return [
+                'Break this task into 2 smaller steps',
+                'Suggest a 25-min focus block for today',
+                'Review my habits and tasks for today'
+            ];
+        }
+        if (isCasual) {
+            return [
+                'Audit my habit consistency this week',
+                'Create a realistic 5-min daily habit',
+                'Build a low-energy Plan-B routine'
+            ];
+        }
+        return [
+            'Turn this into 1 concrete habit adjustment',
+            'Give me a 2-min Plan-B for tough days',
+            'Compare my last 7 days with the week before'
+        ];
+    }
+
+    function renderFollowupChips() {
+        if (!followupsEl) return;
+        const latest = conversation.at(-1);
+        if (!latest?.answer || requestController) {
+            followupsEl.innerHTML = '';
+            followupsEl.classList?.add?.('hidden');
+            return;
+        }
+        const suggestions = deriveFollowupChips(latest, activeAction, lastCasualGreeting);
+        if (!suggestions.length) {
+            followupsEl.innerHTML = '';
+            followupsEl.classList?.add?.('hidden');
+            return;
+        }
+        followupsEl.innerHTML = suggestions.map(prompt =>
+            `<button type="button" class="ha-arc-followup-chip" data-arc-followup="${HabitArc.escapeHTML(prompt)}">${HabitArc.escapeHTML(prompt)}</button>`
+        ).join('');
+        followupsEl.classList?.remove?.('hidden');
+    }
+
     function renderThreadFromState() {
         if (!conversation.length) {
             if (historyEl) historyEl.innerHTML = '';
             askedWrap?.classList.add('hidden');
             answerCard?.classList.add('hidden');
             renderSuggestedAction(null);
+            renderFollowupChips();
             showThreadView(false);
             return;
         }
@@ -1597,6 +1624,8 @@ import {
         askedWrap?.classList.remove('hidden');
         if (answerEl) answerEl.innerHTML = renderArcChatAnswer(latest.answer, HabitArc.escapeHTML, lastVerifiedSnapshot);
         if (copyAnswerButton) copyAnswerButton.textContent = 'COPY';
+        copyAnswerButton?.classList?.remove?.('hidden');
+        retryAnswerButton?.classList?.remove?.('hidden');
         if (evidenceEl) evidenceEl.textContent = lastCasualGreeting ? '' : formatVisibleEvidence(lastEvidence);
         renderSuggestedAction(activeAction, {
             applied: activeActionApplied,
@@ -1605,6 +1634,7 @@ import {
             prevPatch: activePrevHabitPatch,
             undoData: activeActionUndo
         });
+        renderFollowupChips();
         answerCard?.classList.remove('hidden');
         showThreadView(true);
     }
@@ -1615,6 +1645,7 @@ import {
         const uid = hydratedChatUid || owner || getActiveThreadUid();
         if (uid) owner = uid;
         activeChatId = thread.id;
+        renamingChatId = '';
         conversation = thread.turns.map(t => ({ ...t }));
         lastEvidence = typeof thread.lastEvidence === 'string' ? thread.lastEvidence : '';
         lastVerifiedSnapshot = thread.lastVerifiedSnapshot || null;
@@ -1630,7 +1661,7 @@ import {
             if (syncCloud) scheduleCloudChatSave(uid);
         }
         renderThreadFromState();
-        updateHistoryUI();
+        renderArcConsole();
         if (closeDrawer) closeHistoryDialog();
         if (scroll) {
             scrollChatToLatest(true);
@@ -1639,6 +1670,32 @@ import {
             }, 0);
         }
         return true;
+    }
+
+    function togglePinSavedChat(chatId) {
+        const uid = hydratedChatUid || owner || getActiveThreadUid();
+        if (!uid) return;
+        chatThreads = togglePinArcChat(chatThreads, chatId, Date.now());
+        chatThreads = saveLocalArcChats(uid, chatThreads, getChatStorage());
+        scheduleCloudChatSave(uid);
+        updateHistoryUI();
+    }
+
+    function renameSavedChat(chatId, nextTitle) {
+        const uid = hydratedChatUid || owner || getActiveThreadUid();
+        renamingChatId = '';
+        if (!uid) {
+            updateHistoryUI();
+            return;
+        }
+        const trimmed = String(nextTitle || '').trim();
+        if (trimmed) {
+            chatThreads = renameArcChat(chatThreads, chatId, trimmed, Date.now());
+            chatThreads = saveLocalArcChats(uid, chatThreads, getChatStorage());
+            scheduleCloudChatSave(uid);
+        }
+        renderArcConsole();
+        updateHistoryUI();
     }
 
     function deleteSavedChat(chatId) {
@@ -1869,6 +1926,8 @@ import {
             showArcThinking('Checking your recent habits…');
             if (evidenceEl) evidenceEl.textContent = '';
             copyAnswerButton?.classList?.add('hidden');
+            retryAnswerButton?.classList?.add('hidden');
+            followupsEl?.classList?.add?.('hidden');
             renderSuggestedAction(null);
             answerCard?.classList?.remove('hidden');
             answerCard?.setAttribute?.('aria-live', 'off');
@@ -1994,6 +2053,7 @@ import {
             }
             renderThreadFromState();
             copyAnswerButton?.classList?.remove('hidden');
+            retryAnswerButton?.classList?.remove('hidden');
             saveThreadState(owner);
             // Optional attachments are one-question only, never silently sent
             // to a future follow-up without a new explicit selection.
@@ -2036,6 +2096,8 @@ import {
                 // completed turn or expose a suggested action from partial text.
                 if (answerEl) answerEl.innerHTML = renderArcChatAnswer(incompleteReply, HabitArc.escapeHTML);
                 copyAnswerButton?.classList?.add('hidden');
+                retryAnswerButton?.classList?.add('hidden');
+                followupsEl?.classList?.add?.('hidden');
                 scrollChatToLatest();
                 if (evidenceEl) {
                     evidenceEl.textContent = stoppedByUser
@@ -2066,7 +2128,13 @@ import {
         } finally {
             if (controller === requestController) {
                 requestController = null;
-                if (!conversation.length || !conversation.at(-1)?.answer) copyAnswerButton?.classList?.add('hidden');
+                if (!conversation.length || !conversation.at(-1)?.answer) {
+                    copyAnswerButton?.classList?.add('hidden');
+                    retryAnswerButton?.classList?.add('hidden');
+                    followupsEl?.classList?.add?.('hidden');
+                } else {
+                    renderFollowupChips();
+                }
                 answerCard?.setAttribute?.('aria-live', 'polite');
                 wordReveal.cancel();
                 setLoading(false);
@@ -2136,6 +2204,30 @@ import {
             copyAnswerButton.textContent = 'COPIED ✓';
             setTimeout(() => { copyAnswerButton.textContent = 'COPY'; }, 1600);
         } catch { /* Clipboard permission optional */ }
+    });
+    retryAnswerButton?.addEventListener('click', () => {
+        if (requestController || !conversation.length) return;
+        const lastTurn = conversation[conversation.length - 1];
+        if (!lastTurn?.question) return;
+        conversation = conversation.slice(0, -1);
+        activeAction = null;
+        activeActionApplied = false;
+        activeActionAutoCreated = false;
+        activeCreatedHabitId = '';
+        activePrevHabitPatch = null;
+        activeActionUndo = null;
+        questionInput.value = lastTurn.question;
+        resizeTextarea();
+        void askCoach();
+    });
+    followupsEl?.addEventListener('click', (event) => {
+        if (requestController) return;
+        const chip = event?.target?.closest?.('[data-arc-followup]');
+        const prompt = chip?.getAttribute?.('data-arc-followup') || chip?.dataset?.arcFollowup;
+        if (!prompt) return;
+        questionInput.value = prompt;
+        resizeTextarea();
+        void askCoach();
     });
 
     function finishManualActionOutcome(outcome) {
@@ -2227,6 +2319,37 @@ import {
     });
     histList?.addEventListener('click', (event) => {
         const target = event?.target;
+        const pinEl = target?.closest?.('[data-chat-pin]');
+        if (pinEl) {
+            const pinId = pinEl.getAttribute?.('data-chat-pin') || pinEl.dataset?.chatPin;
+            if (pinId) togglePinSavedChat(pinId);
+            return;
+        }
+        const renameBtn = target?.closest?.('[data-chat-rename]');
+        if (renameBtn) {
+            const renameId = renameBtn.getAttribute?.('data-chat-rename') || renameBtn.dataset?.chatRename;
+            if (renameId) {
+                renamingChatId = renameId;
+                updateHistoryUI();
+                const inp = histList?.querySelector?.(`[data-chat-rename-input="${renameId}"]`);
+                inp?.focus?.();
+                inp?.select?.();
+            }
+            return;
+        }
+        const saveBtn = target?.closest?.('[data-chat-rename-save]');
+        if (saveBtn) {
+            const saveId = saveBtn.getAttribute?.('data-chat-rename-save') || saveBtn.dataset?.chatRenameSave;
+            const inp = histList?.querySelector?.(`[data-chat-rename-input="${saveId}"]`);
+            if (saveId) renameSavedChat(saveId, inp?.value || '');
+            return;
+        }
+        const cancelBtn = target?.closest?.('[data-chat-rename-cancel]');
+        if (cancelBtn) {
+            renamingChatId = '';
+            updateHistoryUI();
+            return;
+        }
         const delEl = target?.closest?.('[data-chat-del]');
         if (delEl) {
             const delId = delEl.getAttribute?.('data-chat-del') || delEl.dataset?.chatDel;
@@ -2237,6 +2360,19 @@ import {
         if (openEl) {
             const openId = openEl.getAttribute?.('data-chat-open') || openEl.dataset?.chatOpen;
             if (openId) openSavedChat(openId);
+        }
+    });
+    histList?.addEventListener('keydown', (event) => {
+        const inp = event?.target?.closest?.('[data-chat-rename-input]');
+        if (!inp) return;
+        const chatId = inp.getAttribute?.('data-chat-rename-input') || inp.dataset?.chatRenameInput;
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (chatId) renameSavedChat(chatId, inp.value || '');
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            renamingChatId = '';
+            updateHistoryUI();
         }
     });
 
@@ -2318,23 +2454,52 @@ import {
     window.addEventListener('focus', triggerForegroundSync);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) triggerForegroundSync(); });
 
+    const urlParams = (typeof location !== 'undefined' && typeof URLSearchParams !== 'undefined')
+        ? new URLSearchParams(location.search)
+        : null;
+    const requestedChatId = urlParams?.get('chat') || '';
     try {
         renderArcConsole();
-        restoreSavedThread();
+        if (requestedChatId) {
+            const uid = getActiveThreadUid();
+            if (uid) ensureChatsLoaded(uid);
+            if (!openSavedChat(requestedChatId, { closeDrawer: true, scroll: true, syncCloud: false })) {
+                restoreSavedThread();
+            }
+        } else {
+            restoreSavedThread();
+        }
     } finally {
         document.documentElement?.classList?.remove?.('ha-arc-restoring-thread');
     }
-    HabitArc.whenAuthReady?.()?.then((user) => {
+    HabitArc.whenAuthReady?.()?.then(async (user) => {
         if (user?.uid && !user.isAnonymous) {
-            void syncCloudChatsForUser(user);
+            await syncCloudChatsForUser(user);
+            if (requestedChatId && activeChatId !== requestedChatId) {
+                openSavedChat(requestedChatId, { closeDrawer: true, scroll: true, syncCloud: false });
+            }
         }
         renderArcConsole();
     }).catch(() => {});
-    const shouldOpenHub = typeof location !== 'undefined'
-        && typeof URLSearchParams !== 'undefined'
-        && new URLSearchParams(location.search).get('hub') === '1';
+    const shouldOpenHub = urlParams?.get('hub') === '1';
     if (shouldOpenHub) {
         openHubDialog();
+    }
+    if (urlParams?.get('capture') === '1' && typeof sessionStorage !== 'undefined') {
+        try {
+            const activeUid = HabitArc.getAuthUser?.()?.uid
+                || (typeof localStorage !== 'undefined' ? localStorage.getItem('habitarc_active_uid') : '') || 'local';
+            const rawCapture = sessionStorage.getItem('habitarc_command_capture:' + activeUid);
+            sessionStorage.removeItem('habitarc_command_capture:' + activeUid);
+            const parsedCapture = JSON.parse(rawCapture || 'null');
+            if (parsedCapture?.owner === activeUid && parsedCapture?.title && questionInput) {
+                startNewChat();
+                questionInput.value = String(parsedCapture.title).slice(0, 600);
+                resizeTextarea();
+                questionInput.focus?.();
+                setStatus('Draft ready from Command Center — press Send to ask ARC AI.');
+            }
+        } catch { /* Private capture draft optional */ }
     }
     // ARC Rescue prepares a suggestion only; the user reviews and sends it.
     // Nothing is uploaded to the Coach unless they explicitly press Send.

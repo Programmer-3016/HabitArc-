@@ -22,6 +22,24 @@ async function getNotes(uid){
   }));
  }finally{db.close();}
 }
+function getAiChats(uid){
+ try{
+  const raw=JSON.parse(localStorage.getItem('habitarc_arc_chats:'+uid)||'[]');
+  if(!Array.isArray(raw))return [];
+  return raw.filter(c=>c&&!c.deleted&&Array.isArray(c.turns)&&c.turns.length>0)
+   .sort((a,b)=>Number(Boolean(b.pinned))-Number(Boolean(a.pinned))||(b.updatedAt||0)-(a.updatedAt||0))
+   .map(c=>{
+    const lastTurn=c.turns[c.turns.length-1]||{};
+    const transcript=c.turns.map(t=>(t.question||'')+' '+(t.answer||'')).join(' ').slice(0,1200);
+    return {
+     title:(c.pinned?'📌 ':'')+(c.title||'ARC AI Chat'),
+     subtitle:String(lastTurn.question||'').slice(0,110),
+     searchBody:transcript,
+     type:'AI Chat',icon:'smart_toy',href:'Arc_AI.html?chat='+encodeURIComponent(c.id)
+    };
+   });
+ }catch{return [];}
+}
 const row=item=>'<a class="ha-command-result" href="'+esc(item.href)+'">'+
  '<span class="material-symbols-outlined" aria-hidden="true">'+esc(item.icon)+'</span>'+
  '<span><strong>'+esc(item.title)+'</strong><small>'+esc(item.type)+(item.subtitle?' · '+esc(item.subtitle):'')+'</small></span>'+
@@ -29,7 +47,7 @@ const row=item=>'<a class="ha-command-result" href="'+esc(item.href)+'">'+
 async function search(){
  if(!dialog?.open)return;
  const q=query.value.trim().toLocaleLowerCase().slice(0,150),id=++epoch,uid=owner();
- if(!q){results.innerHTML='<p class="ha-command-empty">Find habits, tasks and private notes. Or capture an idea below.</p>';status.textContent='Ctrl / ⌘ + K · Your work in one place';return;}
+ if(!q){results.innerHTML='<p class="ha-command-empty">Find habits, tasks, notes and ARC AI chats. Or capture an idea below.</p>';status.textContent='Ctrl / ⌘ + K · Your work in one place';return;}
  status.textContent='Searching this device…';
  let notes=[];
  try{notes=await getNotes(uid)}catch{ /* Notes might be unavailable. */ }
@@ -39,7 +57,8 @@ async function search(){
    icon:h.icon||'repeat',type:'Habit',href:'Habit_Detail.html?id='+encodeURIComponent(h.id)}));
  const tasks=(taskStore.getStatus().owner===uid ? taskStore.getTasks() : []).map(t=>({title:t.title,subtitle:t.dueDate||'No due date',
    icon:t.completed?'check_circle':'checklist',type:'Task',href:'Habits.html?section=tasks'}));
- const matches=[...habits,...tasks,...notes].filter(x=>x.title.toLocaleLowerCase().includes(q)||x.subtitle.toLocaleLowerCase().includes(q)).slice(0,20);
+ const aiChats=getAiChats(uid);
+ const matches=[...habits,...tasks,...notes,...aiChats].filter(x=>x.title.toLocaleLowerCase().includes(q)||x.subtitle.toLocaleLowerCase().includes(q)||(x.searchBody||'').toLocaleLowerCase().includes(q)).slice(0,20);
  results.innerHTML=matches.length?matches.map(row).join(''):'<p class="ha-command-empty">No results. Capture it below.</p>';
  status.textContent=matches.length+' result'+(matches.length===1?'':'s')+' · Account-private';
 }
@@ -67,7 +86,7 @@ function capture(kind){
  try{sessionStorage.setItem(CAPTURE+uid,JSON.stringify({title,owner:uid,savedAt:Date.now()}));}
  catch{status.textContent='Private draft storage unavailable. Open the editor manually.';return;}
  dialog.close();
- location.href=kind==='note'?'Notes.html?capture=1':'Add_Habit.html?capture=1';
+ location.href=kind==='note'?'Notes.html?capture=1':(kind==='ai'?'Arc_AI.html?capture=1':'Add_Habit.html?capture=1');
 }
 function initialize(){
  dialog=document.createElement('dialog');
@@ -76,14 +95,14 @@ function initialize(){
  dialog.innerHTML=[
  '<div class="ha-command-inner"><header><div><span class="ha-command-eyebrow">HABITARC · COMMAND CENTER</span><h2>Find it. Capture it.</h2></div>',
  '<button type="button" id="ha-command-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></header>',
- '<label class="ha-command-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="ha-command-query" type="search" placeholder="Search habits, tasks, notes…" autocomplete="off" aria-label="Search everything"></label>',
+ '<label class="ha-command-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="ha-command-query" type="search" placeholder="Search habits, tasks, notes, AI chats…" autocomplete="off" aria-label="Search everything"></label>',
  '<p class="ha-command-status" id="ha-command-status" role="status" aria-live="polite"></p>',
  '<div id="ha-command-results" class="ha-command-results"></div>',
  '<section class="ha-command-capture"><h3><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg> Quick Capture</h3>',
  '<input id="ha-command-capture" type="text" maxlength="160" placeholder="What’s on your mind?" aria-label="New item title">',
  '<label class="ha-command-date-label">Task due date <input id="ha-command-due" type="date"></label>',
- '<div class="ha-command-actions"><button data-ha-capture="task" type="button">+ Task</button><button data-ha-capture="note" type="button">+ Note</button><button data-ha-capture="habit" type="button">+ Habit</button></div>',
- '<small>Task saves immediately. Note and Habit open their editor before saving.</small></section></div>'
+ '<div class="ha-command-actions"><button data-ha-capture="task" type="button">+ Task</button><button data-ha-capture="note" type="button">+ Note</button><button data-ha-capture="habit" type="button">+ Habit</button><button data-ha-capture="ai" type="button">+ Ask AI</button></div>',
+ '<small>Task saves immediately. Note, Habit, and Ask AI open ready to review before sending or saving.</small></section></div>'
  ].join('');
  document.body.append(dialog);
  query=dialog.querySelector('#ha-command-query');

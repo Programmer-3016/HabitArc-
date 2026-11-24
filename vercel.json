@@ -7,6 +7,9 @@
     "api/league.js": {
       "maxDuration": 20
     },
+    "api/account-delete.js": {
+      "maxDuration": 30
+    },
     "api/push-cron.js": {
       "maxDuration": 60
     }
