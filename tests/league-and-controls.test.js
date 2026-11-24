@@ -187,5 +187,11 @@ test('Serverless League action handler supports create-squad, join-squad, sync, 
   assert.match(read('sw.js'), /'\/league-store\.js'/);
   assert.match(read('firestore.rules'), /match \/leagueMembers\/\{userId\}/);
   assert.match(read('firestore.rules'), /match \/leagueRooms\/\{roomCode\}/);
-  assert.match(read('Leaderboard.html'), /id="league-hub"/);
+  const lbHtml = read('Leaderboard.html');
+  assert.match(lbHtml, /id="league-hub"/);
+  assert.ok(lbHtml.indexOf('id="show-league"') < lbHtml.indexOf('id="show-treasures"'), 'League tab comes before Chests');
+  assert.match(read('leaderboard.js'), /window\.location\.hash === '#chests'/);
+
+  const insightsHtml = read('Insights.html');
+  assert.ok(insightsHtml.indexOf('aria-label="Progress overview"') < insightsHtml.indexOf('id="ha-shield"'), 'Insights KPI overview comes before Consistency Shield');
 });

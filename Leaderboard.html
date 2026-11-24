@@ -176,18 +176,18 @@
 <main id="board" class="ha-leaderboard lb-main w-full mx-auto">
   <div class="lb-intro">
     <div class="lb-intro-copy">
-      <p class="ha-insights-eyebrow" id="lb-scope" hidden>Sample preview</p>
-      <h1 id="lb-page-title">Rewards</h1>
-      <p class="ha-insights-intro" id="lb-intro-text">Complete every scheduled habit on a day to count a clear day.</p>
+      <p class="ha-insights-eyebrow" id="lb-scope">Sample preview</p>
+      <h1 id="lb-page-title">Practice League</h1>
+      <p class="ha-insights-intro" id="lb-intro-text">Sample weekly and all-time standings for reference.</p>
     </div>
   </div>
 
   <div class="lb-view-row">
     <div class="lb-filters lb-view-switch" role="group" aria-label="Rewards and standings">
-      <button type="button" id="show-treasures" aria-pressed="true" aria-controls="treasures">Chests</button>
-      <button type="button" id="show-league" aria-pressed="false" aria-controls="league-view">League</button>
+      <button type="button" id="show-league" aria-pressed="true" aria-controls="league-view">League</button>
+      <button type="button" id="show-treasures" aria-pressed="false" aria-controls="treasures">Chests</button>
     </div>
-    <button type="button" id="treasure-sound-toggle" class="lb-sound-toggle" aria-pressed="true" aria-label="Mute chest sound effects" title="Chest sound on">
+    <button type="button" id="treasure-sound-toggle" class="lb-sound-toggle" hidden aria-pressed="true" aria-label="Mute chest sound effects" title="Chest sound on">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
         <path class="lb-sound-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
@@ -195,14 +195,14 @@
     </button>
   </div>
 
-  <section id="league-hub" class="lb-hub" aria-label="League filters" hidden>
+  <section id="league-hub" class="lb-hub" aria-label="League filters">
     <div class="lb-toolbar">
       <div class="lb-subpills lb-scope-switch" id="league-scope-tabs" role="group" aria-label="League board mode">
         <button type="button" data-league-scope="global" aria-pressed="false">Global</button>
         <button type="button" data-league-scope="squad" aria-pressed="false">Squad</button>
         <button type="button" data-league-scope="demo" aria-pressed="true">Preview</button>
       </div>
-      <div class="lb-controls" id="league-controls" hidden>
+      <div class="lb-controls" id="league-controls">
         <div class="lb-filters lb-period-pills" role="group" aria-label="Ranking period">
           <button type="button" data-period="weekly" aria-pressed="true">Weekly</button>
           <button type="button" data-period="allTime" aria-pressed="false">All</button>
@@ -271,7 +271,7 @@
     </div>
   </dialog>
 
-  <div class="lb-grid" id="league-view" hidden>
+  <div class="lb-grid" id="league-view">
     <div class="lb-feature">
       <section class="lb-stage" aria-label="Top three members">
         <div class="lb-stage-head">
@@ -333,11 +333,11 @@
     </section>
   </div>
 
-  <section id="treasures" class="lb-treasures" aria-label="Milestone chests">
+  <section id="treasures" class="lb-treasures" aria-label="Milestone chests" hidden>
     <div id="treasure-cards" class="lb-vault-grid"></div>
     <p class="lb-foot">One clear day counts once all scheduled habits for that date are finished.</p>
   </section>
-  <footer class="lb-foot" id="league-footer" hidden>
+  <footer class="lb-foot" id="league-footer">
     <span>●</span> Sample preview leaderboard for reference only; your own streaks stay private.
   </footer>
   <p class="lb-sr" id="announcement" role="status" aria-live="polite"></p>

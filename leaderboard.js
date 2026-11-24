@@ -1014,5 +1014,6 @@ function makeLockIcon() {
     });
   };
   for (const name of ['habitarc:data-changed', 'habitarc:sync-status-changed', 'habitarc-auth-state-changed']) window.addEventListener(name, refresh);
-  switchView(window.location.hash !== '#league');
+  const openChestsFirst = window.location.hash === '#chests' || window.location.hash === '#treasures';
+  switchView(openChestsFirst);
 }

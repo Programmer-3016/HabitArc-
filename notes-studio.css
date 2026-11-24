@@ -552,43 +552,42 @@
     display: grid !important;
   }
   .notes-shell {
-    padding: 22px 17px 110px;
+    padding: 14px 16px 110px;
   }
   .notes-heading {
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
   }
   .notes-heading h1 {
-    font-size: clamp(27px, 7.5vw, 34px);
+    font-size: clamp(23px, 6.4vw, 30px);
+    margin: 3px 0 2px;
     overflow-wrap: anywhere;
   }
   .notes-heading p {
-    font-size: 12.5px;
+    font-size: 12px;
+    line-height: 1.35;
   }
   .notes-heading .notes-primary {
     flex: 0 0 auto;
-    padding: 10px 12px;
-    font-size: 12.5px;
+    padding: 9px 12px;
+    font-size: 12px;
   }
   .notes-heading .notes-primary .material-symbols-outlined {
-    font-size: 18px;
+    font-size: 17px;
   }
   .notes-feature {
-    padding: 19px 20px;
-    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
-  }
-  .notes-feature-icons {
     display: none;
   }
   .notes-toolbar {
     display: block;
-    margin-top: 22px;
+    margin: 0 0 14px;
   }
   .notes-search {
     max-width: none;
   }
   .notes-filters {
-    margin-top: 12px;
+    margin-top: 10px;
   }
   .notes-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -673,7 +672,7 @@
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 325px) {
   .notes-heading {
     flex-wrap: wrap;
   }

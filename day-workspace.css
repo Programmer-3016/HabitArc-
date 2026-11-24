@@ -68,10 +68,13 @@
 .ha-day-hero-stats strong{font-size:13px;font-weight:800;color:var(--ha-hero-fg,#121215)}
 .ha-day-hero-strip .ha-day-peek-open{color:var(--ha-hero-fg,#121215)}
 @media(max-width:767px){
+ .ha-day-heading{display:none}
  .ha-day-bottom{grid-template-columns:1fr}
- .ha-day-datebar{gap:5px}
- .ha-day-datebar button{padding:7px 8px}
- .ha-day-metrics>div{padding:12px 10px}
+ .ha-day-datebar{gap:5px;margin-bottom:10px}
+ .ha-day-datebar button,.ha-day-datebar input{height:38px;padding:6px 8px}
+ .ha-month-toggle{padding:8px 12px;margin:0 0 11px;font-size:13px}
+ .ha-day-metrics{margin-bottom:14px;gap:8px}
+ .ha-day-metrics>div{padding:10px}
  .ha-day-peek-header h2{font-size:17px}
  .ha-day-section header{padding:12px}
  .ha-day-section-body{padding:2px 12px}
@@ -101,8 +104,8 @@
 @media (max-width:380px) {
   .ha-day-datebar {
     display:grid;
-    grid-template-columns:40px minmax(0,1fr) 40px;
-    gap:7px;
+    grid-template-columns:40px minmax(0,1fr) 40px auto;
+    gap:6px;
   }
   .ha-day-datebar > button[data-day-action="prev"] {grid-column:1}
   .ha-day-datebar > input[type="date"] {
@@ -115,8 +118,8 @@
   }
   .ha-day-datebar > button[data-day-action="next"] {grid-column:3}
   .ha-day-datebar > button[data-day-action="today"] {
-    grid-column:1/-1;
-    width:100%;
+    grid-column:4;
+    padding-inline:10px;
     min-width:0;
   }
   .ha-day-metrics {gap:6px}
@@ -125,6 +128,10 @@
   .ha-day-metrics small {font-size:10px}
   .ha-day-peek-header {align-items:flex-start;flex-wrap:wrap}
   .ha-day-peek-open {margin-left:auto}
+}
+@media (max-width:330px) {
+  .ha-day-datebar { grid-template-columns:38px minmax(0,1fr) 38px; }
+  .ha-day-datebar > button[data-day-action="today"] { grid-column:1/-1; width:100%; }
 }
 @media (max-width:359px) {
   .ha-day-focus-options {grid-template-columns:1fr}

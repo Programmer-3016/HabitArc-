@@ -25,6 +25,38 @@
   cursor:pointer;white-space:nowrap
 }
 .ha-rescue-launch-button .material-symbols-outlined{font-size:18px}
+@media (max-width: 767px) {
+  .ha-rescue-launch {
+    flex-wrap: nowrap;
+    padding: 10px 12px;
+    gap: 10px;
+    margin: 0 0 12px;
+    border-radius: 14px;
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink,#121215);
+  }
+  .ha-rescue-launch-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+  .ha-rescue-launch-icon .material-symbols-outlined { font-size: 19px; }
+  .ha-rescue-launch-copy { min-width: 0; }
+  .ha-rescue-kicker { font-size: 9px; letter-spacing: .1em; }
+  .ha-rescue-launch-copy h3 { font-size: 13.5px; margin: 1px 0; line-height: 1.2; }
+  .ha-rescue-launch-copy p { font-size: 11px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ha-rescue-launch-button {
+    padding: 8px 10px;
+    font-size: 11.5px;
+    border-radius: 10px;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .ha-rescue-launch-button .material-symbols-outlined { font-size: 15px; }
+}
+@media (max-width: 345px) {
+  .ha-rescue-launch { flex-wrap: wrap; }
+  .ha-rescue-launch-button { width: 100%; }
+}
 .ha-rescue-dialog {
   background:#f8f6f2;color:#17131e;border:2px solid #17131e;
   border-radius:20px;box-shadow:5px 5px 0 #17131e;
@@ -126,15 +158,19 @@
 .ha-arc-rescue-shortcut-copy small{display:block;font-size:11px;color:var(--ha-hero-sub,#555164);margin-top:2px;line-height:1.3}
 .ha-arc-rescue-shortcut>.material-symbols-outlined{font-size:20px}
 @media(max-width:480px){
-  .ha-rescue-launch{padding:14px;gap:10px}
+  .ha-rescue-launch{padding:10px 12px;gap:9px;flex-wrap:nowrap}
   .ha-rescue-launch-copy{min-width:0}
-  .ha-rescue-launch-button{width:100%}
+  .ha-rescue-launch-button{width:auto}
   .ha-rescue-move{align-items:flex-start;flex-direction:column}
   .ha-rescue-move-date{width:100%;margin-left:27px}
   .ha-rescue-move-date input{max-width:100%;width:min(100%,220px)}
   .ha-rescue-actions button{padding:10px 11px}
   .ha-rescue-actions{gap:7px}
   .ha-rescue-approve{font-size:11px!important}
+}
+@media(max-width:345px){
+  .ha-rescue-launch{flex-wrap:wrap}
+  .ha-rescue-launch-button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){
   .ha-rescue-dialog,.ha-rescue-launch{scroll-behavior:auto}

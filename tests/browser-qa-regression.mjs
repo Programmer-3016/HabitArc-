@@ -441,6 +441,21 @@ try {
     window.dispatchEvent(new CustomEvent('habitarc:data-changed', { detail: { source: 'storage' } }));
   })()`);
   await go(`${base}/Leaderboard.html`);
+  const leagueDefaultCheck = await ev(`({
+    overflow: document.documentElement.scrollWidth > innerWidth,
+    leaguePressed: document.querySelector('#show-league')?.getAttribute('aria-pressed'),
+    leagueHidden: document.querySelector('#league-view')?.hidden,
+    treasuresHidden: document.querySelector('#treasures')?.hidden,
+    podiumTop: document.getElementById('podium')?.getBoundingClientRect().top || 999
+  })`);
+  assert.equal(leagueDefaultCheck.overflow, false, 'League default view renders cleanly at 390px without overflow');
+  assert.equal(leagueDefaultCheck.leaguePressed, 'true', 'Leaderboard opens to League view first');
+  assert.equal(leagueDefaultCheck.leagueHidden, false, 'League standings visible by default');
+  assert.equal(leagueDefaultCheck.treasuresHidden, true, 'Chests hidden until Chests tab is selected');
+  assert.ok(leagueDefaultCheck.podiumTop < 380, `Expected Podium above the fold on mobile, got top=${leagueDefaultCheck.podiumTop}`);
+
+  await ev(`document.querySelector('#show-treasures')?.click()`);
+  await sleep(120);
   const vaultCheck = await ev(`({
     overflow: document.documentElement.scrollWidth > innerWidth,
     fitsOneScreen: document.documentElement.scrollHeight <= innerHeight,
@@ -457,8 +472,8 @@ try {
   await saveShot('rewards-clean-390.png');
   assert.equal(vaultCheck.overflow, false, 'Rewards renders cleanly at 390px without overflow');
   assert.equal(vaultCheck.fitsOneScreen, true, `Rewards Chests view fits cleanly without trailing blank scroll: ${vaultCheck.scrollHeight} vs ${vaultCheck.innerHeight}`);
-  assert.equal(vaultCheck.defaultTabPressed, 'true', 'Rewards opens to Chests view cleanly');
-  assert.equal(vaultCheck.leagueHidden, true, 'Demo standings stay hidden behind preview toggle');
+  assert.equal(vaultCheck.defaultTabPressed, 'true', 'Chests tab activates cleanly on click');
+  assert.equal(vaultCheck.leagueHidden, true, 'League hides when Chests tab is active');
   assert.equal(vaultCheck.wood, '✓ Unlocked');
   assert.equal(vaultCheck.iron, '✓ Unlocked');
   assert.equal(vaultCheck.gold, 'Open now');
