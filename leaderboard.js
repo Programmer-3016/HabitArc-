@@ -115,7 +115,8 @@ function memberInitials(name) {
 }
 
 function avatarBadge(member, cls) {
-  const badge = el('span', cls, memberInitials(member?.name));
+  const label = member?.placeholder ? '—' : memberInitials(member?.name);
+  const badge = el('span', member?.placeholder ? `${cls} lb-avatar-empty` : cls, label);
   badge.dataset.tone = String((Number(member?.tone) || 0) % 8);
   badge.setAttribute('aria-hidden', 'true');
   return badge;
@@ -149,6 +150,7 @@ export async function mountLeaderboard(root) {
     ? { code: initialProfile.squadCode, name: initialProfile.squadName }
     : null;
   let syncInFlight = false;
+  let toastTimer = null;
 
   function hydrateFromLocalCache() {
     const uid = app()?.getAuthUser?.()?.uid || 'local';
@@ -159,17 +161,82 @@ export async function mountLeaderboard(root) {
   }
   if (app()) hydrateFromLocalCache();
 
-  function setStatus(message, isError = false) {
-    const statusEl = find('league-sync-status');
-    if (!statusEl) return;
+  function showToast(message) {
+    const toastEl = find('league-toast');
+    if (!toastEl) return;
+    clearTimeout(toastTimer);
     if (!message) {
-      statusEl.hidden = true;
-      statusEl.textContent = '';
+      toastEl.hidden = true;
+      toastEl.textContent = '';
       return;
     }
-    statusEl.hidden = false;
-    statusEl.dataset.tone = isError ? 'error' : 'info';
-    statusEl.textContent = message;
+    toastEl.hidden = false;
+    toastEl.textContent = message;
+    toastTimer = setTimeout(() => {
+      toastEl.hidden = true;
+    }, 3600);
+  }
+
+  function setStatus(message, isError = false, alsoToast = false) {
+    const statusEl = find('league-sync-status');
+    if (statusEl) {
+      if (!message) {
+        statusEl.hidden = true;
+        statusEl.textContent = '';
+      } else {
+        statusEl.hidden = false;
+        statusEl.dataset.tone = isError ? 'error' : 'info';
+        statusEl.textContent = message;
+      }
+    }
+    if (alsoToast && message) showToast(message);
+  }
+
+  function setSheetTab(tab = 'profile') {
+    const isSquad = tab === 'squad';
+    const optinSec = find('league-optin-bar');
+    const squadSec = find('league-squad-panel');
+    if (optinSec) optinSec.hidden = isSquad;
+    if (squadSec) squadSec.hidden = !isSquad;
+    root.querySelectorAll('[data-sheet-tab]').forEach((btn) => {
+      btn.setAttribute('aria-selected', String(btn.dataset.sheetTab === (isSquad ? 'squad' : 'profile')));
+    });
+  }
+
+  function openSheet(focusId = '', tab = 'profile') {
+    const sheet = find('league-sheet');
+    if (!sheet) return;
+    updateLeagueChrome();
+    setSheetTab(tab);
+    if (!sheet.open && typeof sheet.showModal === 'function') {
+      sheet.showModal();
+    } else {
+      sheet.setAttribute('open', '');
+    }
+    if (focusId) {
+      find(focusId)?.focus({ preventScroll: true });
+    }
+  }
+
+  function closeSheet() {
+    const sheet = find('league-sheet');
+    if (!sheet) return;
+    if (sheet.open && typeof sheet.close === 'function') {
+      sheet.close();
+    } else {
+      sheet.removeAttribute('open');
+    }
+  }
+
+  async function copySquadCode() {
+    const code = getLeagueProfileSettings(app()).squadCode;
+    if (!code) return;
+    try {
+      await globalThis.navigator?.clipboard?.writeText(code);
+      setStatus(`Copied squad code ${code}! Share it with friends.`, false, true);
+    } catch {
+      setStatus(`Squad code: ${code}`, false, true);
+    }
   }
 
   function updateLeagueChrome() {
@@ -181,12 +248,60 @@ export async function mountLeaderboard(root) {
       btn.setAttribute('aria-pressed', String(btn.dataset.leagueScope === activeScope));
     });
 
-    const optinBar = find('league-optin-bar');
+    const bannerTitle = find('league-banner-title');
+    const bannerSub = find('league-banner-sub');
+    const bannerPrimary = find('league-banner-primary');
+    const bannerSecondary = find('league-banner-secondary');
+
+    if (bannerTitle && bannerSub && bannerPrimary && bannerSecondary && hasApp) {
+      if (!profile.joined) {
+        bannerTitle.textContent = `⚡ ${format.format(selfMember?.weekly || 0)} wk pts ready`;
+        bannerSub.textContent = activeScope === 'squad'
+          ? 'Create or join a 6-digit friend squad'
+          : 'Join live league · Habit names stay private';
+        bannerPrimary.textContent = activeScope === 'squad' ? 'Squad Setup' : 'Join Live';
+        bannerPrimary.dataset.action = activeScope === 'squad' ? 'open-squad' : 'open-join';
+        bannerSecondary.hidden = true;
+      } else if (activeScope === 'squad' && !profile.squadCode) {
+        bannerTitle.textContent = 'No squad joined yet';
+        bannerSub.textContent = 'Create a 6-char code or enter a friend code';
+        bannerPrimary.textContent = '+ Squad';
+        bannerPrimary.dataset.action = 'open-squad';
+        bannerSecondary.hidden = false;
+        bannerSecondary.textContent = 'Manage';
+        bannerSecondary.dataset.action = 'open-manage';
+      } else if (activeScope === 'squad' && profile.squadCode) {
+        bannerTitle.textContent = `${squadMeta?.name || profile.squadName || 'Habit Squad'} · ${profile.squadCode}`;
+        bannerSub.textContent = 'Share code with friends to race live';
+        bannerPrimary.textContent = 'Copy Code';
+        bannerPrimary.dataset.action = 'copy-code';
+        bannerSecondary.hidden = false;
+        bannerSecondary.textContent = 'Manage';
+        bannerSecondary.dataset.action = 'open-manage';
+      } else if (activeScope === 'demo') {
+        bannerTitle.textContent = 'Viewing sample preview';
+        bannerSub.textContent = `Joined as ${profile.handle}`;
+        bannerPrimary.textContent = 'Go Live';
+        bannerPrimary.dataset.action = 'go-live';
+        bannerSecondary.hidden = false;
+        bannerSecondary.textContent = 'Manage';
+        bannerSecondary.dataset.action = 'open-manage';
+      } else {
+        bannerTitle.textContent = `${profile.handle} · 🔥 ${selfMember?.streak || 0}d streak`;
+        bannerSub.textContent = `${format.format(selfMember?.weekly || 0)} wk · ${format.format(selfMember?.allTime || 0)} total pts`;
+        bannerPrimary.textContent = 'Friend Squad';
+        bannerPrimary.dataset.action = 'switch-squad';
+        bannerSecondary.hidden = false;
+        bannerSecondary.textContent = 'Manage';
+        bannerSecondary.dataset.action = 'open-manage';
+      }
+    }
+
     const memberActions = find('league-member-actions');
     const selfChip = find('league-self-chip');
     const handleInput = find('league-handle-input');
+    const joinBtn = find('league-join-btn');
     const optinHeadline = find('league-optin-headline');
-    const squadPanel = find('league-squad-panel');
     const squadEmpty = find('league-squad-empty');
     const squadActive = find('league-squad-active');
     const squadActiveName = find('squad-active-name');
@@ -194,16 +309,16 @@ export async function mountLeaderboard(root) {
     const showLeagueBtn = find('show-league');
 
     if (showLeagueBtn && hasApp) {
-      showLeagueBtn.textContent = profile.joined ? 'Live league' : 'League';
+      showLeagueBtn.textContent = 'League';
     }
-    if (optinBar) {
-      optinBar.hidden = profile.joined;
-      if (!profile.joined && selfMember && optinHeadline) {
-        optinHeadline.textContent = `Compete live · Your current score: ${format.format(selfMember.weekly)} wk / ${format.format(selfMember.allTime)} total pts`;
-      }
-      if (!profile.joined && handleInput && !handleInput.value) {
-        handleInput.value = profile.handle;
-      }
+    if (optinHeadline) {
+      optinHeadline.textContent = profile.joined ? 'Your Public Handle' : 'Choose Handle to Join Live';
+    }
+    if (joinBtn) {
+      joinBtn.textContent = profile.joined ? 'Save Handle' : 'Join Live';
+    }
+    if (handleInput && !handleInput.value) {
+      handleInput.value = profile.handle;
     }
     if (memberActions) {
       memberActions.hidden = !profile.joined;
@@ -211,15 +326,12 @@ export async function mountLeaderboard(root) {
         selfChip.textContent = `${profile.handle} · 🔥 ${selfMember.streak}d`;
       }
     }
-    if (squadPanel) {
-      squadPanel.hidden = activeScope !== 'squad';
-      const hasSquad = Boolean(profile.squadCode);
-      if (squadEmpty) squadEmpty.hidden = hasSquad;
-      if (squadActive) squadActive.hidden = !hasSquad;
-      if (hasSquad) {
-        if (squadActiveName) squadActiveName.textContent = squadMeta?.name || profile.squadName || 'Habit Squad';
-        if (squadCodeDisplay) squadCodeDisplay.textContent = profile.squadCode;
-      }
+    const hasSquad = Boolean(profile.squadCode);
+    if (squadEmpty) squadEmpty.hidden = hasSquad;
+    if (squadActive) squadActive.hidden = !hasSquad;
+    if (hasSquad) {
+      if (squadActiveName) squadActiveName.textContent = squadMeta?.name || profile.squadName || 'Habit Squad';
+      if (squadCodeDisplay) squadCodeDisplay.textContent = profile.squadCode;
     }
 
     const scopeEl = find('lb-scope');
@@ -232,7 +344,7 @@ export async function mountLeaderboard(root) {
     if (inLeagueView && hasApp) {
       if (scopeEl) {
         scopeEl.textContent = activeScope === 'global'
-          ? (profile.joined ? 'Live global league' : 'Global league preview')
+          ? (profile.joined ? 'Live league' : 'Global preview')
           : activeScope === 'squad'
             ? (profile.squadCode ? `Squad · ${profile.squadCode}` : 'Friends squad')
             : 'Sample preview';
@@ -241,20 +353,20 @@ export async function mountLeaderboard(root) {
         titleEl.textContent = activeScope === 'global'
           ? 'Global League'
           : activeScope === 'squad'
-            ? (squadMeta?.name || profile.squadName || 'Friends Squad')
+            ? (squadMeta?.name || (profile.squadCode ? profile.squadName : 'Friends Squad'))
             : 'Practice League';
       }
       if (introEl && find('treasures')) {
         introEl.textContent = activeScope === 'demo'
           ? 'Sample weekly and all-time standings for reference.'
           : activeScope === 'squad'
-            ? 'Share your 6-character code so friends can race on weekly and all-time XP.'
-            : 'Opt-in HabitArc players ranked by habit completions, clear days, and streak XP.';
+            ? 'Compete privately with friends using a 6-character invite code.'
+            : 'Ranked by habit completions, clear days, and streak XP.';
       }
       if (footerEl) {
         footerEl.textContent = activeScope === 'demo'
           ? '● Sample preview leaderboard for reference only; your own streaks stay private.'
-          : '● Live points: +25 per habit check, +40–50 per clear day, plus streak & chest XP. Habit names stay private.';
+          : '● +25 pts/check · +40–50 pts/clear day · +streak & chest XP. Habit names stay private.';
       }
     }
   }
@@ -341,7 +453,7 @@ export async function mountLeaderboard(root) {
     }
   }
 
-  async function runLeagueSync(action = 'sync', extra = {}, successNotice = '') {
+  async function runLeagueSync(action = 'sync', extra = {}, { notice = '', userInitiated = false } = {}) {
     if (!app() || syncInFlight) return;
     syncInFlight = true;
     const refreshBtn = find('league-refresh-btn');
@@ -361,7 +473,7 @@ export async function mountLeaderboard(root) {
             squadName: res.squad.name || cur.squadName,
           },
         });
-        setStatus(`Squad "${res.squad.name}" ready! Share code ${res.squad.code} with friends.`);
+        setStatus(`Squad "${res.squad.name}" ready! Share code ${res.squad.code}.`, false, true);
       } else if (action === 'join-squad' && res.squad?.code) {
         const cur = getLeagueProfileSettings(app());
         app().updateSettings({
@@ -372,20 +484,55 @@ export async function mountLeaderboard(root) {
             squadName: res.squad.name || cur.squadName,
           },
         });
-        setStatus(`Joined "${res.squad.name}" (${res.squad.code}).`);
+        setStatus(`Joined "${res.squad.name}" (${res.squad.code}).`, false, true);
+        closeSheet();
       } else if (res.ok) {
-        setStatus(successNotice || 'Live standings synced.');
-      } else if (res.message) {
-        setStatus(res.message, true);
+        if (notice) setStatus(notice, false, userInitiated);
+      } else if (userInitiated && res.message) {
+        setStatus(res.message, res.mode !== 'local-only', false);
       }
     } catch (err) {
-      setStatus(err?.message || 'Could not sync League right now.', true);
+      if (userInitiated) setStatus(err?.message || 'Could not sync League right now.', true);
     } finally {
       syncInFlight = false;
       if (refreshBtn) refreshBtn.disabled = false;
       draw(activePeriod, false);
     }
   }
+
+  find('league-banner-primary')?.addEventListener('click', () => {
+    const action = find('league-banner-primary')?.dataset?.action;
+    if (action === 'copy-code') {
+      void copySquadCode();
+    } else if (action === 'open-squad') {
+      openSheet('squad-name-input', 'squad');
+    } else if (action === 'go-live') {
+      const cur = getLeagueProfileSettings(app());
+      activeScope = cur.squadCode ? 'squad' : 'global';
+      draw(activePeriod, true);
+    } else if (action === 'switch-squad') {
+      activeScope = 'squad';
+      draw(activePeriod, true);
+      if (!getLeagueProfileSettings(app()).squadCode) openSheet('squad-name-input', 'squad');
+    } else {
+      openSheet('league-handle-input', 'profile');
+    }
+  });
+
+  find('league-banner-secondary')?.addEventListener('click', () => {
+    openSheet('', activeScope === 'squad' ? 'squad' : 'profile');
+  });
+
+  root.querySelectorAll('[data-sheet-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setSheetTab(btn.dataset.sheetTab || 'profile');
+    });
+  });
+
+  find('league-sheet-close')?.addEventListener('click', closeSheet);
+  find('league-sheet')?.addEventListener('click', (event) => {
+    if (event.target === find('league-sheet')) closeSheet();
+  });
 
   scopeButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -401,6 +548,7 @@ export async function mountLeaderboard(root) {
     event.preventDefault();
     if (!app()) return;
     const cur = getLeagueProfileSettings(app());
+    const wasJoined = cur.joined;
     const chosenHandle = normaliseLeagueHandle(find('league-handle-input')?.value, cur.handle);
     app().updateSettings({
       leagueProfile: {
@@ -411,17 +559,19 @@ export async function mountLeaderboard(root) {
     });
     if (activeScope === 'demo') activeScope = cur.squadCode ? 'squad' : 'global';
     draw(activePeriod, true);
-    void runLeagueSync('sync', {}, `Joined Live League as ${chosenHandle}!`);
+    closeSheet();
+    showToast(wasJoined ? `Handle updated to ${chosenHandle}` : `Joined Live League as ${chosenHandle}!`);
+    void runLeagueSync('sync', {}, { notice: `Active as ${chosenHandle}`, userInitiated: true });
   });
 
   find('league-refresh-btn')?.addEventListener('click', () => {
-    void runLeagueSync('sync', {}, 'Standings refreshed.');
+    void runLeagueSync('sync', {}, { notice: 'Standings synced.', userInitiated: true });
   });
 
   find('league-leave-btn')?.addEventListener('click', async () => {
     if (!app()) return;
     const cur = getLeagueProfileSettings(app());
-    await runLeagueSync('leave-league', { squadCode: cur.squadCode });
+    await runLeagueSync('leave-league', { squadCode: cur.squadCode }, { userInitiated: true });
     app().updateSettings({
       leagueProfile: {
         ...cur,
@@ -432,7 +582,8 @@ export async function mountLeaderboard(root) {
     liveSquad = [];
     squadMeta = null;
     activeScope = 'demo';
-    setStatus('Left Live League. Your public score card was removed.');
+    closeSheet();
+    showToast('Left Live League.');
     draw(activePeriod, true);
   });
 
@@ -445,7 +596,7 @@ export async function mountLeaderboard(root) {
       app().updateSettings({ leagueProfile: { ...cur, joined: true, squadName } });
     }
     activeScope = 'squad';
-    await runLeagueSync('create-squad', { squadName });
+    await runLeagueSync('create-squad', { squadName }, { userInitiated: true });
   });
 
   find('squad-join-form')?.addEventListener('submit', async (event) => {
@@ -463,18 +614,11 @@ export async function mountLeaderboard(root) {
       app().updateSettings({ leagueProfile: { ...cur, joined: true } });
     }
     activeScope = 'squad';
-    await runLeagueSync('join-squad', { code, squadCode: code });
+    await runLeagueSync('join-squad', { code, squadCode: code }, { userInitiated: true });
   });
 
-  find('squad-copy-btn')?.addEventListener('click', async () => {
-    const code = getLeagueProfileSettings(app()).squadCode;
-    if (!code) return;
-    try {
-      await globalThis.navigator?.clipboard?.writeText(code);
-      setStatus(`Copied squad code ${code}! Send it to your friends.`);
-    } catch {
-      setStatus(`Share this 6-character squad code: ${code}`);
-    }
+  find('squad-copy-btn')?.addEventListener('click', () => {
+    void copySquadCode();
   });
 
   find('squad-leave-btn')?.addEventListener('click', async () => {
@@ -484,7 +628,7 @@ export async function mountLeaderboard(root) {
     app().updateSettings({ leagueProfile: { ...cur, squadCode: '', squadName: 'Habit Squad' } });
     liveSquad = [];
     squadMeta = null;
-    await runLeagueSync('leave-squad', { code: prevCode, squadCode: '' }, 'Left Friends Squad.');
+    await runLeagueSync('leave-squad', { code: prevCode, squadCode: '' }, { notice: 'Left Friends Squad.', userInitiated: true });
     draw(activePeriod, true);
   });
 
@@ -833,6 +977,10 @@ function makeLockIcon() {
   function switchView(treasure) {
     active = treasure;
     if (!treasure && showing) showing.dialog.close();
+    if (treasure) {
+      const sheet = find('league-sheet');
+      if (sheet?.open && typeof sheet.close === 'function') sheet.close();
+    }
     for (const id of ['league-hub', 'league-view', 'league-footer', 'league-controls']) {
       const node = find(id);
       if (node) node.hidden = treasure;

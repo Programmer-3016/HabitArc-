@@ -180,12 +180,6 @@
       <h1 id="lb-page-title">Rewards</h1>
       <p class="ha-insights-intro" id="lb-intro-text">Complete every scheduled habit on a day to count a clear day.</p>
     </div>
-    <div class="lb-controls" id="league-controls" hidden>
-      <div class="lb-filters" role="group" aria-label="Ranking period">
-        <button type="button" data-period="weekly" aria-pressed="true">This week</button>
-        <button type="button" data-period="allTime" aria-pressed="false">All time</button>
-      </div>
-    </div>
   </div>
 
   <div class="lb-view-row">
@@ -201,56 +195,81 @@
     </button>
   </div>
 
-  <section id="league-hub" class="lb-hub" aria-label="League mode and friends squad" hidden>
-    <div class="lb-hub-top">
-      <div class="lb-filters lb-scope-switch" id="league-scope-tabs" role="group" aria-label="League board mode">
-        <button type="button" data-league-scope="global" aria-pressed="false">Global live</button>
-        <button type="button" data-league-scope="squad" aria-pressed="false">Friends squad</button>
-        <button type="button" data-league-scope="demo" aria-pressed="true">Sample preview</button>
+  <section id="league-hub" class="lb-hub" aria-label="League filters" hidden>
+    <div class="lb-toolbar">
+      <div class="lb-subpills lb-scope-switch" id="league-scope-tabs" role="group" aria-label="League board mode">
+        <button type="button" data-league-scope="global" aria-pressed="false">Global</button>
+        <button type="button" data-league-scope="squad" aria-pressed="false">Squad</button>
+        <button type="button" data-league-scope="demo" aria-pressed="true">Preview</button>
       </div>
-      <div id="league-member-actions" class="lb-hub-actions" hidden>
-        <span id="league-self-chip" class="lb-self-chip"></span>
-        <button type="button" id="league-refresh-btn" class="lb-btn-ghost">Sync</button>
-        <button type="button" id="league-leave-btn" class="lb-btn-ghost lb-btn-danger">Leave</button>
-      </div>
-    </div>
-
-    <form id="league-optin-bar" class="lb-optin-bar">
-      <div class="lb-optin-copy">
-        <strong id="league-optin-headline">Compete live with real streaks &amp; XP</strong>
-        <p id="league-optin-sub">Only your chosen handle and total points are shared. Habit names stay private.</p>
-      </div>
-      <div class="lb-optin-controls">
-        <input id="league-handle-input" type="text" maxlength="20" placeholder="Your league handle" aria-label="Choose your public league handle"/>
-        <button type="submit" id="league-join-btn" class="lb-btn-cta">Join Live League</button>
-      </div>
-    </form>
-
-    <div id="league-squad-panel" class="lb-squad-panel" hidden>
-      <div id="league-squad-empty" class="lb-squad-forms">
-        <form id="squad-create-form" class="lb-squad-form">
-          <input id="squad-name-input" type="text" maxlength="28" placeholder="Squad name (e.g. Hostel Grind)" aria-label="New squad name"/>
-          <button type="submit" id="squad-create-btn" class="lb-btn-cta">Create Squad</button>
-        </form>
-        <form id="squad-join-form" class="lb-squad-form">
-          <input id="squad-code-input" type="text" maxlength="6" placeholder="6-CHAR CODE" aria-label="6-character friend invite code" autocapitalize="characters"/>
-          <button type="submit" id="squad-join-btn" class="lb-btn-ghost">Join Code</button>
-        </form>
-      </div>
-      <div id="league-squad-active" class="lb-squad-active" hidden>
-        <div class="lb-squad-meta">
-          <strong id="squad-active-name">Habit Squad</strong>
-          <span class="lb-squad-code-wrap">Invite code: <code id="squad-code-display">------</code></span>
-        </div>
-        <div class="lb-squad-btns">
-          <button type="button" id="squad-copy-btn" class="lb-btn-cta">Copy Code</button>
-          <button type="button" id="squad-leave-btn" class="lb-btn-ghost">Leave Squad</button>
+      <div class="lb-controls" id="league-controls" hidden>
+        <div class="lb-filters lb-period-pills" role="group" aria-label="Ranking period">
+          <button type="button" data-period="weekly" aria-pressed="true">Weekly</button>
+          <button type="button" data-period="allTime" aria-pressed="false">All</button>
         </div>
       </div>
     </div>
-
-    <p id="league-sync-status" class="lb-sync-status" role="status" aria-live="polite" hidden></p>
+    <p id="league-toast" class="lb-toast" role="status" aria-live="polite" hidden></p>
   </section>
+
+  <dialog id="league-sheet" class="lb-sheet" aria-labelledby="league-sheet-title">
+    <div class="lb-sheet-box">
+      <div class="lb-sheet-head">
+        <div>
+          <p class="lb-terminal" id="league-sheet-kicker">HabitArc League</p>
+          <h2 id="league-sheet-title">League Setup</h2>
+        </div>
+        <button type="button" id="league-sheet-close" class="lb-sheet-close" aria-label="Close league settings">✕</button>
+      </div>
+
+      <div class="lb-subpills lb-sheet-tabs" role="tablist" aria-label="League settings sections">
+        <button type="button" data-sheet-tab="profile" aria-selected="true">Handle &amp; Sync</button>
+        <button type="button" data-sheet-tab="squad" aria-selected="false">Friends Squad</button>
+      </div>
+
+      <form id="league-optin-bar" class="lb-sheet-section">
+        <label class="lb-field-label" for="league-handle-input" id="league-optin-headline">Public League Handle</label>
+        <p class="lb-field-hint" id="league-optin-sub">Only your chosen handle and total points are shared. Habit names stay private.</p>
+        <div class="lb-inline-field">
+          <input id="league-handle-input" type="text" maxlength="20" placeholder="Your handle (e.g. Sarthak)" aria-label="Choose your public league handle"/>
+          <button type="submit" id="league-join-btn" class="lb-btn-cta">Join Live</button>
+        </div>
+        <div id="league-member-actions" class="lb-sheet-foot" hidden>
+          <span id="league-self-chip" class="lb-self-chip"></span>
+          <div class="lb-sheet-foot-btns">
+            <button type="button" id="league-refresh-btn" class="lb-btn-ghost lb-btn-sm">Sync</button>
+            <button type="button" id="league-leave-btn" class="lb-btn-ghost lb-btn-danger lb-btn-sm">Leave</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="league-squad-panel" class="lb-sheet-section" hidden>
+        <p class="lb-field-hint">Create a private 6-character code or enter a friend's code to race together.</p>
+        <div id="league-squad-empty" class="lb-sheet-stack">
+          <form id="squad-create-form" class="lb-inline-field">
+            <input id="squad-name-input" type="text" maxlength="28" placeholder="Squad name (e.g. Hostel Grind)" aria-label="New squad name"/>
+            <button type="submit" id="squad-create-btn" class="lb-btn-cta">Create</button>
+          </form>
+          <form id="squad-join-form" class="lb-inline-field">
+            <input id="squad-code-input" type="text" maxlength="6" placeholder="6-CHAR CODE" aria-label="6-character friend invite code" autocapitalize="characters"/>
+            <button type="submit" id="squad-join-btn" class="lb-btn-ghost">Join Code</button>
+          </form>
+        </div>
+        <div id="league-squad-active" class="lb-squad-active-card" hidden>
+          <div class="lb-squad-meta">
+            <strong id="squad-active-name">Habit Squad</strong>
+            <span class="lb-squad-code-wrap">Code: <code id="squad-code-display">------</code></span>
+          </div>
+          <div class="lb-squad-btns">
+            <button type="button" id="squad-copy-btn" class="lb-btn-cta lb-btn-sm">Copy Code</button>
+            <button type="button" id="squad-leave-btn" class="lb-btn-ghost lb-btn-sm">Leave Squad</button>
+          </div>
+        </div>
+      </div>
+
+      <p id="league-sync-status" class="lb-sync-status" role="status" aria-live="polite" hidden></p>
+    </div>
+  </dialog>
 
   <div class="lb-grid" id="league-view" hidden>
     <div class="lb-feature">
@@ -269,13 +288,25 @@
         <div id="podium" class="lb-podium"></div>
       </section>
 
-      <section class="lb-personal" aria-label="Your sample standing">
-        <div class="lb-self-rank" id="self-rank">—</div>
-        <div>
-          <h2>Your position</h2>
-          <p id="self-gap"></p>
+      <section class="lb-personal-card" aria-label="Your standing and squad controls">
+        <div class="lb-personal">
+          <div class="lb-self-rank" id="self-rank">—</div>
+          <div class="lb-personal-copy">
+            <h2>Your position</h2>
+            <p id="self-gap"></p>
+          </div>
+          <button type="button" id="find-me" aria-label="Find your row in the standings" title="Find your row">↓</button>
         </div>
-        <button type="button" id="find-me" aria-label="Find your row in the standings" title="Find your row">↓</button>
+        <div id="league-banner" class="lb-personal-bar">
+          <div class="lb-banner-copy">
+            <strong id="league-banner-title">Compete live with real XP</strong>
+            <span id="league-banner-sub">Habit names stay private</span>
+          </div>
+          <div id="league-banner-actions" class="lb-banner-actions">
+            <button type="button" id="league-banner-primary" class="lb-btn-cta lb-btn-sm">Join Live</button>
+            <button type="button" id="league-banner-secondary" class="lb-btn-ghost lb-btn-sm" hidden>Manage</button>
+          </div>
+        </div>
       </section>
     </div>
 
