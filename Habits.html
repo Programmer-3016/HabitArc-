@@ -104,10 +104,7 @@
 <section class="ha-plan-overview ha-plan-v1" id="ha-plan-overview" aria-labelledby="ha-plan-title">
   <div class="ha-plan-v1-head">
     <h1 id="ha-plan-title" class="ha-plan-v1-title">Plan</h1>
-    <div class="ha-plan-v1-actions">
-      <span class="ha-plan-badge material-symbols-outlined" aria-hidden="true">calendar_month</span>
-      <a href="Add_Habit.html" id="ha-plan-v1-add" class="ha-plan-v1-add">+ Add</a>
-    </div>
+    <a href="Add_Habit.html" id="ha-plan-v1-add" class="ha-plan-v1-add">+ Add</a>
   </div>
   <div class="ha-plan-modes" role="tablist" aria-label="Planner sections">
     <button type="button" role="tab" id="ha-plan-day-tab" aria-controls="ha-plan-day" data-plan-mode="day" aria-selected="true">My Day</button>
@@ -173,6 +170,7 @@
     <button type="button" data-day-action="quick-focus" id="ha-day-v1-focus-btn" class="ha-day-v1-focus-btn">Start ▶</button>
   </div>
   <section id="ha-day-unified-card" class="ha-day-v1-card" aria-label="Today's unified checklist"></section>
+  <div class="ha-day-legacy-tools" hidden>
   <header class="ha-day-heading"><div><p class="ha-plan-kicker">YOUR DAILY WORKSPACE</p><h2>Day by day<span>.</span></h2><p>Habits, tasks, notes and focus — together.</p></div></header>
   <div class="ha-day-datebar"><button type="button" data-day-action="prev" aria-label="Previous day"><span class="material-symbols-outlined">chevron_left</span></button><input id="ha-day-date" type="date" aria-label="Choose day"><button type="button" data-day-action="next" aria-label="Next day"><span class="material-symbols-outlined">chevron_right</span></button><button type="button" data-day-action="today" class="ha-day-today">Today</button></div>
   <button id="ha-calendar-toggle" type="button" data-day-action="calendar-toggle" class="ha-month-toggle" aria-expanded="false" aria-controls="ha-month-calendar"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Monthly Calendar <span class="material-symbols-outlined" aria-hidden="true">expand_more</span></button>
@@ -191,6 +189,7 @@
   <div class="ha-day-bottom">
     <section class="ha-day-focus" aria-label="Focus timer"><header><span class="material-symbols-outlined">timer</span><h3>Focus Mode</h3></header><p>Start a focused session. The timer continues across tabs.</p><div class="ha-day-focus-clock" id="ha-focus-clock" role="timer">25:00</div><div class="ha-day-focus-options"><label>Duration<select id="ha-focus-length"><option value="15">15 min</option><option value="25" selected>25 min</option><option value="45">45 min</option></select></label><label>Task<select id="ha-focus-task"><option value="">General focus</option></select></label></div><div class="ha-day-focus-buttons"><button data-day-action="start-focus" type="button">Start focus</button><button data-day-action="pause-focus" type="button" hidden>Pause</button><button data-day-action="resume-focus" type="button" hidden>Resume</button><button data-day-action="reset-focus" type="button" hidden>Reset</button></div><p id="ha-focus-message" role="status" aria-live="polite"></p></section>
     <section class="ha-day-week" aria-label="Weekly review"><header><span class="material-symbols-outlined">query_stats</span><h3>7-day review</h3></header><div id="ha-week-stats" class="ha-week-stats"></div><p>Focus history and notes currently stay on this device.</p></section>
+  </div>
   </div>
 </section>
 <dialog id="ha-rescue-dialog" class="ha-rescue-dialog" aria-labelledby="ha-rescue-dialog-title">

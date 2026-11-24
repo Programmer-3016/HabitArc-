@@ -7,7 +7,7 @@
 .ha-plan-overview {
   display: grid;
   gap: 12px;
-  padding: 0 0 2px;
+  padding: 0;
   color: rgb(var(--ha-on-surface,18 18 21));
 }
 .ha-plan-v1-head {
@@ -18,43 +18,33 @@
 }
 .ha-plan-v1-title {
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif !important;
-  font-size: clamp(28px, 6.2vw, 36px) !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.035em !important;
-  line-height: 1.06 !important;
+  font-size: 25px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.14 !important;
   margin: 0 !important;
   color: rgb(var(--ha-on-surface, 18 18 21));
-}
-.ha-plan-v1-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
 }
 .ha-plan-v1-add {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
-  padding: 8px 18px;
+  padding: 6px 13px;
   border-radius: 999px;
-  background: var(--rpg-cta, #121215);
-  color: var(--rpg-cta-fg, #ffffff);
-  border: 2px solid var(--rpg-shadow-ink, #121215);
+  background: #121215;
+  color: #ffffff;
+  border: 1.8px solid var(--rpg-shadow-ink, #121215);
   box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-  font-size: 13.5px;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
 }
 .ha-plan-tab-cnt {
-  opacity: 0.76;
+  opacity: 0.78;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-}
-@media (max-width: 359px) {
-  .ha-plan-v1-add { padding: 7px 13px; font-size: 12px; }
 }
 .ha-plan-kicker {
   margin: 0;
@@ -100,23 +90,24 @@
   gap:4px;
   background:rgb(var(--ha-surface-container-lowest,255 255 255));
   border:2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant,18 18 21)));
-  border-radius:15px;
+  border-radius:14px;
 }
 .ha-plan-modes button,
 .ha-task-view-switch button {
   min-width:0;
-  min-height:40px;
+  min-height:34px;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:6px;
+  gap:5px;
   border:1.5px solid transparent;
-  border-radius:11px;
+  border-radius:10px;
   color:rgb(var(--ha-on-surface,18 18 21));
   background:transparent;
   font-family:'Space Grotesk','Hanken Grotesk',sans-serif;
-  font-size:13px;
-  font-weight:750;
+  font-size:12px;
+  font-weight:700;
+  padding:7px 8px;
   cursor:pointer;
 }
 .ha-plan-modes button .material-symbols-outlined,

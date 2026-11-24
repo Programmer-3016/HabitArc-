@@ -1446,88 +1446,83 @@ body main.ha-habits .ha-library-card.is-done-today {
 }
 
 /* ─── Insights Page (Version A — Lavender Score Hero + 7d Bar Chart) ──────── */
-body > main.ha-insights { max-width: 1120px; gap: 14px; padding-inline: 20px; }
+body > main.ha-insights { max-width: 780px; gap: 12px; padding-inline: 20px; align-content: start; }
 @media (max-width: 767px) {
-    body > main.ha-insights { padding-inline: 16px; gap: 12px; }
+    body > main.ha-insights { padding-inline: 16px; padding-top: 14px !important; gap: 12px; }
 }
+body > main.ha-insights > .ha-insights-main,
+body > main.ha-insights > .ha-insights-aside { display: none !important; }
 .ha-insights-heading,
 .ha-insights-v1-hero,
 .ha-insights-v1-chart,
 .ha-insights-overview { grid-column: 1 / -1; }
 .ha-insights-v1-head {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 0;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 1px; margin: 0;
 }
 .ha-insights-v1-kicker {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em;
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em;
     color: rgb(var(--ha-on-surface-variant));
 }
 .ha-insights-v1-head h1 {
     font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: clamp(28px, 6.2vw, 36px); font-weight: 800;
-    letter-spacing: -0.035em; line-height: 1.06; margin: 0;
+    font-size: 25px; font-weight: 750;
+    letter-spacing: -0.03em; line-height: 1.14; margin: 0;
     color: rgb(var(--ha-on-surface));
 }
 .ha-insights-v1-hero {
-    padding: 18px 18px 16px;
-    border-radius: 22px;
-    background: var(--ha-hero-bg, #c4b5fd);
+    padding: 15px 16px;
+    border-radius: 20px;
+    background: var(--ha-hero-bg, #c5b6ff);
     color: var(--ha-hero-fg, #121215);
     border: 2px solid var(--ha-hero-border, var(--rpg-shadow-ink, #121215));
     box-shadow: 4px 4px 0 var(--rpg-shadow-ink, #121215);
-    display: flex; flex-direction: column; gap: 6px;
+    display: flex; flex-direction: column; gap: 4px;
 }
 .ha-insights-v1-hero-top {
     display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
 }
 .ha-insights-v1-eyebrow {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; font-weight: 800; letter-spacing: 0.06em;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.05em;
     color: var(--rpg-hero-eyebrow, #3d1d7a);
 }
 .ha-insights-v1-trend-pill {
     display: inline-flex; align-items: center;
-    padding: 4px 11px; border-radius: 999px;
+    padding: 3px 9px; border-radius: 999px;
     background: #121215; color: var(--rpg-mint, #47e393);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px; font-weight: 800; letter-spacing: 0.03em;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.03em;
     white-space: nowrap;
 }
 .ha-insights-v1-score {
-    margin: 2px 0 0;
+    margin: 4px 0 0;
     font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: clamp(38px, 9vw, 46px); font-weight: 800;
-    line-height: 1.02; letter-spacing: -0.04em;
+    font-size: 32px; font-weight: 800;
+    line-height: 1.05; letter-spacing: -0.03em;
     color: var(--ha-hero-fg, #121215); font-variant-numeric: tabular-nums;
 }
 .ha-insights-v1-summary {
     margin: 2px 0 0;
-    font-size: 13.5px; font-weight: 600; line-height: 1.42;
-    color: var(--ha-hero-fg, #121215); opacity: 0.9;
+    font-size: 12.5px; font-weight: 500; line-height: 1.4;
+    color: var(--ha-hero-fg, #121215); opacity: 0.88;
 }
-.ha-insights-v1-submeta {
-    margin: 2px 0 0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; font-weight: 700;
-    color: var(--ha-hero-sub, #3b3556);
-}
-.ha-insights-v1-submeta strong { color: var(--ha-hero-fg, #121215); font-weight: 800; }
 .ha-insights-v1-chart {
-    padding: 16px 18px;
-    border-radius: 22px;
+    padding: 14px 16px;
+    border-radius: 20px;
     background: rgb(var(--ha-surface-container-lowest));
     color: rgb(var(--ha-on-surface));
     border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant)));
-    box-shadow: 4px 4px 0 var(--rpg-shadow-ink, #121215);
+    box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
 }
 .ha-insights-v1-chart-head {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 .ha-insights-v1-chart-head h2 {
     margin: 0;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 16.5px; font-weight: 750; letter-spacing: -0.02em;
+    font-size: 14px; font-weight: 750;
     color: rgb(var(--ha-on-surface));
 }
 .ha-insights-v1-logged {
@@ -1537,23 +1532,23 @@ body > main.ha-insights { max-width: 1120px; gap: 14px; padding-inline: 20px; }
     font-variant-numeric: tabular-nums;
 }
 .ha-insights-v1-bars {
-    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 9px;
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;
     align-items: end;
 }
 @media (max-width: 359px) {
     .ha-insights-v1-bars { gap: 5px; }
 }
 .ha-insights-v1-col {
-    display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0;
 }
 .ha-insights-v1-bar-track {
-    width: 100%; height: 92px;
+    width: 100%; height: 86px;
     display: flex; align-items: flex-end;
 }
 .ha-insights-v1-bar-fill {
-    width: 100%; border-radius: 10px;
-    border: 1.6px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant)));
-    background: var(--ha-hero-bg, #c4b5fd);
+    width: 100%; border-radius: 7px;
+    border: 1.5px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant)));
+    background: var(--ha-hero-bg, #c5b6ff);
     transition: height 180ms ease;
 }
 .ha-insights-v1-bar-fill.is-peak {
@@ -1566,7 +1561,7 @@ body > main.ha-insights { max-width: 1120px; gap: 14px; padding-inline: 20px; }
 }
 .ha-insights-v1-bar-lbl {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; font-weight: 800;
+    font-size: 9.5px; font-weight: 700;
     color: rgb(var(--ha-on-surface));
 }
 

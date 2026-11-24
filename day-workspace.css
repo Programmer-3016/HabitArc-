@@ -2,22 +2,23 @@
 #ha-plan-day[hidden],
 .ha-day-focus-buttons button[hidden]{display:none!important}
 .ha-day-workspace{color:rgb(var(--ha-on-surface,18 18 21));max-width:100%}
-.ha-day-v1-focus{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;margin-bottom:14px;border-radius:20px;background:var(--ha-hero-bg,rgb(var(--ha-primary-container,196 181 253)));color:var(--ha-hero-fg,#121215);border:2px solid var(--ha-hero-border,var(--rpg-shadow-ink,#121215));box-shadow:3.5px 3.5px 0 var(--rpg-shadow-ink,#121215)}
+.ha-day-v1-focus{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 15px;margin-bottom:12px;border-radius:20px;background:var(--ha-hero-bg,rgb(var(--ha-primary-container,197 182 255)));color:var(--ha-hero-fg,#121215);border:2px solid var(--ha-hero-border,var(--rpg-shadow-ink,#121215));box-shadow:4px 4px 0 var(--rpg-shadow-ink,#121215)}
 .ha-day-v1-focus-copy{min-width:0;display:grid;gap:2px}
-.ha-day-v1-focus-kicker{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--rpg-hero-eyebrow,#3d1d7a)}
-.ha-day-v1-focus-title{font-family:'Space Grotesk','Hanken Grotesk',sans-serif;font-size:16.5px;font-weight:750;line-height:1.22;color:var(--ha-hero-fg,#121215);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ha-day-v1-focus-btn{flex-shrink:0;padding:8px 15px;border-radius:999px;background:#121215;color:#ffffff;border:1.5px solid #121215;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:750;cursor:pointer;white-space:nowrap}
-.ha-day-v1-card{background:rgb(var(--ha-surface-container-lowest,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));border:2px solid var(--rpg-shadow-ink,rgb(var(--ha-outline-variant,18 18 21)));border-radius:22px;box-shadow:4px 4px 0 var(--rpg-shadow-ink,#121215);margin-bottom:16px;overflow:hidden}
-.ha-day-v1-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 17px;border-bottom:1.5px solid rgb(var(--ha-outline-variant,18 18 21)/.16);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;letter-spacing:.05em;color:rgb(var(--ha-on-surface,18 18 21))}
+.ha-day-v1-focus-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--rpg-hero-eyebrow,#3d1d7a)}
+.ha-day-v1-focus-title{font-family:'Space Grotesk','Hanken Grotesk',sans-serif;font-size:15px;font-weight:750;line-height:1.22;color:var(--ha-hero-fg,#121215);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ha-day-v1-focus-btn{flex-shrink:0;padding:7px 13px;border-radius:11px;background:#121215;color:#ffffff;border:1.5px solid #121215;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ha-day-v1-card{background:rgb(var(--ha-surface-container-lowest,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));border:2px solid var(--rpg-shadow-ink,rgb(var(--ha-outline-variant,18 18 21)));border-radius:20px;box-shadow:3.5px 3.5px 0 var(--rpg-shadow-ink,#121215);margin-bottom:4px;overflow:hidden}
+.ha-day-v1-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:rgb(var(--ha-surface-container-low,250 248 243));border-bottom:1.5px solid rgb(var(--ha-outline-variant,18 18 21)/.1);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.04em;color:rgb(var(--ha-on-surface,18 18 21))}
 .ha-day-v1-rows{display:grid}
-.ha-day-v1-row{display:flex;align-items:center;gap:13px;padding:13px 17px;min-width:0}
-.ha-day-v1-row+.ha-day-v1-row{border-top:1.5px solid rgb(var(--ha-outline-variant,18 18 21)/.14)}
-.ha-day-v1-box{width:27px;height:27px;flex-shrink:0;border-radius:8px;border:2px solid var(--ha-toggle-idle-border,rgb(var(--ha-on-surface,18 18 21)));background:var(--ha-toggle-idle-bg,rgb(var(--ha-surface-container-lowest,255 255 255)));color:transparent;display:grid;place-items:center;padding:0;cursor:pointer}
+.ha-day-v1-row{display:flex;align-items:center;gap:11px;padding:12px 14px;min-width:0}
+.ha-day-v1-row+.ha-day-v1-row{border-top:1px solid rgb(var(--ha-outline-variant,18 18 21)/.09)}
+.ha-day-v1-row.is-done .ha-day-v1-copy{opacity:.6}
+.ha-day-v1-box{width:26px;height:26px;flex-shrink:0;border-radius:8px;border:2px solid var(--ha-toggle-idle-border,rgb(var(--ha-on-surface,18 18 21)));background:rgb(var(--ha-background,246 244 238));color:transparent;display:grid;place-items:center;padding:0;cursor:pointer}
 .ha-day-v1-box.is-checked{background:var(--ha-toggle-done-bg,#121215);border-color:var(--ha-toggle-done-border,#121215);color:var(--ha-toggle-done-fg,#ffffff)}
 .ha-day-v1-copy{display:grid;gap:2px;flex:1;min-width:0;text-decoration:none;color:inherit}
-.ha-day-v1-copy strong{font-family:'Space Grotesk','Hanken Grotesk',sans-serif;font-size:15.5px;font-weight:750;line-height:1.25;overflow-wrap:anywhere}
-.ha-day-v1-copy small{font-size:12px;font-weight:600;color:rgb(var(--ha-on-surface-variant,82 82 91));line-height:1.35}
-.ha-day-v1-copy small.is-urgent{color:#dc2626;font-weight:750}
+.ha-day-v1-copy strong{font-family:'Space Grotesk','Hanken Grotesk',sans-serif;font-size:14px;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.ha-day-v1-copy small{font-size:11px;font-weight:500;color:rgb(var(--ha-on-surface-variant,82 88 84));line-height:1.35}
+.ha-day-v1-copy small.is-urgent{color:#dc2626;font-weight:700}
 .ha-day-v1-empty{padding:22px 17px;text-align:center;color:rgb(var(--ha-on-surface-variant,82 82 91));font-size:13px}
 .ha-day-v1-empty p{margin:0 0 10px}
 .ha-day-v1-empty-links{display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center}

@@ -393,13 +393,13 @@ try {
   assert.ok(elapsed < 3000, `Missing habit recovery took too long: ${elapsed}ms`);
   assert.ok(alertText.includes('could not be loaded'), `Unexpected alert message: ${alertText}`);
 
-  // 6) Font-enabled badge integrity + all 8 themes settled & persisted
+  // 6) Font-enabled Plan action pill integrity + all 8 themes settled & persisted
   await go(`${base}/Habits.html`);
   const badgeRect = await ev(`(() => {
-    const r = document.querySelector('.ha-plan-badge').getBoundingClientRect();
+    const r = document.querySelector('#ha-plan-v1-add, .ha-plan-badge').getBoundingClientRect();
     return { w: Math.round(r.width), h: Math.round(r.height) };
   })()`);
-  assert.ok(badgeRect.w >= 44 && badgeRect.w === badgeRect.h, `Expected padded square badge, got ${JSON.stringify(badgeRect)}`);
+  assert.ok(badgeRect.w >= 44 && badgeRect.h >= 28, `Expected crisp Plan CTA pill, got ${JSON.stringify(badgeRect)}`);
 
   await go(`${base}/Settings.html`);
   const themeColors = {};

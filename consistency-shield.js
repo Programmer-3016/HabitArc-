@@ -45,11 +45,11 @@ export function mountConsistencyShield(root=document.getElementById('ha-shield')
      return;
    }
    const pending=taskStore.getTasks(),today=localDay();
-   body.innerHTML=risks.map(h=>{
+   body.innerHTML=risks.slice(0,1).map(h=>{
      const title='2-minute reset: '+h.title.slice(0,125);
      const exists=pending.some(t=>!t.completed&&t.dueDate===today&&t.habitId===h.id&&t.title===title);
-     return '<article class="ha-shield-item"><span class="ha-shield-inline-ico material-symbols-outlined" aria-hidden="true">shield</span>'+
-       '<div class="ha-shield-item-content"><strong>Shield: '+esc(h.title)+' missed '+h.recentMisses+'d</strong><span>'+h.rate+'% over 14d · '+esc(h.suggestion)+'</span></div>'+
+     return '<article class="ha-shield-item"><span class="ha-shield-inline-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.8-3 8.9-7 10-4-1.1-7-5.2-7-10V6l7-3z"/></svg></span>'+
+       '<div class="ha-shield-item-content"><strong>Shield: '+esc(h.title)+' missed '+h.recentMisses+'d</strong></div>'+
        '<button type="button" data-shield-id="'+esc(h.id)+'"'+(exists?' disabled':'')+'>'+
        (exists?'Added ✓':'2m Reset')+'</button></article>';
    }).join('');
