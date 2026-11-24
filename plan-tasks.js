@@ -141,14 +141,22 @@ export function mount() {
   const urlParams = new URLSearchParams(location.search);
   const sectionFromUrl = urlParams.get('section');
   let mode = urlParams.get('rescue') === '1' ? 'tasks'
-    : ['habits','tasks','day'].includes(sectionFromUrl) ? sectionFromUrl : readOption('ha-plan-mode','habits');
-  if (!['habits','tasks','day'].includes(mode)) mode='habits';
+    : ['habits','tasks','day'].includes(sectionFromUrl) ? sectionFromUrl : readOption('ha-plan-mode','day');
+  if (!['habits','tasks','day'].includes(mode)) mode='day';
   let view = readOption('ha-task-view', 'all') === 'timeline' ? 'timeline' : 'all';
   let mounted = true;
   const statusEl = $('#ha-task-status');
 
+  function syncCounts() {
+    const habitsCntEl = $('#ha-plan-habits-cnt');
+    if (habitsCntEl) habitsCntEl.textContent = '(' + (window.HabitArc?.getHabits?.()?.length || 0) + ')';
+    const tasksCntEl = $('#ha-plan-tasks-cnt');
+    if (tasksCntEl) tasksCntEl.textContent = '(' + taskStore.getTasks().filter(t => !t.completed).length + ')';
+  }
+
   function render() {
     if (!mounted || !root.isConnected) return;
+    syncCounts();
     const tasks = taskStore.getTasks();
     onStatus(statusEl, taskStore.getStatus());
     feed.innerHTML = view === 'timeline' ? renderTimeline(tasks) : renderAll(tasks);
@@ -164,11 +172,14 @@ export function mount() {
   }
 
   function updateMode() {
+    syncCounts();
     panelHabits.hidden = mode !== 'habits';
     panelTasks.hidden = mode !== 'tasks';
     panelDay.hidden = mode !== 'day';
     if(mode === 'day') mountDay(panelDay);
     else unmountDay();
+    const quickAdd = $('#ha-plan-v1-add');
+    if (quickAdd) quickAdd.setAttribute('href', mode === 'tasks' ? '#ha-plan-tasks' : 'Add_Habit.html');
     root.querySelectorAll('[data-plan-mode]').forEach(button => {
       const chosen = button.dataset.planMode === mode;
       button.setAttribute('aria-selected', String(chosen));
@@ -293,6 +304,20 @@ export function mount() {
     }, { signal });
   });
   $('#ha-task-new').addEventListener('click', () => openEditor(), { signal });
+  $('#ha-plan-v1-add')?.addEventListener('click', (event) => {
+    if (mode === 'tasks') {
+      event.preventDefault();
+      openEditor();
+    }
+  }, { signal });
+  root.querySelector('.ha-plan-badge')?.addEventListener('click', () => {
+    if (mode !== 'day') {
+      mode = 'day';
+      writeOption('ha-plan-mode', mode);
+      updateMode();
+    }
+    document.getElementById('ha-calendar-toggle')?.click();
+  }, { signal });
   $('#ha-task-close').addEventListener('click', closeEditor, { signal });
   dialog.addEventListener('cancel', () => { editing = null; }, { signal });
   form.addEventListener('submit', saveEditor, { signal });

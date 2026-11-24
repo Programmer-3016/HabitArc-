@@ -108,25 +108,32 @@
 
 <!-- Main Content Canvas -->
 <main class="ha-insights flex-grow w-full max-w-7xl mx-auto px-container-padding py-4 md:py-section-margin grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-section-margin">
-<div class="ha-insights-v3-bar">
-  <span class="ha-insights-v3-pill">📊 28-Day Window</span>
-  <span class="ha-insights-v3-pill is-mint ha-insights-trend"><span id="metric-trend">—</span><span class="material-symbols-outlined" aria-hidden="true">trending_flat</span></span>
-</div>
-<header class="ha-insights-heading ha-insights-v3-hero">
-  <div class="ha-insights-v3-squircle">
-    <p id="metric-progress" class="ha-insights-v3-score">0%</p>
-  </div>
-  <h1 id="hero-title">Your Journey</h1>
-  <p class="ha-insights-intro">Grade <strong id="metric-consistency">--</strong> · Best streak <strong id="metric-streak">0d</strong></p>
+<header class="ha-insights-heading ha-insights-v1-head">
+  <span class="ha-insights-v1-kicker">ANALYTICS · 28 DAYS</span>
+  <h1>Insights</h1>
+  <p id="hero-title" class="sr-only">Your Journey</p>
 </header>
-<section id="ha-shield" class="ha-shield-panel" aria-labelledby="ha-shield-title">
- <header class="ha-shield-header"><span class="ha-shield-badge material-symbols-outlined" aria-hidden="true">shield</span>
-  <div><span class="ha-shield-kicker">ARC · CONSISTENCY SHIELD</span><h2 id="ha-shield-title">Protect your momentum.</h2><p>Patterns from your last 14 finished days, not AI predictions.</p></div>
- </header>
- <div id="ha-shield-results" class="ha-shield-results"><p>Checking your routine history…</p></div>
+<section class="ha-insights-v1-hero" aria-label="Progress overview">
+  <div class="ha-insights-v1-hero-top">
+    <span class="ha-insights-v1-eyebrow">CONSISTENCY SCORE</span>
+    <span class="ha-insights-v1-trend-pill"><span id="metric-trend">—</span><span class="material-symbols-outlined sr-only" aria-hidden="true">trending_flat</span></span>
+  </div>
+  <p id="metric-progress" class="ha-insights-v1-score">0%</p>
+  <p id="ha-insights-v1-summary" class="ha-insights-v1-summary">Track daily routines to reveal your strongest patterns.</p>
+  <p class="ha-insights-v1-submeta">Grade <strong id="metric-consistency">--</strong> · Best streak <strong id="metric-streak">0d</strong></p>
+</section>
+<section class="ha-insights-v1-chart" aria-label="Last 7 days activity">
+  <div class="ha-insights-v1-chart-head">
+    <h2>Last 7 Days</h2>
+    <span id="ha-insights-7d-logged" class="ha-insights-v1-logged">0/0 logged</span>
+  </div>
+  <div id="ha-insights-7d-bars" class="ha-insights-v1-bars" role="group" aria-label="Last 7 days completion bars"></div>
+</section>
+<section id="ha-shield" class="ha-shield-panel ha-shield-v1" aria-labelledby="ha-shield-title">
+ <h2 id="ha-shield-title" class="sr-only">Consistency Shield</h2>
+ <div id="ha-shield-results" class="ha-shield-results"><p class="ha-shield-ok">Checking your routine history…</p></div>
  <p id="ha-shield-status" class="ha-shield-status" role="status" aria-live="polite"></p>
 </section>
-<section id="ha-insights-habit-pills" class="ha-insights-v3-pills" aria-label="Per-habit 28-day completion rates"></section>
 
 <!-- Left/Main Column -->
 <div class="ha-insights-main lg:col-span-8 flex flex-col gap-section-margin">
@@ -422,29 +429,53 @@ import { buildHabitCoachContext } from './habit-analytics.js';
 
     }
 
-    // Populate Version C Per-Habit Rate Neo-Pills
-    const habitPillsEl = document.getElementById('ha-insights-habit-pills');
-    if (habitPillsEl) {
-        const habitStats = Array.isArray(snapshot.habits) ? snapshot.habits : [];
-        if (habitStats.length > 0) {
-            habitPillsEl.innerHTML = habitStats.slice().sort((a, b) => (b.rate ?? -1) - (a.rate ?? -1)).slice(0, 6).map(stat => {
-                const obj = habits.find(h => h.id === stat.id);
-                const iconName = escape(obj?.icon || 'repeat');
-                const rateVal = Number.isFinite(stat.rate) ? `${stat.rate}%` : 'NEW';
-                const toneCls = (stat.rate ?? 0) >= 80 ? 'is-high' : ((stat.rate ?? 0) >= 50 ? 'is-mid' : 'is-low');
-                return `<a class="ha-insights-habit-pill" href="Habit_Detail.html?id=${encodeURIComponent(String(stat.id || ''))}">
-                    <span class="ha-insights-habit-pill-left">
-                        <span class="material-symbols-outlined" aria-hidden="true">${iconName}</span>
-                        <span>${escape(obj?.name || stat.name || 'Habit')}</span>
-                    </span>
-                    <span class="ha-insights-habit-pill-rate ${toneCls}">${rateVal}</span>
-                </a>`;
-            }).join('');
-            habitPillsEl.hidden = false;
-        } else {
-            habitPillsEl.innerHTML = '';
-            habitPillsEl.hidden = true;
+    // Populate Version A Lavender Summary + Last 7 Days Bar Chart
+    const heroSummaryEl = document.getElementById('ha-insights-v1-summary');
+    if (heroSummaryEl) {
+        const fullDays = { sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' };
+        const dayPart = bestDay?.rate > 0 ? `${fullDays[bestDay.day] || bestDay.day} is your strongest day` : '';
+        const leadPart = strongest?.habit ? `${strongest.habit.name} leads at ${strongest.rate}%` : '';
+        heroSummaryEl.textContent = [dayPart, leadPart].filter(Boolean).join(' · ')
+            || (!habits.length ? 'Add your first habit to begin tracking consistency.' : 'Complete daily check-ins to reveal your strongest patterns.');
+    }
+    const bars7dEl = document.getElementById('ha-insights-7d-bars');
+    const logged7dEl = document.getElementById('ha-insights-7d-logged');
+    if (bars7dEl && logged7dEl) {
+        const histRecords = HabitArc.getCompletionHistory?.() || [];
+        const histDoneSet = new Set(histRecords.filter(r => r.status === 'completed').map(r => `${r.habitId}|${r.date}`));
+        const dayCodes = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        const cols = [];
+        let sumDone = 0, sumSched = 0;
+        for (let offset = 6; offset >= 0; offset--) {
+            const d = new Date();
+            d.setDate(d.getDate() - offset);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const code = dayCodes[d.getDay()];
+            const letter = dayLetters[d.getDay()];
+            let daySched = 0, dayDone = 0;
+            for (const h of habits) {
+                if (h.createdAt && h.createdAt > key) continue;
+                if (Array.isArray(h.repeat) && h.repeat.length && !h.repeat.includes(code)) continue;
+                daySched++;
+                if (h.completions?.[key] || histDoneSet.has(`${h.id}|${key}`)) dayDone++;
+            }
+            sumDone += dayDone;
+            sumSched += daySched;
+            const pct = daySched > 0 ? Math.round((dayDone / daySched) * 100) : 0;
+            cols.push({ key, letter, dayDone, daySched, pct });
         }
+        logged7dEl.textContent = `${sumDone}/${sumSched} logged`;
+        const maxPct = Math.max(0, ...cols.map(c => c.pct));
+        bars7dEl.innerHTML = cols.map(c => {
+            const isPeak = c.pct > 0 && (c.pct === 100 || c.pct === maxPct);
+            const cls = c.pct === 0 ? 'is-empty' : (isPeak ? 'is-peak' : 'is-active');
+            const barH = c.pct === 0 ? 18 : Math.max(24, c.pct);
+            return `<div class="ha-insights-v1-col" role="img" aria-label="${escape(c.key)}: ${c.dayDone} of ${c.daySched} completed (${c.pct}%)">
+                <div class="ha-insights-v1-bar-track"><div class="ha-insights-v1-bar-fill ${cls}" style="height:${barH}%"></div></div>
+                <span class="ha-insights-v1-bar-lbl" aria-hidden="true">${c.letter}</span>
+            </div>`;
+        }).join('');
     }
 
     // Populate Habit Spotlights

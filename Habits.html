@@ -101,29 +101,21 @@
     </div>
 </header>
 <main class="ha-habits w-full max-w-7xl mx-auto px-container-padding pt-6 pb-32 md:pb-8 flex flex-col gap-section-margin">
-<section class="ha-plan-overview ha-plan-v3" id="ha-plan-overview" aria-labelledby="ha-plan-title">
-  <div class="ha-plan-v3-topbar">
-    <span class="ha-plan-v3-datepill" id="ha-plan-live-date">Today</span>
-    <div class="ha-plan-v3-right">
-      <a href="Add_Habit.html" class="ha-plan-v3-quickadd">+ Quick Add</a>
+<section class="ha-plan-overview ha-plan-v1" id="ha-plan-overview" aria-labelledby="ha-plan-title">
+  <div class="ha-plan-v1-head">
+    <h1 id="ha-plan-title" class="ha-plan-v1-title">Plan</h1>
+    <div class="ha-plan-v1-actions">
       <span class="ha-plan-badge material-symbols-outlined" aria-hidden="true">calendar_month</span>
+      <a href="Add_Habit.html" id="ha-plan-v1-add" class="ha-plan-v1-add">+ Add</a>
     </div>
   </div>
-  <h1 id="ha-plan-title" class="sr-only">My Planner</h1>
   <div class="ha-plan-modes" role="tablist" aria-label="Planner sections">
-    <button type="button" role="tab" id="ha-plan-habits-tab" aria-controls="ha-plan-habits" data-plan-mode="habits" aria-selected="true"><span class="material-symbols-outlined" aria-hidden="true">repeat</span> Habits</button>
-    <button type="button" role="tab" id="ha-plan-tasks-tab" aria-controls="ha-plan-tasks" data-plan-mode="tasks" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">checklist</span> Tasks</button><button type="button" role="tab" id="ha-plan-day-tab" aria-controls="ha-plan-day" data-plan-mode="day" aria-selected="false"><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span> My Day</button>
+    <button type="button" role="tab" id="ha-plan-day-tab" aria-controls="ha-plan-day" data-plan-mode="day" aria-selected="true">My Day</button>
+    <button type="button" role="tab" id="ha-plan-habits-tab" aria-controls="ha-plan-habits" data-plan-mode="habits" aria-selected="false">Habits <span id="ha-plan-habits-cnt" class="ha-plan-tab-cnt"></span></button>
+    <button type="button" role="tab" id="ha-plan-tasks-tab" aria-controls="ha-plan-tasks" data-plan-mode="tasks" aria-selected="false">Tasks <span id="ha-plan-tasks-cnt" class="ha-plan-tab-cnt"></span></button>
   </div>
 </section>
-<div id="ha-plan-habits" role="tabpanel" aria-labelledby="ha-plan-habits-tab">
-<!-- Version C Lavender Routine Spotlight -->
-<div id="ha-habits-spotlight" class="ha-plan-v3-spotlight" aria-live="polite">
-  <div class="min-w-0">
-    <span id="ha-habits-spot-kicker" class="ha-plan-v3-spot-kicker">TODAY'S ROUTINE</span>
-    <div id="ha-habits-spot-title" class="ha-plan-v3-spot-title">Build steady daily momentum</div>
-  </div>
-  <a href="Add_Habit.html" id="ha-habits-spot-cta" class="ha-plan-v3-spot-btn">+ Habit</a>
-</div>
+<div id="ha-plan-habits" role="tabpanel" aria-labelledby="ha-plan-habits-tab" hidden>
 <!-- Page Header & Filters -->
 <section class="ha-library-heading flex flex-col gap-stack-gap">
 <div class="ha-habits-heading-top">
@@ -172,7 +164,15 @@
   </div>
   <div id="ha-task-feed" class="ha-task-feed" aria-live="polite"></div>
 </section>
-<section id="ha-plan-day" class="ha-day-workspace" role="tabpanel" aria-labelledby="ha-plan-day-tab" hidden>
+<section id="ha-plan-day" class="ha-day-workspace" role="tabpanel" aria-labelledby="ha-plan-day-tab">
+  <div id="ha-day-v1-focus-banner" class="ha-day-v1-focus" aria-label="Quick focus timer">
+    <div class="ha-day-v1-focus-copy">
+      <span id="ha-day-v1-focus-kicker" class="ha-day-v1-focus-kicker">FOCUS TIMER · 25M</span>
+      <strong id="ha-day-v1-focus-title" class="ha-day-v1-focus-title">Deep Work Sprint</strong>
+    </div>
+    <button type="button" data-day-action="quick-focus" id="ha-day-v1-focus-btn" class="ha-day-v1-focus-btn">Start ▶</button>
+  </div>
+  <section id="ha-day-unified-card" class="ha-day-v1-card" aria-label="Today's unified checklist"></section>
   <header class="ha-day-heading"><div><p class="ha-plan-kicker">YOUR DAILY WORKSPACE</p><h2>Day by day<span>.</span></h2><p>Habits, tasks, notes and focus — together.</p></div></header>
   <div class="ha-day-datebar"><button type="button" data-day-action="prev" aria-label="Previous day"><span class="material-symbols-outlined">chevron_left</span></button><input id="ha-day-date" type="date" aria-label="Choose day"><button type="button" data-day-action="next" aria-label="Next day"><span class="material-symbols-outlined">chevron_right</span></button><button type="button" data-day-action="today" class="ha-day-today">Today</button></div>
   <button id="ha-calendar-toggle" type="button" data-day-action="calendar-toggle" class="ha-month-toggle" aria-expanded="false" aria-controls="ha-month-calendar"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Monthly Calendar <span class="material-symbols-outlined" aria-hidden="true">expand_more</span></button>
@@ -273,43 +273,9 @@
     let currentFilter = 'All';
 
     function render() {
-        const liveDateEl = document.getElementById('ha-plan-live-date');
-        if (liveDateEl && typeof HabitArc.getFormattedToday === 'function') {
-            liveDateEl.textContent = '📅 ' + HabitArc.getFormattedToday();
-        }
         const allHabits = HabitArc.getHabits();
-        const doneCount = allHabits.filter(h => HabitArc.isCompletedToday(h.id)).length;
-        const nextPending = allHabits.find(h => !HabitArc.isCompletedToday(h.id));
-        const spotKicker = document.getElementById('ha-habits-spot-kicker');
-        const spotTitle = document.getElementById('ha-habits-spot-title');
-        const spotCta = document.getElementById('ha-habits-spot-cta');
-        if (spotKicker && spotTitle && spotCta) {
-            if (!allHabits.length) {
-                spotKicker.textContent = 'GET STARTED · 0 HABITS';
-                spotTitle.textContent = 'Create your first daily anchor';
-                spotCta.textContent = '+ Create';
-                spotCta.setAttribute('href', 'Add_Habit.html');
-                spotCta.onclick = null;
-            } else if (nextPending) {
-                const rem = nextPending.reminder || nextPending.reminderTime || '';
-                spotKicker.textContent = `NEXT UP${rem ? ' · ' + rem : ''} · ${doneCount}/${allHabits.length} DONE`;
-                spotTitle.textContent = nextPending.name;
-                spotCta.textContent = 'Done ✓';
-                spotCta.setAttribute('href', '#habits-list');
-                spotCta.onclick = (ev) => {
-                    ev.preventDefault();
-                    HabitArc.completeHabit(nextPending.id);
-                    render();
-                    syncStateSig();
-                };
-            } else {
-                spotKicker.textContent = `ALL CLEAR · ${doneCount}/${allHabits.length} DONE`;
-                spotTitle.textContent = 'Every habit completed today!';
-                spotCta.textContent = '+ Add';
-                spotCta.setAttribute('href', 'Add_Habit.html');
-                spotCta.onclick = null;
-            }
-        }
+        const habitsCntEl = document.getElementById('ha-plan-habits-cnt');
+        if (habitsCntEl) habitsCntEl.textContent = `(${allHabits.length})`;
 
         const container = document.getElementById('habits-list');
         container.innerHTML = '';

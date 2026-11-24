@@ -6,92 +6,55 @@
 
 .ha-plan-overview {
   display: grid;
-  gap: 11px;
+  gap: 12px;
   padding: 0 0 2px;
   color: rgb(var(--ha-on-surface,18 18 21));
 }
-.ha-plan-v3-topbar {
+.ha-plan-v1-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
-.ha-plan-v3-datepill,
-.ha-plan-v3-quickadd {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 13px;
-  border-radius: 999px;
-  border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant, 18 18 21)));
-  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
-  font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-  font-size: 12.5px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
-.ha-plan-v3-datepill {
-  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+.ha-plan-v1-title {
+  font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif !important;
+  font-size: clamp(28px, 6.2vw, 36px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.06 !important;
+  margin: 0 !important;
   color: rgb(var(--ha-on-surface, 18 18 21));
 }
-.ha-plan-v3-quickadd {
-  background: var(--rpg-mint, #47e393);
-  color: #121215;
-}
-.ha-plan-v3-right {
+.ha-plan-v1-actions {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
-.ha-plan-v3-spotlight {
-  display: flex;
+.ha-plan-v1-add {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 13px 16px;
-  margin-bottom: 12px;
-  border-radius: 20px;
-  background: var(--ha-hero-bg, #c4b5fd);
-  color: var(--ha-hero-fg, #121215);
-  border: 2px solid var(--ha-hero-border, var(--rpg-shadow-ink, #121215));
-  box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
-}
-.ha-plan-v3-spot-kicker {
-  display: block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  color: var(--rpg-hero-eyebrow, #3d1d7a);
-}
-.ha-plan-v3-spot-title {
+  justify-content: center;
+  min-height: 42px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--rpg-cta, #121215);
+  color: var(--rpg-cta-fg, #ffffff);
+  border: 2px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-  font-size: 15.5px;
+  font-size: 13.5px;
   font-weight: 750;
-  line-height: 1.24;
-  margin-top: 2px;
-  color: var(--ha-hero-fg, #121215);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ha-plan-v3-spot-btn {
-  flex-shrink: 0;
-  padding: 7px 14px;
-  border-radius: 11px;
-  background: #121215;
-  color: #ffffff;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
 }
+.ha-plan-tab-cnt {
+  opacity: 0.76;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 @media (max-width: 359px) {
-  .ha-plan-v3-datepill,
-  .ha-plan-v3-quickadd { padding: 6px 9px; font-size: 11px; }
+  .ha-plan-v1-add { padding: 7px 13px; font-size: 12px; }
 }
 .ha-plan-kicker {
   margin: 0;

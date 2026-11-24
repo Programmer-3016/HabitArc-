@@ -24,6 +24,7 @@ function scheduledHabits(date,history=null) {
    .filter(h=>(!h.createdAt||h.createdAt<=date)&&(!h.repeat||h.repeat.includes(dayCode(date))))
    .map(h=>({
      id:h.id,title:h.name||'Habit',category:h.category||'',icon:h.icon||'check_circle',
+     reminder:h.reminder||h.reminderTime||'',
      done:Boolean(app.isCompletedOn?.(h.id,date)||recordSet.has(h.id+'|'+date))
    }));
 }
@@ -93,11 +94,62 @@ function taskRow(t) {
 function noteRow(n) {
  return '<a class="ha-day-item" href="Notes.html?note='+encodeURIComponent(n.id)+'"><span class="material-symbols-outlined ha-day-item-icon" aria-hidden="true">'+(n.type==='audio'?'mic':n.type==='photo'?'image':'description')+'</span><div class="ha-day-item-copy"><strong>'+esc(n.title)+'</strong><small>'+esc(n.type)+' note</small></div><span class="material-symbols-outlined">chevron_right</span></a>';
 }
-function renderFocus(root) {
+const checkSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>';
+function unifiedChecklistCard(day,chosen) {
+ const isToday=chosen===localDay();
+ const dObj=new Date(chosen+'T12:00:00');
+ const shortMD=dObj.toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
+ const headLeft=(isToday?'TODAY · ':'')+shortMD;
+ const prioRank={high:0,medium:1,low:2,none:3};
+ const items=[
+   ...day.tasks.map(t=>({kind:'task',done:Boolean(t.completed),rank:prioRank[t.priority]??3,t})),
+   ...day.habits.map(h=>({kind:'habit',done:Boolean(h.done),rank:2,h}))
+ ].sort((a,b)=>Number(a.done)-Number(b.done)||(a.rank-b.rank));
+ const leftCount=items.filter(x=>!x.done).length;
+ const headRight=items.length?(leftCount?leftCount+' LEFT':'ALL DONE ✓'):'0 SCHEDULED';
+ if(!items.length){
+   return '<div class="ha-day-v1-card-head"><span>'+esc(headLeft)+'</span><span>0 LEFT</span></div>'+
+     '<div class="ha-day-v1-empty"><p>Nothing scheduled for this day yet.</p><div class="ha-day-v1-empty-links"><a href="Add_Habit.html">+ Add habit</a><a href="Habits.html?section=tasks&new=1&date='+encodeURIComponent(chosen)+'">+ Add task</a></div></div>';
+ }
+ const rows=items.map(entry=>{
+   if(entry.kind==='task'){
+     const t=entry.t,done=Boolean(t.completed);
+     const isHigh=!done&&t.priority==='high';
+     const sub=done?'Completed · Task'
+       :(t.priority==='high'?'HIGH · ':(t.priority!=='none'?t.priority.toUpperCase()+' · ':''))+(isToday?'Task due today':'Scheduled task')+(t.subtasks.length?' · '+t.subtasks.filter(s=>s.completed).length+'/'+t.subtasks.length+' steps':'');
+     return '<div class="ha-day-v1-row'+(done?' is-done':'')+'">'+
+       '<button type="button" class="ha-day-v1-box'+(done?' is-checked':'')+'" data-day-action="task" data-id="'+esc(t.id)+'" aria-label="'+(done?'Reopen ':'Complete ')+esc(t.title)+'" aria-pressed="'+done+'">'+(done?checkSvg:'')+'</button>'+
+       '<div class="ha-day-v1-copy"><strong'+(done?' class="ha-day-done"':'')+'>'+esc(t.title)+'</strong><small'+(isHigh?' class="is-urgent"':'')+'>'+esc(sub)+'</small></div>'+
+     '</div>';
+   }
+   const h=entry.h,done=Boolean(h.done);
+   const sub=done?'Completed · Daily Habit':(h.reminder?esc(h.reminder)+' · ':'')+esc(h.category||'Daily')+' Habit';
+   const box=isToday
+     ?'<button type="button" class="ha-day-v1-box'+(done?' is-checked':'')+'" data-day-action="habit" data-id="'+esc(h.id)+'" aria-label="'+(done?'Uncomplete ':'Complete ')+esc(h.title)+'" aria-pressed="'+done+'">'+(done?checkSvg:'')+'</button>'
+     :'<span class="ha-day-v1-box'+(done?' is-checked':'')+'" aria-label="'+(done?'Completed':'Incomplete')+'">'+(done?checkSvg:'')+'</span>';
+   return '<div class="ha-day-v1-row'+(done?' is-done':'')+'">'+box+
+     '<a class="ha-day-v1-copy" href="Habit_Detail.html?id='+encodeURIComponent(String(h.id||''))+'"><strong'+(done?' class="ha-day-done"':'')+'>'+esc(h.title)+'</strong><small>'+sub+'</small></a>'+
+   '</div>';
+ }).join('');
+ return '<div class="ha-day-v1-card-head"><span>'+esc(headLeft)+'</span><span>'+esc(headRight)+'</span></div><div class="ha-day-v1-rows">'+rows+'</div>';
+}
+function renderFocus(root,fallbackTitle='') {
  const state=getFocusState(),a=state.active;
  const select=$('#ha-focus-length',root),task=$('#ha-focus-task',root);
  const seconds=a?.remainingSeconds??Number(select.value)*60;
- $('#ha-focus-clock',root).textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ const clockStr=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ $('#ha-focus-clock',root).textContent=clockStr;
+ const fk=$('#ha-day-v1-focus-kicker',root),ft=$('#ha-day-v1-focus-title',root),fb=$('#ha-day-v1-focus-btn',root);
+ if(fk&&ft&&fb){
+   if(a){
+     fk.textContent=(a.status==='running'?'FOCUS RUNNING · ':'FOCUS PAUSED · ')+clockStr;
+     fb.textContent=a.status==='running'?'Pause ❚❚':'Resume ▶';
+   }else{
+     fk.textContent='FOCUS TIMER · '+(select?.value||'25')+'M';
+     fb.textContent='Start ▶';
+   }
+   if(fallbackTitle)ft.textContent=fallbackTitle;
+ }
  for(const action of ['start-focus','pause-focus','resume-focus','reset-focus']) {
    const el=root.querySelector('[data-day-action="'+action+'"]');
    el.hidden=action==='start-focus'?Boolean(a):action==='pause-focus'?(!a||a.status!=='running'):action==='resume-focus'?(!a||a.status!=='paused'):!a;
@@ -145,13 +197,13 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
   }
 
   const all=taskStore.getTasks(),day=daySummary(chosen,notes,all),week=weeklySummary(chosen,notes,all);
+  const unifiedEl=$('#ha-day-unified-card',root);
+  if(unifiedEl)unifiedEl.innerHTML=unifiedChecklistCard(day,chosen);
   $('#ha-day-metrics',root).innerHTML=
    '<div><span class="material-symbols-outlined">repeat</span><strong>'+count(day.habitsDone,day.habits.length)+'</strong><small>Habits</small></div>'+
    '<div><span class="material-symbols-outlined">checklist</span><strong>'+count(day.tasksDone,day.tasks.length)+'</strong><small>Tasks</small></div>'+
    '<div><span class="material-symbols-outlined">timer</span><strong>'+day.focus+'m</strong><small>Focus</small></div>';
   $('#ha-day-content',root).innerHTML=
-    section('Habits','repeat',day.habits.map(h=>habitRow(h,chosen)).join(''),'No habits scheduled.','<a href="Habits.html?section=habits">My habits</a>')+
-    section('Tasks','checklist',day.tasks.map(taskRow).join(''),'Nothing planned yet.','<a href="Habits.html?section=tasks&new=1&date='+encodeURIComponent(chosen)+'">+ Add task</a>')+
     section('Notes','sticky_note_2',day.notes.map(noteRow).join(''),'No notes saved for this day.','<a href="Notes.html?date='+encodeURIComponent(chosen)+'">+ New note</a>');
   $('#ha-week-stats',root).innerHTML=[
     [count(week.habitsDone,week.habitsTotal),'Habit completions'],
@@ -170,7 +222,9 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
     if (focusTask.value === preferredTask) preferredTask='';
     lastTaskOpts=signature;
   }
-  renderFocus(root);
+  const activeTaskTitle=focusTask.value?(all.find(t=>t.id===focusTask.value)?.title||''):'';
+  const nextFocusTitle=activeTaskTitle||day.tasks.find(t=>!t.completed)?.title||day.habits.find(h=>!h.done)?.title||'Deep Work Sprint';
+  renderFocus(root,nextFocusTitle);
  }
  function setDay(next){
   if(!validDay(next))return;
@@ -198,6 +252,13 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
   if(action==='month-prev'){calendarMonth=addMonths(calendarMonth,-1);render();}
   if(action==='month-next'){calendarMonth=addMonths(calendarMonth,1);render();}
   if(action==='calendar-day')setDay(element.dataset.date);
+  if(action==='quick-focus'){
+    const st=getFocusState().active;
+    if(!st)startFocus(Number(focusLength.value||25),focusTask.value);
+    else if(st.status==='running')pauseFocus();
+    else resumeFocus();
+    render();
+  }
   if(action==='start-focus'){startFocus(Number(focusLength.value),focusTask.value);render();}
   if(action==='pause-focus'){pauseFocus();renderFocus(root);}
   if(action==='resume-focus'){resumeFocus();renderFocus(root);}

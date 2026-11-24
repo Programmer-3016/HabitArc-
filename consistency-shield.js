@@ -41,18 +41,17 @@ export function mountConsistencyShield(root=document.getElementById('ha-shield')
    const body=root.querySelector('#ha-shield-results');
    if(!body)return;
    if(!risks.length){
-     body.innerHTML='<p class="ha-shield-ok"><span class="material-symbols-outlined">verified</span>No vulnerable habit patterns detected from the last 14 finished days. Keep your routine flexible.</p>';
+     body.innerHTML='<p class="ha-shield-ok"><span class="material-symbols-outlined" aria-hidden="true">verified</span><span><strong>Shield clear</strong> · Steady over last 14d</span></p>';
      return;
    }
    const pending=taskStore.getTasks(),today=localDay();
    body.innerHTML=risks.map(h=>{
      const title='2-minute reset: '+h.title.slice(0,125);
      const exists=pending.some(t=>!t.completed&&t.dueDate===today&&t.habitId===h.id&&t.title===title);
-     return '<article class="ha-shield-item"><div class="ha-shield-icon"><span class="material-symbols-outlined">'+esc(h.icon)+'</span></div>'+
-       '<div class="ha-shield-item-content"><strong>'+esc(h.title)+'</strong><span>'+h.rate+'% completed · '+h.recentMisses+' of last 3 scheduled days missed</span>'+
-       '<p>'+esc(h.suggestion)+'</p></div>'+
+     return '<article class="ha-shield-item"><span class="ha-shield-inline-ico material-symbols-outlined" aria-hidden="true">shield</span>'+
+       '<div class="ha-shield-item-content"><strong>Shield: '+esc(h.title)+' missed '+h.recentMisses+'d</strong><span>'+h.rate+'% over 14d · '+esc(h.suggestion)+'</span></div>'+
        '<button type="button" data-shield-id="'+esc(h.id)+'"'+(exists?' disabled':'')+'>'+
-       (exists?'Added to Plan':'+ 2-min reset')+'</button></article>';
+       (exists?'Added ✓':'2m Reset')+'</button></article>';
    }).join('');
  }
  root.addEventListener('click',e=>{
