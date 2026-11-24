@@ -1278,6 +1278,19 @@ const HabitArc = (() => {
         if ('aiQuestStats' in settingsUpdates) {
             settingsUpdates.aiQuestStats = normaliseAiStats(settingsUpdates.aiQuestStats);
         }
+        if ('startWeekOn' in settingsUpdates) {
+            settingsUpdates.startWeekOn = String(settingsUpdates.startWeekOn || '').toLowerCase() === 'sunday' ? 'sunday' : 'monday';
+        }
+        if ('defaultReminderTime' in settingsUpdates) {
+            const rawTime = String(settingsUpdates.defaultReminderTime || '').trim();
+            settingsUpdates.defaultReminderTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(rawTime) ? rawTime : '09:00';
+        }
+        if ('userName' in settingsUpdates) {
+            settingsUpdates.userName = String(settingsUpdates.userName || '').trim().slice(0, 40) || 'HabitArc Member';
+        }
+        if ('userBio' in settingsUpdates) {
+            settingsUpdates.userBio = String(settingsUpdates.userBio || '').trim().slice(0, 140);
+        }
         data.settings = { ...data.settings, ...settingsUpdates };
         if (typeof onboardingComplete === 'boolean') {
             data.onboardingComplete = onboardingComplete;

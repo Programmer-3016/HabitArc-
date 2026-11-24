@@ -1,13 +1,15 @@
 /* Pure monthly schedule metadata for HabitArc's Day Workspace. */
 import { localDay, safeDate } from './task-store.js';
 const DAYS=['sun','mon','tue','wed','thu','fri','sat'];
-export function monthInfo(dateKey){
+export function monthInfo(dateKey,startWeekOn='monday'){
  const match=/^(\d{4})-(\d{2})$/.exec(String(dateKey||''));
  if(!match)throw new RangeError('Invalid calendar month');
  const year=Number(match[1]),month=Number(match[2]);
  if(year<2000||year>2100||month<1||month>12)throw new RangeError('Invalid calendar month');
  const count=new Date(year,month,0).getDate();
- const leading=(new Date(year,month-1,1).getDay()+6)%7; // Monday first
+ const firstDay=new Date(year,month-1,1).getDay();
+ const sundayFirst=String(startWeekOn||'monday').toLowerCase()==='sunday';
+ const leading=sundayFirst?firstDay:(firstDay+6)%7;
  return {year,month,count,leading};
 }
 export function addMonths(monthKey,delta){
@@ -15,8 +17,8 @@ export function addMonths(monthKey,delta){
  const d=new Date(year,month-1+delta,1,12);
  return localDay(d).slice(0,7);
 }
-export function buildMonthCells(monthKey,tasks=[],habits=[],completed=[]){
- const {year,month,count,leading}=monthInfo(monthKey);
+export function buildMonthCells(monthKey,tasks=[],habits=[],completed=[],startWeekOn='monday'){
+ const {year,month,count,leading}=monthInfo(monthKey,startWeekOn);
  const done=new Set((Array.isArray(completed)?completed:[]).filter(r=>r?.status==='completed').map(r=>r.habitId+'|'+r.date));
  const days=[];
  for(let i=0;i<leading;i++)days.push(null);

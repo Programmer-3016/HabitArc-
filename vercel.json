@@ -4,6 +4,9 @@
     "api/coach.js": {
       "maxDuration": 30
     },
+    "api/league.js": {
+      "maxDuration": 20
+    },
     "api/push-cron.js": {
       "maxDuration": 60
     }

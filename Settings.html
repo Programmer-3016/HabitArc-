@@ -449,25 +449,45 @@
 <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-element-gap pl-2">Habits</h3>
 <div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex flex-col">
 <!-- Start Week On -->
-<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
-<div class="flex items-center gap-element-gap">
-<span class="material-symbols-outlined text-primary-container">calendar_today</span>
+<div class="border-b border-outline-variant/30">
+<button id="settings-start-week-btn" type="button" aria-expanded="false" aria-controls="settings-start-week-panel" class="w-full flex items-center justify-between p-card-padding hover:bg-surface-container-low transition-colors text-left cursor-pointer">
+<span class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container" aria-hidden="true">calendar_today</span>
 <span class="font-body-lg text-body-lg text-on-surface">Start Week On</span>
-</div>
-<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
-<span>Monday</span>
-<span class="material-symbols-outlined text-sm">chevron_right</span>
+</span>
+<span class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
+<span id="settings-start-week-value">Monday</span>
+<span class="material-symbols-outlined text-sm" aria-hidden="true">expand_more</span>
+</span>
+</button>
+<div id="settings-start-week-panel" hidden class="px-card-padding pb-4 flex flex-wrap gap-2" role="group" aria-label="Choose week start day">
+<button type="button" data-week-start="monday" class="week-start-option px-4 py-2 rounded-xl border border-outline-variant/40 font-label-md text-sm font-semibold transition-colors" aria-pressed="true">Monday</button>
+<button type="button" data-week-start="sunday" class="week-start-option px-4 py-2 rounded-xl border border-outline-variant/40 font-label-md text-sm font-semibold transition-colors" aria-pressed="false">Sunday</button>
 </div>
 </div>
 <!-- Default Reminder Time -->
-<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
-<div class="flex items-center gap-element-gap">
-<span class="material-symbols-outlined text-primary-container">schedule</span>
+<div class="last:border-0">
+<button id="settings-default-reminder-btn" type="button" aria-expanded="false" aria-controls="settings-default-reminder-panel" class="w-full flex items-center justify-between p-card-padding hover:bg-surface-container-low transition-colors text-left cursor-pointer">
+<span class="flex items-center gap-element-gap">
+<span class="material-symbols-outlined text-primary-container" aria-hidden="true">schedule</span>
 <span class="font-body-lg text-body-lg text-on-surface">Default Reminder Time</span>
+</span>
+<span class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
+<span id="settings-default-reminder-value">09:00 AM</span>
+<span class="material-symbols-outlined text-sm" aria-hidden="true">expand_more</span>
+</span>
+</button>
+<div id="settings-default-reminder-panel" hidden class="px-card-padding pb-4 space-y-3">
+<div class="flex flex-wrap items-center gap-2">
+<input id="settings-default-reminder-input" type="time" value="09:00" aria-label="Default reminder time" class="rounded-xl border border-outline-variant/50 bg-surface px-3 py-2 text-sm text-on-surface"/>
+<button id="settings-default-reminder-save" type="button" class="px-4 py-2 rounded-xl bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">Save Time</button>
 </div>
-<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
-<span>09:00 AM</span>
-<span class="material-symbols-outlined text-sm">chevron_right</span>
+<div class="flex flex-wrap gap-2" role="group" aria-label="Quick reminder presets">
+<button type="button" data-reminder-preset="07:00" class="px-3 py-1.5 rounded-full border border-outline-variant/40 text-xs font-semibold text-on-surface-variant hover:border-primary/40 hover:text-primary">07:00 AM</button>
+<button type="button" data-reminder-preset="09:00" class="px-3 py-1.5 rounded-full border border-outline-variant/40 text-xs font-semibold text-on-surface-variant hover:border-primary/40 hover:text-primary">09:00 AM</button>
+<button type="button" data-reminder-preset="20:00" class="px-3 py-1.5 rounded-full border border-outline-variant/40 text-xs font-semibold text-on-surface-variant hover:border-primary/40 hover:text-primary">08:00 PM</button>
+</div>
+<p id="settings-habit-pref-status" class="text-xs text-on-surface-variant" role="status" aria-live="polite">Used automatically when creating a new habit.</p>
 </div>
 </div>
 </div>
@@ -492,7 +512,7 @@
 </div>
 <span class="material-symbols-outlined text-sm text-on-surface-variant">download</span>
 </button>
-<p id="backup-download-status" role="status" aria-live="polite" class="text-xs text-on-surface-variant px-5 py-2">The exported JSON file is unencrypted. Store it privately. Automatic restore is not available yet.</p>
+<p id="backup-download-status" role="status" aria-live="polite" class="text-xs text-on-surface-variant px-5 py-2">The exported JSON file is unencrypted. Store it privately. Use Restore Personal Backup below to safely merge a saved archive.</p>
 <!-- Safe merge-only archive restore. Never overwrite existing records. -->
 <div class="px-5 py-4 border-b border-outline-variant/30">
   <label for="restore-backup-file" class="flex items-center gap-2 font-bold text-on-surface cursor-pointer">
@@ -528,13 +548,13 @@
 <span class="font-body-md text-body-md text-on-surface-variant">1.0.4 (Build 42)</span>
 </div>
 <!-- Privacy Policy -->
-<div class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+<a id="settings-privacy-link" href="privacy.html" class="flex items-center justify-between p-card-padding border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
 <div class="flex items-center gap-element-gap">
-<span class="material-symbols-outlined text-primary-container">policy</span>
+<span class="material-symbols-outlined text-primary-container" aria-hidden="true">policy</span>
 <span class="font-body-lg text-body-lg text-on-surface">Privacy Policy</span>
 </div>
-<span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
-</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant" aria-hidden="true">chevron_right</span>
+</a>
 </div>
 </section>
 <div class="flex justify-center mt-section-margin mb-stack-gap">
@@ -636,9 +656,104 @@
 
     syncAiSettingsUI(false);
 
+    const startWeekBtn = document.getElementById('settings-start-week-btn');
+    const startWeekPanel = document.getElementById('settings-start-week-panel');
+    const startWeekValue = document.getElementById('settings-start-week-value');
+    const defaultReminderBtn = document.getElementById('settings-default-reminder-btn');
+    const defaultReminderPanel = document.getElementById('settings-default-reminder-panel');
+    const defaultReminderValue = document.getElementById('settings-default-reminder-value');
+    const defaultReminderInput = document.getElementById('settings-default-reminder-input');
+    const defaultReminderSave = document.getElementById('settings-default-reminder-save');
+    const habitPrefStatus = document.getElementById('settings-habit-pref-status');
+
+    function formatTime12Hour(timeStr) {
+        const clean = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(timeStr || '09:00').trim());
+        if (!clean) return '09:00 AM';
+        const hour24 = Number(clean[1]);
+        const minute = clean[2];
+        const period = hour24 >= 12 ? 'PM' : 'AM';
+        const hour12 = hour24 % 12 || 12;
+        return `${String(hour12).padStart(2, '0')}:${minute} ${period}`;
+    }
+
+    function syncHabitPrefsUI() {
+        const settings = HabitArc.getSettings?.() || {};
+        const weekStart = settings.startWeekOn === 'sunday' ? 'sunday' : 'monday';
+        const defaultTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(settings.defaultReminderTime || ''))
+            ? settings.defaultReminderTime
+            : '09:00';
+        if (startWeekValue) startWeekValue.textContent = weekStart === 'sunday' ? 'Sunday' : 'Monday';
+        document.querySelectorAll('.week-start-option').forEach((btn) => {
+            const active = btn.dataset.weekStart === weekStart;
+            btn.setAttribute('aria-pressed', String(active));
+            btn.classList.toggle('bg-primary', active);
+            btn.classList.toggle('text-on-primary', active);
+            btn.classList.toggle('border-primary', active);
+            btn.classList.toggle('bg-surface-container-low', !active);
+            btn.classList.toggle('text-on-surface', !active);
+        });
+        if (defaultReminderValue) defaultReminderValue.textContent = formatTime12Hour(defaultTime);
+        if (defaultReminderInput && document.activeElement !== defaultReminderInput) {
+            defaultReminderInput.value = defaultTime;
+        }
+    }
+
+    startWeekBtn?.addEventListener('click', () => {
+        if (!startWeekPanel) return;
+        const nextOpen = startWeekPanel.hidden;
+        startWeekPanel.hidden = !nextOpen;
+        startWeekBtn.setAttribute('aria-expanded', String(nextOpen));
+    });
+
+    document.querySelectorAll('.week-start-option').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const chosen = btn.dataset.weekStart === 'sunday' ? 'sunday' : 'monday';
+            HabitArc.updateSettings({ startWeekOn: chosen });
+            syncHabitPrefsUI();
+            if (startWeekPanel && startWeekBtn) {
+                startWeekPanel.hidden = true;
+                startWeekBtn.setAttribute('aria-expanded', 'false');
+            }
+            window.HabitArcUI?.announce?.(`Week now starts on ${chosen === 'sunday' ? 'Sunday' : 'Monday'}.`);
+        });
+    });
+
+    defaultReminderBtn?.addEventListener('click', () => {
+        if (!defaultReminderPanel) return;
+        const nextOpen = defaultReminderPanel.hidden;
+        defaultReminderPanel.hidden = !nextOpen;
+        defaultReminderBtn.setAttribute('aria-expanded', String(nextOpen));
+    });
+
+    function saveDefaultReminderTime(timeVal) {
+        const clean = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(timeVal || '').trim()) ? String(timeVal).trim() : '09:00';
+        HabitArc.updateSettings({ defaultReminderTime: clean });
+        syncHabitPrefsUI();
+        const pretty = formatTime12Hour(clean);
+        if (habitPrefStatus) habitPrefStatus.textContent = `Default reminder saved as ${pretty}.`;
+        window.HabitArcUI?.announce?.(`Default reminder time set to ${pretty}.`);
+    }
+
+    defaultReminderSave?.addEventListener('click', () => {
+        saveDefaultReminderTime(defaultReminderInput?.value);
+    });
+    defaultReminderInput?.addEventListener('change', () => {
+        saveDefaultReminderTime(defaultReminderInput.value);
+    });
+    document.querySelectorAll('[data-reminder-preset]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const preset = btn.dataset.reminderPreset;
+            if (defaultReminderInput) defaultReminderInput.value = preset;
+            saveDefaultReminderTime(preset);
+        });
+    });
+
+    syncHabitPrefsUI();
+
     window.addEventListener('habitarc:data-changed', () => {
         updateThemeUI();
         syncAiSettingsUI(true);
+        syncHabitPrefsUI();
     });
 
     const dailyToggle = document.getElementById('toggle-daily');

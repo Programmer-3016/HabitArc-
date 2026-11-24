@@ -1,5 +1,15 @@
 import { CHESTS, changeTreasure, clearedDays, inventory } from './runner-treasures.js';
 import {
+  buildSelfLeagueMember,
+  getLeagueProfileSettings,
+  isValidSquadCode,
+  normaliseLeagueHandle,
+  normaliseSquadCode,
+  normaliseSquadName,
+  readCachedLeagueData,
+  syncLiveLeague,
+} from './league-store.js';
+import {
   chestArt,
   createRevealStage,
   getTreasureSoundEnabled,
@@ -54,6 +64,37 @@ export function standings(period) {
     }));
 }
 
+export function rankLeagueEntries(rawEntries = [], period = 'weekly', selfUid = 'local-self') {
+  const isAllTime = period === 'allTime';
+  const deduped = new Map();
+  for (const item of rawEntries || []) {
+    if (!item || typeof item !== 'object') continue;
+    const uid = String(item.uid || item.name || '');
+    if (!uid) continue;
+    deduped.set(uid, {
+      uid,
+      name: normaliseLeagueHandle(item.name, 'Arc Runner'),
+      tone: Number.isInteger(item.tone) ? ((item.tone % 8) + 8) % 8 : 0,
+      weeklyPoints: Math.max(0, Math.floor(Number(item.weekly) || 0)),
+      allTimePoints: Math.max(0, Math.floor(Number(item.allTime) || 0)),
+      streak: Math.max(0, Math.floor(Number(item.streak) || 0)),
+      clearDays: Math.max(0, Math.floor(Number(item.clearDays) || 0)),
+    });
+  }
+  return Array.from(deduped.values())
+    .map((r) => ({
+      ...r,
+      points: isAllTime ? r.allTimePoints : r.weeklyPoints,
+      self: r.uid === selfUid,
+    }))
+    .sort((a, b) => b.points - a.points || b.streak - a.streak || a.name.localeCompare(b.name))
+    .map((r, idx) => ({
+      ...r,
+      rank: idx + 1,
+      tier: tierForPoints(r.points, isAllTime ? 'allTime' : 'weekly'),
+    }));
+}
+
 const format = new Intl.NumberFormat('en');
 
 function el(tag, cls, txt) {
@@ -94,27 +135,162 @@ export async function mountLeaderboard(root) {
 
   const find = id => root.querySelector('#' + id);
   const periodButtons = root.querySelectorAll('[data-period]');
+  const scopeButtons = root.querySelectorAll('[data-league-scope]');
+  const app = () => globalThis.window?.HabitArc;
+
   let activePeriod = 'weekly';
+  const initialProfile = getLeagueProfileSettings(app());
+  let activeScope = initialProfile.joined
+    ? (initialProfile.squadCode ? 'squad' : 'global')
+    : 'demo';
+  let liveGlobal = [];
+  let liveSquad = [];
+  let squadMeta = initialProfile.squadCode
+    ? { code: initialProfile.squadCode, name: initialProfile.squadName }
+    : null;
+  let syncInFlight = false;
+
+  function hydrateFromLocalCache() {
+    const uid = app()?.getAuthUser?.()?.uid || 'local';
+    const cached = readCachedLeagueData(uid);
+    if (cached.globalMembers.length) liveGlobal = cached.globalMembers;
+    if (cached.squadMembers.length) liveSquad = cached.squadMembers;
+    if (cached.squad) squadMeta = cached.squad;
+  }
+  if (app()) hydrateFromLocalCache();
+
+  function setStatus(message, isError = false) {
+    const statusEl = find('league-sync-status');
+    if (!statusEl) return;
+    if (!message) {
+      statusEl.hidden = true;
+      statusEl.textContent = '';
+      return;
+    }
+    statusEl.hidden = false;
+    statusEl.dataset.tone = isError ? 'error' : 'info';
+    statusEl.textContent = message;
+  }
+
+  function updateLeagueChrome() {
+    const hasApp = Boolean(app());
+    const profile = getLeagueProfileSettings(app());
+    const selfMember = hasApp ? buildSelfLeagueMember(app()) : null;
+
+    scopeButtons.forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.leagueScope === activeScope));
+    });
+
+    const optinBar = find('league-optin-bar');
+    const memberActions = find('league-member-actions');
+    const selfChip = find('league-self-chip');
+    const handleInput = find('league-handle-input');
+    const optinHeadline = find('league-optin-headline');
+    const squadPanel = find('league-squad-panel');
+    const squadEmpty = find('league-squad-empty');
+    const squadActive = find('league-squad-active');
+    const squadActiveName = find('squad-active-name');
+    const squadCodeDisplay = find('squad-code-display');
+    const showLeagueBtn = find('show-league');
+
+    if (showLeagueBtn && hasApp) {
+      showLeagueBtn.textContent = profile.joined ? 'Live league' : 'League';
+    }
+    if (optinBar) {
+      optinBar.hidden = profile.joined;
+      if (!profile.joined && selfMember && optinHeadline) {
+        optinHeadline.textContent = `Compete live · Your current score: ${format.format(selfMember.weekly)} wk / ${format.format(selfMember.allTime)} total pts`;
+      }
+      if (!profile.joined && handleInput && !handleInput.value) {
+        handleInput.value = profile.handle;
+      }
+    }
+    if (memberActions) {
+      memberActions.hidden = !profile.joined;
+      if (selfChip && selfMember) {
+        selfChip.textContent = `${profile.handle} · 🔥 ${selfMember.streak}d`;
+      }
+    }
+    if (squadPanel) {
+      squadPanel.hidden = activeScope !== 'squad';
+      const hasSquad = Boolean(profile.squadCode);
+      if (squadEmpty) squadEmpty.hidden = hasSquad;
+      if (squadActive) squadActive.hidden = !hasSquad;
+      if (hasSquad) {
+        if (squadActiveName) squadActiveName.textContent = squadMeta?.name || profile.squadName || 'Habit Squad';
+        if (squadCodeDisplay) squadCodeDisplay.textContent = profile.squadCode;
+      }
+    }
+
+    const scopeEl = find('lb-scope');
+    const titleEl = find('lb-page-title');
+    const introEl = find('lb-intro-text');
+    const footerEl = find('league-footer');
+    const treasuresEl = find('treasures');
+    const inLeagueView = treasuresEl ? treasuresEl.hidden : true;
+
+    if (inLeagueView && hasApp) {
+      if (scopeEl) {
+        scopeEl.textContent = activeScope === 'global'
+          ? (profile.joined ? 'Live global league' : 'Global league preview')
+          : activeScope === 'squad'
+            ? (profile.squadCode ? `Squad · ${profile.squadCode}` : 'Friends squad')
+            : 'Sample preview';
+      }
+      if (titleEl && find('treasures')) {
+        titleEl.textContent = activeScope === 'global'
+          ? 'Global League'
+          : activeScope === 'squad'
+            ? (squadMeta?.name || profile.squadName || 'Friends Squad')
+            : 'Practice League';
+      }
+      if (introEl && find('treasures')) {
+        introEl.textContent = activeScope === 'demo'
+          ? 'Sample weekly and all-time standings for reference.'
+          : activeScope === 'squad'
+            ? 'Share your 6-character code so friends can race on weekly and all-time XP.'
+            : 'Opt-in HabitArc players ranked by habit completions, clear days, and streak XP.';
+      }
+      if (footerEl) {
+        footerEl.textContent = activeScope === 'demo'
+          ? '● Sample preview leaderboard for reference only; your own streaks stay private.'
+          : '● Live points: +25 per habit check, +40–50 per clear day, plus streak & chest XP. Habit names stay private.';
+      }
+    }
+  }
 
   function buildRoster(period) {
-    return standings(period);
+    if (activeScope === 'demo' || !app()) {
+      return standings(period);
+    }
+    const selfMember = buildSelfLeagueMember(app());
+    const pool = activeScope === 'squad'
+      ? (getLeagueProfileSettings(app()).squadCode ? [...liveSquad, selfMember] : [selfMember])
+      : [...liveGlobal, selfMember];
+    return rankLeagueEntries(pool, period, selfMember.uid);
   }
 
   function draw(period, announce) {
     activePeriod = period;
+    updateLeagueChrome();
     const list = buildRoster(period);
-    const mine = list.find(r => r.self);
-    const gap = mine.rank === 1 ? 0 : list[mine.rank - 2].points - mine.points;
+    const mine = list.find(r => r.self) || list[0];
+    const gap = !mine || mine.rank === 1 ? 0 : list[mine.rank - 2].points - mine.points;
 
-    const slot = r => {
-      const lane = el('div', 'lb-lane');
-      lane.dataset.rank = String(r.rank);
+    const slot = (r, fallbackRank) => {
+      const entry = r || { rank: fallbackRank, name: 'Open slot', tone: fallbackRank, placeholder: true };
+      const lane = el('div', entry.placeholder ? 'lb-lane lb-lane-empty' : 'lb-lane');
+      lane.dataset.rank = String(entry.rank);
       const step = el('div', 'lb-plinth');
-      step.append(el('b', null, String(r.rank).padStart(2, '0')), el('strong', null, r.name));
-      lane.append(avatarBadge(r, 'lb-podium-avatar'), step);
+      step.append(el('b', null, String(entry.rank).padStart(2, '0')), el('strong', null, entry.name));
+      lane.append(avatarBadge(entry, 'lb-podium-avatar'), step);
       return lane;
     };
-    find('podium').replaceChildren(...[list[1], list[0], list[2]].map(slot));
+    find('podium').replaceChildren(
+      slot(list[1], 2),
+      slot(list[0], 1),
+      slot(list[2], 3),
+    );
 
     find('entries').replaceChildren(...list.map(r => {
       const tr = el('tr');
@@ -126,6 +302,8 @@ export async function mountLeaderboard(root) {
         tr.className = 'lb-mine';
         tr.tabIndex = -1;
         wrap.append(el('small', 'lb-you', 'You'));
+      } else if (activeScope !== 'demo' && r.streak > 0) {
+        wrap.append(el('small', 'lb-streak-tag', `${r.streak}d`));
       }
       nameCell.append(wrap);
       tr.append(
@@ -136,16 +314,179 @@ export async function mountLeaderboard(root) {
       return tr;
     }));
 
-    find('self-rank').textContent = '#' + mine.rank;
-    find('self-gap').textContent = gap
-      ? `${format.format(mine.points)} pts · ${format.format(gap)} pts behind #${mine.rank - 1}`
-      : 'Leading the league';
-    find('roster').textContent = `${list.length} demo members`;
+    find('self-rank').textContent = mine ? '#' + mine.rank : '—';
+    find('self-gap').textContent = !mine
+      ? 'Join to see your rank'
+      : gap > 0
+        ? `${format.format(mine.points)} pts · ${format.format(gap)} pts behind #${mine.rank - 1}`
+        : activeScope === 'squad' && list.length === 1
+          ? `${format.format(mine.points)} pts · Share your squad code to add friends`
+          : activeScope === 'demo'
+            ? 'Leading the league'
+            : `${format.format(mine.points)} pts · Leading the league`;
+
+    const isDemo = activeScope === 'demo' || !app();
+    find('roster').textContent = isDemo
+      ? `${list.length} demo members`
+      : activeScope === 'squad'
+        ? `${list.length} squad ${list.length === 1 ? 'member' : 'members'}`
+        : `${list.length} live ${list.length === 1 ? 'member' : 'members'}`;
+
     periodButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.period === period)));
-    if (announce) {
-      find('announcement').textContent = `${period === 'weekly' ? 'Weekly' : 'All-time'} standings. Your demo rank is ${mine.rank} of ${list.length}.`;
+    if (announce && mine) {
+      const label = period === 'weekly' ? 'Weekly' : 'All-time';
+      find('announcement').textContent = isDemo
+        ? `${label} standings. Your demo rank is ${mine.rank} of ${list.length}.`
+        : `${label} standings. Your rank is ${mine.rank} of ${list.length}.`;
     }
   }
+
+  async function runLeagueSync(action = 'sync', extra = {}, successNotice = '') {
+    if (!app() || syncInFlight) return;
+    syncInFlight = true;
+    const refreshBtn = find('league-refresh-btn');
+    if (refreshBtn) refreshBtn.disabled = true;
+    try {
+      const res = await syncLiveLeague(action, extra, { app: app() });
+      if (Array.isArray(res.globalMembers)) liveGlobal = res.globalMembers;
+      if (Array.isArray(res.squadMembers)) liveSquad = res.squadMembers;
+      if (res.squad !== undefined) squadMeta = res.squad;
+      if (action === 'create-squad' && res.squad?.code) {
+        const cur = getLeagueProfileSettings(app());
+        app().updateSettings({
+          leagueProfile: {
+            ...cur,
+            joined: true,
+            squadCode: res.squad.code,
+            squadName: res.squad.name || cur.squadName,
+          },
+        });
+        setStatus(`Squad "${res.squad.name}" ready! Share code ${res.squad.code} with friends.`);
+      } else if (action === 'join-squad' && res.squad?.code) {
+        const cur = getLeagueProfileSettings(app());
+        app().updateSettings({
+          leagueProfile: {
+            ...cur,
+            joined: true,
+            squadCode: res.squad.code,
+            squadName: res.squad.name || cur.squadName,
+          },
+        });
+        setStatus(`Joined "${res.squad.name}" (${res.squad.code}).`);
+      } else if (res.ok) {
+        setStatus(successNotice || 'Live standings synced.');
+      } else if (res.message) {
+        setStatus(res.message, true);
+      }
+    } catch (err) {
+      setStatus(err?.message || 'Could not sync League right now.', true);
+    } finally {
+      syncInFlight = false;
+      if (refreshBtn) refreshBtn.disabled = false;
+      draw(activePeriod, false);
+    }
+  }
+
+  scopeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      activeScope = btn.dataset.leagueScope || 'demo';
+      draw(activePeriod, true);
+      if (activeScope !== 'demo' && getLeagueProfileSettings(app()).joined) {
+        void runLeagueSync('sync');
+      }
+    });
+  });
+
+  find('league-optin-bar')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!app()) return;
+    const cur = getLeagueProfileSettings(app());
+    const chosenHandle = normaliseLeagueHandle(find('league-handle-input')?.value, cur.handle);
+    app().updateSettings({
+      leagueProfile: {
+        ...cur,
+        joined: true,
+        handle: chosenHandle,
+      },
+    });
+    if (activeScope === 'demo') activeScope = cur.squadCode ? 'squad' : 'global';
+    draw(activePeriod, true);
+    void runLeagueSync('sync', {}, `Joined Live League as ${chosenHandle}!`);
+  });
+
+  find('league-refresh-btn')?.addEventListener('click', () => {
+    void runLeagueSync('sync', {}, 'Standings refreshed.');
+  });
+
+  find('league-leave-btn')?.addEventListener('click', async () => {
+    if (!app()) return;
+    const cur = getLeagueProfileSettings(app());
+    await runLeagueSync('leave-league', { squadCode: cur.squadCode });
+    app().updateSettings({
+      leagueProfile: {
+        ...cur,
+        joined: false,
+        squadCode: '',
+      },
+    });
+    liveSquad = [];
+    squadMeta = null;
+    activeScope = 'demo';
+    setStatus('Left Live League. Your public score card was removed.');
+    draw(activePeriod, true);
+  });
+
+  find('squad-create-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!app()) return;
+    const cur = getLeagueProfileSettings(app());
+    const squadName = normaliseSquadName(find('squad-name-input')?.value, 'Habit Squad');
+    if (!cur.joined) {
+      app().updateSettings({ leagueProfile: { ...cur, joined: true, squadName } });
+    }
+    activeScope = 'squad';
+    await runLeagueSync('create-squad', { squadName });
+  });
+
+  find('squad-join-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!app()) return;
+    const codeInput = find('squad-code-input');
+    const code = normaliseSquadCode(codeInput?.value);
+    if (!isValidSquadCode(code)) {
+      setStatus('Enter a valid 6-character invite code (letters & numbers).', true);
+      codeInput?.focus();
+      return;
+    }
+    const cur = getLeagueProfileSettings(app());
+    if (!cur.joined) {
+      app().updateSettings({ leagueProfile: { ...cur, joined: true } });
+    }
+    activeScope = 'squad';
+    await runLeagueSync('join-squad', { code, squadCode: code });
+  });
+
+  find('squad-copy-btn')?.addEventListener('click', async () => {
+    const code = getLeagueProfileSettings(app()).squadCode;
+    if (!code) return;
+    try {
+      await globalThis.navigator?.clipboard?.writeText(code);
+      setStatus(`Copied squad code ${code}! Send it to your friends.`);
+    } catch {
+      setStatus(`Share this 6-character squad code: ${code}`);
+    }
+  });
+
+  find('squad-leave-btn')?.addEventListener('click', async () => {
+    if (!app()) return;
+    const cur = getLeagueProfileSettings(app());
+    const prevCode = cur.squadCode;
+    app().updateSettings({ leagueProfile: { ...cur, squadCode: '', squadName: 'Habit Squad' } });
+    liveSquad = [];
+    squadMeta = null;
+    await runLeagueSync('leave-squad', { code: prevCode, squadCode: '' }, 'Left Friends Squad.');
+    draw(activePeriod, true);
+  });
 
   periodButtons.forEach(b => b.addEventListener('click', () => draw(b.dataset.period, true)));
   find('find-me')?.addEventListener('click', () => {
@@ -159,6 +500,9 @@ export async function mountLeaderboard(root) {
   });
 
   draw('weekly', false);
+  if (initialProfile.joined && app()) {
+    void runLeagueSync('sync');
+  }
   if (find('treasures')) mountTreasureRoom(root, find, () => draw(activePeriod, false));
 }
 
@@ -489,7 +833,10 @@ function makeLockIcon() {
   function switchView(treasure) {
     active = treasure;
     if (!treasure && showing) showing.dialog.close();
-    for (const id of ['league-view', 'league-footer', 'league-controls']) find(id).hidden = treasure;
+    for (const id of ['league-hub', 'league-view', 'league-footer', 'league-controls']) {
+      const node = find(id);
+      if (node) node.hidden = treasure;
+    }
     find('treasures').hidden = !treasure;
     if (soundBtn) soundBtn.hidden = !treasure;
     find('show-treasures').setAttribute('aria-pressed', String(treasure));
@@ -497,11 +844,14 @@ function makeLockIcon() {
     const scopeEl = find('lb-scope');
     if (scopeEl) scopeEl.hidden = treasure;
     const titleEl = find('lb-page-title');
-    if (titleEl) titleEl.textContent = treasure ? 'Rewards' : 'Practice League';
-    find('lb-intro-text').textContent = treasure
-      ? 'Complete every scheduled habit on a day to count a clear day.'
-      : 'Sample weekly and all-time standings for reference.';
-    if (treasure) { render(); wakeCardChestAnimations(); } else redrawLeague();
+    if (titleEl && treasure) titleEl.textContent = 'Rewards';
+    if (treasure) {
+      find('lb-intro-text').textContent = 'Complete every scheduled habit on a day to count a clear day.';
+      render();
+      wakeCardChestAnimations();
+    } else {
+      redrawLeague();
+    }
   }
   find('show-treasures').addEventListener('click', () => switchView(true));
   find('show-league').addEventListener('click', () => switchView(false));

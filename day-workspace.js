@@ -125,8 +125,14 @@ export function mountDay(root=document.getElementById('ha-plan-day')) {
   if(calendar&&!calendar.hidden) {
     const monthDate=new Date(calendarMonth+'-01T12:00:00');
     $('#ha-month-title',root).textContent=monthDate.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+    const startWeekOn=window.HabitArc?.getSettings?.()?.startWeekOn==='sunday'?'sunday':'monday';
+    const weekdaysEl=$('.ha-month-weekdays',calendar);
+    if(weekdaysEl){
+      const labels=startWeekOn==='sunday'?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      weekdaysEl.innerHTML=labels.map(d=>'<span>'+d+'</span>').join('');
+    }
     const history=window.HabitArc?.getCompletionHistory?.()||[];
-    const cells=buildMonthCells(calendarMonth,taskStore.getTasks(),window.HabitArc?.getHabits?.()||[],history);
+    const cells=buildMonthCells(calendarMonth,taskStore.getTasks(),window.HabitArc?.getHabits?.()||[],history,startWeekOn);
     $('#ha-month-days',root).innerHTML=cells.map(cell=>!cell?'<span class="ha-month-spacer"></span>':
       '<button type="button" data-day-action="calendar-day" data-date="'+cell.date+'"'+
       ' aria-label="'+cell.date+', '+cell.taskCount+' tasks, '+cell.habitCount+' habits"'+

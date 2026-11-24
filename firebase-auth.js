@@ -51,13 +51,20 @@ window.HabitArcAuthReady = (async () => {
             updateProfile
         } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js');
         const {
+            arrayRemove,
+            arrayUnion,
             collection,
+            deleteDoc,
             doc,
             getDoc,
             getDocs,
             getFirestore,
+            limit,
             onSnapshot,
+            orderBy,
+            query,
             serverTimestamp,
+            setDoc,
             writeBatch
         } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js');
 
@@ -688,7 +695,147 @@ window.HabitArcAuthReady = (async () => {
             subscribeFocusSessions,
             loadArcChats,
             saveArcChats,
-            subscribeArcChats
+            subscribeArcChats,
+            async syncLeagueAction(action = 'sync', payload = {}, user = currentUser) {
+                if (!user) throw Object.assign(new Error('Sign in to sync League.'), { code: 'auth/no-current-user' });
+                const uid = user.uid;
+                const membersCol = collection(firestore, 'leagueMembers');
+                const roomsCol = collection(firestore, 'leagueRooms');
+                const memberRef = doc(membersCol, uid);
+                const cleanCode = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+                const cleanText = (v, max, fb) => (String(v || '').replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, max) || fb);
+
+                if (action === 'leave-league') {
+                    const snap = await getDoc(memberRef);
+                    const prevCode = snap.exists() ? cleanCode(snap.data()?.squadCode) : '';
+                    if (/^[A-Z0-9]{6}$/.test(prevCode)) {
+                        await setDoc(doc(roomsCol, prevCode), {
+                            memberUids: arrayRemove(uid),
+                            updatedAt: new Date().toISOString(),
+                            _updatedAt: serverTimestamp()
+                        }, { merge: true }).catch(() => {});
+                    }
+                    await deleteDoc(memberRef);
+                    return { globalMembers: [], squadMembers: [], squad: null };
+                }
+
+                let squadCode = cleanCode(payload.squadCode ?? payload.member?.squadCode);
+                let squadInfo = null;
+                const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+                if (action === 'create-squad') {
+                    const squadName = cleanText(payload.squadName, 28, 'Habit Squad');
+                    let generated = '';
+                    for (let i = 0; i < 6; i += 1) {
+                        let cand = '';
+                        for (let k = 0; k < 6; k += 1) cand += alphabet[Math.floor(Math.random() * alphabet.length)];
+                        const existing = await getDoc(doc(roomsCol, cand));
+                        if (!existing.exists()) { generated = cand; break; }
+                    }
+                    if (!generated) throw new Error('Could not generate a unique squad code.');
+                    squadCode = generated;
+                    await setDoc(doc(roomsCol, squadCode), {
+                        code: squadCode,
+                        name: squadName,
+                        createdBy: uid,
+                        memberUids: [uid],
+                        updatedAt: new Date().toISOString(),
+                        _updatedAt: serverTimestamp()
+                    });
+                    squadInfo = { code: squadCode, name: squadName, memberCount: 1 };
+                } else if (action === 'join-squad') {
+                    const code = cleanCode(payload.code || payload.squadCode);
+                    if (!/^[A-Z0-9]{6}$/.test(code)) throw new Error('Enter a valid 6-character squad invite code.');
+                    const roomRef = doc(roomsCol, code);
+                    const roomSnap = await getDoc(roomRef);
+                    if (!roomSnap.exists()) throw new Error(`No squad found with code ${code}.`);
+                    const roomData = roomSnap.data() || {};
+                    const uids = Array.isArray(roomData.memberUids) ? roomData.memberUids : [];
+                    if (!uids.includes(uid) && uids.length >= 30) throw new Error('This squad is full (30 members max).');
+                    await setDoc(roomRef, {
+                        code,
+                        name: cleanText(roomData.name, 28, 'Habit Squad'),
+                        createdBy: String(roomData.createdBy || uid),
+                        memberUids: Array.from(new Set([...uids, uid])).slice(0, 30),
+                        updatedAt: new Date().toISOString(),
+                        _updatedAt: serverTimestamp()
+                    });
+                    squadCode = code;
+                    squadInfo = { code, name: cleanText(roomData.name, 28, 'Habit Squad'), memberCount: new Set([...uids, uid]).size };
+                } else if (action === 'leave-squad') {
+                    const prevCode = cleanCode(payload.code || payload.squadCode || payload.member?.squadCode);
+                    if (/^[A-Z0-9]{6}$/.test(prevCode)) {
+                        const roomRef = doc(roomsCol, prevCode);
+                        const roomSnap = await getDoc(roomRef);
+                        if (roomSnap.exists()) {
+                            const rd = roomSnap.data() || {};
+                            const nextUids = (Array.isArray(rd.memberUids) ? rd.memberUids : []).filter((id) => id !== uid);
+                            await setDoc(roomRef, {
+                                code: prevCode,
+                                name: cleanText(rd.name, 28, 'Habit Squad'),
+                                createdBy: String(rd.createdBy || uid),
+                                memberUids: nextUids,
+                                updatedAt: new Date().toISOString(),
+                                _updatedAt: serverTimestamp()
+                            });
+                        }
+                    }
+                    squadCode = '';
+                }
+
+                const rawMember = payload.member || {};
+                const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.floor(Number(v) || 0)));
+                const memberRecord = {
+                    uid,
+                    name: cleanText(rawMember.name, 20, 'Arc Runner'),
+                    tone: clamp(rawMember.tone, 0, 7),
+                    weekly: clamp(rawMember.weekly, 0, 50000),
+                    allTime: clamp(rawMember.allTime, 0, 500000),
+                    streak: clamp(rawMember.streak, 0, 3650),
+                    clearDays: clamp(rawMember.clearDays, 0, 3650),
+                    squadCode: /^[A-Z0-9]{6}$/.test(squadCode) ? squadCode : '',
+                    updatedAt: new Date().toISOString()
+                };
+                await setDoc(memberRef, { ...memberRecord, _updatedAt: serverTimestamp() });
+
+                const [weeklySnap, allTimeSnap] = await Promise.all([
+                    getDocs(query(membersCol, orderBy('weekly', 'desc'), limit(50))),
+                    getDocs(query(membersCol, orderBy('allTime', 'desc'), limit(50)))
+                ]);
+                const globalMap = new Map();
+                for (const snap of [weeklySnap, allTimeSnap]) {
+                    snap.docs.forEach((d) => {
+                        const { _updatedAt, ...plain } = d.data() || {};
+                        globalMap.set(d.id, { ...plain, uid: d.id });
+                    });
+                }
+                globalMap.set(uid, memberRecord);
+
+                let squadMembers = [];
+                if (/^[A-Z0-9]{6}$/.test(memberRecord.squadCode)) {
+                    const roomSnap = await getDoc(doc(roomsCol, memberRecord.squadCode));
+                    if (roomSnap.exists()) {
+                        const rd = roomSnap.data() || {};
+                        const uids = Array.from(new Set([...(Array.isArray(rd.memberUids) ? rd.memberUids : []), uid])).slice(0, 30);
+                        const docs = await Promise.all(uids.map((id) => getDoc(doc(membersCol, String(id)))));
+                        squadMembers = docs.filter((d) => d.exists()).map((d) => {
+                            const { _updatedAt, ...plain } = d.data() || {};
+                            return { ...plain, uid: d.id };
+                        });
+                        squadInfo = {
+                            code: memberRecord.squadCode,
+                            name: cleanText(rd.name, 28, 'Habit Squad'),
+                            memberCount: squadMembers.length
+                        };
+                    }
+                }
+
+                return {
+                    globalMembers: Array.from(globalMap.values()),
+                    squadMembers,
+                    squad: squadInfo
+                };
+            }
         });
 
         window.HabitArcAuth = authClient;
