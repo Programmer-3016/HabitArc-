@@ -91,11 +91,30 @@
     </div>
 </header>
 
-<main class="notes-shell">
-  <div class="notes-heading"><div><span class="notes-kicker">YOUR PERSONAL SPACE <span aria-hidden="true">✦</span></span><h1>Notes Studio<span class="notes-dot">.</span></h1><p>Capture thoughts, save moments, keep growing.</p></div><button id="new-note" class="notes-primary" type="button"><span class="material-symbols-outlined">add</span> New note</button></div>
-  <section class="notes-feature" aria-label="Quick capture"><div><span class="notes-feature-label">QUICK CAPTURE</span><h2>Big ideas start small.</h2><p>Write it down, speak your mind, or save a moment — all in one place.</p></div><div class="notes-feature-icons" aria-hidden="true"><span class="material-symbols-outlined">edit_note</span><span class="material-symbols-outlined">mic</span><span class="material-symbols-outlined">image</span></div></section>
-  <div class="notes-toolbar"><label class="notes-search"><span class="material-symbols-outlined">search</span><input id="notes-search" type="search" placeholder="Search your notes..." autocomplete="off" aria-label="Search notes"></label><div class="notes-filters" role="group" aria-label="Filter notes"><button type="button" data-filter="all" class="selected">All</button><button type="button" data-filter="text">Text</button><button type="button" data-filter="image">Images</button><button type="button" data-filter="audio">Audio</button></div></div>
-  <div class="notes-section-head"><h2>My collection <span id="notes-count">0</span></h2><span id="notes-storage-label">Private to this device</span></div>
+<main class="notes-shell notes-v3">
+  <div class="notes-v3-topbar">
+    <button id="notes-focus-search" type="button" class="notes-v3-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span>Search <strong id="notes-v3-count">0</strong> notes</span>
+    </button>
+    <button id="new-note" class="notes-primary notes-v3-new" type="button"><span class="material-symbols-outlined" aria-hidden="true">add</span> New Note</button>
+  </div>
+  <div class="notes-heading">
+    <div class="notes-v3-squircle" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </div>
+    <h1>Your Second Brain</h1>
+    <p><span id="notes-count">0</span> saved · <span id="notes-storage-label">Private to this device</span></p>
+  </div>
+  <section id="notes-spotlight" class="notes-feature" aria-label="Featured note">
+    <div class="notes-spot-copy">
+      <span id="notes-spot-kicker" class="notes-feature-label">✦ QUICK CAPTURE</span>
+      <h2 id="notes-spot-title">Big ideas start small.</h2>
+      <p id="notes-spot-sub">Write a note, record voice, or attach a photo in one tap.</p>
+    </div>
+    <button id="notes-spot-open" type="button" class="notes-spot-btn">+ Write →</button>
+  </section>
+  <div class="notes-toolbar"><label class="notes-search"><span class="material-symbols-outlined">search</span><input id="notes-search" type="search" placeholder="Search thoughts, voice memos, photos…" autocomplete="off" aria-label="Search notes"></label><div class="notes-filters" role="group" aria-label="Filter notes"><button type="button" data-filter="all" class="selected">All</button><button type="button" data-filter="text">Text</button><button type="button" data-filter="image">Images</button><button type="button" data-filter="audio">Audio</button></div></div>
   <section id="notes-grid" class="notes-grid" aria-live="polite"></section>
 <dialog id="note-dialog" class="notes-dialog"><form id="note-form" method="dialog"><div class="notes-dialog-head"><h2 id="dialog-title">Create a note</h2><button type="button" id="close-note" aria-label="Close"><span class="material-symbols-outlined">close</span></button></div><label class="notes-field">Title<input id="note-title" maxlength="100" placeholder="Give your note a title..." required></label><label class="notes-field">Note date<input id="note-date" type="date"></label><label class="notes-field">Your thoughts<textarea id="note-body" rows="6" maxlength="10000" placeholder="What's on your mind?"></textarea></label><div class="notes-attachments"><label class="notes-attach"><span class="material-symbols-outlined">add_photo_alternate</span> Add photo<input id="note-image" type="file" accept="image/*" hidden></label><button id="record-audio" class="notes-attach" type="button"><span class="material-symbols-outlined">mic</span><span id="record-label">Record voice</span></button></div><div id="attachment-status" role="status" aria-live="polite"></div><div class="notes-dialog-actions"><button type="button" id="delete-note" class="notes-danger" hidden>Delete</button><button type="submit" class="notes-primary">Save note</button></div></form></dialog>
 </main>

@@ -6,9 +6,92 @@
 
 .ha-plan-overview {
   display: grid;
-  gap: 18px;
-  padding: 0 0 6px;
+  gap: 11px;
+  padding: 0 0 2px;
   color: rgb(var(--ha-on-surface,18 18 21));
+}
+.ha-plan-v3-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ha-plan-v3-datepill,
+.ha-plan-v3-quickadd {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant, 18 18 21)));
+  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+  font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ha-plan-v3-datepill {
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+}
+.ha-plan-v3-quickadd {
+  background: var(--rpg-mint, #47e393);
+  color: #121215;
+}
+.ha-plan-v3-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.ha-plan-v3-spotlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  margin-bottom: 12px;
+  border-radius: 20px;
+  background: var(--ha-hero-bg, #c4b5fd);
+  color: var(--ha-hero-fg, #121215);
+  border: 2px solid var(--ha-hero-border, var(--rpg-shadow-ink, #121215));
+  box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+}
+.ha-plan-v3-spot-kicker {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--rpg-hero-eyebrow, #3d1d7a);
+}
+.ha-plan-v3-spot-title {
+  font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+  font-size: 15.5px;
+  font-weight: 750;
+  line-height: 1.24;
+  margin-top: 2px;
+  color: var(--ha-hero-fg, #121215);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ha-plan-v3-spot-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 11px;
+  background: #121215;
+  color: #ffffff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+@media (max-width: 359px) {
+  .ha-plan-v3-datepill,
+  .ha-plan-v3-quickadd { padding: 6px 9px; font-size: 11px; }
 }
 .ha-plan-kicker {
   margin: 0;
@@ -32,45 +115,55 @@
 .ha-plan-badge {
   background:rgb(var(--ha-primary-container,196 181 253));
   border:2px solid rgb(var(--ha-outline-variant,18 18 21));
-  box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215);
-  padding:13px;
-  border-radius:16px;
-  font-size:28px !important;
+  box-shadow:2.5px 2.5px 0 var(--rpg-shadow-ink,#121215);
+  width:48px;
+  max-width:48px;
+  height:48px;
+  box-sizing:border-box;
+  padding:0;
+  overflow:hidden;
+  flex-shrink:0;
+  border-radius:13px;
+  font-size:22px !important;
+  line-height: 1 !important;
+  display: inline-grid;
+  place-items: center;
 }
 .ha-plan-modes {
   width:100%;
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  padding:5px;
-  gap:5px;
-  background:rgb(var(--ha-surface-container-low,244 242 239));
-  border:2px solid rgb(var(--ha-outline-variant,18 18 21));
-  border-radius:16px;
+  padding:4px;
+  gap:4px;
+  background:rgb(var(--ha-surface-container-lowest,255 255 255));
+  border:2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant,18 18 21)));
+  border-radius:15px;
 }
 .ha-plan-modes button,
 .ha-task-view-switch button {
   min-width:0;
-  min-height:44px;
+  min-height:40px;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:7px;
+  gap:6px;
   border:1.5px solid transparent;
   border-radius:11px;
-  color:rgb(var(--ha-on-surface-variant,82 82 91));
+  color:rgb(var(--ha-on-surface,18 18 21));
   background:transparent;
-  font-size:14px;
-  font-weight:800;
+  font-family:'Space Grotesk','Hanken Grotesk',sans-serif;
+  font-size:13px;
+  font-weight:750;
   cursor:pointer;
 }
 .ha-plan-modes button .material-symbols-outlined,
-.ha-task-view-switch button .material-symbols-outlined { font-size:20px; }
+.ha-task-view-switch button .material-symbols-outlined { font-size:18px; width:1em; height:1em; overflow:hidden; flex-shrink:0; }
 .ha-plan-modes button[aria-selected="true"],
 .ha-task-view-switch button[aria-selected="true"] {
-  background:rgb(var(--ha-primary-container,196 181 253));
-  border-color:rgb(var(--ha-outline-variant,18 18 21));
-  color:rgb(var(--ha-on-surface,18 18 21));
-  box-shadow:2px 2px 0 var(--rpg-shadow-ink,#121215);
+  background:#121215;
+  border-color:#121215;
+  color:#ffffff;
+  box-shadow:none;
 }
 .ha-plan-modes button:focus-visible,
 .ha-task-view-switch button:focus-visible,
@@ -155,17 +248,20 @@
 .ha-task-card-stack {display:grid;gap:12px;}
 .ha-task-card {
   display:grid;
-  grid-template-columns:38px minmax(0,1fr) 28px;
-  align-items:start;
+  grid-template-columns:36px minmax(0,1fr) 28px;
+  align-items:center;
   gap:9px;
-  border:2px solid rgb(var(--ha-outline-variant,18 18 21));
-  border-radius:17px;
+  border:2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant,18 18 21)));
+  border-radius:22px;
   background:rgb(var(--ha-surface-container-lowest,255 255 255));
-  box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215);
-  padding:17px 16px;
+  box-shadow:2.5px 2.5px 0 var(--rpg-shadow-ink,#121215);
+  padding:12px 15px;
   min-width:0;
 }
-.ha-task-card.is-complete {opacity:.72;}
+.ha-task-card.is-complete {
+  background: color-mix(in srgb, var(--rpg-mint, #47e393) 14%, rgb(var(--ha-surface-container-lowest,255 255 255)));
+  opacity: .88;
+}
 .ha-task-card-body {min-width:0;}
 .ha-task-card-body h3 {font-size:16px;line-height:1.35;font-weight:800;letter-spacing:-.025em;margin:3px 0 7px;overflow-wrap:anywhere;}
 .ha-task-card.is-complete h3{text-decoration:line-through;text-decoration-thickness:1.5px;}
@@ -254,7 +350,7 @@
   .ha-plan-modes{width:100%;gap:3px;padding:4px;}
   .ha-plan-modes button{min-height:38px;gap:4px;padding:6px 3px;font-size:12px;}
   .ha-plan-modes button .material-symbols-outlined{font-size:17px;}
-  .ha-plan-badge {font-size:22px !important;padding:10px;}
+  .ha-plan-badge {font-size:22px !important;width:46px;max-width:46px;height:46px;padding:0;}
   .ha-tasks-toolbar{align-items:center;gap:10px;margin-bottom:10px;}
   .ha-tasks-toolbar .ha-plan-kicker,
   .ha-tasks-toolbar h2{display:none;}

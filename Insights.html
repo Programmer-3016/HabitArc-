@@ -108,34 +108,17 @@
 
 <!-- Main Content Canvas -->
 <main class="ha-insights flex-grow w-full max-w-7xl mx-auto px-container-padding py-4 md:py-section-margin grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-section-margin">
-<header class="ha-insights-heading">
-<p class="ha-insights-eyebrow">Insights</p>
-<h1 id="hero-title">Your Journey</h1>
-<p class="ha-insights-intro">A look at your mindful progress over time.</p>
+<div class="ha-insights-v3-bar">
+  <span class="ha-insights-v3-pill">📊 28-Day Window</span>
+  <span class="ha-insights-v3-pill is-mint ha-insights-trend"><span id="metric-trend">—</span><span class="material-symbols-outlined" aria-hidden="true">trending_flat</span></span>
+</div>
+<header class="ha-insights-heading ha-insights-v3-hero">
+  <div class="ha-insights-v3-squircle">
+    <p id="metric-progress" class="ha-insights-v3-score">0%</p>
+  </div>
+  <h1 id="hero-title">Your Journey</h1>
+  <p class="ha-insights-intro">Grade <strong id="metric-consistency">--</strong> · Best streak <strong id="metric-streak">0d</strong></p>
 </header>
-<!-- One focused overview, using the existing Dashboard hero palette. -->
-<section class="ha-insights-overview" aria-label="Progress overview">
-<div class="ha-insights-metric ha-insights-metric-primary">
-<h2>Overall progress</h2>
-<p id="metric-progress">0%</p>
-<span class="ha-insights-metric-context">28 finished days · excludes today</span>
-</div>
-<div class="ha-insights-metric">
-<h2>Consistency score</h2>
-<p id="metric-consistency">--</p>
-<span class="ha-insights-metric-context">Recorded completion grade</span>
-</div>
-<div class="ha-insights-metric">
-<h2>Best streak</h2>
-<p id="metric-streak">0d</p>
-<span class="ha-insights-metric-context">Your personal best</span>
-</div>
-<div class="ha-insights-metric">
-<h2>Weekly trend</h2>
-<p class="ha-insights-trend"><span id="metric-trend">—</span><span class="material-symbols-outlined" aria-hidden="true">trending_flat</span></p>
-<span class="ha-insights-metric-context">vs previous 7 days</span>
-</div>
-</section>
 <section id="ha-shield" class="ha-shield-panel" aria-labelledby="ha-shield-title">
  <header class="ha-shield-header"><span class="ha-shield-badge material-symbols-outlined" aria-hidden="true">shield</span>
   <div><span class="ha-shield-kicker">ARC · CONSISTENCY SHIELD</span><h2 id="ha-shield-title">Protect your momentum.</h2><p>Patterns from your last 14 finished days, not AI predictions.</p></div>
@@ -143,6 +126,7 @@
  <div id="ha-shield-results" class="ha-shield-results"><p>Checking your routine history…</p></div>
  <p id="ha-shield-status" class="ha-shield-status" role="status" aria-live="polite"></p>
 </section>
+<section id="ha-insights-habit-pills" class="ha-insights-v3-pills" aria-label="Per-habit 28-day completion rates"></section>
 
 <!-- Left/Main Column -->
 <div class="ha-insights-main lg:col-span-8 flex flex-col gap-section-margin">
@@ -436,6 +420,31 @@ import { buildHabitCoachContext } from './habit-analytics.js';
             </div>`;
     });
 
+    }
+
+    // Populate Version C Per-Habit Rate Neo-Pills
+    const habitPillsEl = document.getElementById('ha-insights-habit-pills');
+    if (habitPillsEl) {
+        const habitStats = Array.isArray(snapshot.habits) ? snapshot.habits : [];
+        if (habitStats.length > 0) {
+            habitPillsEl.innerHTML = habitStats.slice().sort((a, b) => (b.rate ?? -1) - (a.rate ?? -1)).slice(0, 6).map(stat => {
+                const obj = habits.find(h => h.id === stat.id);
+                const iconName = escape(obj?.icon || 'repeat');
+                const rateVal = Number.isFinite(stat.rate) ? `${stat.rate}%` : 'NEW';
+                const toneCls = (stat.rate ?? 0) >= 80 ? 'is-high' : ((stat.rate ?? 0) >= 50 ? 'is-mid' : 'is-low');
+                return `<a class="ha-insights-habit-pill" href="Habit_Detail.html?id=${encodeURIComponent(String(stat.id || ''))}">
+                    <span class="ha-insights-habit-pill-left">
+                        <span class="material-symbols-outlined" aria-hidden="true">${iconName}</span>
+                        <span>${escape(obj?.name || stat.name || 'Habit')}</span>
+                    </span>
+                    <span class="ha-insights-habit-pill-rate ${toneCls}">${rateVal}</span>
+                </a>`;
+            }).join('');
+            habitPillsEl.hidden = false;
+        } else {
+            habitPillsEl.innerHTML = '';
+            habitPillsEl.hidden = true;
+        }
     }
 
     // Populate Habit Spotlights

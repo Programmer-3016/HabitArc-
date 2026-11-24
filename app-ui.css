@@ -1349,7 +1349,7 @@ body > main.ha-habits { max-width: 960px; padding-inline: 20px; gap: 22px; }
     body > main.ha-habits { padding-top: 14px !important; padding-inline: 16px; gap: 12px !important; }
     .ha-habits .ha-library-heading { gap: 10px !important; margin-bottom: 10px; }
     .ha-habits .ha-library-eyebrow,
-    .ha-habits .ha-habits-heading-top h1 { display: none; }
+    .ha-habits .ha-habits-heading-top { display: none; }
     .ha-habits .ha-library-intro { margin-top: 0; font-size: 12.5px; }
     .ha-habits .ha-habits-heading-top { align-items: center; gap: 10px; }
     .ha-habits #category-filters { gap: 5px; flex-wrap: wrap; overflow-x: visible; padding: 2px 0 !important; }
@@ -1361,8 +1361,16 @@ body > main.ha-habits { max-width: 960px; padding-inline: 20px; gap: 22px; }
     color: var(--rpg-cta-fg) !important;
     box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
 }
-.ha-habits #habits-list { gap: 16px; align-items: stretch; }
-body main.ha-habits .ha-library-card { display: flex; flex-direction: column; padding: 18px; gap: 0; }
+.ha-habits #habits-list { gap: 10px; align-items: stretch; }
+body main.ha-habits .ha-library-card {
+    display: flex; flex-direction: column; padding: 13px 16px; gap: 0;
+    border-radius: 22px !important;
+    border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant))) !important;
+    box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215) !important;
+}
+body main.ha-habits .ha-library-card.is-done-today {
+    background: color-mix(in srgb, var(--rpg-mint, #47e393) 14%, rgb(var(--ha-surface-container-lowest))) !important;
+}
 .ha-library-card-top { gap: 12px; align-items: center; }
 .ha-library-habit-link { min-width: 0; flex: 1; gap: 12px; border-radius: 12px; }
 .ha-library-icon {
@@ -1437,22 +1445,92 @@ body main.ha-habits .ha-library-card { display: flex; flex-direction: column; pa
     font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
 }
 
-/* ─── Insights Page (Lavender Bento, Coach & 365-Day Arc Heatmap) ───────────── */
-body > main.ha-insights { max-width: 1120px; gap: 22px; padding-inline: 20px; }
-.ha-insights-heading, .ha-insights-overview { grid-column: 1 / -1; }
-.ha-insights-heading { margin-bottom: 2px; }
-.ha-insights-eyebrow {
+/* ─── Insights Page (Version C — Airy Consistency Pulse + 365-Day Arc Heatmap) ─ */
+body > main.ha-insights { max-width: 1120px; gap: 14px; padding-inline: 20px; }
+@media (max-width: 767px) {
+    body > main.ha-insights { padding-inline: 16px; gap: 12px; }
+}
+.ha-insights-v3-bar,
+.ha-insights-heading,
+.ha-insights-overview,
+.ha-insights-v3-pills { grid-column: 1 / -1; }
+.ha-insights-v3-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+}
+.ha-insights-v3-pill .material-symbols-outlined {
+    width: 1em; height: 1em; overflow: hidden; flex-shrink: 0; line-height: 1;
+}
+.ha-insights-v3-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 13px; border-radius: 999px;
+    background: rgb(var(--ha-surface-container-lowest));
+    color: rgb(var(--ha-on-surface));
+    border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant)));
+    box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+    font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700;
+}
+.ha-insights-v3-pill.is-mint {
+    background: color-mix(in srgb, var(--rpg-mint, #47e393) 28%, rgb(var(--ha-surface-container-lowest)));
+}
+.ha-insights-v3-hero {
+    text-align: center; padding: 6px 8px 4px; margin: 0;
+    display: flex; flex-direction: column; align-items: center;
+}
+.ha-insights-v3-squircle {
+    width: 74px; height: 74px; margin: 0 auto 10px;
+    border-radius: 22px;
+    background: rgb(var(--ha-surface-container-lowest));
+    border: 2.5px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant)));
+    box-shadow: 4px 4px 0 var(--ha-hero-bg, #c4b5fd);
+    display: grid; place-items: center;
+}
+.ha-insights-v3-score {
+    margin: 0;
     font-family: 'Space Grotesk', sans-serif;
-    color: var(--rpg-text-accent); font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; margin-bottom: 4px;
+    font-size: 23px; font-weight: 800; line-height: 1;
+    color: rgb(var(--ha-on-surface)); font-variant-numeric: tabular-nums;
 }
 .ha-insights #hero-title {
     font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
     color: rgb(var(--ha-on-surface));
-    font-size: clamp(26px, 4vw, 34px);
-    line-height: 1.15; letter-spacing: -0.025em; font-weight: 700;
+    font-size: clamp(24px, 4vw, 31px);
+    line-height: 1.15; letter-spacing: -0.03em; font-weight: 750; margin: 0;
 }
-.ha-insights-intro { color: rgb(var(--ha-on-surface-variant)); font-size: 14px; line-height: 1.5; margin-top: 6px; }
+.ha-insights-intro { color: rgb(var(--ha-on-surface-variant)); font-size: 13px; line-height: 1.45; margin-top: 4px; }
+.ha-insights-intro strong { color: rgb(var(--ha-on-surface)); font-weight: 750; }
+.ha-insights-v3-pills {
+    display: grid; grid-template-columns: 1fr; gap: 9px;
+}
+@media (min-width: 768px) {
+    .ha-insights-v3-pills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.ha-insights-habit-pill {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 11px 16px; border-radius: 999px;
+    background: rgb(var(--ha-surface-container-lowest));
+    color: rgb(var(--ha-on-surface));
+    border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant)));
+    box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215);
+    text-decoration: none;
+    transition: transform 110ms ease;
+}
+.ha-insights-habit-pill:hover { transform: translate(-1px, -1px); }
+.ha-insights-habit-pill-left {
+    display: inline-flex; align-items: center; gap: 9px; min-width: 0;
+    font-family: 'Space Grotesk', sans-serif; font-size: 13.5px; font-weight: 700;
+}
+.ha-insights-habit-pill-left span:last-child {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ha-insights-habit-pill-left .material-symbols-outlined {
+    font-size: 19px; color: rgb(var(--ha-primary));
+}
+.ha-insights-habit-pill-rate {
+    font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 800; flex-shrink: 0;
+}
+.ha-insights-habit-pill-rate.is-high { color: rgb(var(--ha-secondary, 14 108 74)); }
+.ha-insights-habit-pill-rate.is-mid { color: var(--rpg-text-accent, #6d28d9); }
+.ha-insights-habit-pill-rate.is-low { color: #b45309; }
 
 /* Insights Overview: Lavender Bento Card (2x2 mobile, 4-col desktop) */
 .ha-insights-overview {
