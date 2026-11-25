@@ -83,6 +83,11 @@ function capture(kind){
   }catch(error){status.textContent='Task not saved: '+error.message;}
   return;
  }
+ if(kind==='ai'&&window.HabitArcSheet?.open&&!location.pathname.endsWith('Arc_AI.html')){
+  dialog.close();
+  window.HabitArcSheet.open(title);
+  return;
+ }
  try{sessionStorage.setItem(CAPTURE+uid,JSON.stringify({title,owner:uid,savedAt:Date.now()}));}
  catch{status.textContent='Private draft storage unavailable. Open the editor manually.';return;}
  dialog.close();
@@ -111,7 +116,19 @@ function initialize(){
  dialog.querySelector('#ha-command-close').addEventListener('click',()=>dialog.close());
  query.addEventListener('input',()=>{clearTimeout(debounce);debounce=setTimeout(()=>void search(),120);});
  dialog.querySelectorAll('[data-ha-capture]').forEach(b=>b.addEventListener('click',()=>capture(b.dataset.haCapture)));
- results.addEventListener('click',e=>{if(e.target.closest('a'))dialog.close();});
+ results.addEventListener('click',e=>{
+  const a=e.target.closest('a');
+  if(!a)return;
+  const href=a.getAttribute('href')||'';
+  if(href.startsWith('Arc_AI.html?chat=')&&window.HabitArcSheet?.openChat&&!location.pathname.endsWith('Arc_AI.html')){
+   e.preventDefault();
+   const chatId=decodeURIComponent(href.split('chat=')[1]||'');
+   dialog.close();
+   window.HabitArcSheet.openChat(chatId);
+   return;
+  }
+  dialog.close();
+ });
  document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();dialog.open?dialog.close():open();}
  });

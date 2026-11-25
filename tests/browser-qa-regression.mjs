@@ -829,7 +829,22 @@ try {
     await wait(260);
     const comp1 = document.querySelector('.ha-arc-sheet-composer-wrap')?.getBoundingClientRect();
     window.__haCompVisible1 = Boolean(comp1 && comp1.height >= 44 && comp1.top >= 0 && comp1.bottom <= window.innerHeight + 1);
-    // Simulate focusing prompt bar, dismissing keyboard (blur), closing sheet, and reopening a 2nd time
+    // Verify in-sheet Saved Chats & Quests/Tones drawers open right inside #ha-arc-sheet WITHOUT navigating away!
+    document.getElementById('ha-arc-sheet-history-btn')?.click();
+    window.__haInSheetHistOpen = !document.getElementById('ha-arc-sheet-hist-drawer')?.hidden
+      && location.pathname.endsWith('Dashboard.html')
+      && document.querySelectorAll('#ha-sheet-hist-list .ha-sheet-hist-item').length === 2;
+    document.querySelector('#ha-sheet-hist-list [data-sheet-chat-open="chat_seed_1"]')?.click();
+    window.__haInSheetThreadLoaded = !document.getElementById('ha-arc-sheet-body')?.hidden
+      && document.getElementById('ha-arc-sheet-body')?.textContent.includes('Delete Stretch habit and add review task');
+    document.querySelector('[data-open-sheet-hub]')?.click();
+    window.__haInSheetHubOpen = !document.getElementById('ha-arc-sheet-hub-drawer')?.hidden
+      && document.querySelectorAll('#ha-arc-sheet-hub-drawer .ha-sheet-quest-row').length === 3;
+    document.getElementById('ha-sheet-hub-close')?.click();
+    document.getElementById('ha-arc-sheet-new')?.click();
+    // Re-seed active chat id for step 6 SPA check below, then test close + reopen
+    const uid = HabitArc.getAuthUser?.()?.uid || localStorage.getItem('habitarc_active_uid') || 'local';
+    localStorage.setItem('habitarc_arc_active_chat:' + uid, 'chat_seed_1');
     const arcInput = document.getElementById('ha-arc-sheet-input');
     arcInput?.focus();
     arcInput?.blur();
@@ -849,7 +864,8 @@ try {
       comp2.bottom <= window.innerHeight + 1 &&
       getComputedStyle(document.querySelector('.ha-arc-sheet-composer-wrap')).display !== 'none'
     );
-    document.getElementById('ha-arc-sheet-history-link')?.click();
+    document.getElementById('ha-arc-sheet-close')?.click();
+    document.querySelector('header a[href="Arc_AI.html"]')?.click();
   })()`);
   await sleep(350);
   const spaSwitch = await ev(`(() => {
@@ -871,6 +887,9 @@ try {
       inputFocusedOnReopen: Boolean(window.__haInputFocusedOnReopen),
       compVisible1: Boolean(window.__haCompVisible1),
       compVisible2: Boolean(window.__haCompVisible2),
+      inSheetHistOpen: Boolean(window.__haInSheetHistOpen),
+      inSheetThreadLoaded: Boolean(window.__haInSheetThreadLoaded),
+      inSheetHubOpen: Boolean(window.__haInSheetHubOpen),
       fabHiddenOnArc: Boolean(document.getElementById('ha-arc-fab')?.hidden),
       zenFlashSeen: Boolean(window.__haZenFlashSeen),
       dockStable: Boolean(window.__haDockBefore && dockAfter && Math.abs(window.__haDockBefore.top - dockAfter.top) <= 1.5 && Math.abs(window.__haDockBefore.height - dockAfter.height) <= 1.5),
@@ -887,6 +906,9 @@ try {
   assert.equal(spaSwitch.sheetOpened, true, 'Floating Ask ARC pill opens contextual slide-up ARC sheet');
   assert.equal(spaSwitch.inputFocusedOnOpen, false, 'Opening Ask ARC does NOT auto-focus input or pop phone keyboard');
   assert.equal(spaSwitch.compVisible1, true, 'Ask ARC prompt composer bar is 100% visible inside viewport on first open');
+  assert.equal(spaSwitch.inSheetHistOpen, true, 'History icon opens Saved Chats drawer right inside Ask ARC without leaving page');
+  assert.equal(spaSwitch.inSheetThreadLoaded, true, 'Selecting a saved chat loads conversation directly inside Ask ARC');
+  assert.equal(spaSwitch.inSheetHubOpen, true, 'LVL badge opens Quests, Powers & AI Tones drawer directly inside Ask ARC');
   assert.equal(spaSwitch.sheetReopened, true, 'Ask ARC sheet reopens cleanly after keyboard dismiss & close');
   assert.equal(spaSwitch.inputFocusedOnReopen, false, 'Reopening Ask ARC does NOT auto-focus input');
   assert.equal(spaSwitch.compVisible2, true, 'Ask ARC prompt composer bar stays 100% visible inside viewport on reopen');

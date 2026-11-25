@@ -269,7 +269,12 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   const sheetJs = read('arc-sheet.js');
   assert.match(sheetJs, /id = 'ha-arc-fab'/);
   assert.match(sheetJs, /id = 'ha-arc-sheet'/);
-  assert.match(sheetJs, /id="ha-arc-sheet-history-link"/);
+  assert.match(sheetJs, /id="ha-arc-sheet-history-btn"/, 'History icon must open unified in-sheet Saved Chats drawer');
+  assert.match(sheetJs, /id="ha-arc-sheet-hist-drawer"/, 'Ask ARC must include in-sheet Saved Chats drawer (Pin/Rename/Delete/Search)');
+  assert.match(sheetJs, /id="ha-arc-sheet-hub-drawer"/, 'Ask ARC must include in-sheet Quests, Powers & AI Tones drawer');
+  assert.match(sheetJs, /mountArcContext/, 'Ask ARC must wire real Tasks/Focus/Notes context attachment picker');
+  assert.match(sheetJs, /createArcWordReveal/, 'Ask ARC must use progressive word-by-word streaming reveal');
+  assert.doesNotMatch(sheetJs, /href="Arc_AI\.html"/, 'Ask ARC sheet must never navigate out to separate legacy Arc_AI.html page');
   assert.match(sheetJs, /<textarea id="ha-arc-sheet-input"/, 'Ask ARC composer must use auto-growing textarea');
   assert.match(sheetJs, /visualViewport/, 'Ask ARC sheet must sync height/top to visualViewport');
   assert.match(sheetJs, /--arc-vvh/, 'Ask ARC sheet must bind --arc-vvh to visible viewport height');
