@@ -1,4 +1,4 @@
-/* Bottom-Right [ Ask ARC ] Pill + Obsidian Constellation Prompt-First AI Studio */
+/* Bottom-Right [ Ask ARC ] Pill + Theme-Adaptive Constellation & Prompt-First Studio (All 8 Themes) */
 
 .ha-arc-fab {
   position: fixed;
@@ -144,7 +144,7 @@ html.ha-arc-sheet-open body > main {
   color: rgb(var(--ha-primary, 196 181 253));
 }
 
-/* ─── Live Ambient Animations (5th Animation: Constellation + Border Beam) ── */
+/* ─── Live Ambient Animations (Constellation + Border Beam + Buddy) ───────── */
 @keyframes haArcSheetEnter {
   from {
     opacity: 0;
@@ -203,7 +203,7 @@ html.ha-arc-sheet-open body > main {
   }
 }
 
-/* ─── Dark Obsidian Constellation + Prompt-First Dialog Shell ─────────────── */
+/* ─── Theme-Adaptive Dialog Shell (Light & Sage Day Studio / 6 Dark Night Studios) */
 .ha-arc-sheet-dialog {
   position: fixed;
   inset: 0;
@@ -219,7 +219,7 @@ html.ha-arc-sheet-open body > main {
   max-height: var(--arc-vvh, 100svh);
   border: 0;
   background: transparent;
-  color: #f4f4f6;
+  color: rgb(var(--ha-on-surface, 18 18 21));
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -234,8 +234,12 @@ html.ha-arc-sheet-open body > main {
     height: min(88dvh, 790px);
     max-height: 88dvh;
     border-radius: 26px;
-    border: 1.5px solid rgba(197, 182, 255, 0.34);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(18, 18, 21, 0.9);
+    border: 2px solid var(--rpg-shadow-ink, #121215);
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28), 5px 5px 0 var(--rpg-shadow-ink, #121215);
+  }
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-dialog {
+    border: 1.5px solid rgb(var(--ha-primary, 167 139 250) / 0.38);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--rpg-shadow-ink, #000000);
   }
 }
 
@@ -244,11 +248,16 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-sheet-dialog::backdrop {
-  background: rgba(10, 10, 14, 0.62);
+  background: rgba(18, 18, 21, 0.42);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-dialog::backdrop {
+  background: rgba(6, 6, 10, 0.65);
+}
+
+/* Light & Sage Default Surface: Soft Daylight Aura over Theme Paper */
 .ha-arc-sheet-panel {
   position: relative;
   display: flex;
@@ -258,9 +267,23 @@ html.ha-arc-sheet-open body > main {
   max-height: 100%;
   min-height: 0;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 18%, #231b3a 0%, #111118 56%, #0d0d13 100%);
-  color: #f4f4f6;
+  background: radial-gradient(
+    circle at 50% 18%,
+    color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 26%, rgb(var(--ha-background, 246 244 239))) 0%,
+    rgb(var(--ha-background, 246 244 239)) 62%
+  );
+  color: rgb(var(--ha-on-surface, 18 18 21));
   animation: haArcSheetEnter 210ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Dark Themes (dark, forest, midnight, ocean, purple, sunset): Night Constellation Sky */
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel {
+  background: radial-gradient(
+    circle at 50% 18%,
+    color-mix(in srgb, var(--ha-hero-bg, #2a2145) 68%, rgb(var(--ha-background, 18 18 21))) 0%,
+    rgb(var(--ha-background, 18 18 21)) 60%
+  );
+  color: rgb(var(--ha-on-surface, 250 250 252));
 }
 
 .ha-arc-sheet-panel:focus {
@@ -276,7 +299,7 @@ html.ha-arc-sheet-open body > main {
   z-index: 0;
 }
 
-/* ─── Top Header (Design 7 Clean Layout) ──────────────────────────────────── */
+/* ─── Top Header (Design 7 Clean Layout, Theme-Adaptive) ──────────────────── */
 .ha-arc-sheet-head {
   position: relative;
   z-index: 2;
@@ -285,11 +308,16 @@ html.ha-arc-sheet-open body > main {
   justify-content: space-between;
   gap: 10px;
   padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 11px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(15, 15, 22, 0.55);
+  border-bottom: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.12);
+  background: rgb(var(--ha-background, 246 244 239) / 0.72);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   flex: 0 0 auto;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-head {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: rgb(var(--ha-background, 18 18 21) / 0.62);
 }
 
 .ha-arc-sheet-brand {
@@ -303,18 +331,20 @@ html.ha-arc-sheet-open body > main {
   width: 36px;
   height: 36px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: #f4f4f6;
+  border: 1.6px solid var(--rpg-shadow-ink, #121215);
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
   display: grid;
   place-items: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 140ms ease, transform 120ms ease;
+  transition: transform 120ms ease, background 140ms ease;
 }
 
-.ha-arc-sheet-back:hover {
-  background: rgba(255, 255, 255, 0.12);
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-back {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgb(var(--ha-on-surface, 250 250 252));
 }
 
 .ha-arc-sheet-back:active {
@@ -342,7 +372,7 @@ html.ha-arc-sheet-open body > main {
   font-size: 15.5px;
   font-weight: 800;
   line-height: 1.15;
-  color: #ffffff;
+  color: rgb(var(--ha-on-surface, 18 18 21));
 }
 
 .ha-arc-sheet-sub {
@@ -350,7 +380,7 @@ html.ha-arc-sheet-open body > main {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 700;
-  color: #47e393;
+  color: rgb(var(--ha-secondary, 16 122 87));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -366,14 +396,20 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-sheet-new-btn {
   padding: 6px 11px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #e4e4e7;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  border: 1.5px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.2);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-new-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgb(var(--ha-on-surface, 250 250 252));
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .ha-arc-sheet-new-btn[hidden] {
@@ -386,9 +422,9 @@ html.ha-arc-sheet-open body > main {
   gap: 5px;
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  color: #f4f4f6;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  border: 1.5px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.2);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 12px;
   font-weight: 700;
@@ -396,17 +432,29 @@ html.ha-arc-sheet-open body > main {
   white-space: nowrap;
 }
 
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-hist {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgb(var(--ha-on-surface, 250 250 252));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
 .ha-arc-lvl-pill {
   padding: 6px 11px;
   border-radius: 999px;
-  background: rgba(197, 182, 255, 0.16);
-  color: #d8ccff;
-  border: 1px solid rgba(197, 182, 255, 0.36);
+  background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 42%, rgb(var(--ha-surface-container-lowest, 255 255 255)));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
   font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-lvl-pill {
+  background: rgb(var(--ha-primary, 167 139 250) / 0.18);
+  color: rgb(var(--ha-primary-container, 196 181 253));
+  border: 1px solid rgb(var(--ha-primary, 167 139 250) / 0.42);
 }
 
 /* ─── Center-Stage Layout in Empty Mode vs Docked Layout in Thread Mode ──── */
@@ -448,14 +496,36 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-buddy-box {
   width: 46px;
   height: 46px;
-  border-radius: 15px;
-  background: rgba(197, 182, 255, 0.14);
-  border: 1.5px solid rgba(197, 182, 255, 0.45);
-  box-shadow: 0 0 26px rgba(197, 182, 255, 0.24);
+  border-radius: 14px;
+  background: var(--ha-hero-bg, #c4b5fd);
+  border: 2px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215);
   display: grid;
   place-items: center;
   flex-shrink: 0;
   animation: haArcBuddyFloat 2.8s ease-in-out infinite;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-buddy-box {
+  background: rgb(var(--ha-primary, 167 139 250) / 0.16);
+  border: 1.5px solid rgb(var(--ha-primary, 167 139 250) / 0.48);
+  box-shadow: 0 0 26px rgb(var(--ha-primary, 167 139 250) / 0.25);
+}
+
+.ha-arc-buddy-body {
+  fill: var(--rpg-shadow-ink, #121215);
+}
+
+.ha-arc-buddy-eye {
+  fill: #ffffff;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-buddy-body {
+  fill: rgb(var(--ha-primary-container, 196 181 253));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-buddy-eye {
+  fill: #121215;
 }
 
 .ha-arc-buddy-eyes {
@@ -464,6 +534,7 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-buddy-antenna {
+  fill: var(--rpg-mint, #47e393);
   animation: haArcAntennaPulse 1.7s ease-in-out infinite;
 }
 
@@ -473,7 +544,11 @@ html.ha-arc-sheet-open body > main {
   font-weight: 800;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #47e393;
+  color: rgb(var(--ha-primary, 124 58 237));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-empty-kicker {
+  color: var(--rpg-mint, #47e393);
 }
 
 .ha-arc-empty-heading {
@@ -483,14 +558,14 @@ html.ha-arc-sheet-open body > main {
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.18;
-  color: #ffffff;
+  color: rgb(var(--ha-on-surface, 18 18 21));
 }
 
 .ha-arc-sheet-dialog.is-kb-open .ha-arc-empty-heading {
   font-size: 18px;
 }
 
-/* ─── Active Conversation Body (Thread Mode) ──────────────────────────────── */
+/* ─── Active Conversation Body (Thread Mode, Theme-Adaptive) ──────────────── */
 .ha-arc-sheet-body {
   flex: 1 1 0%;
   min-height: 0;
@@ -511,9 +586,9 @@ html.ha-arc-sheet-open body > main {
   align-self: center;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(197, 182, 255, 0.14);
-  border: 1px solid rgba(197, 182, 255, 0.28);
-  color: #d8ccff;
+  background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 34%, rgb(var(--ha-surface-container-lowest, 255 255 255)));
+  border: 1px solid rgb(var(--ha-primary, 124 58 237) / 0.28);
+  color: rgb(var(--ha-primary, 124 58 237));
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 800;
@@ -524,11 +599,17 @@ html.ha-arc-sheet-open body > main {
   overflow-wrap: anywhere;
 }
 
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-pill {
+  background: rgb(var(--ha-primary, 167 139 250) / 0.15);
+  border-color: rgb(var(--ha-primary, 167 139 250) / 0.32);
+  color: rgb(var(--ha-primary-container, 196 181 253));
+}
+
 .ha-arc-sheet-user {
   align-self: flex-end;
   max-width: 85%;
-  background: #c5b6ff;
-  color: #121215;
+  background: var(--rpg-cta, #121215);
+  color: var(--rpg-cta-fg, #ffffff);
   border-radius: 18px 18px 4px 18px;
   padding: 10px 14px;
   font-size: 14.5px;
@@ -540,7 +621,7 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-sheet-reply {
   align-self: flex-start;
   width: 100%;
-  color: #f4f4f6;
+  color: rgb(var(--ha-on-surface, 18 18 21));
   font-size: 14.5px;
   line-height: 1.6;
   display: flex;
@@ -550,14 +631,15 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-sheet-reply code {
-  background: rgba(255, 255, 255, 0.1);
-  color: #47e393;
+  background: rgb(var(--ha-primary, 124 58 237) / 0.12);
+  color: rgb(var(--ha-primary, 124 58 237));
   padding: 1px 5px;
   border-radius: 5px;
 }
 
-.ha-arc-sheet-reply strong {
-  color: #ffffff;
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-reply code {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--rpg-mint, #47e393);
 }
 
 .ha-arc-thinking {
@@ -566,28 +648,34 @@ html.ha-arc-sheet-open body > main {
   gap: 8px;
   font-size: 13.5px;
   font-weight: 600;
-  color: #c5b6ff;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
 }
 
 .ha-arc-thinking-dot {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: #47e393;
+  background: rgb(var(--ha-primary, 124 58 237));
   animation: haArcPulse 1.1s ease-in-out infinite;
 }
 
-/* Draft Action Review Card inside Dark Thread */
+/* Draft Action Review Card */
 .ha-arc-draft-card {
   padding: 14px 15px;
   border-radius: 18px;
-  background: rgba(27, 27, 38, 0.92);
-  border: 1.4px solid rgba(197, 182, 255, 0.38);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  border: 1.8px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
   display: flex;
   flex-direction: column;
   gap: 7px;
   max-width: 430px;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-draft-card {
+  background: rgb(var(--ha-surface, 28 28 34) / 0.92);
+  border: 1.4px solid rgb(var(--ha-primary, 167 139 250) / 0.4);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
 .ha-arc-draft-kicker {
@@ -596,20 +684,24 @@ html.ha-arc-sheet-open body > main {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #47e393;
+  color: rgb(var(--ha-primary, 124 58 237));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-draft-kicker {
+  color: var(--rpg-mint, #47e393);
 }
 
 .ha-arc-draft-title {
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
   font-size: 15px;
   font-weight: 800;
-  color: #ffffff;
+  color: rgb(var(--ha-on-surface, 18 18 21));
 }
 
 .ha-arc-draft-desc {
   font-size: 12.5px;
   line-height: 1.42;
-  color: #a1a1aa;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
 }
 
 .ha-arc-draft-actions {
@@ -623,13 +715,18 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-draft-dismiss {
   padding: 7px 13px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #e4e4e7;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgb(var(--ha-surface-container-low, 241 238 232));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  border: 1.4px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.2);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-draft-dismiss {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .ha-arc-draft-approve {
@@ -637,11 +734,17 @@ html.ha-arc-sheet-open body > main {
   border-radius: 10px;
   background: #47e393;
   color: #121215;
-  border: 0;
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-draft-approve {
+  background: var(--ha-toggle-done-bg, #47e393);
+  color: var(--ha-toggle-done-fg, #121215);
+  border: 0;
 }
 
 .ha-arc-turn-followups {
@@ -653,13 +756,18 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-turn-fchip {
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #e4e4e7;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  border: 1.4px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.18);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-turn-fchip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 /* ─── Status & Error Retry Bar ────────────────────────────────────────────── */
@@ -667,7 +775,7 @@ html.ha-arc-sheet-open body > main {
   margin: 0;
   padding: 6px 4px;
   font-size: 12px;
-  color: #d8ccff;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -686,9 +794,9 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-retry-btn {
   padding: 4px 11px;
   border-radius: 999px;
-  border: 1px solid rgba(71, 227, 147, 0.5);
-  background: rgba(71, 227, 147, 0.14);
-  color: #47e393;
+  border: 1.4px solid var(--rpg-shadow-ink, #121215);
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
   font-family: 'Space Grotesk', sans-serif;
   font-size: 11px;
   font-weight: 750;
@@ -696,7 +804,13 @@ html.ha-arc-sheet-open body > main {
   flex-shrink: 0;
 }
 
-/* ─── Rotating Neon Border-Beam Composer (Center Card in Empty, Docked in Thread) */
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-retry-btn {
+  border: 1px solid rgb(var(--ha-primary, 167 139 250) / 0.5);
+  background: rgb(var(--ha-primary, 167 139 250) / 0.15);
+  color: rgb(var(--ha-primary-container, 196 181 253));
+}
+
+/* ─── Rotating Border-Beam Composer (Theme-Adaptive Day & Night) ──────────── */
 .ha-arc-sheet-composer-wrap {
   flex: 0 0 auto;
   width: 100%;
@@ -704,8 +818,13 @@ html.ha-arc-sheet-open body > main {
 
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-composer-wrap {
   padding: 8px 14px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: rgba(13, 13, 19, 0.86);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgb(var(--ha-background, 246 244 239) / 0.9);
+  border-top: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.1);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread .ha-arc-sheet-composer-wrap {
+  background: rgb(var(--ha-background, 18 18 21) / 0.88);
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .ha-arc-sheet-dialog.is-kb-open .ha-arc-sheet-panel.is-thread .ha-arc-sheet-composer-wrap {
@@ -714,10 +833,16 @@ html.ha-arc-sheet-open body > main {
 
 .ha-arc-beam-frame {
   position: relative;
-  padding: 1.6px;
+  padding: 2px;
   border-radius: 22px;
   overflow: hidden;
-  background: rgba(197, 182, 255, 0.22);
+  background: var(--rpg-shadow-ink, #121215);
+  box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-beam-frame {
+  padding: 1.6px;
+  background: rgb(var(--ha-primary, 167 139 250) / 0.24);
   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.48);
 }
 
@@ -730,9 +855,9 @@ html.ha-arc-sheet-open body > main {
   height: 260%;
   background: conic-gradient(
     from 0deg,
-    transparent 0deg 235deg,
-    #47e393 280deg,
-    #c5b6ff 340deg,
+    transparent 0deg 225deg,
+    var(--rpg-mint, #47e393) 275deg,
+    rgb(var(--ha-primary, 124 58 237)) 338deg,
     transparent 360deg
   );
   animation: haArcBeamSpin 4.2s linear infinite;
@@ -742,12 +867,17 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-sheet-form {
   position: relative;
   z-index: 1;
-  background: #171722;
-  border-radius: 20.5px;
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   padding: 14px 14px 12px;
   gap: 10px;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-form {
+  background: rgb(var(--ha-surface, 24 24 32));
+  border-radius: 20.5px;
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-form {
@@ -763,7 +893,11 @@ html.ha-arc-sheet-open body > main {
   justify-content: space-between;
   gap: 8px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.1);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-composer-foot {
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-composer-foot {
@@ -787,9 +921,9 @@ html.ha-arc-sheet-open body > main {
   gap: 5px;
   padding: 5px 11px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: #d4d4d8;
+  border: 1.4px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.2);
+  background: rgb(var(--ha-surface-container-low, 241 238 232));
+  color: rgb(var(--ha-on-surface, 18 18 21));
   font-family: 'Space Grotesk', sans-serif;
   font-size: 11.5px;
   font-weight: 700;
@@ -797,10 +931,22 @@ html.ha-arc-sheet-open body > main {
   flex-shrink: 0;
 }
 
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-plus {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgb(var(--ha-on-surface, 250 250 252));
+}
+
 .ha-arc-sheet-plus[aria-pressed="true"] {
-  background: rgba(71, 227, 147, 0.14);
-  border-color: rgba(71, 227, 147, 0.45);
-  color: #47e393;
+  background: rgb(var(--ha-secondary-container, 209 250 229));
+  border-color: var(--rpg-shadow-ink, #121215);
+  color: rgb(var(--ha-on-secondary-container, 6 78 59));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-plus[aria-pressed="true"] {
+  background: rgb(var(--ha-secondary, 71 227 147) / 0.14);
+  border-color: rgb(var(--ha-secondary, 71 227 147) / 0.45);
+  color: rgb(var(--ha-secondary, 71 227 147));
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-plus {
@@ -814,13 +960,19 @@ html.ha-arc-sheet-open body > main {
 .ha-arc-tone-chip {
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(197, 182, 255, 0.11);
-  border: 1px solid rgba(197, 182, 255, 0.24);
-  color: #d8ccff;
+  background: rgb(var(--ha-surface-container-low, 241 238 232));
+  border: 1.4px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.16);
+  color: rgb(var(--ha-on-surface, 18 18 21));
   font-family: 'Space Grotesk', sans-serif;
   font-size: 11.5px;
   font-weight: 700;
   white-space: nowrap;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-tone-chip {
+  background: rgb(var(--ha-primary, 167 139 250) / 0.12);
+  border: 1px solid rgb(var(--ha-primary, 167 139 250) / 0.28);
+  color: rgb(var(--ha-primary-container, 196 181 253));
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-tone-chip {
@@ -840,7 +992,7 @@ html.ha-arc-sheet-open body > main {
   --tw-ring-offset-shadow: 0 0 #0000 !important;
   --tw-ring-color: transparent !important;
   background: transparent;
-  color: #ffffff;
+  color: rgb(var(--ha-on-surface, 18 18 21));
   font-family: inherit;
   font-size: 16px;
   line-height: 1.44;
@@ -858,7 +1010,7 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-sheet-input::placeholder {
-  color: #9ca3af;
+  color: rgb(var(--ha-outline, 113 113 122));
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-input {
@@ -875,13 +1027,18 @@ html.ha-arc-sheet-open body > main {
   padding: 8px 16px;
   border-radius: 12px;
   border: 0;
-  background: #47e393;
-  color: #121215;
+  background: var(--rpg-cta, #121215);
+  color: var(--rpg-cta-fg, #ffffff);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 13px;
   font-weight: 800;
   flex-shrink: 0;
   cursor: pointer;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-send {
+  background: var(--ha-toggle-done-bg, #47e393);
+  color: var(--ha-toggle-done-fg, #121215);
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-send {
@@ -891,8 +1048,8 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-sheet-send.is-streaming {
-  background: #ef4444;
-  color: #ffffff;
+  background: #dc2626 !important;
+  color: #ffffff !important;
 }
 
 /* ─── Design 7 "TRY ASKING" Hairline Rows + Continue Last Chat Pill ───────── */
@@ -914,7 +1071,7 @@ html.ha-arc-sheet-open body > main {
   font-weight: 800;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #a1a1aa;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
   margin-bottom: 6px;
 }
 
@@ -922,9 +1079,9 @@ html.ha-arc-sheet-open body > main {
   width: 100%;
   padding: 12px 4px;
   background: transparent;
-  color: #e4e4e7;
+  color: rgb(var(--ha-on-surface, 18 18 21));
   border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.11);
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -934,23 +1091,26 @@ html.ha-arc-sheet-open body > main {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  transition: color 130ms ease, padding-left 130ms ease;
+  transition: padding-left 130ms ease, color 130ms ease;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-chip {
+  border-bottom-color: rgba(255, 255, 255, 0.09);
 }
 
 .ha-arc-sheet-chip:hover {
-  color: #ffffff;
   padding-left: 8px;
 }
 
-.ha-arc-sheet-chip.is-primary {
-  color: #ffffff;
-}
-
 .ha-arc-chip-arrow {
-  color: #47e393;
+  color: rgb(var(--ha-primary, 124 58 237));
   font-size: 14px;
   font-weight: 800;
   flex-shrink: 0;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-chip-arrow {
+  color: var(--rpg-mint, #47e393);
 }
 
 .ha-arc-continue-btn {
@@ -958,9 +1118,9 @@ html.ha-arc-sheet-open body > main {
   width: 100%;
   padding: 11px 14px;
   border-radius: 14px;
-  background: rgba(197, 182, 255, 0.13);
-  border: 1px solid rgba(197, 182, 255, 0.34);
-  color: #e2d9ff;
+  background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 36%, rgb(var(--ha-surface-container-lowest, 255 255 255)));
+  border: 1.4px solid rgb(var(--ha-primary, 124 58 237) / 0.3);
+  color: rgb(var(--ha-on-surface, 18 18 21));
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
   font-size: 12.5px;
   font-weight: 700;
@@ -970,6 +1130,12 @@ html.ha-arc-sheet-open body > main {
   gap: 10px;
   cursor: pointer;
   text-align: left;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-continue-btn {
+  background: rgb(var(--ha-primary, 167 139 250) / 0.14);
+  border: 1px solid rgb(var(--ha-primary, 167 139 250) / 0.36);
+  color: rgb(var(--ha-primary-container, 196 181 253));
 }
 
 .ha-arc-continue-title {

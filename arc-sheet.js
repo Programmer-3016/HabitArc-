@@ -22,7 +22,7 @@ const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => (
 const HIDDEN_FAB_PAGES = new Set(['Arc_AI.html', 'Add_Habit.html', 'Onboarding.html', 'offline.html', 'privacy.html']);
 
 const BUDDY_FAB_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="1" fill="#ffffff"/><rect x="3" y="5" width="1" height="8" fill="#ffffff"/><rect x="12" y="5" width="1" height="8" fill="#ffffff"/><rect x="4" y="5" width="8" height="8" fill="#c5b6ff"/><rect x="5" y="7" width="2" height="2" fill="#121215"/><rect x="9" y="7" width="2" height="2" fill="#121215"/></svg>';
-const BUDDY_STAGE_SVG = '<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect class="ha-arc-buddy-antenna" x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="9" fill="#c5b6ff"/><rect x="3" y="5" width="10" height="7" fill="#c5b6ff"/><g class="ha-arc-buddy-eyes"><rect x="5" y="7" width="2" height="2" fill="#121215"/><rect x="9" y="7" width="2" height="2" fill="#121215"/></g></svg>';
+const BUDDY_STAGE_SVG = '<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect class="ha-arc-buddy-antenna" x="7" y="1" width="2" height="2"/><rect class="ha-arc-buddy-body" x="4" y="4" width="8" height="9"/><rect class="ha-arc-buddy-body" x="3" y="5" width="10" height="7"/><g class="ha-arc-buddy-eyes"><rect class="ha-arc-buddy-eye" x="5" y="7" width="2" height="2"/><rect class="ha-arc-buddy-eye" x="9" y="7" width="2" height="2"/></g></svg>';
 const SEND_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 const STOP_SVG = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/></svg>';
 const BACK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
@@ -154,6 +154,28 @@ function stopConstellation() {
   constellationRaf = 0;
 }
 
+function readThemeConstellationPalette() {
+  if (typeof document === 'undefined' || typeof getComputedStyle !== 'function') {
+    return { primaryRgb: '124, 58, 237', secondaryRgb: '16, 122, 87', lineAlpha: 0.16, dotAlpha: 0.45 };
+  }
+  const root = document.documentElement;
+  const theme = root?.getAttribute('data-theme') || 'light';
+  const isLightTheme = theme === 'light' || theme === 'sage';
+  const cs = getComputedStyle(root);
+  const toCsv = (raw, fallback) => {
+    const nums = String(raw || '').trim().split(/[\s,]+/).filter(Boolean).slice(0, 3);
+    return nums.length === 3 ? nums.join(', ') : fallback;
+  };
+  const primaryRgb = toCsv(cs.getPropertyValue('--ha-primary'), isLightTheme ? '124, 58, 237' : '197, 182, 255');
+  const secondaryRgb = toCsv(cs.getPropertyValue('--ha-secondary'), isLightTheme ? '16, 122, 87' : '71, 227, 147');
+  return {
+    primaryRgb,
+    secondaryRgb,
+    lineAlpha: isLightTheme ? 0.15 : 0.2,
+    dotAlpha: isLightTheme ? 0.46 : 0.72,
+  };
+}
+
 function startConstellation() {
   stopConstellation();
   if (!canvasEl || typeof window === 'undefined' || typeof requestAnimationFrame !== 'function') return;
@@ -161,11 +183,16 @@ function startConstellation() {
   const ctx = canvasEl.getContext?.('2d');
   if (!ctx) return;
   resizeConstellationCanvas();
+  let palette = readThemeConstellationPalette();
+  let frameCount = 0;
 
   const step = () => {
     if (!dialog?.open || !canvasEl?.isConnected) {
       constellationRaf = 0;
       return;
+    }
+    if (++frameCount % 45 === 0) {
+      palette = readThemeConstellationPalette();
     }
     const w = canvasEl._logicalW || 390;
     const h = canvasEl._logicalH || 844;
@@ -188,7 +215,7 @@ function startConstellation() {
         const dy = p.y - q.y;
         const dist = Math.hypot(dx, dy);
         if (dist < 84) {
-          ctx.strokeStyle = `rgba(197, 182, 255, ${((1 - dist / 84) * 0.19).toFixed(3)})`;
+          ctx.strokeStyle = `rgba(${palette.primaryRgb}, ${((1 - dist / 84) * palette.lineAlpha).toFixed(3)})`;
           ctx.lineWidth = 0.85;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
@@ -197,7 +224,9 @@ function startConstellation() {
         }
       }
 
-      ctx.fillStyle = p.mint ? 'rgba(71, 227, 147, 0.68)' : 'rgba(197, 182, 255, 0.72)';
+      ctx.fillStyle = p.mint
+        ? `rgba(${palette.secondaryRgb}, ${palette.dotAlpha})`
+        : `rgba(${palette.primaryRgb}, ${palette.dotAlpha})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, 1.65, 0, Math.PI * 2);
       ctx.fill();
@@ -626,7 +655,7 @@ async function submitPrompt(rawText) {
       inputEl.value = question;
       resizeComposerInput();
     }
-    showStatusMessage('Sign in from <a href="Profile.html" id="ha-arc-signin-link" style="text-decoration:underline;font-weight:700;color:#47e393;">Profile</a> to send live AI prompts.');
+    showStatusMessage('Sign in from <a href="Profile.html" id="ha-arc-signin-link" style="text-decoration:underline;font-weight:700;">Profile</a> to send live AI prompts.');
     statusEl?.querySelector('#ha-arc-signin-link')?.addEventListener('click', () => dialog?.close());
     return;
   }
