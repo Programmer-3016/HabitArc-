@@ -810,7 +810,8 @@ try {
     localStorage.setItem('habitarc_arc_active_chat:' + uid, 'chat_seed_1');
   })()`);
   await go(`${base}/Dashboard.html`);
-  await ev(`(() => {
+  await ev(`(async () => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     window.__haSpaDocMarker = 'same-doc';
     window.__haZenFlashSeen = false;
     const dockBefore = document.querySelector('nav.ha-bottom-nav')?.getBoundingClientRect();
@@ -824,6 +825,30 @@ try {
     window.__haObs.observe(document.body, { childList: true, subtree: true, attributes: true });
     document.getElementById('ha-arc-fab')?.click();
     window.__haSheetOpened = Boolean(document.getElementById('ha-arc-sheet')?.hasAttribute('open'));
+    window.__haInputFocusedOnOpen = document.activeElement?.id === 'ha-arc-sheet-input';
+    await wait(260);
+    const comp1 = document.querySelector('.ha-arc-sheet-composer-wrap')?.getBoundingClientRect();
+    window.__haCompVisible1 = Boolean(comp1 && comp1.height >= 44 && comp1.top >= 0 && comp1.bottom <= window.innerHeight + 1);
+    // Simulate focusing prompt bar, dismissing keyboard (blur), closing sheet, and reopening a 2nd time
+    const arcInput = document.getElementById('ha-arc-sheet-input');
+    arcInput?.focus();
+    arcInput?.blur();
+    document.getElementById('ha-arc-sheet-close')?.click();
+    await wait(60);
+    document.getElementById('ha-arc-fab')?.click();
+    window.__haSheetReopened = Boolean(document.getElementById('ha-arc-sheet')?.hasAttribute('open'));
+    window.__haInputFocusedOnReopen = document.activeElement?.id === 'ha-arc-sheet-input';
+    await wait(260);
+    const comp2 = document.querySelector('.ha-arc-sheet-composer-wrap')?.getBoundingClientRect();
+    const inp2 = document.getElementById('ha-arc-sheet-input')?.getBoundingClientRect();
+    window.__haCompVisible2 = Boolean(
+      comp2 && inp2 &&
+      comp2.height >= 44 &&
+      inp2.height >= 30 &&
+      comp2.top >= 0 &&
+      comp2.bottom <= window.innerHeight + 1 &&
+      getComputedStyle(document.querySelector('.ha-arc-sheet-composer-wrap')).display !== 'none'
+    );
     document.getElementById('ha-arc-sheet-history-link')?.click();
   })()`);
   await sleep(350);
@@ -841,6 +866,11 @@ try {
       path: location.pathname.split('/').pop(),
       sameDoc: window.__haSpaDocMarker === 'same-doc',
       sheetOpened: Boolean(window.__haSheetOpened),
+      sheetReopened: Boolean(window.__haSheetReopened),
+      inputFocusedOnOpen: Boolean(window.__haInputFocusedOnOpen),
+      inputFocusedOnReopen: Boolean(window.__haInputFocusedOnReopen),
+      compVisible1: Boolean(window.__haCompVisible1),
+      compVisible2: Boolean(window.__haCompVisible2),
       fabHiddenOnArc: Boolean(document.getElementById('ha-arc-fab')?.hidden),
       zenFlashSeen: Boolean(window.__haZenFlashSeen),
       dockStable: Boolean(window.__haDockBefore && dockAfter && Math.abs(window.__haDockBefore.top - dockAfter.top) <= 1.5 && Math.abs(window.__haDockBefore.height - dockAfter.height) <= 1.5),
@@ -855,6 +885,11 @@ try {
     };
   })()`);
   assert.equal(spaSwitch.sheetOpened, true, 'Floating Ask ARC pill opens contextual slide-up ARC sheet');
+  assert.equal(spaSwitch.inputFocusedOnOpen, false, 'Opening Ask ARC does NOT auto-focus input or pop phone keyboard');
+  assert.equal(spaSwitch.compVisible1, true, 'Ask ARC prompt composer bar is 100% visible inside viewport on first open');
+  assert.equal(spaSwitch.sheetReopened, true, 'Ask ARC sheet reopens cleanly after keyboard dismiss & close');
+  assert.equal(spaSwitch.inputFocusedOnReopen, false, 'Reopening Ask ARC does NOT auto-focus input');
+  assert.equal(spaSwitch.compVisible2, true, 'Ask ARC prompt composer bar stays 100% visible inside viewport on reopen');
   assert.equal(spaSwitch.path, 'Arc_AI.html', 'ARC sheet History link SPA-navigated to Arc_AI.html');
   assert.equal(spaSwitch.fabHiddenOnArc, true, 'Floating Ask ARC pill hides automatically on full Arc_AI.html');
   assert.equal(spaSwitch.sameDoc, true, 'Dashboard -> ARC AI tab switch runs in-place without triggering a full-page fallback reload');

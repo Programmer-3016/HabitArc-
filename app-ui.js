@@ -617,7 +617,10 @@
                     window.HabitArcSheet?.sync?.();
                     if (targetPage === 'Notes.html') {
                         await ensureNotesModule();
-                        if (seq === navSequence) window.HabitArcNotesStudio?.mount?.();
+                        if (seq === navSequence) {
+                            window.HabitArcNotesStudio?.mount?.();
+                            window.HabitArcSheet?.sync?.();
+                        }
                         return;
                     }
 
@@ -643,6 +646,7 @@
                             capturingPageListeners = false;
                         }
                     }
+                    window.HabitArcSheet?.sync?.();
                     return;
                 } catch (err) {
                     console.warn('In-place navigation fallback:', err);

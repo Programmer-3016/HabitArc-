@@ -270,4 +270,35 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   assert.match(sheetJs, /id = 'ha-arc-fab'/);
   assert.match(sheetJs, /id = 'ha-arc-sheet'/);
   assert.match(sheetJs, /id="ha-arc-sheet-history-link"/);
+  assert.match(sheetJs, /<textarea id="ha-arc-sheet-input"/, 'Ask ARC composer must use auto-growing textarea');
+  assert.match(sheetJs, /visualViewport/, 'Ask ARC sheet must sync height/top to visualViewport');
+  assert.match(sheetJs, /--arc-vvh/, 'Ask ARC sheet must bind --arc-vvh to visible viewport height');
+  assert.match(sheetJs, /hydrateSavedSheetSession/, 'Ask ARC sheet must restore active chat session on open');
+  assert.match(sheetJs, /id="ha-arc-sheet-retry"/, 'Ask ARC sheet must provide 1-tap Retry on errors');
+  assert.doesNotMatch(sheetJs, /inputEl\?\.focus\(/, 'Ask ARC must never auto-focus text input or pop keyboard on open');
+
+  const sheetCss = read('arc-sheet.css');
+  assert.match(sheetCss, /font-size:\s*16px/, 'Composer input must use >=16px font-size to prevent mobile focus zoom');
+  assert.match(sheetCss, /var\(--arc-vvh,\s*100svh\)/, 'Sheet dialog must use --arc-vvh with 100svh fallback instead of 100dvh');
+
+  const shellPages = [
+    'Dashboard.html',
+    'Habits.html',
+    'Notes.html',
+    'Insights.html',
+    'Leaderboard.html',
+    'Arc_AI.html',
+    'Profile.html',
+    'Settings.html',
+    'Add_Habit.html',
+    'Habit_Detail.html',
+  ];
+  for (const page of shellPages) {
+    const html = read(page);
+    assert.match(
+      html,
+      /interactive-widget=resizes-content/,
+      `${page} viewport meta must set interactive-widget=resizes-content so mobile keyboard never clips Ask ARC composer`,
+    );
+  }
 });
