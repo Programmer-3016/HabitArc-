@@ -291,6 +291,7 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   const sheetCss = read('arc-sheet.css');
   assert.match(sheetCss, /font-size:\s*16px/, 'Composer input must use >=16px font-size to prevent mobile focus zoom');
   assert.match(sheetCss, /var\(--arc-vvh,\s*100svh\)/, 'Sheet dialog must use --arc-vvh with 100svh fallback instead of 100dvh');
+  assert.match(sheetCss, /\.ha-arc-sheet-panel\.is-thread \.ha-arc-constellation\s*\{\s*display:\s*none/i, 'Active conversation must hide background constellation animation to preserve reading focus');
 
   const shellPages = [
     'Dashboard.html',

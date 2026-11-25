@@ -408,6 +408,10 @@ function stopConstellation() {
     cancelAnimationFrame(constellationRaf);
   }
   constellationRaf = 0;
+  if (canvasEl) {
+    const ctx = canvasEl.getContext?.('2d');
+    ctx?.clearRect?.(0, 0, canvasEl.width || 0, canvasEl.height || 0);
+  }
 }
 
 function readThemeConstellationPalette() {
@@ -433,6 +437,7 @@ function readThemeConstellationPalette() {
 function startConstellation() {
   stopConstellation();
   if (!canvasEl || typeof window === 'undefined' || typeof requestAnimationFrame !== 'function') return;
+  if (!panelEl?.classList?.contains('is-empty')) return;
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
   const ctx = canvasEl.getContext?.('2d');
   if (!ctx) return;
@@ -441,8 +446,8 @@ function startConstellation() {
   let frameCount = 0;
 
   const step = () => {
-    if (!dialog?.open || !canvasEl?.isConnected) {
-      constellationRaf = 0;
+    if (!dialog?.open || !canvasEl?.isConnected || !panelEl?.classList?.contains('is-empty')) {
+      stopConstellation();
       return;
     }
     if (++frameCount % 45 === 0) {
@@ -610,6 +615,12 @@ function syncComposerChrome() {
   const isEmptyMode = sheetTurns.length === 0 && !activeController;
   panelEl?.classList?.toggle('is-empty', isEmptyMode);
   panelEl?.classList?.toggle('is-thread', !isEmptyMode);
+
+  if (!isEmptyMode) {
+    stopConstellation();
+  } else if (dialog?.open && !constellationRaf) {
+    startConstellation();
+  }
 
   if (plusLabelEl) {
     plusLabelEl.textContent = isEmptyMode ? '+ Attach' : '+';

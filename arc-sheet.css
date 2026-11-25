@@ -286,6 +286,20 @@ html.ha-arc-sheet-open body > main {
   color: rgb(var(--ha-on-surface, 250 250 252));
 }
 
+/* Active Conversation Mode: Flat distraction-free surface, zero moving background */
+.ha-arc-sheet-panel.is-thread,
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread {
+  background: rgb(var(--ha-background, 246 244 239));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread {
+  background: rgb(var(--ha-background, 18 18 21));
+}
+
+.ha-arc-sheet-panel.is-thread .ha-arc-constellation {
+  display: none !important;
+}
+
 .ha-arc-sheet-panel:focus {
   outline: none;
 }
@@ -557,21 +571,21 @@ html.ha-arc-sheet-open body > main {
   width: 100%;
   color: rgb(var(--ha-on-surface, 18 18 21));
   font-size: 14.5px;
-  line-height: 1.6;
+  line-height: 1.66;
   display: flex;
   flex-direction: column;
   gap: 10px;
   overflow-wrap: anywhere;
 }
 
-.ha-arc-sheet-reply code {
+.ha-sheet-ans-prose :not(pre) > code {
   background: rgb(var(--ha-primary, 124 58 237) / 0.12);
   color: rgb(var(--ha-primary, 124 58 237));
   padding: 1px 5px;
   border-radius: 5px;
 }
 
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-reply code {
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-ans-prose :not(pre) > code {
   background: rgba(255, 255, 255, 0.1);
   color: var(--rpg-mint, #47e393);
 }
@@ -819,6 +833,24 @@ html.ha-arc-sheet-open body > main {
   align-items: flex-end;
   padding: 7px 8px 7px 11px;
   gap: 8px;
+  border: 1.8px solid var(--rpg-shadow-ink, #121215);
+  border-radius: 18px;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread .ha-arc-sheet-form {
+  border: 1.2px solid rgba(255, 255, 255, 0.18);
+}
+
+.ha-arc-sheet-panel.is-thread .ha-arc-beam-frame {
+  padding: 0;
+  border-radius: 18px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.ha-arc-sheet-panel.is-thread .ha-arc-beam-frame::before {
+  display: none !important;
+  animation: none !important;
 }
 
 .ha-arc-composer-foot {
