@@ -3037,6 +3037,9 @@ html.ha-spa-navigated .animate-in {
   body:has(> nav.ha-bottom-nav) {
     padding-bottom:calc(105px + env(safe-area-inset-bottom,0px));
   }
+  body:has(> nav.ha-bottom-nav):not(:has(> main.ha-leaderboard)):not(.ha-arc-body) {
+    padding-bottom:calc(146px + env(safe-area-inset-bottom,0px));
+  }
   body:has(> nav.ha-bottom-nav)::after {
     content:"";
     position:fixed;
