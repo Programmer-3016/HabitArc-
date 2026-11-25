@@ -281,6 +281,7 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   assert.match(sheetJs, /id="ha-arc-continue-btn"/, 'Ask ARC empty home must offer 1-tap Continue pill for saved chats');
   assert.match(sheetJs, /id="ha-arc-sheet-retry"/, 'Ask ARC sheet must provide 1-tap Retry on errors');
   assert.doesNotMatch(sheetJs, /inputEl\?\.focus\(/, 'Ask ARC must never auto-focus text input or pop keyboard on open');
+  assert.doesNotMatch(sheetJs, /LIVE SYNC/, 'Ask ARC header/kicker must not render noisy LIVE SYNC dot/label');
 
   const sheetCss = read('arc-sheet.css');
   assert.match(sheetCss, /font-size:\s*16px/, 'Composer input must use >=16px font-size to prevent mobile focus zoom');

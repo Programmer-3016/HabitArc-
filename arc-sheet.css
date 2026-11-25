@@ -299,7 +299,7 @@ html.ha-arc-sheet-open body > main {
   z-index: 0;
 }
 
-/* ─── Top Header (Design 7 Clean Layout, Theme-Adaptive) ──────────────────── */
+/* ─── Top Header (Symmetrical 3-Zone Layout: [ ← ] · ARC · [ ◫ ] [ ✎ ]) ─── */
 .ha-arc-sheet-head {
   position: relative;
   z-index: 2;
@@ -307,9 +307,10 @@ html.ha-arc-sheet-open body > main {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 11px;
+  min-height: calc(56px + env(safe-area-inset-top, 0px));
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
   border-bottom: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.12);
-  background: rgb(var(--ha-background, 246 244 239) / 0.72);
+  background: rgb(var(--ha-background, 246 244 239) / 0.76);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   flex: 0 0 auto;
@@ -317,19 +318,45 @@ html.ha-arc-sheet-open body > main {
 
 :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-head {
   border-bottom-color: rgba(255, 255, 255, 0.08);
-  background: rgb(var(--ha-background, 18 18 21) / 0.62);
+  background: rgb(var(--ha-background, 18 18 21) / 0.65);
 }
 
 .ha-arc-sheet-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 0;
+  gap: 8px;
+  z-index: 1;
 }
 
-.ha-arc-sheet-back {
+.ha-arc-sheet-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.ha-arc-sheet-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.ha-arc-sheet-back,
+.ha-arc-sheet-hist,
+.ha-arc-sheet-new-btn {
   width: 36px;
   height: 36px;
+  padding: 0;
   border-radius: 12px;
   border: 1.6px solid var(--rpg-shadow-ink, #121215);
   background: rgb(var(--ha-surface-container-lowest, 255 255 255));
@@ -338,16 +365,21 @@ html.ha-arc-sheet-open body > main {
   place-items: center;
   cursor: pointer;
   flex-shrink: 0;
+  text-decoration: none;
   transition: transform 120ms ease, background 140ms ease;
 }
 
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-back {
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-back,
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-hist,
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-new-btn {
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
   color: rgb(var(--ha-on-surface, 250 250 252));
 }
 
-.ha-arc-sheet-back:active {
+.ha-arc-sheet-back:active,
+.ha-arc-sheet-hist:active,
+.ha-arc-sheet-new-btn:active {
   transform: scale(0.94);
 }
 
@@ -355,106 +387,8 @@ html.ha-arc-sheet-open body > main {
   outline: none;
 }
 
-.ha-arc-head-thread-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.ha-arc-sheet-panel.is-empty .ha-arc-head-thread-meta {
-  display: none;
-}
-
-.ha-arc-sheet-title {
-  margin: 0;
-  font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-  font-size: 15.5px;
-  font-weight: 800;
-  line-height: 1.15;
-  color: rgb(var(--ha-on-surface, 18 18 21));
-}
-
-.ha-arc-sheet-sub {
-  margin: 2px 0 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  color: rgb(var(--ha-secondary, 16 122 87));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ha-arc-sheet-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-}
-
-.ha-arc-sheet-new-btn {
-  padding: 6px 11px;
-  border-radius: 999px;
-  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
-  color: rgb(var(--ha-on-surface, 18 18 21));
-  border: 1.5px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.2);
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-new-btn {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgb(var(--ha-on-surface, 250 250 252));
-  border: 1px solid rgba(255, 255, 255, 0.16);
-}
-
 .ha-arc-sheet-new-btn[hidden] {
   display: none !important;
-}
-
-.ha-arc-sheet-hist {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
-  color: rgb(var(--ha-on-surface, 18 18 21));
-  border: 1.5px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.2);
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-hist {
-  background: rgba(255, 255, 255, 0.07);
-  color: rgb(var(--ha-on-surface, 250 250 252));
-  border: 1px solid rgba(255, 255, 255, 0.16);
-}
-
-.ha-arc-lvl-pill {
-  padding: 6px 11px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 42%, rgb(var(--ha-surface-container-lowest, 255 255 255)));
-  color: rgb(var(--ha-on-surface, 18 18 21));
-  border: 1.5px solid var(--rpg-shadow-ink, #121215);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  font-weight: 800;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-lvl-pill {
-  background: rgb(var(--ha-primary, 167 139 250) / 0.18);
-  color: rgb(var(--ha-primary-container, 196 181 253));
-  border: 1px solid rgb(var(--ha-primary, 167 139 250) / 0.42);
 }
 
 /* ─── Center-Stage Layout in Empty Mode vs Docked Layout in Thread Mode ──── */
@@ -967,6 +901,7 @@ html.ha-arc-sheet-open body > main {
   font-size: 11.5px;
   font-weight: 700;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-tone-chip {

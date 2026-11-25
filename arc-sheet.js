@@ -25,8 +25,9 @@ const BUDDY_FAB_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" shape-ren
 const BUDDY_STAGE_SVG = '<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect class="ha-arc-buddy-antenna" x="7" y="1" width="2" height="2"/><rect class="ha-arc-buddy-body" x="4" y="4" width="8" height="9"/><rect class="ha-arc-buddy-body" x="3" y="5" width="10" height="7"/><g class="ha-arc-buddy-eyes"><rect class="ha-arc-buddy-eye" x="5" y="7" width="2" height="2"/><rect class="ha-arc-buddy-eye" x="9" y="7" width="2" height="2"/></g></svg>';
 const SEND_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 const STOP_SVG = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/></svg>';
-const BACK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-const CHATS_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>';
+const BACK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+const CHATS_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path d="M13 9h5M13 13h4"/></svg>';
+const NEW_CHAT_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>';
 
 let fab = null;
 let dialog = null;
@@ -43,7 +44,6 @@ let plusBtn = null;
 let toneChipEl = null;
 let newChatBtn = null;
 let histLinkEl = null;
-let lvlPillEl = null;
 let activeController = null;
 let includeTasksCtx = true;
 let sheetTurns = [];
@@ -342,10 +342,7 @@ function syncComposerChrome(totalDone = 0, totalItems = 0) {
 
   const { level } = getAiLevelMeta();
   if (toneChipEl) {
-    toneChipEl.textContent = `Tone: Coach · L${level}`;
-  }
-  if (lvlPillEl) {
-    lvlPillEl.textContent = `LVL ${level}`;
+    toneChipEl.textContent = `Coach · LVL ${level} ›`;
   }
 
   if (inputEl) {
@@ -534,7 +531,9 @@ function renderSheetHome() {
   const { recentChat, totalSaved } = hydrateSavedSheetSession(false);
 
   if (histLinkEl) {
-    histLinkEl.innerHTML = `${CHATS_SVG}<span>${totalSaved > 0 ? `Recent (${totalSaved})` : 'History'}</span>`;
+    const label = totalSaved > 0 ? `Chat history (${totalSaved} saved)` : 'Chat history';
+    histLinkEl.setAttribute('aria-label', label);
+    histLinkEl.setAttribute('title', label);
   }
   if (newChatBtn) newChatBtn.hidden = sheetTurns.length === 0;
   if (headingEl) {
@@ -797,7 +796,7 @@ export function openArcSheet(prefill = '', { autoSubmit = false } = {}) {
   const titleNode = dialog.querySelector('#ha-arc-sheet-title');
   if (titleNode) titleNode.textContent = aiName;
   const kickerNode = dialog.querySelector('#ha-arc-empty-kicker');
-  if (kickerNode) kickerNode.textContent = `${aiName} STUDIO · LIVE SYNC`;
+  if (kickerNode) kickerNode.textContent = `${aiName} STUDIO`;
   showStatusMessage('');
   renderSheetHome();
 
@@ -950,17 +949,11 @@ export function mountArcSheet() {
         <header class="ha-arc-sheet-head">
           <div class="ha-arc-sheet-brand">
             <button type="button" id="ha-arc-sheet-close" class="ha-arc-sheet-back" autofocus aria-label="Back">${BACK_SVG}</button>
-            <div class="ha-arc-head-thread-meta">
-              <div class="min-w-0">
-                <h2 id="ha-arc-sheet-title" class="ha-arc-sheet-title">ARC</h2>
-                <p class="ha-arc-sheet-sub">● LIVE SYNC</p>
-              </div>
-            </div>
           </div>
+          <h2 id="ha-arc-sheet-title" class="ha-arc-sheet-title">ARC</h2>
           <div class="ha-arc-sheet-actions">
-            <button type="button" id="ha-arc-sheet-new" class="ha-arc-sheet-new-btn" hidden>+ New</button>
-            <a href="Arc_AI.html" id="ha-arc-sheet-history-link" class="ha-arc-sheet-hist">${CHATS_SVG}<span>History</span></a>
-            <a href="Arc_AI.html" id="ha-arc-sheet-lvl-pill" class="ha-arc-lvl-pill">LVL 1</a>
+            <a href="Arc_AI.html" id="ha-arc-sheet-history-link" class="ha-arc-sheet-hist" aria-label="Chat history" title="Chat history">${CHATS_SVG}</a>
+            <button type="button" id="ha-arc-sheet-new" class="ha-arc-sheet-new-btn" aria-label="New chat" title="New chat" hidden>${NEW_CHAT_SVG}</button>
           </div>
         </header>
 
@@ -968,7 +961,7 @@ export function mountArcSheet() {
           <div id="ha-arc-empty-hero" class="ha-arc-empty-hero">
             <div class="ha-arc-buddy-box">${BUDDY_STAGE_SVG}</div>
             <div class="min-w-0">
-              <div id="ha-arc-empty-kicker" class="ha-arc-empty-kicker">ARC STUDIO · LIVE SYNC</div>
+              <div id="ha-arc-empty-kicker" class="ha-arc-empty-kicker">ARC STUDIO</div>
               <h1 id="ha-arc-empty-heading" class="ha-arc-empty-heading">What’s on your mind?</h1>
             </div>
           </div>
@@ -984,7 +977,7 @@ export function mountArcSheet() {
                 <div class="ha-arc-composer-foot">
                   <div class="ha-arc-composer-pills">
                     <button type="button" id="ha-arc-sheet-plus" class="ha-arc-sheet-plus" aria-pressed="true" title="Toggle Today & Tasks context" aria-label="Toggle Today and Tasks context">✓ Today</button>
-                    <span id="ha-arc-tone-chip" class="ha-arc-tone-chip">Tone: Coach</span>
+                    <a href="Arc_AI.html" id="ha-arc-tone-chip" class="ha-arc-tone-chip">Coach · LVL 1 ›</a>
                   </div>
                   <button id="ha-arc-sheet-send" class="ha-arc-sheet-send" type="submit" aria-label="Ask ARC"><span>Ask</span><span aria-hidden="true">→</span></button>
                 </div>
@@ -1010,7 +1003,6 @@ export function mountArcSheet() {
     toneChipEl = dialog.querySelector('#ha-arc-tone-chip');
     newChatBtn = dialog.querySelector('#ha-arc-sheet-new');
     histLinkEl = dialog.querySelector('#ha-arc-sheet-history-link');
-    lvlPillEl = dialog.querySelector('#ha-arc-sheet-lvl-pill');
 
     inputEl?.addEventListener('input', resizeComposerInput);
     inputEl?.addEventListener('focus', () => {
@@ -1054,7 +1046,7 @@ export function mountArcSheet() {
     dialog.querySelector('#ha-arc-sheet-history-link')?.addEventListener('click', () => {
       dialog.close();
     });
-    dialog.querySelector('#ha-arc-sheet-lvl-pill')?.addEventListener('click', () => {
+    toneChipEl?.addEventListener('click', () => {
       dialog.close();
     });
     dialog.addEventListener('cancel', () => {
