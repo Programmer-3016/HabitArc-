@@ -76,12 +76,12 @@ test('Recovery respects small daily capacity, horizon and leaves excess tasks un
   assert.ok(forward[0].proposedDate >= '2026-11-26');
 });
 
-test('ARC shortcut and Tasks deep link preserve the same five-tab dock',()=>{
+test('ARC shortcut and Tasks deep link preserve the clean four-tab dock',()=>{
   const habits=read('Habits.html');
   const arc=read('Arc_AI.html');
   const app=read('app-ui.js');
   const nav=habits.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
-  assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
+  assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,4);
   assert.match(habits,/id="ha-rescue-dialog"/);
   assert.match(habits,/id="ha-rescue-apply"/);
   assert.match(arc,/Habits\.html\?section=tasks&amp;rescue=1/);

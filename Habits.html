@@ -103,27 +103,30 @@
 <main class="ha-habits w-full max-w-7xl mx-auto px-container-padding pt-6 pb-32 md:pb-8 flex flex-col gap-section-margin">
 <section class="ha-plan-overview ha-plan-v1" id="ha-plan-overview" aria-labelledby="ha-plan-title">
   <div class="ha-plan-v1-head">
-    <h1 id="ha-plan-title" class="ha-plan-v1-title">Plan</h1>
-    <a href="Add_Habit.html" id="ha-plan-v1-add" class="ha-plan-v1-add">+ Add</a>
+    <div>
+      <p class="ha-plan-v1-kicker">ROUTINES &amp; SCHEDULE</p>
+      <h1 id="ha-plan-title" class="ha-plan-v1-title">Plan</h1>
+    </div>
+    <a href="Add_Habit.html" id="ha-plan-v1-add" class="ha-plan-v1-add">+ New</a>
   </div>
   <div class="ha-plan-modes" role="tablist" aria-label="Planner sections">
-    <button type="button" role="tab" id="ha-plan-day-tab" aria-controls="ha-plan-day" data-plan-mode="day" aria-selected="true">My Day</button>
-    <button type="button" role="tab" id="ha-plan-habits-tab" aria-controls="ha-plan-habits" data-plan-mode="habits" aria-selected="false">Habits <span id="ha-plan-habits-cnt" class="ha-plan-tab-cnt"></span></button>
+    <button type="button" role="tab" id="ha-plan-habits-tab" aria-controls="ha-plan-habits" data-plan-mode="habits" aria-selected="true">Habits <span id="ha-plan-habits-cnt" class="ha-plan-tab-cnt"></span></button>
     <button type="button" role="tab" id="ha-plan-tasks-tab" aria-controls="ha-plan-tasks" data-plan-mode="tasks" aria-selected="false">Tasks <span id="ha-plan-tasks-cnt" class="ha-plan-tab-cnt"></span></button>
+    <button type="button" role="tab" id="ha-plan-day-tab" aria-controls="ha-plan-day" data-plan-mode="day" aria-selected="false">Calendar</button>
   </div>
 </section>
-<div id="ha-plan-habits" role="tabpanel" aria-labelledby="ha-plan-habits-tab" hidden>
+<div id="ha-plan-habits" role="tabpanel" aria-labelledby="ha-plan-habits-tab">
 <!-- Page Header & Filters -->
 <section class="ha-library-heading flex flex-col gap-stack-gap">
-<div class="ha-habits-heading-top">
+<div class="ha-habits-heading-top sr-only">
   <div>
 <p class="ha-library-eyebrow">Your routines</p>
-<h1 class="font-headline-lg text-headline-lg text-on-background font-bold">My Habits</h1>
+<h2 class="font-headline-lg text-headline-lg text-on-background font-bold">My Habits</h2>
 <p class="ha-library-intro">Small steps, practiced every day.</p>
 </div>
   <a href="Add_Habit.html" class="ha-habits-create-btn" aria-label="Create a new habit"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Add habit</span></a>
 </div>
-<div id="category-filters" role="group" aria-label="Filter habits by category" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-container-padding px-container-padding md:mx-0 md:px-0">
+<div id="category-filters" role="group" aria-label="Filter habits by category" class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-container-padding px-container-padding md:mx-0 md:px-0">
 <button class="cat-filter px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform" data-cat="All">All</button>
 <button class="cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95" data-cat="Health">Health</button>
 <button class="cat-filter px-4 py-2 rounded-full bg-surface-container-low text-on-surface border border-outline-variant hover:bg-surface-container transition-colors font-label-md text-label-md whitespace-nowrap active:scale-95" data-cat="Mindfulness">Mindfulness</button>
@@ -132,8 +135,11 @@
 </div>
 </section>
 <p id="habits-results-status" class="sr-only" role="status" aria-live="polite"></p>
-<div id="habits-list" class="flex flex-col gap-stack-gap">
-<!-- Rendered dynamically -->
+<div class="ha-plan-routines-surface">
+  <div class="ha-plan-routines-head"><span>ACTIVE ROUTINES</span><span>SCHEDULE</span></div>
+  <div id="habits-list" class="ha-plan-routines-list">
+  <!-- Rendered dynamically -->
+  </div>
 </div>
 
 </div>
@@ -161,7 +167,7 @@
   </div>
   <div id="ha-task-feed" class="ha-task-feed" aria-live="polite"></div>
 </section>
-<section id="ha-plan-day" class="ha-day-workspace" role="tabpanel" aria-labelledby="ha-plan-day-tab">
+<section id="ha-plan-day" class="ha-day-workspace" role="tabpanel" aria-labelledby="ha-plan-day-tab" hidden>
   <div id="ha-day-v1-focus-banner" class="ha-day-v1-focus" aria-label="Quick focus timer">
     <div class="ha-day-v1-focus-copy">
       <span id="ha-day-v1-focus-kicker" class="ha-day-v1-focus-kicker">FOCUS TIMER · 25M</span>
@@ -169,12 +175,11 @@
     </div>
     <button type="button" data-day-action="quick-focus" id="ha-day-v1-focus-btn" class="ha-day-v1-focus-btn">Start ▶</button>
   </div>
-  <section id="ha-day-unified-card" class="ha-day-v1-card" aria-label="Today's unified checklist"></section>
-  <div class="ha-day-legacy-tools" hidden>
-  <header class="ha-day-heading"><div><p class="ha-plan-kicker">YOUR DAILY WORKSPACE</p><h2>Day by day<span>.</span></h2><p>Habits, tasks, notes and focus — together.</p></div></header>
+  <div class="ha-day-legacy-tools">
+  <header class="ha-day-heading sr-only"><div><p class="ha-plan-kicker">YOUR DAILY WORKSPACE</p><h2>Day by day<span>.</span></h2><p>Habits, tasks, notes and focus — together.</p></div></header>
   <div class="ha-day-datebar"><button type="button" data-day-action="prev" aria-label="Previous day"><span class="material-symbols-outlined">chevron_left</span></button><input id="ha-day-date" type="date" aria-label="Choose day"><button type="button" data-day-action="next" aria-label="Next day"><span class="material-symbols-outlined">chevron_right</span></button><button type="button" data-day-action="today" class="ha-day-today">Today</button></div>
-  <button id="ha-calendar-toggle" type="button" data-day-action="calendar-toggle" class="ha-month-toggle" aria-expanded="false" aria-controls="ha-month-calendar"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Monthly Calendar <span class="material-symbols-outlined" aria-hidden="true">expand_more</span></button>
-  <section id="ha-month-calendar" class="ha-month-calendar" aria-label="Interactive monthly calendar" hidden>
+  <button id="ha-calendar-toggle" type="button" data-day-action="calendar-toggle" class="ha-month-toggle sr-only" aria-expanded="true" aria-controls="ha-month-calendar"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Monthly Calendar <span class="material-symbols-outlined" aria-hidden="true">expand_more</span></button>
+  <section id="ha-month-calendar" class="ha-month-calendar" aria-label="Interactive monthly calendar">
     <div class="ha-month-toolbar">
       <button type="button" data-day-action="month-prev" aria-label="Previous month"><span class="material-symbols-outlined">chevron_left</span></button>
       <h3 id="ha-month-title">Month</h3>
@@ -184,9 +189,10 @@
     <div id="ha-month-days" class="ha-month-days"></div>
     <p class="ha-month-legend"><span class="ha-month-taskdot"></span> Scheduled task <span class="ha-month-habitdot"></span> Scheduled habit · Tap a day for details</p>
   </section>
-  <div id="ha-day-metrics" class="ha-day-metrics" aria-live="polite"></div>
+  <section id="ha-day-unified-card" class="ha-day-v1-card" aria-label="Selected day schedule"></section>
+  <div id="ha-day-metrics" class="ha-day-metrics sr-only" aria-live="polite"></div>
   <div id="ha-day-content" class="ha-day-content"></div>
-  <div class="ha-day-bottom">
+  <div class="ha-day-bottom sr-only">
     <section class="ha-day-focus" aria-label="Focus timer"><header><span class="material-symbols-outlined">timer</span><h3>Focus Mode</h3></header><p>Start a focused session. The timer continues across tabs.</p><div class="ha-day-focus-clock" id="ha-focus-clock" role="timer">25:00</div><div class="ha-day-focus-options"><label>Duration<select id="ha-focus-length"><option value="15">15 min</option><option value="25" selected>25 min</option><option value="45">45 min</option></select></label><label>Task<select id="ha-focus-task"><option value="">General focus</option></select></label></div><div class="ha-day-focus-buttons"><button data-day-action="start-focus" type="button">Start focus</button><button data-day-action="pause-focus" type="button" hidden>Pause</button><button data-day-action="resume-focus" type="button" hidden>Resume</button><button data-day-action="reset-focus" type="button" hidden>Reset</button></div><p id="ha-focus-message" role="status" aria-live="polite"></p></section>
     <section class="ha-day-week" aria-label="Weekly review"><header><span class="material-symbols-outlined">query_stats</span><h3>7-day review</h3></header><div id="ha-week-stats" class="ha-week-stats"></div><p>Focus history and notes currently stay on this device.</p></section>
   </div>
@@ -235,14 +241,14 @@
   </form>
 </dialog>
 </main>
-<!-- Floating Glassmorphism Bottom Nav Bar (Mobile Only) -->
+<!-- Floating Bottom Nav Bar (Mobile Only — 4 Core Tabs) -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
   <a class="ha-bottom-nav-link" href="Dashboard.html">
-    <span class="material-symbols-outlined" aria-hidden="true">home</span>
-    <span class="ha-bottom-nav-label">Dashboard</span>
+    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+    <span class="ha-bottom-nav-label">Today</span>
   </a>
   <a class="ha-bottom-nav-link" href="Habits.html" aria-current="page">
-    <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+    <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
     <span class="ha-bottom-nav-label">Plan</span>
   </a>
   <a class="ha-bottom-nav-link" href="Notes.html">
@@ -252,18 +258,6 @@
   <a class="ha-bottom-nav-link" href="Insights.html">
     <span class="material-symbols-outlined" aria-hidden="true">insights</span>
     <span class="ha-bottom-nav-label">Insights</span>
-  </a>
-  <a class="ha-bottom-nav-link" href="Arc_AI.html">
-    <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-            <rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
-            <rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
-            <rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
-            <rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-            <rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-        </svg>
-    <span class="ha-bottom-nav-label">ARC AI</span>
   </a>
 </nav>
 <script src="app.js"></script>
@@ -290,6 +284,16 @@
             return;
         }
 
+        function formatSchedule(habit) {
+            const rep = Array.isArray(habit.repeat) && habit.repeat.length ? habit.repeat : ['mon','tue','wed','thu','fri','sat','sun'];
+            const map = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
+            if (rep.length >= 7) return 'Every day';
+            const set = new Set(rep);
+            if (rep.length === 5 && ['mon','tue','wed','thu','fri'].every(d => set.has(d))) return 'Mon – Fri';
+            if (rep.length === 2 && set.has('sat') && set.has('sun')) return 'Weekends';
+            return ['mon','tue','wed','thu','fri','sat','sun'].filter(d => set.has(d)).map(d => map[d]).join(', ');
+        }
+
         habits.forEach(habit => {
             const isCompleted = HabitArc.isCompletedToday(habit.id);
             const streak = HabitArc.getCurrentStreak(habit.id);
@@ -300,6 +304,8 @@
             const safeCategory = HabitArc.escapeHTML(habit.category);
             const safeIcon = HabitArc.escapeHTML(habit.icon || 'check_circle');
             const habitUrlId = encodeURIComponent(String(habit.id || ''));
+            const schedText = HabitArc.escapeHTML(formatSchedule(habit)) + (habit.reminder ? ' · ' + HabitArc.escapeHTML(habit.reminder) : ' · ' + safeCategory);
+            const streakSuffix = streak > 0 ? ` · 🔥 ${streak} day streak` : '';
 
             const card = document.createElement('article');
             card.className = `ha-habit-card ha-library-card${isCompleted ? ' is-done-today' : ''}`;
@@ -312,24 +318,26 @@
             }).join('');
 
             card.innerHTML = `
-                <div class="ha-library-card-top flex justify-between items-start">
-                    <a class="ha-library-habit-link flex items-center gap-4" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
+                <div class="ha-library-card-top flex justify-between items-center">
+                    <a class="ha-library-habit-link flex items-center gap-3.5" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
                         <div class="ha-library-icon" style="background-color: ${accent}1a; color: ${accent}">
                             <span aria-hidden="true" class="material-symbols-outlined ${style.iconFill ? 'fill' : ''}">${safeIcon}</span>
                         </div>
                         <div class="ha-library-card-copy">
                             <h2>${safeName}</h2>
-                            <p class="ha-library-category">${safeCategory}</p>
+                            <p class="ha-library-category">${schedText}${streakSuffix}</p>
                         </div>
                     </a>
-                    <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle w-11 h-11 rounded-full ${isCompleted ? 'text-on-primary' : 'border-2 border-outline-variant text-outline-variant hover:border-primary hover:text-primary'} flex items-center justify-center active:scale-90 transition-all" data-id="${HabitArc.escapeHTML(habit.id)}" style="${isCompleted ? `background-color: ${accent}` : `border-color: ${accent}66; color: ${accent}`}">
-                        <span class="material-symbols-outlined" aria-hidden="true">check</span>
-                    </button>
+                    <div class="ha-library-row-actions">
+                        <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle w-9 h-9 rounded-lg flex items-center justify-center active:scale-90 transition-all" data-id="${HabitArc.escapeHTML(habit.id)}">
+                            <span class="material-symbols-outlined" aria-hidden="true">check</span>
+                        </button>
+                        <a href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}" aria-label="View ${safeName}" class="ha-library-detail-link"><span aria-hidden="true" class="material-symbols-outlined">chevron_right</span></a>
+                    </div>
                 </div>
-                <div class="ha-library-card-meta"><span>Last 7 days</span><span class="ha-library-streak"><span class="material-symbols-outlined" aria-hidden="true">local_fire_department</span>${streak} day streak</span></div>
-                <div class="ha-library-card-bottom">
+                <div class="ha-library-card-meta sr-only"><span>Last 7 days</span><span class="ha-library-streak">${streak} day streak</span></div>
+                <div class="ha-library-card-bottom sr-only">
                     <div class="ha-library-week" role="group" aria-label="Last 7 days of activity">${dotsHtml}</div>
-                    <a href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}" aria-label="View ${safeName}" class="ha-library-detail-link"><span aria-hidden="true" class="material-symbols-outlined">chevron_right</span></a>
                 </div>
             `;
 

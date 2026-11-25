@@ -129,6 +129,13 @@
   </div>
   <div id="ha-insights-7d-bars" class="ha-insights-v1-bars" role="group" aria-label="Last 7 days completion bars"></div>
 </section>
+<section id="ha-insights-28d-card" class="ha-insights-v1-28d" aria-label="Monthly 28-day activity grid">
+  <div class="ha-insights-v1-chart-head">
+    <h2>Monthly Activity Grid</h2>
+    <span id="ha-insights-28d-active" class="ha-insights-v1-active-days">0 ACTIVE DAYS</span>
+  </div>
+  <div id="ha-insights-28d-grid" class="ha-insights-28d-grid" role="group" aria-label="Last 28 days activity cells"></div>
+</section>
 <section id="ha-shield" class="ha-shield-panel ha-shield-v1" aria-labelledby="ha-shield-title">
  <h2 id="ha-shield-title" class="sr-only">Consistency Shield</h2>
  <div id="ha-shield-results" class="ha-shield-results"><p class="ha-shield-ok">Checking your routine history…</p></div>
@@ -277,14 +284,14 @@
 </aside>
 </main>
 
-<!-- Floating Glassmorphism Bottom Nav Bar (Mobile Only) -->
+<!-- Floating Bottom Nav Bar (Mobile Only — 4 Core Tabs) -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
   <a class="ha-bottom-nav-link" href="Dashboard.html">
-    <span class="material-symbols-outlined" aria-hidden="true">home</span>
-    <span class="ha-bottom-nav-label">Dashboard</span>
+    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+    <span class="ha-bottom-nav-label">Today</span>
   </a>
   <a class="ha-bottom-nav-link" href="Habits.html">
-    <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+    <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
     <span class="ha-bottom-nav-label">Plan</span>
   </a>
   <a class="ha-bottom-nav-link" href="Notes.html">
@@ -294,18 +301,6 @@
   <a class="ha-bottom-nav-link" href="Insights.html" aria-current="page">
     <span class="material-symbols-outlined" aria-hidden="true">insights</span>
     <span class="ha-bottom-nav-label">Insights</span>
-  </a>
-  <a class="ha-bottom-nav-link" href="Arc_AI.html">
-    <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-            <rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
-            <rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
-            <rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
-            <rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-            <rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-        </svg>
-    <span class="ha-bottom-nav-label">ARC AI</span>
   </a>
 </nav>
 
@@ -476,6 +471,32 @@ import { buildHabitCoachContext } from './habit-analytics.js';
                 <span class="ha-insights-v1-bar-lbl" aria-hidden="true">${c.letter}</span>
             </div>`;
         }).join('');
+
+        const grid28El = document.getElementById('ha-insights-28d-grid');
+        const active28El = document.getElementById('ha-insights-28d-active');
+        if (grid28El && active28El) {
+            let activeDays = 0;
+            const cells28 = [];
+            for (let offset = 27; offset >= 0; offset--) {
+                const d = new Date();
+                d.setDate(d.getDate() - offset);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                const code = dayCodes[d.getDay()];
+                let dSched = 0, dDone = 0;
+                for (const h of habits) {
+                    if (h.createdAt && h.createdAt > key) continue;
+                    if (Array.isArray(h.repeat) && h.repeat.length && !h.repeat.includes(code)) continue;
+                    dSched++;
+                    if (h.completions?.[key] || histDoneSet.has(`${h.id}|${key}`)) dDone++;
+                }
+                if (dDone > 0) activeDays++;
+                const ratio = dSched > 0 ? dDone / dSched : 0;
+                const lv = dDone === 0 ? 0 : (ratio >= 0.85 ? 3 : ratio >= 0.5 ? 2 : 1);
+                cells28.push(`<span class="ha-insights-28d-cell lv-${lv}" role="img" aria-label="${escape(key)}: ${dDone} of ${dSched} completed" title="${escape(key)}: ${dDone}/${dSched}"></span>`);
+            }
+            active28El.textContent = `${activeDays} ACTIVE DAY${activeDays === 1 ? '' : 'S'}`;
+            grid28El.innerHTML = cells28.join('');
+        }
     }
 
     // Populate Habit Spotlights

@@ -141,8 +141,8 @@ export function mount() {
   const urlParams = new URLSearchParams(location.search);
   const sectionFromUrl = urlParams.get('section');
   let mode = urlParams.get('rescue') === '1' ? 'tasks'
-    : ['habits','tasks','day'].includes(sectionFromUrl) ? sectionFromUrl : readOption('ha-plan-mode','day');
-  if (!['habits','tasks','day'].includes(mode)) mode='day';
+    : ['habits','tasks','day'].includes(sectionFromUrl) ? sectionFromUrl : readOption('ha-plan-mode','habits');
+  if (!['habits','tasks','day'].includes(mode)) mode='habits';
   let view = readOption('ha-task-view', 'all') === 'timeline' ? 'timeline' : 'all';
   let mounted = true;
   const statusEl = $('#ha-task-status');

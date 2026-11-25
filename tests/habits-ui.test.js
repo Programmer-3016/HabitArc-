@@ -171,9 +171,9 @@ test('detail retains its guarded delete and invalid-habit recovery behavior', as
     assert.match(missing.main.beforeElement.textContent, /could not be loaded/);
 });
 
-test('both pages retain the five mobile navigation destinations', () => {
+test('both pages retain the four mobile navigation destinations', () => {
     for (const html of Object.values(pages)) {
         const nav = html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)[0];
-        assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]), ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Arc_AI.html']);
+        assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(match => match[1]), ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html']);
     }
 });

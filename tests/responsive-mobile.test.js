@@ -26,7 +26,7 @@ test('Small phones keep Plan, Rescue, Task and Notes date/action controls in vie
   assert.match(rescue,/\.ha-rescue-actions\s*\{[\s\S]*?position:sticky/);
   assert.match(tasks,/\.ha-task-dialog-actions\s*\{[\s\S]*?position:sticky/);
   assert.match(notes,/\.notes-dialog-actions\s*\{[\s\S]*?position:\s*sticky/);
-  for(const [name,css] of [['app-ui.css',read('app-ui.css')],['day-workspace.css',day],['rescue-mode.css',rescue],['plan-tasks.css',tasks],['notes-studio.css',notes],['leaderboard.css',read('leaderboard.css')],['consistency-shield.css',read('consistency-shield.css')]]){
+  for(const [name,css] of [['app-ui.css',read('app-ui.css')],['arc-sheet.css',read('arc-sheet.css')],['day-workspace.css',day],['rescue-mode.css',rescue],['plan-tasks.css',tasks],['notes-studio.css',notes],['leaderboard.css',read('leaderboard.css')],['consistency-shield.css',read('consistency-shield.css')]]){
     assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,name+' CSS blocks');
   }
 });
@@ -122,11 +122,11 @@ test('Notes Studio shares unified shell topbar, Leaderboard preloads styles befo
   assert.match(lbHtml,/<svg class="lb-icon"\s+width="19"\s+height="19"[^>]*fill="none"/);
 });
 
-test('Retains five-tab mobile navigation and refreshes installed app styles',()=>{
+test('Retains four-tab mobile navigation and refreshes installed app styles',()=>{
   const html=read('Arc_AI.html');
   const nav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
   assert.deepEqual([...nav.matchAll(/href="([^"]+)"/g)].map(x=>x[1]),
-    ['Dashboard.html','Habits.html','Notes.html','Insights.html','Arc_AI.html']);
+    ['Dashboard.html','Habits.html','Notes.html','Insights.html']);
   assert.match(read('sw.js'), /'\/app-ui\.css'/);
   const revision = read('sw.js').match(/const CACHE_NAME = 'habitarc-shell-v(\d+)'/);
   assert.ok(Number(revision?.[1]) >= 39, 'offline Iron Chest art requires shell v39 or newer');

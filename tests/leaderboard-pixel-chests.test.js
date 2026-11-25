@@ -200,7 +200,7 @@ test('Both top tab groups remain operable at 320px and 480px', () => {
 
 test('Treasure scope, all-tier previews, and PWA refresh stay isolated', () => {
   const html = read('Leaderboard.html'), worker = read('sw.js'), css = read('leaderboard.css'), js = read('leaderboard.js');
-  assert.equal((html.match(/class="ha-bottom-nav-link"/g) || []).length, 5);
+  assert.equal((html.match(/class="ha-bottom-nav-link"/g) || []).length, 4);
   for (const asset of ['/Leaderboard.html', '/leaderboard.css', '/leaderboard.js', '/treasure-art.js']) {
     assert.ok(worker.includes("'" + asset + "'"), asset);
   }

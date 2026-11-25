@@ -1063,16 +1063,14 @@ body > nav.fixed > a[href="Add_Habit.html"] .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24 !important;
 }
 
-/* ─── Unified Rounded Neo-Brutalist Cards Across All Pages ─────────────────── */
+/* ─── Unified Rounded Neo-Brutalist Cards Across Pages ────────────────────── */
 body main :is(.rounded-xl, .rounded-2xl, .rounded-lg):is(.p-card-padding, .p-5, .p-4, .p-3.5),
-body main .ha-habit-card,
 body main .ha-insights-calendar,
 body main .ha-insights-achievements,
 body main .ha-insights-note,
 body main .ha-insights-spotlight,
 body main .ha-insights-recap,
-body main .ha-detail-summary,
-body main #habits-container {
+body main .ha-detail-summary {
     border-radius: var(--ha-card-radius, 16px) !important;
     border: 2px solid rgb(var(--ha-outline-variant)) !important;
     background-color: rgb(var(--ha-surface-container-lowest)) !important;
@@ -1081,44 +1079,68 @@ body main #habits-container {
 body > main:is(.ha-dashboard, .ha-habits, .ha-profile) { max-width: var(--ha-page-width); }
 body > main.ha-insights { max-width: 1280px; }
 
-/* ─── Dashboard Hero Progress Card ─────────────────────────────────────────── */
-body > main.ha-dashboard { max-width: 720px; }
-.ha-dashboard .ha-dashboard-greeting { margin-bottom: 16px; }
+/* ─── Today (Dashboard.html) — Calm 1-Hero Layout ──────────────────────────── */
+body > main.ha-dashboard { max-width: 680px; }
+@media (max-width: 767px) {
+    body > main.ha-dashboard { padding-top: 14px !important; padding-inline: 16px !important; }
+}
+.ha-dashboard .ha-today-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
 .ha-dashboard #today-date {
-    margin: 0 0 4px;
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
+    margin: 0 0 2px;
+    font-family: 'JetBrains Mono', 'Geist', monospace;
+    font-size: 10.5px;
+    font-weight: 800;
     color: rgb(var(--ha-on-surface-variant)) !important;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
-.ha-dashboard #greeting {
+.ha-dashboard .ha-today-title {
+    margin: 0;
     font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: clamp(24px, 4.2vw, 32px);
-    line-height: 1.15;
-    font-weight: 700;
-    letter-spacing: -0.025em;
+    font-size: clamp(26px, 5vw, 32px);
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -0.03em;
     color: rgb(var(--ha-on-surface)) !important;
 }
-.ha-dashboard #greeting-name { display: inline; color: rgb(var(--ha-on-surface)) !important; }
+.ha-today-done-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--rpg-mint, #47e393) 24%, rgb(var(--ha-surface-container-lowest, 255 255 255)));
+    color: rgb(var(--ha-secondary, 14 108 74));
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+    font-size: 11.5px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 
 body main .ha-progress-card.ha-dashboard-hero {
     min-height: 0;
-    padding: 20px 22px 18px;
-    border-radius: 18px !important;
+    padding: 16px 18px 15px;
+    border-radius: 22px !important;
     border: 2px solid var(--ha-hero-border, rgb(var(--ha-outline-variant))) !important;
     box-shadow: 4px 4px 0 var(--rpg-shadow-ink) !important;
-    background-color: var(--ha-hero-bg, #c4b5fd) !important;
+    background-color: var(--ha-hero-bg, #c5b6ff) !important;
     background-image: none !important;
     color: var(--ha-hero-fg, #121215) !important;
 }
 .ha-dashboard-hero :is(h1, h2, h3, p, span, div) { color: var(--ha-hero-fg, #121215); }
 .ha-dashboard-hero .ha-dashboard-eyebrow {
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
     color: var(--rpg-hero-eyebrow) !important;
     text-transform: uppercase;
 }
@@ -1128,150 +1150,238 @@ body main .ha-progress-card.ha-dashboard-hero {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 .ha-dashboard-progress {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 84px;
-    gap: 16px;
+    grid-template-columns: minmax(0, 1fr) 58px;
+    gap: 12px;
     align-items: center;
 }
 .ha-dashboard-progress-copy { min-width: 0; }
 .ha-dashboard-count {
     font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 40px;
-    line-height: 1.05;
-    font-weight: 700;
+    font-size: clamp(24px, 6.2vw, 30px);
+    line-height: 1.1;
+    font-weight: 800;
     letter-spacing: -0.03em;
-    margin-top: 2px;
+    margin: 0;
     font-variant-numeric: tabular-nums;
     color: var(--ha-hero-fg, #121215) !important;
 }
-.ha-dashboard-total { font-size: 20px; font-weight: 500; opacity: 0.72; }
-.ha-dashboard-caption { margin-top: 2px; font-size: 14px; color: var(--ha-hero-sub, #3b3556) !important; font-weight: 500; }
-.ha-dashboard-ring { position: relative; width: 84px; height: 84px; }
-.ha-dashboard-ring-label { position: absolute; inset: 0; display: grid; place-items: center; }
 .ha-dashboard #progress-pct {
     font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
+    font-size: inherit;
+    font-weight: 800;
+    color: var(--ha-hero-fg, #121215) !important;
+}
+.ha-dashboard-complete-word {
+    font-weight: 750;
+}
+.ha-dashboard-ring { position: relative; width: 58px; height: 58px; flex-shrink: 0; }
+.ha-dashboard-ring-label { position: absolute; inset: 0; display: grid; place-items: center; }
+.ha-dashboard-ring-frac {
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+    font-size: 13.5px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
     color: var(--ha-hero-fg, #121215) !important;
 }
 .ha-dashboard-hero .ha-ring-track,
-.ha-dashboard-hero .stroke-surface-container { stroke: var(--ha-hero-ring-track, rgba(18, 18, 21, 0.14)); }
+.ha-dashboard-hero .stroke-surface-container { stroke: var(--ha-hero-ring-track, rgba(18, 18, 21, 0.16)); }
 .ha-dashboard-hero .ha-ring-fill,
-.ha-dashboard-hero #progress-arc { stroke: var(--ha-hero-ring-fill, #121215); stroke-width: 3.4; }
+.ha-dashboard-hero #progress-arc { stroke: var(--ha-hero-ring-fill, #121215); stroke-width: 3; }
 .ha-dashboard .progress-ring-circle { animation: none; transition: stroke-dasharray 220ms ease; }
 .ha-dashboard .ha-progress-card #progress-msg {
     max-width: none;
-    margin: 10px 0 0;
-    font-size: 13.5px;
+    margin: 4px 0 0;
+    font-size: 12.5px;
     font-weight: 500;
-    line-height: 1.45;
-    color: var(--ha-hero-sub, #3b3556) !important;
+    line-height: 1.38;
+    color: var(--ha-hero-sub, #2b2345) !important;
+}
+.ha-today-hero-bar {
+    margin-top: 12px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--ha-hero-ring-track, rgba(18, 18, 21, 0.14));
+    overflow: hidden;
+}
+.ha-today-hero-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--ha-hero-ring-fill, #121215);
+    transition: width 220ms ease;
 }
 
-.ha-dashboard-streaks {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1.5px solid var(--ha-hero-divider, rgba(18, 18, 21, 0.16));
+/* ─── Today Calm Checklist Surface (Tasks + Habits) ────────────────────────── */
+.ha-today-surface {
+    margin-top: 14px;
+    background: rgb(var(--ha-surface-container-lowest));
+    border: 1.6px solid rgb(var(--ha-outline-variant) / 0.16);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: none;
 }
-.ha-dashboard-stat h3 {
-    display: flex; align-items: center; gap: 5px;
-    font-family: 'Hanken Grotesk', 'Space Grotesk', sans-serif;
-    font-size: 12px; font-weight: 600;
-    color: var(--ha-hero-sub, #3b3556) !important;
-    text-wrap: initial;
+.ha-today-surface-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 15px;
+    background: rgb(var(--ha-surface-container-low));
+    border-bottom: 1px solid rgb(var(--ha-outline-variant) / 0.1);
 }
-.ha-dashboard-stat h3 .material-symbols-outlined { font-size: 15px; color: var(--ha-hero-fg, #121215) !important; }
-.ha-dashboard-stat p {
-    margin-top: 3px;
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 20px; line-height: 1.2; font-weight: 700;
-    color: var(--ha-hero-fg, #121215) !important;
-    font-variant-numeric: tabular-nums;
-}
-.ha-dashboard-unit {
-    font-family: 'Hanken Grotesk', sans-serif;
-    font-size: 13px; font-weight: 500;
-    color: var(--ha-hero-sub, #3b3556) !important;
-    margin-left: 4px;
-}
-
-/* ─── Dashboard Today's Habits Container ───────────────────────────────────── */
-.ha-dashboard-habits { margin-top: 24px; }
-.ha-section-heading { min-height: 36px; }
-.ha-dashboard .ha-section-heading { margin-bottom: 10px; gap: 12px; }
-.ha-dashboard .ha-section-heading h2 {
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.015em;
-    color: rgb(var(--ha-on-surface)) !important;
-}
+.ha-today-surface-head h2,
 .ha-dashboard #habits-remaining {
-    font-family: 'Hanken Grotesk', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: rgb(var(--ha-on-surface-variant)) !important;
-    text-align: right;
+}
+.ha-today-tasks-slot {
+    display: flex;
+    flex-direction: column;
+}
+.ha-today-tasks-slot:empty { display: none; }
+.ha-today-task-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    border-bottom: 1px solid rgb(var(--ha-outline-variant) / 0.1);
+    min-width: 0;
+}
+.ha-today-task-row.is-done-today .ha-today-task-copy { opacity: 0.56; }
+.ha-today-task-box {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 1.8px solid rgb(var(--ha-on-surface) / 0.42);
+    background: transparent;
+    color: rgb(var(--ha-surface));
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    padding: 0;
+    cursor: pointer;
+}
+.ha-today-task-box.is-checked {
+    background: rgb(var(--ha-on-surface) / 0.56);
+    border-color: transparent;
+}
+.ha-today-task-copy {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-decoration: none;
+    color: inherit;
+}
+.ha-today-task-title {
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: rgb(var(--ha-on-surface));
+    overflow-wrap: anywhere;
+}
+.ha-today-task-meta {
+    font-size: 12px;
+    color: rgb(var(--ha-on-surface-variant));
+    line-height: 1.3;
+}
+.ha-today-task-meta.is-urgent {
+    color: #dc2626;
+    font-weight: 700;
+}
+.ha-today-focus-chip {
+    flex-shrink: 0;
+    padding: 5px 9px;
+    border-radius: 8px;
+    background: rgb(var(--ha-surface-container));
+    color: rgb(var(--ha-on-surface));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .ha-dashboard #habits-container {
     display: flex; flex-direction: column; align-items: stretch; gap: 0;
-    padding-inline: 18px;
+    padding-inline: 15px;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+.ha-today-empty {
+    padding: 28px 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.ha-today-empty-cta {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12.5px;
+    font-weight: 750;
+    color: rgb(var(--ha-primary));
+    text-decoration: none;
 }
 body main.ha-dashboard .ha-dashboard-habit {
-    padding: 16px 0;
+    padding: 13px 0;
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
 }
 body main.ha-dashboard .ha-dashboard-habit + .ha-dashboard-habit {
-    border-top: 1.5px solid rgba(var(--ha-outline-variant) / 0.14) !important;
+    border-top: 1px solid rgb(var(--ha-outline-variant) / 0.1) !important;
+}
+body main.ha-dashboard .ha-dashboard-habit.is-done-today .ha-dashboard-habit-copy {
+    opacity: 0.56;
 }
 .ha-dashboard-habit-main { display: flex; align-items: center; gap: 12px; }
-.ha-dashboard-habit-link { min-width: 0; flex: 1; display: flex; align-items: center; gap: 12px; min-height: 44px; border-radius: 12px; }
-.ha-dashboard-habit-icon {
-    display: grid; place-items: center; flex-shrink: 0;
-    width: 42px; height: 42px;
-    border-radius: 12px !important;
-    border: 1.5px solid rgba(var(--ha-outline-variant) / 0.2);
-}
-.ha-dashboard-habit-icon .material-symbols-outlined { font-size: 21px; }
+.ha-dashboard-habit-link { min-width: 0; flex: 1; display: flex; align-items: center; gap: 12px; min-height: 38px; border-radius: 10px; text-decoration: none; }
 .ha-dashboard-habit-copy { min-width: 0; }
 .ha-dashboard .ha-dashboard-habit h3 {
+    margin: 0;
     font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    font-size: 15.5px; font-weight: 700; line-height: 1.3;
+    font-size: 15px; font-weight: 700; line-height: 1.26;
     color: rgb(var(--ha-on-surface));
     text-wrap: initial;
 }
 .ha-dashboard-habit-meta {
-    display: block; font-size: 12.5px; margin-top: 2px;
+    display: block; font-size: 12px; margin-top: 2px;
     color: rgb(var(--ha-on-surface-variant));
 }
 
 .ha-dashboard .habit-toggle {
-    width: 38px; height: 38px;
+    width: 26px; height: 26px;
     display: grid; place-items: center;
-    border: 2px solid var(--ha-toggle-idle-border, rgb(var(--ha-outline-variant))) !important;
-    border-radius: 10px !important;
-    background: var(--ha-toggle-idle-bg, rgb(var(--ha-surface)));
+    border: 1.8px solid rgb(var(--ha-on-surface) / 0.42) !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0;
     flex-shrink: 0;
-    transition: background-color 150ms ease, border-color 150ms ease, transform 120ms ease;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease, transform 120ms ease;
 }
-.ha-dashboard .habit-toggle .material-symbols-outlined { font-size: 20px; visibility: hidden; font-weight: 700; }
+.ha-dashboard .habit-toggle .material-symbols-outlined { font-size: 16px; visibility: hidden; font-weight: 700; }
 .ha-dashboard .habit-toggle[aria-pressed="true"] {
-    background: var(--ha-toggle-done-bg, #121215) !important;
-    border-color: var(--ha-toggle-done-border, #121215) !important;
-    color: var(--ha-toggle-done-fg, #ffffff) !important;
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
+    background: rgb(var(--ha-on-surface) / 0.56) !important;
+    border-color: transparent !important;
+    color: rgb(var(--ha-surface)) !important;
+    box-shadow: none !important;
 }
-.ha-dashboard .habit-toggle[aria-pressed="true"] .material-symbols-outlined { visibility: visible; color: var(--ha-toggle-done-fg, #ffffff) !important; }
+.ha-dashboard .habit-toggle[aria-pressed="true"] .material-symbols-outlined { visibility: visible; color: rgb(var(--ha-surface)) !important; }
 
 .ha-dashboard-history { display: flex; align-items: center; gap: 12px; margin: 12px 0 0 54px; }
 .ha-dashboard-week { display: flex; gap: 5px; align-items: start; }
@@ -1290,15 +1400,7 @@ body main.ha-dashboard .ha-dashboard-habit + .ha-dashboard-habit {
 .ha-dashboard-history-caption { margin-left: auto; font-family: 'Hanken Grotesk', sans-serif; font-size: 10.5px; font-weight: 500; color: rgb(var(--ha-on-surface-variant)); }
 
 .ha-dashboard-view-all {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    min-height: 44px; width: fit-content; margin: 18px auto 0; padding: 10px 20px;
-    border-radius: 12px;
-    border: 2px solid rgb(var(--ha-outline-variant));
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
-    background: rgb(var(--ha-surface));
-    color: rgb(var(--ha-on-surface));
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px; font-weight: 700;
+    display: none;
 }
 .ha-dashboard-view-all .material-symbols-outlined { font-size: 17px; }
 
@@ -1347,84 +1449,90 @@ body > main.ha-habits { max-width: 960px; padding-inline: 20px; gap: 22px; }
 }
 @media (max-width: 767px) {
     body > main.ha-habits { padding-top: 14px !important; padding-inline: 16px; gap: 12px !important; }
-    .ha-habits .ha-library-heading { gap: 10px !important; margin-bottom: 10px; }
-    .ha-habits .ha-library-eyebrow,
-    .ha-habits .ha-habits-heading-top { display: none; }
-    .ha-habits .ha-library-intro { margin-top: 0; font-size: 12.5px; }
-    .ha-habits .ha-habits-heading-top { align-items: center; gap: 10px; }
-    .ha-habits #category-filters { gap: 5px; flex-wrap: wrap; overflow-x: visible; padding: 2px 0 !important; }
-    .ha-habits .cat-filter { min-height: 32px; padding-inline: 9px !important; font-size: 11.5px !important; }
+    .ha-habits .ha-library-heading { display: none; }
 }
 .ha-habits .cat-filter[aria-pressed="true"] {
     border-color: var(--rpg-shadow-ink) !important;
     background: var(--rpg-cta) !important;
     color: var(--rpg-cta-fg) !important;
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
+    box-shadow: none;
 }
-.ha-habits #habits-list { gap: 10px; align-items: stretch; }
-body main.ha-habits .ha-library-card {
-    display: flex; flex-direction: column; padding: 13px 16px; gap: 0;
-    border-radius: 22px !important;
-    border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant))) !important;
-    box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215) !important;
+.ha-plan-routines-surface {
+    background: rgb(var(--ha-surface-container-lowest));
+    border: 1.6px solid rgb(var(--ha-outline-variant) / 0.16);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: none;
 }
-body main.ha-habits .ha-library-card.is-done-today {
-    background: color-mix(in srgb, var(--rpg-mint, #47e393) 14%, rgb(var(--ha-surface-container-lowest))) !important;
-}
-.ha-library-card-top { gap: 12px; align-items: center; }
-.ha-library-habit-link { min-width: 0; flex: 1; gap: 12px; border-radius: 12px; }
-.ha-library-icon {
-    width: 42px; height: 42px; border-radius: 12px !important;
-    border: 1.5px solid rgba(var(--ha-outline-variant) / 0.22);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.ha-library-icon .material-symbols-outlined { font-size: 22px; }
-.ha-library-card-copy { min-width: 0; }
-.ha-library-card h2 {
-    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
-    color: rgb(var(--ha-on-surface)); font-size: 16px; line-height: 1.35; font-weight: 700; text-wrap: initial;
-}
-.ha-library-category {
-    font-family: 'Hanken Grotesk', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.4; margin-top: 2px;
+.ha-plan-routines-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 15px;
+    background: rgb(var(--ha-surface-container-low));
+    border-bottom: 1px solid rgb(var(--ha-outline-variant) / 0.1);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
     color: rgb(var(--ha-on-surface-variant));
 }
-.ha-library-card .habit-toggle {
-    width: 38px; height: 38px; min-width: 38px;
-    border-radius: 10px !important;
-    border: 2px solid var(--ha-toggle-idle-border, rgb(var(--ha-outline-variant))) !important;
-    background: var(--ha-toggle-idle-bg, rgb(var(--ha-surface))) !important;
-    color: transparent !important;
+.ha-habits #habits-list { display: flex; flex-direction: column; gap: 0; align-items: stretch; }
+body main.ha-habits .ha-library-card {
+    display: flex; flex-direction: column; padding: 13px 15px; gap: 0;
+    border-radius: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
+body main.ha-habits .ha-library-card + .ha-library-card {
+    border-top: 1px solid rgb(var(--ha-outline-variant) / 0.1) !important;
+}
+body main.ha-habits .ha-library-card.is-done-today {
+    background: color-mix(in srgb, var(--rpg-mint, #47e393) 10%, transparent) !important;
+}
+.ha-library-card-top { gap: 12px; align-items: center; }
+.ha-library-habit-link { min-width: 0; flex: 1; gap: 12px; border-radius: 12px; text-decoration: none; }
+.ha-library-icon {
+    width: 38px; height: 38px; border-radius: 11px !important;
+    border: 0;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ha-library-icon .material-symbols-outlined { font-size: 20px; }
+.ha-library-card-copy { min-width: 0; }
+.ha-library-card h2 {
+    margin: 0;
+    font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+    color: rgb(var(--ha-on-surface)); font-size: 15px; line-height: 1.28; font-weight: 700; text-wrap: initial;
+}
+.ha-library-category {
+    font-family: 'Hanken Grotesk', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.35; margin: 2px 0 0;
+    color: rgb(var(--ha-on-surface-variant));
+}
+.ha-library-row-actions {
+    display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.ha-library-card .habit-toggle {
+    width: 28px; height: 28px; min-width: 28px;
+    border-radius: 8px !important;
+    border: 1.8px solid rgb(var(--ha-on-surface) / 0.34) !important;
+    background: transparent !important;
+    color: transparent !important;
+    box-shadow: none !important;
+}
+.ha-library-card .habit-toggle .material-symbols-outlined { font-size: 17px; }
 .ha-library-card .habit-toggle[aria-pressed="true"] {
     background: var(--ha-toggle-done-bg, #121215) !important;
     color: var(--ha-toggle-done-fg, #ffffff) !important;
     border-color: var(--ha-toggle-done-border, #121215) !important;
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink);
+    box-shadow: none !important;
 }
-.ha-library-card-meta {
-    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-    gap: 8px; margin-top: auto; padding-top: 16px;
-    font-family: 'Hanken Grotesk', sans-serif; font-size: 11.5px; font-weight: 600;
-    color: rgb(var(--ha-on-surface-variant));
-}
-.ha-library-streak { display: inline-flex; gap: 4px; align-items: center; font-variant-numeric: tabular-nums; color: var(--rpg-streak-ink); font-weight: 700; }
-.ha-library-streak .material-symbols-outlined { font-size: 15px; color: #f97316; }
-.ha-library-card-bottom {
-    display: flex; align-items: center; gap: 14px; margin-top: 10px; padding-top: 12px;
-    border-top: 1.5px solid rgba(var(--ha-outline-variant) / 0.14);
-}
-.ha-library-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex: 1; gap: 6px; min-width: 0; }
-.ha-library-day { display: flex; flex-direction: column; align-items: center; gap: 5px; font-family: 'Hanken Grotesk', sans-serif; font-size: 10px; font-weight: 600; color: rgb(var(--ha-on-surface-variant)); }
-.ha-library-day-bar { width: 100%; height: 6px; border-radius: 9999px; background: var(--rpg-bar-off); }
-.ha-library-day.is-complete .ha-library-day-bar { background: var(--rpg-bar-on, var(--habit-accent)); }
-.ha-library-day.is-today.is-complete .ha-library-day-bar { background: rgb(var(--ha-on-surface)); }
-.ha-library-day.is-today { color: rgb(var(--ha-on-surface)); font-weight: 700; }
-.ha-library-day.is-today .ha-library-day-bar { outline: 1.5px solid rgb(var(--ha-on-surface)); outline-offset: 1px; }
 .ha-library-detail-link {
-    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    border-radius: 10px; border: 2px solid rgb(var(--ha-outline-variant));
-    color: rgb(var(--ha-on-surface)); background: rgb(var(--ha-surface-container-low));
-    box-shadow: none;
+    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    border-radius: 8px; border: 0;
+    color: rgb(var(--ha-on-surface-variant)); background: transparent;
+    box-shadow: none; text-decoration: none;
 }
 .ha-habits .ha-library-empty {
     grid-column: 1 / -1; text-align: center; padding: 44px 24px;
@@ -1455,6 +1563,7 @@ body > main.ha-insights > .ha-insights-aside { display: none !important; }
 .ha-insights-heading,
 .ha-insights-v1-hero,
 .ha-insights-v1-chart,
+.ha-insights-v1-28d,
 .ha-insights-overview { grid-column: 1 / -1; }
 .ha-insights-v1-head {
     display: flex; flex-direction: column; align-items: flex-start; gap: 1px; margin: 0;
@@ -1507,14 +1616,37 @@ body > main.ha-insights > .ha-insights-aside { display: none !important; }
     font-size: 12.5px; font-weight: 500; line-height: 1.4;
     color: var(--ha-hero-fg, #121215); opacity: 0.88;
 }
-.ha-insights-v1-chart {
+.ha-insights-v1-chart,
+.ha-insights-v1-28d {
     padding: 14px 16px;
     border-radius: 20px;
     background: rgb(var(--ha-surface-container-lowest));
     color: rgb(var(--ha-on-surface));
-    border: 2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant)));
-    box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+    border: 1.6px solid rgb(var(--ha-outline-variant) / 0.16);
+    box-shadow: none;
 }
+.ha-insights-v1-active-days {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: rgb(var(--ha-secondary, 14 108 74));
+    font-variant-numeric: tabular-nums;
+}
+.ha-insights-28d-grid {
+    display: grid;
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+    gap: 4px;
+}
+.ha-insights-28d-cell {
+    display: block;
+    height: 15px;
+    border-radius: 4px;
+    background: rgb(var(--ha-surface-container, 234 231 223));
+}
+.ha-insights-28d-cell.lv-1 { background: #86efac; }
+.ha-insights-28d-cell.lv-2 { background: #47e393; }
+.ha-insights-28d-cell.lv-3 { background: #16a34a; }
 .ha-insights-v1-chart-head {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
     margin-bottom: 12px;
@@ -2899,7 +3031,7 @@ html.ha-spa-navigated .animate-in {
 }
 
 
-/* Shared five-tab mobile dock — Dashboard, Habits, Notes, Insights, ARC AI.
+/* Shared four-tab mobile dock — Today, Plan, Notes, Insights.
    No raised action or cut-out; every tab has equal space and a proper touch target. */
 @media(max-width:767px){
   body:has(> nav.ha-bottom-nav) {
@@ -2927,7 +3059,7 @@ html.ha-spa-navigated .animate-in {
   }
   body > nav.ha-bottom-nav {
     display:grid !important;
-    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
     gap:4px !important;
     align-items:stretch !important;
     position:fixed !important;

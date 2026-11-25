@@ -305,15 +305,46 @@ export function mountDashboard(root=document.getElementById('ha-day-dashboard-pe
  activeDashboard?.cleanup();
  const controller=new AbortController(),signal=controller.signal;
  let mounted=true;
+ const taskSlot=document.getElementById('ha-today-tasks-slot');
  const render=()=>{
    if(!mounted||!root.isConnected)return;
    const day=daySummary(localDay());
    const el=$('#ha-day-dashboard-stats',root);
-   if(!el)return;
-   const isHeroStrip=root.classList.contains('ha-day-hero-strip');
-   el.innerHTML=(isHeroStrip?'':'<span><strong>'+count(day.habitsDone,day.habits.length)+'</strong> habits</span>')+
-    '<span><strong>'+count(day.tasksDone,day.tasks.length)+'</strong> tasks</span><span><strong>'+day.focus+'m</strong> focus</span>';
+   if(el){
+     const isHeroStrip=root.classList.contains('ha-day-hero-strip');
+     el.innerHTML=(isHeroStrip?'':'<span><strong>'+count(day.habitsDone,day.habits.length)+'</strong> habits</span>')+
+      '<span><strong>'+count(day.tasksDone,day.tasks.length)+'</strong> tasks</span><span><strong>'+day.focus+'m</strong> focus</span>';
+   }
+   if(taskSlot&&taskSlot.isConnected){
+     const prioRank={high:0,medium:1,low:2,none:3};
+     const sorted=[...day.tasks].sort((a,b)=>Number(a.completed)-Number(b.completed)||((prioRank[a.priority]??3)-(prioRank[b.priority]??3)));
+     taskSlot.innerHTML=sorted.map(t=>{
+       const done=Boolean(t.completed);
+       const isUrgent=!done&&t.priority==='high';
+       const sub=done?'Completed · Task due today':'Task due today'+(t.priority&&t.priority!=='none'?' · '+t.priority[0].toUpperCase()+t.priority.slice(1)+' priority':'');
+       return '<div class="ha-today-task-row'+(done?' is-done-today':'')+'">'+
+         '<button type="button" class="ha-today-task-box'+(done?' is-checked':'')+'" data-today-task-id="'+esc(t.id)+'" aria-label="'+(done?'Reopen ':'Complete ')+esc(t.title)+'" aria-pressed="'+done+'">'+(done?checkSvg:'')+'</button>'+
+         '<a class="ha-today-task-copy" href="Habits.html?section=tasks"><span class="ha-today-task-title">'+esc(t.title)+'</span><span class="ha-today-task-meta'+(isUrgent?' is-urgent':'')+'">'+esc(sub)+'</span></a>'+
+         (!done?'<a class="ha-today-focus-chip" href="Habits.html?section=day&focusTask='+encodeURIComponent(t.id)+'">25m ▶</a>':'')+
+       '</div>';
+     }).join('');
+     if(day.tasks.length>0){
+       const totalAll=day.habits.length+day.tasks.length;
+       const doneAll=day.habitsDone+day.tasksDone;
+       const remAll=Math.max(0,totalAll-doneAll);
+       const pill=document.getElementById('today-done-pill');
+       if(pill)pill.textContent=doneAll+' of '+totalAll+' done';
+       const remEl=document.getElementById('habits-remaining');
+       if(remEl)remEl.textContent=remAll===0?'All done today':remAll+' remaining';
+     }
+   }
  };
+ taskSlot?.addEventListener('click',event=>{
+   const btn=event.target.closest('[data-today-task-id]');
+   if(!btn)return;
+   const task=taskStore.getTask(btn.dataset.todayTaskId);
+   if(task)taskStore.put(updateTask(task,{completed:!task.completed}));
+ },{signal});
  const unsubscribe=taskStore.subscribe(render);
  taskStore.start();
  startFocusCloudSync();

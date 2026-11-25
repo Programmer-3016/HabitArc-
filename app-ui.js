@@ -182,6 +182,7 @@
             'leaderboard.css',
             'notes-studio.css',
             'productivity-hub.css',
+            'arc-sheet.css',
         ];
         function appendOrderedStyle(link) {
             const href = link.getAttribute('href') || '';
@@ -329,16 +330,19 @@
             document.querySelectorAll('body > header nav a[href="Habits.html"]').forEach(link => { link.textContent = 'Plan'; });
             document.querySelectorAll('body > nav.fixed').forEach(nav => {
                 // Normalize an older cached dock as well as fresh pages to
-                // the same five tabs, avoiding six-item layout regressions.
+                // the clean four-tab dock (Today, Plan, Notes, Insights).
                 nav.classList.add('ha-bottom-nav');
                 nav.style.removeProperty('grid-template-columns');
                 nav.querySelector('a[href="Add_Habit.html"]')?.remove();
+                nav.querySelector('a[href="Arc_AI.html"]')?.remove();
                 if (!nav.querySelector('a[href="Notes.html"]')) {
                     const link = document.createElement('a');
                     link.href = 'Notes.html';
                     link.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5M9 13h6M9 17h4"/></svg><span class="ha-bottom-nav-label">Notes</span>';
                     nav.insertBefore(link, nav.querySelector('a[href="Insights.html"]'));
                 }
+                const todayLabel = nav.querySelector('a[href="Dashboard.html"] .ha-bottom-nav-label');
+                if (todayLabel) todayLabel.textContent = 'Today';
                 const planLabel = nav.querySelector('a[href="Habits.html"] .ha-bottom-nav-label');
                 if (planLabel) planLabel.textContent = 'Plan';
                 nav.querySelectorAll('a').forEach(link => {
@@ -610,6 +614,7 @@
                     window.HabitArc?.applyTheme?.();
                     syncPageChrome();
                     window.HabitArcCommandHub?.mount?.();
+                    window.HabitArcSheet?.sync?.();
                     if (targetPage === 'Notes.html') {
                         await ensureNotesModule();
                         if (seq === navSequence) window.HabitArcNotesStudio?.mount?.();
@@ -679,7 +684,7 @@
 })();
 
 
-// Shared command center loads once; nav swaps only reattach its small header trigger.
+// Shared command center & Floating Ask ARC Sheet load once; SPA swaps re-sync triggers.
 (() => {
     function loadCommandHub(){
         if (!document.body) return;
@@ -690,6 +695,13 @@
         }
         import('./productivity-hub.js').then(mod=>mod.mountCommandHub())
             .catch(error=>console.warn('HabitArc Command Center unavailable:',error));
+        if (!document.querySelector('link[href="arc-sheet.css"]')) {
+            const sheetCss=document.createElement('link');
+            sheetCss.rel='stylesheet';sheetCss.href='arc-sheet.css';
+            document.head.append(sheetCss);
+        }
+        import('./arc-sheet.js').then(mod=>mod.mountArcSheet())
+            .catch(error=>console.warn('HabitArc ARC Sheet unavailable:',error));
     }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadCommandHub,{once:true});
     else loadCommandHub();

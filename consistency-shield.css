@@ -1,5 +1,6 @@
-/* HabitArc Consistency Shield — Version A sleek 1-row neo-pill reset strip. */
-.ha-shield-panel{grid-column:1/-1;padding:12px 14px;border:2px solid var(--rpg-shadow-ink,rgb(var(--ha-outline-variant,18 18 21)));background:#fff8eb;color:rgb(var(--ha-on-surface,18 18 21));border-radius:20px;box-shadow:3.5px 3.5px 0 var(--rpg-shadow-ink,#121215);min-width:0}
+/* HabitArc Consistency Shield — quiet calm 1-row reset strip when habits are at risk. */
+.ha-shield-panel{grid-column:1/-1;padding:12px 14px;border:1.6px solid rgb(var(--ha-outline-variant,18 18 21)/.18);background:#fff8eb;color:rgb(var(--ha-on-surface,18 18 21));border-radius:20px;box-shadow:none;min-width:0}
+.ha-shield-panel:has(.ha-shield-ok){display:none}
 :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-shield-panel{background:rgb(var(--ha-surface-container-lowest,28 28 34))}
 .ha-shield-results{display:grid;gap:8px;margin:0}
 .ha-shield-item{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-width:0}

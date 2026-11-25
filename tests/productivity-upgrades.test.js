@@ -63,10 +63,10 @@ test('Consistency Shield only warns on genuine missed scheduled days',()=>{
  assert.equal(analyzeConsistency([habit],completed,DAY).length,0);
 });
 
-test('New features stay within existing 5-tab PWA; private drafts never use URL text',()=>{
+test('New features stay within clean 4-tab PWA; private drafts never use URL text',()=>{
  const html=source('Habits.html'),arc=source('Arc_AI.html'),settings=source('Settings.html');
  const nav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
- assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
+ assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,4);
  assert.match(html,/id="ha-month-calendar"/);
  assert.match(source('Insights.html'),/id="ha-shield"/);
  assert.match(settings,/id="restore-backup-file"/);

@@ -73,10 +73,10 @@ test('Elapsed focus session is recorded once on returning to the app',()=>{
   assert.equal(getFocusState().sessions.length,1);
 });
 
-test('Five-tab shell is unchanged and My Day lives inside Plan',()=>{
+test('Four-tab shell is clean and Calendar workspace lives inside Plan',()=>{
   const html=read('Habits.html');
   const nav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
-  assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
+  assert.equal((nav.match(/class="ha-bottom-nav-link"/g)||[]).length,4);
   assert.match(html,/id="ha-plan-day"/);
   assert.match(html,/data-plan-mode="day"/);
   assert.match(html,/id="ha-focus-clock"/);

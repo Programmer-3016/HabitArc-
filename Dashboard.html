@@ -123,87 +123,78 @@
 <!-- ═══════════════════════════════════════════════════════ -->
 <main class="ha-dashboard flex-1 w-full max-w-5xl mx-auto px-5 md:px-8 pt-6 md:pt-8">
 
-    <!-- Greeting -->
-    <section class="ha-dashboard-greeting fade-up">
-        <p id="today-date" class="text-sm text-on-surface-variant geist font-medium">Loading...</p>
-        <h1 id="greeting" class="text-on-surface"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></h1>
+    <!-- Greeting / Today Header -->
+    <section class="ha-dashboard-greeting ha-today-head fade-up">
+        <div>
+            <p id="today-date" class="ha-today-kicker text-sm text-on-surface-variant geist font-medium">Loading...</p>
+            <h1 class="ha-today-title text-on-surface">Today</h1>
+            <p id="greeting" class="sr-only"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></p>
+        </div>
+        <span id="today-done-pill" class="ha-today-done-pill" aria-live="polite">0 of 0 done</span>
     </section>
 
-    <!-- Focused hero: Unified Progress, Streaks & Day Peek Card -->
+    <!-- Focused hero: Single Bold Lavender Daily Progress Card -->
     <section class="ha-progress-card ha-dashboard-hero fade-up" aria-labelledby="progress-title">
         <div class="ha-rpg-hero-toprow">
-            <h2 id="progress-title" class="ha-dashboard-eyebrow">Today's progress</h2>
-            <a id="dash-ai-pill" href="Arc_AI.html?hub=1" class="ha-ai-dash-pill" aria-label="Open HabitArc AI">
-                <svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-                    <rect x="7" y="1" width="2" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
-                    <rect x="4" y="4" width="8" height="1" fill="currentColor"/>
-                    <rect x="4" y="5" width="8" height="8" fill="currentColor"/>
-                    <rect x="5" y="7" width="2" height="2" fill="var(--ha-hero-bg, #ffffff)"/>
-                    <rect x="9" y="7" width="2" height="2" fill="var(--ha-hero-bg, #ffffff)"/>
-                </svg>
+            <h2 id="progress-title" class="ha-dashboard-eyebrow">DAILY PROGRESS</h2>
+            <a id="dash-ai-pill" href="Arc_AI.html?hub=1" class="ha-ai-dash-pill sr-only" aria-label="Open HabitArc AI">
                 <span id="dash-ai-pill-label">ARC · LVL 1</span>
             </a>
         </div>
         <div class="ha-dashboard-progress">
             <div class="ha-dashboard-progress-copy">
-                <p class="ha-dashboard-count"><span id="progress-completed">0</span> <span class="ha-dashboard-total">of <span id="progress-total">0</span></span></p>
-                <p class="ha-dashboard-caption">habits completed</p>
+                <p class="ha-dashboard-count"><span id="progress-pct">0%</span> <span class="ha-dashboard-complete-word">complete</span></p>
+                <p id="progress-msg">Start your day strong.</p>
             </div>
             <div id="progress-ring" class="ha-dashboard-ring" role="progressbar" aria-label="Today's habit completion" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                 <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.2" class="ha-ring-track"/>
-                    <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.2" stroke-dasharray="0, 100" stroke-linecap="round" class="ha-ring-fill progress-ring-circle"/>
+                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.8" class="ha-ring-track"/>
+                    <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.8" stroke-dasharray="0, 100" stroke-linecap="round" class="ha-ring-fill progress-ring-circle"/>
                 </svg>
                 <div class="ha-dashboard-ring-label">
-                    <span id="progress-pct">0%</span>
+                    <span class="ha-dashboard-ring-frac"><span id="progress-completed">0</span>/<span id="progress-total">0</span></span>
                 </div>
             </div>
         </div>
-        <p id="progress-msg">Start your day strong.</p>
-        <div class="ha-dashboard-streaks">
+        <div class="ha-today-hero-bar" aria-hidden="true">
+            <div id="progress-bar-fill" class="ha-today-hero-bar-fill" style="width: 0%"></div>
+        </div>
+        <div class="ha-dashboard-streaks sr-only">
             <div class="ha-dashboard-stat">
-                <h3><span class="material-symbols-outlined" aria-hidden="true">local_fire_department</span>Current streak</h3>
+                <h3>Current streak</h3>
                 <p><span id="current-streak">0</span><span class="ha-dashboard-unit">days</span></p>
             </div>
             <div class="ha-dashboard-stat">
-                <h3><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Best streak</h3>
+                <h3>Best streak</h3>
                 <p><span id="longest-streak">0</span><span class="ha-dashboard-unit">days</span></p>
             </div>
         </div>
-        <div id="ha-day-dashboard-peek" class="ha-day-hero-strip" aria-label="Today at a glance">
+        <div id="ha-day-dashboard-peek" class="ha-day-hero-strip sr-only" aria-label="Today at a glance">
             <div id="ha-day-dashboard-stats" class="ha-day-hero-stats" aria-live="polite">
                 <span><strong>—</strong> tasks</span><span><strong>—</strong> focus</span>
             </div>
-            <a href="Habits.html?section=day" class="ha-day-peek-open">Open planner <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+            <a href="Habits.html?section=day" class="ha-day-peek-open">Open planner</a>
         </div>
     </section>
 
-    <!-- ─── Today's Habits ──────────────────────────── -->
-    <section class="ha-dashboard-habits fade-up" aria-labelledby="today-habits-title">
-        <div class="ha-section-heading flex items-center justify-between">
-            <h2 id="today-habits-title" class="font-bold text-on-surface">Today's habits</h2>
-            <span id="habits-remaining" class="text-on-surface-variant"></span>
+    <!-- ─── Up Next Today (Tasks due today + Scheduled habits) ── -->
+    <section class="ha-dashboard-habits ha-today-surface fade-up" aria-labelledby="today-habits-title">
+        <div class="ha-today-surface-head">
+            <h2 id="today-habits-title">UP NEXT TODAY</h2>
+            <span id="habits-remaining"></span>
         </div>
+        <div id="ha-today-tasks-slot" class="ha-today-tasks-slot"></div>
         <div id="habits-container">
             <!-- Habits rendered dynamically -->
         </div>
-        <a href="Habits.html" class="ha-dashboard-view-all">View all habits<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+        <a href="Habits.html" class="ha-dashboard-view-all">View all habits</a>
     </section>
 
-    <!-- ─── AI Level & Active Power Strip (Pixel UI) ── -->
-    <section id="dash-ai-banner" class="ha-dash-ai-card fade-up" aria-label="HabitArc AI Level and Powers">
+    <!-- ─── AI Level State Hook (Accessible / Tests; Visual trigger is Floating Ask ARC) ── -->
+    <section id="dash-ai-banner" class="ha-dash-ai-card sr-only" aria-label="HabitArc AI Level and Powers">
         <a href="Arc_AI.html" class="ha-dash-ai-link">
             <div class="ha-dash-ai-top">
                 <span class="ha-dash-ai-id">
-                    <span class="ha-dash-ai-ico" aria-hidden="true">
-                        <svg width="15" height="15" viewBox="0 0 16 16" shape-rendering="crispEdges">
-                            <rect x="7" y="1" width="2" height="2" fill="var(--rpg-cta, #ff6b4a)"/>
-                            <rect x="4" y="4" width="8" height="1" fill="#121010"/>
-                            <rect x="4" y="5" width="8" height="8" fill="#121010"/>
-                            <rect x="5" y="7" width="2" height="2" fill="#ffffff"/>
-                            <rect x="9" y="7" width="2" height="2" fill="#ffffff"/>
-                        </svg>
-                    </span>
                     <span id="dash-ai-name" class="ha-dash-ai-name">ARC</span>
                     <span class="ha-dash-ai-rank" id="dash-ai-rank">HABIT BUILDER</span>
                 </span>
@@ -222,15 +213,15 @@
 </main>
 
 <!-- ═══════════════════════════════════════════════════════ -->
-<!-- BOTTOM NAV — Mobile -->
+<!-- BOTTOM NAV — Mobile (4 Clear Core Tabs) -->
 <!-- ═══════════════════════════════════════════════════════ -->
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
   <a class="ha-bottom-nav-link" href="Dashboard.html" aria-current="page">
-    <span class="material-symbols-outlined" aria-hidden="true">home</span>
-    <span class="ha-bottom-nav-label">Dashboard</span>
+    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+    <span class="ha-bottom-nav-label">Today</span>
   </a>
   <a class="ha-bottom-nav-link" href="Habits.html">
-    <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+    <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
     <span class="ha-bottom-nav-label">Plan</span>
   </a>
   <a class="ha-bottom-nav-link" href="Notes.html">
@@ -240,18 +231,6 @@
   <a class="ha-bottom-nav-link" href="Insights.html">
     <span class="material-symbols-outlined" aria-hidden="true">insights</span>
     <span class="ha-bottom-nav-label">Insights</span>
-  </a>
-  <a class="ha-bottom-nav-link" href="Arc_AI.html">
-    <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-            <rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
-            <rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
-            <rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
-            <rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-            <rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-        </svg>
-    <span class="ha-bottom-nav-label">ARC AI</span>
   </a>
 </nav>
 
@@ -338,8 +317,13 @@
         // Progress
         const progress = HabitArc.getTodayProgress();
         const pct = progress.percentage;
+        const curStreak = HabitArc.getOverallCurrentStreak();
         document.getElementById('progress-completed').textContent = progress.completed;
         document.getElementById('progress-total').textContent = progress.total;
+        const donePill = document.getElementById('today-done-pill');
+        if (donePill) donePill.textContent = `${progress.completed} of ${progress.total} done`;
+        const barFill = document.getElementById('progress-bar-fill');
+        if (barFill) barFill.style.setProperty('width', pct + '%');
         document.getElementById('progress-ring').setAttribute('aria-valuenow', pct);
         document.getElementById('progress-ring').setAttribute('aria-valuetext', `${progress.completed} of ${progress.total} habits completed`);
         document.getElementById('progress-pct').textContent = pct + '%';
@@ -347,17 +331,16 @@
         document.getElementById('habits-remaining').textContent = progress.total === 0 ? 'Nothing scheduled'
             : progress.completed === progress.total ? 'All done today' : `${progress.total - progress.completed} remaining`;
 
-        const msgs = [
-            pct === 100 ? 'Perfect day! All habits completed. 🎉' :
-            pct >= 75 ? "Almost there! Keep the momentum going." :
-            pct >= 50 ? 'Great progress so far. Stay consistent.' :
-            pct > 0 ? 'Good start. Build momentum today.' :
-            'Start your day strong. You got this!'
-        ];
-        document.getElementById('progress-msg').textContent = msgs[0];
+        const leftCount = Math.max(0, progress.total - progress.completed);
+        const msg = progress.total === 0
+            ? 'Add a routine to start your daily rhythm.'
+            : pct === 100
+                ? 'All habits completed today! Streak locked in.'
+                : `${leftCount} item${leftCount === 1 ? '' : 's'} left to lock your ${curStreak + 1}-day streak`;
+        document.getElementById('progress-msg').textContent = msg;
 
         // Streaks
-        document.getElementById('current-streak').textContent = HabitArc.getOverallCurrentStreak();
+        document.getElementById('current-streak').textContent = curStreak;
         document.getElementById('longest-streak').textContent = HabitArc.getOverallLongestStreak();
 
         // Today's Habits
@@ -367,12 +350,9 @@
 
         if (todayHabits.length === 0) {
             container.innerHTML = `
-                <div class="text-center py-16 flex flex-col items-center gap-3">
-                    <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[32px] text-on-surface-variant/40">self_improvement</span>
-                    </div>
+                <div class="ha-today-empty">
                     <p class="text-sm text-on-surface-variant">No habits scheduled for today</p>
-                    <a href="Add_Habit.html" class="text-xs text-primary font-semibold hover:underline mt-1">+ Create your first habit</a>
+                    <a href="Add_Habit.html" class="ha-today-empty-cta">+ Create your first habit</a>
                 </div>`;
             return;
         }
@@ -384,12 +364,15 @@
             const accent = HabitArc.getHabitAccentColor(habit);
             const last7 = HabitArc.getLast7Days(habit.id);
             const safeName = HabitArc.escapeHTML(habit.name);
-            const safeCategory = HabitArc.escapeHTML(habit.category);
-            const safeIcon = HabitArc.escapeHTML(habit.icon || 'check_circle');
+            const safeCategory = HabitArc.escapeHTML(habit.category || 'Daily');
+            const safeReminder = habit.reminder ? HabitArc.escapeHTML(habit.reminder) : '';
             const habitUrlId = encodeURIComponent(String(habit.id || ''));
+            const metaLine = isCompleted
+                ? `Completed today · ${safeCategory} habit`
+                : `${safeReminder ? safeReminder + ' · ' : ''}${safeCategory} habit${streak > 0 ? ' · ' + streak + 'd streak' : ''}`;
 
             const card = document.createElement('div');
-            card.className = 'ha-habit-card ha-dashboard-habit';
+            card.className = 'ha-habit-card ha-dashboard-habit' + (isCompleted ? ' is-done-today' : '');
             card.style.setProperty('--habit-accent', accent);
 
             // Compact history retains the dates, schedule and completion data.
@@ -401,20 +384,17 @@
 
             card.innerHTML = `
                 <div class="ha-dashboard-habit-main">
-                    <a class="ha-dashboard-habit-link" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
-                        <div class="ha-dashboard-habit-icon" style="background-color: ${accent}1a; color: ${accent}">
-                            <span class="material-symbols-outlined ${style.iconFill ? 'fill' : ''}" aria-hidden="true">${safeIcon}</span>
-                        </div>
-                        <div class="ha-dashboard-habit-copy">
-                            <h3 class="text-on-surface">${safeName}</h3>
-                            <span class="ha-dashboard-habit-meta text-on-surface-variant">${safeCategory}${streak > 0 ? ' · ' + streak + ' day streak' : ''}</span>
-                        </div>
-                    </a>
                     <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle" data-id="${HabitArc.escapeHTML(habit.id)}">
                         <span class="material-symbols-outlined" aria-hidden="true">check</span>
                     </button>
+                    <a class="ha-dashboard-habit-link" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
+                        <div class="ha-dashboard-habit-copy">
+                            <h3 class="text-on-surface">${safeName}</h3>
+                            <span class="ha-dashboard-habit-meta text-on-surface-variant">${metaLine}</span>
+                        </div>
+                    </a>
                 </div>
-                <div class="ha-dashboard-history"><div class="ha-dashboard-week" role="group" aria-label="Last seven days for ${safeName}">${dotsHtml}</div><span class="ha-dashboard-history-caption">Last 7 days</span></div>
+                <div class="ha-dashboard-history sr-only"><div class="ha-dashboard-week" role="group" aria-label="Last seven days for ${safeName}">${dotsHtml}</div><span class="ha-dashboard-history-caption">Last 7 days</span></div>
             `;
 
             container.appendChild(card);

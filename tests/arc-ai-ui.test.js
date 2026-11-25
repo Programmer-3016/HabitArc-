@@ -177,7 +177,7 @@ test('Arc_AI keeps 4A Zen cards with 4D 28-day momentum check and locked 100dvh 
     assert.ok(html.includes('id="arc-scroll-area"'));
     assert.ok(!html.includes('ARC AI · ONLINE'));
     const mobileNav = html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)[0];
-    assert.deepEqual([...mobileNav.matchAll(/href="([^"]+)"/g)].map(m => m[1]), ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Arc_AI.html']);
+    assert.deepEqual([...mobileNav.matchAll(/href="([^"]+)"/g)].map(m => m[1]), ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html']);
     const mobileHeader = html.match(/<header class="[^"]*md:hidden[\s\S]*?<\/header>/)[0];
     assert.ok(mobileHeader.includes('href="Profile.html"'));
     assert.ok(!mobileHeader.includes('href="Settings.html"'));

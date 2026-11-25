@@ -93,21 +93,24 @@
 
 <main class="notes-shell notes-v1">
   <div class="notes-heading notes-v1-head">
-    <h1>Notes</h1>
+    <div>
+      <p class="notes-v1-kicker">SECOND BRAIN</p>
+      <h1>Notes</h1>
+    </div>
     <p class="sr-only"><span id="notes-count">0</span> saved · <span id="notes-storage-label">Private to this device</span></p>
     <button id="new-note" class="notes-primary notes-v1-new" type="button">+ New Note</button>
   </div>
-  <div class="notes-toolbar"><label class="notes-search"><input id="notes-search" type="search" placeholder="Search notes, tags, voice memos…" autocomplete="off" aria-label="Search notes"></label><div class="notes-filters" role="group" aria-label="Filter notes"><button type="button" data-filter="all" class="selected">All</button><button type="button" data-filter="text">Text</button><button type="button" data-filter="image">Images</button><button type="button" data-filter="audio">Audio</button></div></div>
+  <div class="notes-toolbar"><label class="notes-search"><input id="notes-search" type="search" placeholder="Search notes, voice memos, photos…" autocomplete="off" aria-label="Search notes"></label><div class="notes-filters" role="group" aria-label="Filter notes"><button type="button" data-filter="all" class="selected">All</button><button type="button" data-filter="text">Text</button><button type="button" data-filter="image">Images</button><button type="button" data-filter="audio">Audio</button></div></div>
   <section id="notes-grid" class="notes-grid" aria-live="polite"></section>
 <dialog id="note-dialog" class="notes-dialog"><form id="note-form" method="dialog"><div class="notes-dialog-head"><h2 id="dialog-title">Create a note</h2><button type="button" id="close-note" aria-label="Close"><span class="material-symbols-outlined">close</span></button></div><label class="notes-field">Title<input id="note-title" maxlength="100" placeholder="Give your note a title..." required></label><label class="notes-field">Note date<input id="note-date" type="date"></label><label class="notes-field">Your thoughts<textarea id="note-body" rows="6" maxlength="10000" placeholder="What's on your mind?"></textarea></label><label class="notes-pin-check"><input id="note-pinned" type="checkbox"> <span>📌 Pin note to top</span></label><div class="notes-attachments"><label class="notes-attach"><span class="material-symbols-outlined">add_photo_alternate</span> Add photo<input id="note-image" type="file" accept="image/*" hidden></label><button id="record-audio" class="notes-attach" type="button"><span class="material-symbols-outlined">mic</span><span id="record-label">Record voice</span></button></div><div id="attachment-status" role="status" aria-live="polite"></div><div class="notes-dialog-actions"><button type="button" id="delete-note" class="notes-danger" hidden>Delete</button><button type="submit" class="notes-primary">Save note</button></div></form></dialog>
 </main>
 <nav class="ha-bottom-nav md:hidden fixed" aria-label="Mobile navigation">
   <a class="ha-bottom-nav-link" href="Dashboard.html">
-    <span class="material-symbols-outlined" aria-hidden="true">home</span>
-    <span class="ha-bottom-nav-label">Dashboard</span>
+    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+    <span class="ha-bottom-nav-label">Today</span>
   </a>
   <a class="ha-bottom-nav-link" href="Habits.html">
-    <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+    <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
     <span class="ha-bottom-nav-label">Plan</span>
   </a>
   <a class="ha-bottom-nav-link" href="Notes.html" aria-current="page">
@@ -117,18 +120,6 @@
   <a class="ha-bottom-nav-link" href="Insights.html">
     <span class="material-symbols-outlined" aria-hidden="true">insights</span>
     <span class="ha-bottom-nav-label">Insights</span>
-  </a>
-  <a class="ha-bottom-nav-link" href="Arc_AI.html">
-    <svg class="ha-arc-nav-icon" width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-            <rect x="7" y="1" width="3" height="2" class="ha-arc-buddy-antenna"/>
-            <rect x="4" y="4" width="8" height="1" class="ha-arc-buddy-outline"/>
-            <rect x="3" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="12" y="5" width="1" height="8" class="ha-arc-buddy-outline"/>
-            <rect x="4" y="5" width="8" height="8" class="ha-arc-buddy-body"/>
-            <rect x="5" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-            <rect x="9" y="7" width="2" height="2" class="ha-arc-buddy-eyes"/>
-        </svg>
-    <span class="ha-bottom-nav-label">ARC AI</span>
   </a>
 </nav>
 

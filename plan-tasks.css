@@ -12,16 +12,25 @@
 }
 .ha-plan-v1-head {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 10px;
 }
+.ha-plan-v1-kicker {
+  margin: 0 0 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--ha-on-surface-variant, 99 104 101));
+}
 .ha-plan-v1-title {
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif !important;
-  font-size: 25px !important;
-  font-weight: 750 !important;
+  font-size: 26px !important;
+  font-weight: 800 !important;
   letter-spacing: -0.03em !important;
-  line-height: 1.14 !important;
+  line-height: 1.1 !important;
   margin: 0 !important;
   color: rgb(var(--ha-on-surface, 18 18 21));
 }
@@ -29,15 +38,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 13px;
+  padding: 7px 14px;
   border-radius: 999px;
   background: #121215;
   color: #ffffff;
-  border: 1.8px solid var(--rpg-shadow-ink, #121215);
-  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+  border: 1.5px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: none;
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -88,21 +97,21 @@
   grid-template-columns:repeat(3,minmax(0,1fr));
   padding:4px;
   gap:4px;
-  background:rgb(var(--ha-surface-container-lowest,255 255 255));
-  border:2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant,18 18 21)));
+  background:rgb(var(--ha-surface-container, 234 231 223));
+  border:1.5px solid rgb(var(--ha-outline-variant,18 18 21) / 0.1);
   border-radius:14px;
 }
 .ha-plan-modes button,
 .ha-task-view-switch button {
   min-width:0;
-  min-height:34px;
+  min-height:36px;
   display:flex;
   align-items:center;
   justify-content:center;
   gap:5px;
-  border:1.5px solid transparent;
+  border:1.6px solid transparent;
   border-radius:10px;
-  color:rgb(var(--ha-on-surface,18 18 21));
+  color:rgb(var(--ha-on-surface-variant,99 104 101));
   background:transparent;
   font-family:'Space Grotesk','Hanken Grotesk',sans-serif;
   font-size:12px;
@@ -112,7 +121,13 @@
 }
 .ha-plan-modes button .material-symbols-outlined,
 .ha-task-view-switch button .material-symbols-outlined { font-size:18px; width:1em; height:1em; overflow:hidden; flex-shrink:0; }
-.ha-plan-modes button[aria-selected="true"],
+.ha-plan-modes button[aria-selected="true"] {
+  background:rgb(var(--ha-surface-container-lowest, 255 255 255));
+  border-color:var(--rpg-shadow-ink, #121215);
+  color:rgb(var(--ha-on-surface, 18 18 21));
+  font-weight:800;
+  box-shadow:none;
+}
 .ha-task-view-switch button[aria-selected="true"] {
   background:#121215;
   border-color:#121215;
@@ -205,10 +220,10 @@
   grid-template-columns:36px minmax(0,1fr) 28px;
   align-items:center;
   gap:9px;
-  border:2px solid var(--rpg-shadow-ink, rgb(var(--ha-outline-variant,18 18 21)));
-  border-radius:22px;
+  border:1.6px solid rgb(var(--ha-outline-variant,18 18 21) / 0.16);
+  border-radius:18px;
   background:rgb(var(--ha-surface-container-lowest,255 255 255));
-  box-shadow:2.5px 2.5px 0 var(--rpg-shadow-ink,#121215);
+  box-shadow:none;
   padding:12px 15px;
   min-width:0;
 }

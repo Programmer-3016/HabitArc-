@@ -1,13 +1,14 @@
 /* Daily workspace — follows HabitArc's cream, lavender and ink treatment. */
 #ha-plan-day[hidden],
 .ha-day-focus-buttons button[hidden]{display:none!important}
-.ha-day-workspace{color:rgb(var(--ha-on-surface,18 18 21));max-width:100%}
+.ha-day-workspace{color:rgb(var(--ha-on-surface,18 18 21));max-width:100%;position:relative}
+.ha-day-workspace .sr-only{width:1px!important;max-width:1px!important;height:1px!important;left:0!important;padding:0!important;margin:0!important;border:0!important}
 .ha-day-v1-focus{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 15px;margin-bottom:12px;border-radius:20px;background:var(--ha-hero-bg,rgb(var(--ha-primary-container,197 182 255)));color:var(--ha-hero-fg,#121215);border:2px solid var(--ha-hero-border,var(--rpg-shadow-ink,#121215));box-shadow:4px 4px 0 var(--rpg-shadow-ink,#121215)}
 .ha-day-v1-focus-copy{min-width:0;display:grid;gap:2px}
 .ha-day-v1-focus-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--rpg-hero-eyebrow,#3d1d7a)}
 .ha-day-v1-focus-title{font-family:'Space Grotesk','Hanken Grotesk',sans-serif;font-size:15px;font-weight:750;line-height:1.22;color:var(--ha-hero-fg,#121215);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ha-day-v1-focus-btn{flex-shrink:0;padding:7px 13px;border-radius:11px;background:#121215;color:#ffffff;border:1.5px solid #121215;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
-.ha-day-v1-card{background:rgb(var(--ha-surface-container-lowest,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));border:2px solid var(--rpg-shadow-ink,rgb(var(--ha-outline-variant,18 18 21)));border-radius:20px;box-shadow:3.5px 3.5px 0 var(--rpg-shadow-ink,#121215);margin-bottom:4px;overflow:hidden}
+.ha-day-v1-card{background:rgb(var(--ha-surface-container-lowest,255 255 255));color:rgb(var(--ha-on-surface,18 18 21));border:1.6px solid rgb(var(--ha-outline-variant,18 18 21)/.16);border-radius:20px;box-shadow:none;margin-bottom:10px;overflow:hidden}
 .ha-day-v1-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:rgb(var(--ha-surface-container-low,250 248 243));border-bottom:1.5px solid rgb(var(--ha-outline-variant,18 18 21)/.1);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.04em;color:rgb(var(--ha-on-surface,18 18 21))}
 .ha-day-v1-rows{display:grid}
 .ha-day-v1-row{display:flex;align-items:center;gap:11px;padding:12px 14px;min-width:0}
@@ -27,8 +28,8 @@
 .ha-day-heading h2{font:800 clamp(30px,6vw,43px)/1.1 'Hanken Grotesk',sans-serif;letter-spacing:-.045em;margin:7px 0}
 .ha-day-heading h2 span{color:rgb(var(--ha-primary,124 58 237))}
 .ha-day-heading p:last-child{font-size:13px;color:rgb(var(--ha-on-surface-variant,82 82 91))}
-.ha-day-datebar{display:flex;align-items:center;gap:8px;margin-bottom:19px}
-.ha-day-datebar button,.ha-day-datebar input{height:40px;border:2px solid var(--rpg-shadow-ink,rgb(var(--ha-outline-variant,18 18 21)));background:rgb(var(--ha-surface-container-lowest,255 255 255));color:inherit;border-radius:999px;padding:7px 12px;font-weight:750;box-shadow:2px 2px 0 var(--rpg-shadow-ink,#121215)}
+.ha-day-datebar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.ha-day-datebar button,.ha-day-datebar input{height:40px;border:1.6px solid rgb(var(--ha-outline-variant,18 18 21)/.22);background:rgb(var(--ha-surface-container-lowest,255 255 255));color:inherit;border-radius:999px;padding:7px 12px;font-weight:750;box-shadow:none}
 .ha-day-datebar input:focus,.ha-day-datebar input:focus-visible,.ha-day-focus-options select:focus,.ha-day-focus-options select:focus-visible{outline:none !important;border-color:rgb(var(--ha-primary,124 58 237)) !important;box-shadow:0 0 0 3px rgb(var(--ha-primary,124 58 237) / .22) !important;--tw-ring-shadow:0 0 #0000 !important;--tw-ring-offset-shadow:0 0 #0000 !important;--tw-ring-color:transparent !important}
 .ha-day-datebar button{display:grid;place-items:center;cursor:pointer;flex-shrink:0}
 .ha-day-datebar input{min-width:0;max-width:235px;flex:1}
@@ -96,8 +97,10 @@
 @media(max-width:767px){
  .ha-day-heading{display:none}
  .ha-day-bottom{grid-template-columns:1fr}
- .ha-day-datebar{gap:5px;margin-bottom:10px}
- .ha-day-datebar button,.ha-day-datebar input{height:38px;padding:6px 8px}
+ .ha-day-datebar{display:grid;grid-template-columns:38px minmax(0,1fr) 38px auto;gap:6px;margin-bottom:10px;max-width:100%}
+ .ha-day-datebar button,.ha-day-datebar input{height:38px;padding:6px 8px;min-width:0}
+ .ha-day-datebar>button[data-day-action="prev"],.ha-day-datebar>button[data-day-action="next"]{width:38px;max-width:38px;padding:0;overflow:hidden}
+ .ha-day-datebar>input[type="date"]{width:100%;max-width:none;min-width:0}
  .ha-month-toggle{padding:8px 12px;margin:0 0 11px;font-size:13px}
  .ha-day-metrics{margin-bottom:14px;gap:8px}
  .ha-day-metrics>div{padding:10px}
@@ -171,11 +174,11 @@
 /* Collapsible Monthly Calendar, 7 flexible columns even at 320px. */
 .ha-month-toggle{display:flex;align-items:center;gap:8px;width:100%;margin:3px 0 13px;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:12px;background:rgb(var(--ha-surface-container-lowest,255 255 255));color:inherit;padding:10px 13px;font-weight:800;cursor:pointer}
 .ha-month-toggle .material-symbols-outlined:last-child{margin-left:auto}
-.ha-month-calendar{border:2px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:16px;padding:14px;margin-bottom:18px;background:rgb(var(--ha-surface-container-lowest,255 255 255));box-shadow:3px 3px 0 var(--rpg-shadow-ink,#121215)}
+.ha-month-calendar{border:1.6px solid rgb(var(--ha-outline-variant,18 18 21)/.16);border-radius:20px;padding:14px;margin-bottom:14px;background:rgb(var(--ha-surface-container-lowest,255 255 255));box-shadow:none}
 .ha-month-calendar[hidden]{display:none}
 .ha-month-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
 .ha-month-toolbar h3{font-size:17px;font-weight:800;letter-spacing:-.03em;margin:0;text-align:center}
-.ha-month-toolbar button{width:36px;height:36px;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:10px;background:rgb(var(--ha-primary-container,196 181 253)/.38);color:inherit;cursor:pointer}
+.ha-month-toolbar button{width:36px;max-width:36px;height:36px;padding:0;overflow:hidden;display:grid;place-items:center;border:1.5px solid rgb(var(--ha-outline-variant,18 18 21));border-radius:10px;background:rgb(var(--ha-primary-container,196 181 253)/.38);color:inherit;cursor:pointer}
 .ha-month-weekdays,.ha-month-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
 .ha-month-weekdays span{text-align:center;font-size:10px;font-weight:800;color:rgb(var(--ha-on-surface-variant,82 82 91));padding:4px 0}
 .ha-month-cell{min-width:0;min-height:50px;padding:2px;border:1px solid rgb(var(--ha-outline-variant,18 18 21)/.23);background:rgb(var(--ha-surface-container-low,248 247 245));color:inherit;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}

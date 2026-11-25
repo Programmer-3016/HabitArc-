@@ -43,32 +43,42 @@
 .notes-heading {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   text-align: left;
   gap: 10px;
   margin-bottom: 12px;
 }
 
+.notes-v1-kicker {
+  margin: 0 0 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .notes-heading h1 {
   font-family: var(--head);
-  font-size: 25px;
-  font-weight: 750;
+  font-size: 26px;
+  font-weight: 800;
   letter-spacing: -0.03em;
   margin: 0;
-  line-height: 1.14;
+  line-height: 1.1;
   color: var(--ink);
 }
 
 .notes-v1-new {
   border-radius: 999px !important;
-  padding: 6px 13px !important;
+  padding: 7px 14px !important;
   background: #121215 !important;
   color: #ffffff !important;
-  border: 1.8px solid var(--rpg-shadow-ink, var(--line)) !important;
-  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215) !important;
+  border: 1.5px solid var(--rpg-shadow-ink, var(--line)) !important;
+  box-shadow: none !important;
   font-size: 12px !important;
-  font-weight: 700 !important;
+  font-weight: 750 !important;
   flex-shrink: 0;
 }
 
@@ -205,13 +215,13 @@
   gap: 10px;
   background: var(--paper);
   color: var(--ink);
-  border: 2px solid var(--line);
+  border: 1.6px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.18);
   border-radius: 999px;
   padding: 0 15px;
   flex: 1 1 260px;
   min-width: 0;
   max-width: none;
-  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, var(--line));
+  box-shadow: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
@@ -322,17 +332,22 @@
   --note-kicker: var(--muted);
   background: var(--paper);
   color: var(--ink);
-  border: 2px solid var(--rpg-shadow-ink, var(--line));
+  border: 1.6px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.16);
   border-radius: 20px;
   padding: 16px;
   min-height: 168px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+  box-shadow: none;
   cursor: pointer;
   transition: transform 140ms ease;
   min-width: 0;
+}
+
+.note-card.is-pinned-card {
+  border: 2px solid var(--rpg-shadow-ink, var(--line));
+  box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
 }
 
 .note-card:hover {
@@ -661,12 +676,12 @@
   .notes-search {
     max-width: none;
     padding: 0 14px;
-    box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+    box-shadow: none;
   }
   .notes-search input,
   .notes-search input:focus,
   .notes-search input:focus-visible {
-    height: 39px;
+    height: 41px;
     font-size: 13px;
   }
   .notes-filters {
@@ -681,6 +696,9 @@
     min-height: 138px;
     border-radius: 20px;
     gap: 5px;
+    box-shadow: none;
+  }
+  .note-card.is-pinned-card {
     box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
   }
   .note-card h3 {

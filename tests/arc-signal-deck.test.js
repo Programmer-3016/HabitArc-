@@ -92,7 +92,7 @@ test('Single-chat UI, archived messages and raw-copy remain wired to existing AR
  assert.match(html,/navigator\.clipboard\.writeText\(cleanArcDisplayText\(latestAnswer\)\)/);
  assert.match(html,/renderSuggestedAction\(activeAction/);
  const mobileNav=html.match(/<nav class="ha-bottom-nav[\s\S]*?<\/nav>/)?.[0]||'';
- assert.equal((mobileNav.match(/class="ha-bottom-nav-link"/g)||[]).length,5);
+ assert.equal((mobileNav.match(/class="ha-bottom-nav-link"/g)||[]).length,4);
  const css=read('app-ui.css');
  assert.match(css,/\.ha-arc-chat-answer/);
  assert.match(css,/@media \(max-width: 359px\)/);

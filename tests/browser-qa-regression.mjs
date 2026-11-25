@@ -822,7 +822,9 @@ try {
       }
     });
     window.__haObs.observe(document.body, { childList: true, subtree: true, attributes: true });
-    document.querySelector('nav.ha-bottom-nav a[href="Arc_AI.html"]')?.click();
+    document.getElementById('ha-arc-fab')?.click();
+    window.__haSheetOpened = Boolean(document.getElementById('ha-arc-sheet')?.hasAttribute('open'));
+    document.getElementById('ha-arc-sheet-history-link')?.click();
   })()`);
   await sleep(350);
   const spaSwitch = await ev(`(() => {
@@ -838,6 +840,8 @@ try {
     return {
       path: location.pathname.split('/').pop(),
       sameDoc: window.__haSpaDocMarker === 'same-doc',
+      sheetOpened: Boolean(window.__haSheetOpened),
+      fabHiddenOnArc: Boolean(document.getElementById('ha-arc-fab')?.hidden),
       zenFlashSeen: Boolean(window.__haZenFlashSeen),
       dockStable: Boolean(window.__haDockBefore && dockAfter && Math.abs(window.__haDockBefore.top - dockAfter.top) <= 1.5 && Math.abs(window.__haDockBefore.height - dockAfter.height) <= 1.5),
       compClearOfDock: Boolean(compAfter && dockAfter && compAfter.bottom <= dockAfter.top - 2),
@@ -850,7 +854,9 @@ try {
       hubOpened
     };
   })()`);
-  assert.equal(spaSwitch.path, 'Arc_AI.html', 'SPA dock tap navigated to Arc_AI.html');
+  assert.equal(spaSwitch.sheetOpened, true, 'Floating Ask ARC pill opens contextual slide-up ARC sheet');
+  assert.equal(spaSwitch.path, 'Arc_AI.html', 'ARC sheet History link SPA-navigated to Arc_AI.html');
+  assert.equal(spaSwitch.fabHiddenOnArc, true, 'Floating Ask ARC pill hides automatically on full Arc_AI.html');
   assert.equal(spaSwitch.sameDoc, true, 'Dashboard -> ARC AI tab switch runs in-place without triggering a full-page fallback reload');
   assert.equal(spaSwitch.zenFlashSeen, false, 'Switching to ARC AI never flashes Zen Home before showing active thread');
   assert.equal(spaSwitch.dockStable, true, 'Mobile bottom dock keeps uniform size and position on Dashboard -> ARC AI switch');

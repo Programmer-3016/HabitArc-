@@ -250,3 +250,24 @@ test('Self-service Account Deletion API enforces auth + DELETE confirmation and 
   assert.match(privacy, /Self-Service Account &amp; Cloud Data Deletion/);
   assert.doesNotMatch(privacy, /not built yet|unfinished beta/i);
 });
+
+test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired and precached', async () => {
+  const sw = read('sw.js');
+  assert.match(sw, /'\/arc-sheet\.js'/);
+  assert.match(sw, /'\/arc-sheet\.css'/);
+
+  const appUi = read('app-ui.js');
+  assert.match(appUi, /arc-sheet\.css/);
+  assert.match(appUi, /import\('\.\/arc-sheet\.js'\)/);
+  assert.match(appUi, /HabitArcSheet\?\.sync/);
+
+  const sheetMod = await import('../arc-sheet.js');
+  assert.equal(typeof sheetMod.mountArcSheet, 'function');
+  assert.equal(typeof sheetMod.openArcSheet, 'function');
+  assert.equal(typeof sheetMod.syncArcFab, 'function');
+
+  const sheetJs = read('arc-sheet.js');
+  assert.match(sheetJs, /id = 'ha-arc-fab'/);
+  assert.match(sheetJs, /id = 'ha-arc-sheet'/);
+  assert.match(sheetJs, /id="ha-arc-sheet-history-link"/);
+});

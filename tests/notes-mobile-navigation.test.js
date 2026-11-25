@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const source = (file) => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
-const fiveTabs = ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Arc_AI.html'];
+const fourTabs = ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html'];
 
 test('Notes mobile and desktop headers match the unified HabitArc app shell', () => {
   const html = source('Notes.html');
@@ -19,7 +19,7 @@ test('Notes mobile and desktop headers match the unified HabitArc app shell', ()
   assert.doesNotMatch(css, /(?:^|\n)\s*body\s*\{/);
 });
 
-test('every app page has the same five tabs, no sixth Add action', () => {
+test('every app page has the same four tabs (Today, Plan, Notes, Insights), no raised Add action', () => {
   const pages = ['Dashboard.html', 'Habits.html', 'Notes.html', 'Insights.html', 'Arc_AI.html',
     'Leaderboard.html', 'Profile.html', 'Settings.html', 'Add_Habit.html', 'Habit_Detail.html'];
   for (const page of pages) {
@@ -27,16 +27,16 @@ test('every app page has the same five tabs, no sixth Add action', () => {
     const nav = html.match(/<nav class="ha-bottom-nav[^"]*"[^>]*>[\s\S]*?<\/nav>/)?.[0];
     assert.ok(nav, `Missing shared bottom nav in ${page}`);
     const hrefs = [...nav.matchAll(/<a [^>]*href="([^"]+)"/g)].map(match => match[1]);
-    assert.deepEqual(hrefs, fiveTabs, `Wrong tab order in ${page}`);
+    assert.deepEqual(hrefs, fourTabs, `Wrong tab order in ${page}`);
     assert.doesNotMatch(nav, /href="Add_Habit\.html"/);
   }
 });
 
-test('five-column mobile dock has no raised notch', () => {
+test('four-column mobile dock has no raised notch', () => {
   const css = source('app-ui.css');
   assert.doesNotMatch(css, /clip-path:\s*inset\(0 0 39px 0\)/);
   assert.doesNotMatch(css, /margin:\s*-22px auto 0/);
-  assert.match(css, /grid-template-columns:repeat\(5,minmax\(0,1fr\)\) !important/);
+  assert.match(css, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\) !important/);
   assert.match(css, /body > nav\.ha-bottom-nav > a\.ha-bottom-nav-link/);
 });
 
