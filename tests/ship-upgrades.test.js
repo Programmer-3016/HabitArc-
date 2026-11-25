@@ -274,6 +274,10 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   assert.match(sheetJs, /visualViewport/, 'Ask ARC sheet must sync height/top to visualViewport');
   assert.match(sheetJs, /--arc-vvh/, 'Ask ARC sheet must bind --arc-vvh to visible viewport height');
   assert.match(sheetJs, /hydrateSavedSheetSession/, 'Ask ARC sheet must restore active chat session on open');
+  assert.match(sheetJs, /id="ha-arc-constellation"/, 'Ask ARC empty home must mount live Constellation canvas');
+  assert.match(sheetJs, /ha-arc-beam-frame/, 'Ask ARC composer must mount rotating neon border-beam frame');
+  assert.match(sheetJs, /TRY ASKING/, 'Ask ARC empty home must render Design 7 TRY ASKING prompt rows');
+  assert.match(sheetJs, /id="ha-arc-continue-btn"/, 'Ask ARC empty home must offer 1-tap Continue pill for saved chats');
   assert.match(sheetJs, /id="ha-arc-sheet-retry"/, 'Ask ARC sheet must provide 1-tap Retry on errors');
   assert.doesNotMatch(sheetJs, /inputEl\?\.focus\(/, 'Ask ARC must never auto-focus text input or pop keyboard on open');
 

@@ -1,4 +1,4 @@
-// Bottom-Right [ Ask ARC ] Pill + Groww-Style Contextual Signal & Viewport-Safe Full-Screen Chat.
+// Bottom-Right [ Ask ARC ] Pill + Dark Constellation & Prompt-First Center Stage Studio (Design 7 + Live 5).
 import {
   buildHabitCoachContext,
   consumeArcCoachStream,
@@ -6,6 +6,7 @@ import {
 } from './habit-analytics.js';
 import {
   generateArcChatId,
+  getLiveArcChats,
   loadLocalArcChats,
   loadActiveArcChatId,
   upsertArcChat,
@@ -21,33 +22,43 @@ const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => (
 const HIDDEN_FAB_PAGES = new Set(['Arc_AI.html', 'Add_Habit.html', 'Onboarding.html', 'offline.html', 'privacy.html']);
 
 const BUDDY_FAB_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="1" fill="#ffffff"/><rect x="3" y="5" width="1" height="8" fill="#ffffff"/><rect x="12" y="5" width="1" height="8" fill="#ffffff"/><rect x="4" y="5" width="8" height="8" fill="#c5b6ff"/><rect x="5" y="7" width="2" height="2" fill="#121215"/><rect x="9" y="7" width="2" height="2" fill="#121215"/></svg>';
+const BUDDY_STAGE_SVG = '<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect class="ha-arc-buddy-antenna" x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="9" fill="#c5b6ff"/><rect x="3" y="5" width="10" height="7" fill="#c5b6ff"/><g class="ha-arc-buddy-eyes"><rect x="5" y="7" width="2" height="2" fill="#121215"/><rect x="9" y="7" width="2" height="2" fill="#121215"/></g></svg>';
 const SEND_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 const STOP_SVG = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/></svg>';
 const BACK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+const CHATS_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>';
 
 let fab = null;
 let dialog = null;
+let panelEl = null;
+let canvasEl = null;
+let emptyHeroEl = null;
+let headingEl = null;
 let bodyEl = null;
 let chipsEl = null;
 let statusEl = null;
 let inputEl = null;
 let sendBtn = null;
 let plusBtn = null;
+let toneChipEl = null;
 let newChatBtn = null;
+let histLinkEl = null;
+let lvlPillEl = null;
 let activeController = null;
 let includeTasksCtx = true;
 let sheetTurns = [];
 let sheetChatId = '';
-let hydratedUid = '';
 let lastFailedQuestion = '';
 let vvCleanup = null;
 let baselineMobileHeight = 0;
+let constellationRaf = 0;
+let constellationPts = [];
 
 function currentPage() {
   return (typeof location === 'object' ? location.pathname.split('/').pop() : '') || 'Dashboard.html';
 }
 
-function clipWords(text, max = 28) {
+function clipWords(text, max = 30) {
   const s = String(text || '').trim();
   if (s.length <= max) return s;
   const cut = s.slice(0, max - 1);
@@ -60,6 +71,14 @@ function getAiName() {
   return window.HabitArc?.normaliseAiName?.(raw) || (raw && String(raw).trim()) || 'ARC';
 }
 
+function getAiLevelMeta() {
+  const prog = window.HabitArc?.getAiProgression?.();
+  return {
+    level: prog?.level || 1,
+    tone: prog?.activeTone || 'Coach',
+  };
+}
+
 function getActiveUid() {
   try {
     return window.HabitArc?.getAuthUser?.()?.uid
@@ -70,33 +89,132 @@ function getActiveUid() {
   }
 }
 
-function hydrateSavedSheetSession() {
+// Finds the most recent saved conversation so Design 7 can offer 1-tap "Continue: <title>"
+// while keeping a fresh empty-chat opening experience clean.
+function hydrateSavedSheetSession(loadIntoThread = false) {
   const uid = getActiveUid();
-  if (hydratedUid === uid && sheetTurns.length > 0) return;
-  hydratedUid = uid;
   try {
-    const activeId = loadActiveArcChatId(uid);
-    if (!activeId) return;
     const { chats } = loadLocalArcChats(uid);
-    const match = chats.find((c) => c.id === activeId && !c.deleted && Array.isArray(c.turns) && c.turns.length > 0);
-    if (match) {
-      sheetChatId = match.id;
-      sheetTurns = match.turns.map((t, idx) => ({
+    const live = getLiveArcChats(chats).filter((c) => Array.isArray(c.turns) && c.turns.length > 0);
+    const activeId = loadActiveArcChatId(uid);
+    const preferred = (activeId && live.find((c) => c.id === activeId)) || live[0] || null;
+    if (loadIntoThread && preferred) {
+      sheetChatId = preferred.id;
+      sheetTurns = preferred.turns.map((t, idx) => ({
         question: t.question,
         answer: t.answer,
         timestamp: t.timestamp || Date.now(),
-        action: idx === match.turns.length - 1 ? (match.lastAction || null) : null,
-        actionApplied: Boolean(match.lastActionApplied),
+        action: idx === preferred.turns.length - 1 ? (preferred.lastAction || null) : null,
+        actionApplied: Boolean(preferred.lastActionApplied),
         actionDismissed: false,
       }));
     }
-  } catch { /* Safe fallback to fresh session */ }
+    return { recentChat: preferred, totalSaved: live.length };
+  } catch {
+    return { recentChat: null, totalSaved: 0 };
+  }
 }
 
+/* ─── 60fps Neural Constellation Background Canvas ────────────────────────── */
+function resizeConstellationCanvas() {
+  if (!canvasEl || !panelEl || typeof window === 'undefined') return;
+  const rect = panelEl.getBoundingClientRect();
+  const w = Math.max(200, Math.round(rect.width || window.innerWidth || 390));
+  const h = Math.max(200, Math.round(rect.height || window.innerHeight || 844));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (canvasEl.width !== Math.round(w * dpr) || canvasEl.height !== Math.round(h * dpr)) {
+    canvasEl.width = Math.round(w * dpr);
+    canvasEl.height = Math.round(h * dpr);
+  }
+  canvasEl._logicalW = w;
+  canvasEl._logicalH = h;
+  canvasEl._dpr = dpr;
+  if (!constellationPts.length) {
+    const fract = (n) => n - Math.floor(n);
+    constellationPts = Array.from({ length: 24 }, (_, idx) => {
+      const rx = fract(Math.sin((idx + 1) * 12.9898) * 43758.5453);
+      const ry = fract(Math.sin((idx + 1) * 78.233) * 24634.6345);
+      const ang = fract(Math.sin((idx + 1) * 39.346) * 19532.17) * Math.PI * 2;
+      const spd = 0.16 + (idx % 5) * 0.055;
+      return {
+        x: rx * w,
+        y: ry * h,
+        vx: Math.cos(ang) * spd,
+        vy: Math.sin(ang) * spd,
+        mint: idx % 3 === 0,
+      };
+    });
+  }
+}
+
+function stopConstellation() {
+  if (constellationRaf && typeof cancelAnimationFrame === 'function') {
+    cancelAnimationFrame(constellationRaf);
+  }
+  constellationRaf = 0;
+}
+
+function startConstellation() {
+  stopConstellation();
+  if (!canvasEl || typeof window === 'undefined' || typeof requestAnimationFrame !== 'function') return;
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
+  const ctx = canvasEl.getContext?.('2d');
+  if (!ctx) return;
+  resizeConstellationCanvas();
+
+  const step = () => {
+    if (!dialog?.open || !canvasEl?.isConnected) {
+      constellationRaf = 0;
+      return;
+    }
+    const w = canvasEl._logicalW || 390;
+    const h = canvasEl._logicalH || 844;
+    const dpr = canvasEl._dpr || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    for (let i = 0; i < constellationPts.length; i++) {
+      const p = constellationPts[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = w;
+      else if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h;
+      else if (p.y > h) p.y = 0;
+
+      for (let j = i + 1; j < constellationPts.length; j++) {
+        const q = constellationPts[j];
+        const dx = p.x - q.x;
+        const dy = p.y - q.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 84) {
+          ctx.strokeStyle = `rgba(197, 182, 255, ${((1 - dist / 84) * 0.19).toFixed(3)})`;
+          ctx.lineWidth = 0.85;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.stroke();
+        }
+      }
+
+      ctx.fillStyle = p.mint ? 'rgba(71, 227, 147, 0.68)' : 'rgba(197, 182, 255, 0.72)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 1.65, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    constellationRaf = requestAnimationFrame(step);
+  };
+  constellationRaf = requestAnimationFrame(step);
+}
+
+/* ─── Viewport & Composer Sizing ──────────────────────────────────────────── */
 function resizeComposerInput() {
   if (!inputEl) return;
+  const isEmptyMode = Boolean(panelEl?.classList?.contains('is-empty'));
+  const minH = isEmptyMode ? 68 : 36;
+  const maxH = isEmptyMode ? 140 : 108;
   inputEl.style.height = 'auto';
-  const next = Math.min(108, Math.max(36, inputEl.scrollHeight || 36));
+  const next = Math.min(maxH, Math.max(minH, inputEl.value ? (inputEl.scrollHeight || minH) : minH));
   inputEl.style.height = `${next}px`;
 }
 
@@ -107,6 +225,7 @@ function syncSheetViewport() {
     dialog.style.removeProperty('--arc-vvh');
     dialog.style.removeProperty('--arc-vvt');
     dialog.classList.remove('is-kb-open');
+    resizeConstellationCanvas();
     return;
   }
   const vv = window.visualViewport;
@@ -125,9 +244,10 @@ function syncSheetViewport() {
   const kbOpen = shrunkFromLayout || shrunkFromBaseline || (inputFocused && h < 560);
   const wasKbOpen = dialog.classList.contains('is-kb-open');
   dialog.classList.toggle('is-kb-open', kbOpen);
-  if (kbOpen && !wasKbOpen && bodyEl) {
+  if (kbOpen && !wasKbOpen && bodyEl && !bodyEl.hidden) {
     bodyEl.scrollTop = bodyEl.scrollHeight;
   }
+  resizeConstellationCanvas();
 }
 
 function attachViewportSync() {
@@ -161,6 +281,7 @@ function detachViewportSync() {
 
 function cleanupClosedState() {
   activeController?.abort();
+  stopConstellation();
   detachViewportSync();
   if (typeof document !== 'undefined') {
     document.documentElement?.classList?.remove('ha-arc-sheet-open');
@@ -175,18 +296,61 @@ function cleanupClosedState() {
   }
 }
 
+function syncComposerChrome(totalDone = 0, totalItems = 0) {
+  const isEmptyMode = sheetTurns.length === 0 && !activeController;
+  panelEl?.classList?.toggle('is-empty', isEmptyMode);
+  panelEl?.classList?.toggle('is-thread', !isEmptyMode);
+
+  if (plusBtn) {
+    plusBtn.setAttribute('aria-pressed', String(includeTasksCtx));
+    if (isEmptyMode) {
+      const counts = totalItems > 0 ? `${totalDone}/${totalItems}` : 'On';
+      plusBtn.textContent = includeTasksCtx ? `✓ Today ${counts}` : '+ Attach Today';
+    } else {
+      plusBtn.textContent = '+';
+    }
+  }
+
+  const { level } = getAiLevelMeta();
+  if (toneChipEl) {
+    toneChipEl.textContent = `Tone: Coach · L${level}`;
+  }
+  if (lvlPillEl) {
+    lvlPillEl.textContent = `LVL ${level}`;
+  }
+
+  if (inputEl) {
+    const aiName = getAiName();
+    inputEl.rows = isEmptyMode ? 2 : 1;
+    inputEl.placeholder = isEmptyMode
+      ? 'Ask for a 2-minute backup habit, split a tough task, or audit your 28-day consistency…'
+      : `Ask ${aiName} anything…`;
+  }
+
+  syncSendButtonState();
+  resizeComposerInput();
+}
+
 function syncSendButtonState() {
   if (!sendBtn) return;
   const streaming = Boolean(activeController);
+  const isEmptyMode = sheetTurns.length === 0 && !streaming;
   sendBtn.classList.toggle('is-streaming', streaming);
-  sendBtn.innerHTML = streaming ? STOP_SVG : SEND_SVG;
-  sendBtn.setAttribute('aria-label', streaming ? 'Stop generating' : 'Send message');
+  if (streaming) {
+    sendBtn.innerHTML = STOP_SVG;
+    sendBtn.setAttribute('aria-label', 'Stop generating');
+  } else if (isEmptyMode) {
+    sendBtn.innerHTML = '<span>Ask</span><span aria-hidden="true">→</span>';
+    sendBtn.setAttribute('aria-label', 'Ask ARC');
+  } else {
+    sendBtn.innerHTML = SEND_SVG;
+    sendBtn.setAttribute('aria-label', 'Send message');
+  }
 }
 
 function buildContextSummary() {
   const app = window.HabitArc;
   const page = currentPage();
-  const aiName = getAiName();
   const firstName = (app?.getAuthUser?.()?.displayName || app?.getSettings?.()?.userName || 'there').trim().split(/\s+/)[0] || 'there';
   const habits = app?.getTodayHabits?.() || app?.getHabits?.() || [];
   const allTasks = taskStore.getTasks?.() || [];
@@ -208,72 +372,48 @@ function buildContextSummary() {
   else if (nextTask) ctxParts.push(nextTask.title.slice(0, 24));
   const ctxPill = `CONTEXT · ${ctxParts.join(' · ')}`;
 
-  let greeting = `Hey <strong>${esc(firstName)}</strong>! `;
-  if (!totalItems) {
-    greeting += `I’m <strong>${esc(aiName)}</strong>. Tell me one goal and I’ll draft a simple daily routine you can review and save in 1 tap.`;
-  } else if (totalDone >= totalItems) {
-    greeting += `You’re <strong>${totalDone}/${totalItems} done</strong> today — clean sweep! Want a 7-day consistency breakdown or tomorrow’s game plan?`;
-  } else {
-    greeting += `You’re <strong>${totalDone}/${totalItems} done</strong> today.`;
-    if (nextHabit && nextTask) {
-      greeting += ` Want a quick 2-minute Plan-B for <strong>${esc(nextHabit.name)}</strong>, or help breaking down <strong>${esc(nextTask.title)}</strong>?`;
-    } else if (nextHabit) {
-      greeting += ` Want a quick 2-minute Plan-B for <strong>${esc(nextHabit.name)}</strong> so your streak stays safe?`;
-    } else if (nextTask) {
-      greeting += ` Want help breaking down <strong>${esc(nextTask.title)}</strong> into smaller steps?`;
-    }
-  }
-
   const chips = [];
-  if (page === 'Insights.html') {
+  if (nextHabit) {
     chips.push({
       primary: true,
-      label: '✦ Spot my biggest 28d drop-off ↗',
-      prompt: 'Audit my 28-day habit history, tell me which weekday or habit drops off most, and suggest one concrete fix.',
-    });
-    chips.push({
-      primary: false,
-      label: '7-day consistency recap ↗',
-      prompt: 'Give me a concise 7-day consistency recap with my strongest routine and one focus for next week.',
-    });
-  } else if (nextHabit) {
-    chips.push({
-      primary: true,
-      label: `✦ 2-min ${clipWords(nextHabit.name, 22)} backup ↗`,
+      label: `“Give me a 2-min ${clipWords(nextHabit.name, 24)} backup”`,
       prompt: `Low energy today — give me a 2-minute backup version of "${nextHabit.name}" so my streak stays safe.`,
     });
-    chips.push({
-      primary: false,
-      label: '7-day recap ↗',
-      prompt: 'Give me a concise 7-day consistency recap with my strongest habit and one focus for this week.',
-    });
   } else {
     chips.push({
       primary: true,
-      label: '✦ Audit my routine leaks ↗',
-      prompt: 'Audit my recent habit history and point out my biggest consistency drop-off with one small fix.',
-    });
-    chips.push({
-      primary: false,
-      label: 'Suggest 1 tiny habit ↗',
-      prompt: 'Suggest one tiny 2-minute habit that pairs well with my existing routine.',
+      label: '“Spot my biggest 28-day consistency leak”',
+      prompt: 'Audit my 28-day habit history, tell me which weekday or habit drops off most, and suggest one concrete fix.',
     });
   }
 
   if (nextTask) {
     chips.push({
       primary: false,
-      label: `Break down "${clipWords(nextTask.title, 26)}" ↗`,
+      label: `“Split ${clipWords(nextTask.title, 26)} into 3 steps”`,
       prompt: `Break my task "${nextTask.title}" into 3 quick actionable steps I can finish today.`,
     });
   } else if (overdueCount > 0) {
     chips.push({
       primary: false,
-      label: `Rescue ${overdueCount} overdue ↗`,
+      label: `“Open Daily Rescue Mode for ${overdueCount} overdue”`,
       href: 'Habits.html?section=tasks&rescue=1',
     });
+  } else {
+    chips.push({
+      primary: false,
+      label: '“Suggest one tiny 2-minute habit to stack”',
+      prompt: 'Suggest one tiny 2-minute habit that pairs well with my existing routine.',
+    });
   }
-  return { ctxPill, greeting, chips, nextHabit, nextTask, totalDone, totalItems };
+
+  chips.push({
+    primary: false,
+    label: '“Which weekday do I miss most in 28d?”',
+    prompt: 'Give me a concise 28-day weekday breakdown with my strongest day, weakest day, and one adjustment.',
+  });
+
+  return { firstName, ctxPill, chips, totalDone, totalItems };
 }
 
 function buildWorkspaceContextPayload() {
@@ -361,15 +501,43 @@ function showStatusMessage(messageHtml, retryQuestion = '') {
 
 function renderSheetHome() {
   if (!bodyEl || !chipsEl) return;
-  const { ctxPill, greeting, chips } = buildContextSummary();
+  const { firstName, ctxPill, chips, totalDone, totalItems } = buildContextSummary();
+  const { recentChat, totalSaved } = hydrateSavedSheetSession(false);
+
+  if (histLinkEl) {
+    histLinkEl.innerHTML = `${CHATS_SVG}<span>${totalSaved > 0 ? `Recent (${totalSaved})` : 'History'}</span>`;
+  }
   if (newChatBtn) newChatBtn.hidden = sheetTurns.length === 0;
+  if (headingEl) {
+    headingEl.textContent = firstName && firstName !== 'there'
+      ? `What’s on your mind, ${firstName}?`
+      : 'What’s on your mind today?';
+  }
+
+  syncComposerChrome(totalDone, totalItems);
 
   if (!sheetTurns.length) {
-    bodyEl.innerHTML = `<div class="ha-arc-ctx-pill">${esc(ctxPill)}</div><div class="ha-arc-sheet-greet">${greeting}</div>`;
+    if (emptyHeroEl) emptyHeroEl.hidden = false;
+    bodyEl.hidden = true;
+    bodyEl.innerHTML = '';
     chipsEl.hidden = false;
-    chipsEl.innerHTML = chips.map((c, idx) => (
-      `<button type="button" class="ha-arc-sheet-chip${c.primary ? ' is-primary' : ''}" data-chip-idx="${idx}">${esc(c.label)}</button>`
-    )).join('');
+
+    const continueMarkup = recentChat
+      ? `<button type="button" id="ha-arc-continue-btn" class="ha-arc-continue-btn">
+          <span class="ha-arc-continue-title">↺ Continue: “${esc(recentChat.title || recentChat.turns?.[0]?.question || 'Recent chat')}”</span>
+          <span aria-hidden="true">›</span>
+        </button>`
+      : '';
+
+    chipsEl.innerHTML =
+      `<div class="ha-arc-try-kicker">TRY ASKING</div>` +
+      chips.map((c, idx) => (
+        `<button type="button" class="ha-arc-sheet-chip${c.primary ? ' is-primary' : ''}" data-chip-idx="${idx}">` +
+          `<span>${esc(c.label)}</span><span class="ha-arc-chip-arrow" aria-hidden="true">↗</span>` +
+        `</button>`
+      )).join('') +
+      continueMarkup;
+
     chipsEl.querySelectorAll('[data-chip-idx]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const chosen = chips[Number(btn.dataset.chipIdx)];
@@ -382,8 +550,16 @@ function renderSheetHome() {
         void submitPrompt(chosen.prompt);
       });
     });
+
+    chipsEl.querySelector('#ha-arc-continue-btn')?.addEventListener('click', () => {
+      hydrateSavedSheetSession(true);
+      renderSheetHome();
+    });
   } else {
+    if (emptyHeroEl) emptyHeroEl.hidden = true;
     chipsEl.hidden = true;
+    bodyEl.hidden = false;
+
     const turnsMarkup = sheetTurns.map((t, idx) => {
       const meta = describeDraftAction(t.action);
       let draftCard = '';
@@ -450,18 +626,25 @@ async function submitPrompt(rawText) {
       inputEl.value = question;
       resizeComposerInput();
     }
-    showStatusMessage('Sign in from <a href="Profile.html" id="ha-arc-signin-link" style="text-decoration:underline;font-weight:700;">Profile</a> to send live AI prompts.');
+    showStatusMessage('Sign in from <a href="Profile.html" id="ha-arc-signin-link" style="text-decoration:underline;font-weight:700;color:#47e393;">Profile</a> to send live AI prompts.');
     statusEl?.querySelector('#ha-arc-signin-link')?.addEventListener('click', () => dialog?.close());
     return;
   }
 
+  const controller = new AbortController();
+  activeController = controller;
+
+  const { ctxPill, totalDone, totalItems } = buildContextSummary();
+  if (emptyHeroEl) emptyHeroEl.hidden = true;
+  chipsEl.hidden = true;
+  bodyEl.hidden = false;
+
   if (inputEl) {
     inputEl.value = '';
-    resizeComposerInput();
     inputEl.blur();
   }
   showStatusMessage('');
-  chipsEl.hidden = true;
+  syncComposerChrome(totalDone, totalItems);
 
   const userBubble = document.createElement('div');
   userBubble.className = 'ha-arc-sheet-user';
@@ -470,15 +653,10 @@ async function submitPrompt(rawText) {
   replyBubble.className = 'ha-arc-sheet-reply';
   replyBubble.innerHTML = '<span class="ha-arc-thinking"><span class="ha-arc-thinking-dot" aria-hidden="true"></span>Thinking…</span>';
   if (!sheetTurns.length) {
-    const { ctxPill } = buildContextSummary();
     bodyEl.innerHTML = `<div class="ha-arc-ctx-pill">${esc(ctxPill)}</div>`;
   }
   bodyEl.append(userBubble, replyBubble);
   bodyEl.scrollTop = bodyEl.scrollHeight;
-
-  const controller = new AbortController();
-  activeController = controller;
-  syncSendButtonState();
 
   let draft = '';
   try {
@@ -549,29 +727,32 @@ async function submitPrompt(rawText) {
       saveActiveArcChatId(uid, sheetChatId, undefined, nowMs);
     } catch { /* Non-blocking chat archive */ }
 
+    activeController = null;
     renderSheetHome();
   } catch (err) {
+    activeController = null;
     if (controller.signal.aborted) {
       if (!draft.trim()) {
         replyBubble.remove();
         userBubble.remove();
+        if (!sheetTurns.length) renderSheetHome();
         if (inputEl && !inputEl.value) {
           inputEl.value = question;
           resizeComposerInput();
         }
-        if (!sheetTurns.length) renderSheetHome();
       }
       showStatusMessage('Stopped response.');
     } else {
       replyBubble.remove();
       userBubble.remove();
+      if (!sheetTurns.length) renderSheetHome();
       if (inputEl && !inputEl.value) {
         inputEl.value = question;
         resizeComposerInput();
       }
       showStatusMessage(esc(err?.message || 'Could not reach ARC right now.'), question);
-      if (!sheetTurns.length) renderSheetHome();
     }
+    syncSendButtonState();
   } finally {
     if (activeController === controller) {
       activeController = null;
@@ -583,11 +764,11 @@ async function submitPrompt(rawText) {
 export function openArcSheet(prefill = '', { autoSubmit = false } = {}) {
   if (!dialog) mountArcSheet();
   if (!dialog) return;
-  hydrateSavedSheetSession();
   const aiName = getAiName();
   const titleNode = dialog.querySelector('#ha-arc-sheet-title');
   if (titleNode) titleNode.textContent = aiName;
-  if (inputEl) inputEl.placeholder = `Ask ${aiName} anything…`;
+  const kickerNode = dialog.querySelector('#ha-arc-empty-kicker');
+  if (kickerNode) kickerNode.textContent = `${aiName} STUDIO · LIVE SYNC`;
   showStatusMessage('');
   renderSheetHome();
 
@@ -598,6 +779,7 @@ export function openArcSheet(prefill = '', { autoSubmit = false } = {}) {
     dialog.showModal();
   }
   attachViewportSync();
+  startConstellation();
 
   // Never auto-focus the text input on open so Android never pops the keyboard uninvited.
   const backBtn = dialog.querySelector('#ha-arc-sheet-close');
@@ -624,10 +806,10 @@ function syncInlineContextualPrompts() {
   const aiName = getAiName();
   const page = currentPage();
 
-  // Remove any legacy Today nudge so bottom-right [ Ask ARC ] pill stays 100% unobstructed.
+  // Keep bottom-right [ Ask ARC ] pill unobstructed on Today.
   document.getElementById('ha-today-arc-nudge')?.remove();
 
-  // Insights (Insights.html) — Quiet Groww-style ✦ ARC INSIGHT card right below Monthly Activity Grid
+  // Insights (Insights.html) — Quiet ✦ ARC INSIGHT card below Monthly Activity Grid
   const grid28Card = document.getElementById('ha-insights-28d-card');
   let signalCard = document.getElementById('ha-insights-arc-signal');
   if (page === 'Insights.html' && grid28Card) {
@@ -734,41 +916,72 @@ export function mountArcSheet() {
     dialog.className = 'ha-arc-sheet-dialog';
     dialog.setAttribute('aria-labelledby', 'ha-arc-sheet-title');
     dialog.innerHTML = `
-      <div class="ha-arc-sheet-panel" tabindex="-1">
+      <div class="ha-arc-sheet-panel is-empty" tabindex="-1">
+        <canvas id="ha-arc-constellation" class="ha-arc-constellation" aria-hidden="true"></canvas>
         <header class="ha-arc-sheet-head">
           <div class="ha-arc-sheet-brand">
             <button type="button" id="ha-arc-sheet-close" class="ha-arc-sheet-back" autofocus aria-label="Back">${BACK_SVG}</button>
-            <span class="ha-arc-sheet-avatar" aria-hidden="true">✦</span>
-            <div class="min-w-0">
-              <h2 id="ha-arc-sheet-title" class="ha-arc-sheet-title">ARC</h2>
-              <p class="ha-arc-sheet-sub">● Synced with Today &amp; 28d logs</p>
+            <div class="ha-arc-head-thread-meta">
+              <div class="min-w-0">
+                <h2 id="ha-arc-sheet-title" class="ha-arc-sheet-title">ARC</h2>
+                <p class="ha-arc-sheet-sub">● LIVE SYNC</p>
+              </div>
             </div>
           </div>
           <div class="ha-arc-sheet-actions">
             <button type="button" id="ha-arc-sheet-new" class="ha-arc-sheet-new-btn" hidden>+ New</button>
-            <a href="Arc_AI.html" id="ha-arc-sheet-history-link" class="ha-arc-sheet-hist">History</a>
+            <a href="Arc_AI.html" id="ha-arc-sheet-history-link" class="ha-arc-sheet-hist">${CHATS_SVG}<span>History</span></a>
+            <a href="Arc_AI.html" id="ha-arc-sheet-lvl-pill" class="ha-arc-lvl-pill">LVL 1</a>
           </div>
         </header>
-        <div id="ha-arc-sheet-body" class="ha-arc-sheet-body" aria-live="polite"></div>
-        <div id="ha-arc-sheet-chips" class="ha-arc-sheet-chips"></div>
-        <p id="ha-arc-sheet-status" class="ha-arc-sheet-status" role="status" aria-live="polite"></p>
-        <div class="ha-arc-sheet-composer-wrap">
-          <form id="ha-arc-sheet-form" class="ha-arc-sheet-form">
-            <button type="button" id="ha-arc-sheet-plus" class="ha-arc-sheet-plus" aria-pressed="true" title="Include Today's tasks context" aria-label="Toggle tasks context">+</button>
-            <textarea id="ha-arc-sheet-input" class="ha-arc-sheet-input" rows="1" maxlength="1000" placeholder="Ask ARC anything…" autocomplete="off" aria-label="Ask ARC anything"></textarea>
-            <button id="ha-arc-sheet-send" class="ha-arc-sheet-send" type="submit" aria-label="Send message">${SEND_SVG}</button>
-          </form>
+
+        <div class="ha-arc-stage">
+          <div id="ha-arc-empty-hero" class="ha-arc-empty-hero">
+            <div class="ha-arc-buddy-box">${BUDDY_STAGE_SVG}</div>
+            <div class="min-w-0">
+              <div id="ha-arc-empty-kicker" class="ha-arc-empty-kicker">ARC STUDIO · LIVE SYNC</div>
+              <h1 id="ha-arc-empty-heading" class="ha-arc-empty-heading">What’s on your mind?</h1>
+            </div>
+          </div>
+
+          <div id="ha-arc-sheet-body" class="ha-arc-sheet-body" aria-live="polite" hidden></div>
+
+          <p id="ha-arc-sheet-status" class="ha-arc-sheet-status" role="status" aria-live="polite"></p>
+
+          <div class="ha-arc-sheet-composer-wrap">
+            <div class="ha-arc-beam-frame">
+              <form id="ha-arc-sheet-form" class="ha-arc-sheet-form">
+                <textarea id="ha-arc-sheet-input" class="ha-arc-sheet-input" rows="2" maxlength="1000" placeholder="Ask for a 2-minute backup habit, split a tough task, or audit your 28-day consistency…" autocomplete="off" aria-label="Ask ARC anything"></textarea>
+                <div class="ha-arc-composer-foot">
+                  <div class="ha-arc-composer-pills">
+                    <button type="button" id="ha-arc-sheet-plus" class="ha-arc-sheet-plus" aria-pressed="true" title="Toggle Today & Tasks context" aria-label="Toggle Today and Tasks context">✓ Today</button>
+                    <span id="ha-arc-tone-chip" class="ha-arc-tone-chip">Tone: Coach</span>
+                  </div>
+                  <button id="ha-arc-sheet-send" class="ha-arc-sheet-send" type="submit" aria-label="Ask ARC"><span>Ask</span><span aria-hidden="true">→</span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div id="ha-arc-sheet-chips" class="ha-arc-sheet-chips"></div>
         </div>
       </div>
     `;
     document.body.append(dialog);
+    panelEl = dialog.querySelector('.ha-arc-sheet-panel');
+    canvasEl = dialog.querySelector('#ha-arc-constellation');
+    emptyHeroEl = dialog.querySelector('#ha-arc-empty-hero');
+    headingEl = dialog.querySelector('#ha-arc-empty-heading');
     bodyEl = dialog.querySelector('#ha-arc-sheet-body');
     chipsEl = dialog.querySelector('#ha-arc-sheet-chips');
     statusEl = dialog.querySelector('#ha-arc-sheet-status');
     inputEl = dialog.querySelector('#ha-arc-sheet-input');
     sendBtn = dialog.querySelector('#ha-arc-sheet-send');
     plusBtn = dialog.querySelector('#ha-arc-sheet-plus');
+    toneChipEl = dialog.querySelector('#ha-arc-tone-chip');
     newChatBtn = dialog.querySelector('#ha-arc-sheet-new');
+    histLinkEl = dialog.querySelector('#ha-arc-sheet-history-link');
+    lvlPillEl = dialog.querySelector('#ha-arc-sheet-lvl-pill');
 
     inputEl?.addEventListener('input', resizeComposerInput);
     inputEl?.addEventListener('focus', () => {
@@ -791,25 +1004,28 @@ export function mountArcSheet() {
 
     plusBtn?.addEventListener('click', () => {
       includeTasksCtx = !includeTasksCtx;
-      plusBtn.setAttribute('aria-pressed', String(includeTasksCtx));
+      const { totalDone, totalItems } = buildContextSummary();
+      syncComposerChrome(totalDone, totalItems);
       showStatusMessage(includeTasksCtx
-        ? 'Tasks & Today context attached.'
-        : 'Tasks context detached for next message.');
+        ? 'Today & Tasks context attached.'
+        : 'Today & Tasks context detached for next message.');
     });
+
     newChatBtn?.addEventListener('click', () => {
       activeController?.abort();
       sheetTurns = [];
       sheetChatId = '';
-      try {
-        saveActiveArcChatId(getActiveUid(), '', undefined, Date.now());
-      } catch {}
       showStatusMessage('');
       renderSheetHome();
     });
+
     dialog.querySelector('#ha-arc-sheet-close')?.addEventListener('click', () => {
       dialog.close();
     });
     dialog.querySelector('#ha-arc-sheet-history-link')?.addEventListener('click', () => {
+      dialog.close();
+    });
+    dialog.querySelector('#ha-arc-sheet-lvl-pill')?.addEventListener('click', () => {
       dialog.close();
     });
     dialog.addEventListener('cancel', () => {
@@ -841,7 +1057,6 @@ export function mountArcSheet() {
 if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
   window.addEventListener('habitarc:data-changed', syncArcFab);
   window.addEventListener('habitarc-auth-state-changed', () => {
-    hydratedUid = '';
     sheetTurns = [];
     sheetChatId = '';
     syncArcFab();
