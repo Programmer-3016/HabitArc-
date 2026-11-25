@@ -1234,14 +1234,15 @@ function buildContextSummary() {
   const nextTask = tasks.find((t) => !t.completed);
   const overdueCount = allTasks.filter((t) => !t.completed && t.dueDate && t.dueDate < localDay()).length;
 
-  const ctxParts = [];
-  if (page === 'Insights.html') ctxParts.push('INSIGHTS · 28D LOGS');
-  else if (page === 'Notes.html') ctxParts.push('NOTES STUDIO');
-  else if (page === 'Habits.html') ctxParts.push('PLAN & SCHEDULE');
-  else ctxParts.push(`TODAY (${totalDone}/${totalItems} DONE)`);
-  if (nextHabit) ctxParts.push(nextHabit.name.slice(0, 24));
-  else if (nextTask) ctxParts.push(nextTask.title.slice(0, 24));
-  const ctxPill = `CONTEXT · ${ctxParts.join(' · ')}`;
+  let ctxLead = 'Today';
+  if (page === 'Insights.html') ctxLead = 'Insights · 28d';
+  else if (page === 'Notes.html') ctxLead = 'Notes Studio';
+  else if (page === 'Habits.html') ctxLead = 'Plan & Schedule';
+  else ctxLead = totalItems > 0 ? `Today · ${totalDone}/${totalItems}` : 'Today';
+
+  const ctxTail = nextHabit
+    ? clipWords(nextHabit.name, 26)
+    : (nextTask ? clipWords(nextTask.title, 26) : '');
 
   const chips = [];
   if (nextHabit) {
@@ -1284,7 +1285,19 @@ function buildContextSummary() {
     prompt: 'Give me a concise 28-day weekday breakdown with my strongest day, weakest day, and one adjustment.',
   });
 
-  return { firstName, ctxPill, chips, totalDone, totalItems };
+  return { firstName, ctxLead, ctxTail, chips, totalDone, totalItems };
+}
+
+function renderContextDividerHtml(ctxLead, ctxTail) {
+  return `<div class="ha-arc-ctx-pill" aria-label="Session context">`
+    + `<span class="ha-arc-ctx-line is-left" aria-hidden="true"></span>`
+    + `<span class="ha-arc-ctx-label">`
+      + `<span class="ha-arc-ctx-dot" aria-hidden="true"></span>`
+      + `<strong class="ha-arc-ctx-lead">${esc(ctxLead)}</strong>`
+      + (ctxTail ? `<span class="ha-arc-ctx-sep" aria-hidden="true">·</span><span class="ha-arc-ctx-tail">${esc(ctxTail)}</span>` : '')
+    + `</span>`
+    + `<span class="ha-arc-ctx-line is-right" aria-hidden="true"></span>`
+    + `</div>`;
 }
 
 function showStatusMessage(messageHtml, retryQuestion = '') {
@@ -1305,7 +1318,7 @@ function showStatusMessage(messageHtml, retryQuestion = '') {
 function renderSheetHome() {
   if (!bodyEl || !chipsEl) return;
   const meta = getAiMeta();
-  const { firstName, ctxPill, chips } = buildContextSummary();
+  const { firstName, ctxLead, ctxTail, chips } = buildContextSummary();
   const { recentChat, totalSaved } = hydrateSavedSheetSession(false);
 
   const titleNode = dialog?.querySelector('#ha-arc-sheet-title');
@@ -1413,7 +1426,7 @@ function renderSheetHome() {
       `;
     }).join('');
 
-    bodyEl.innerHTML = `<div class="ha-arc-ctx-pill">${esc(ctxPill)}</div>${turnsMarkup}`;
+    bodyEl.innerHTML = `${renderContextDividerHtml(ctxLead, ctxTail)}${turnsMarkup}`;
 
     bodyEl.querySelector('#ha-sheet-action-apply')?.addEventListener('click', () => {
       if (!activeAction) return;
@@ -1505,7 +1518,7 @@ async function submitPrompt(rawText) {
   const controller = new AbortController();
   activeController = controller;
 
-  const { ctxPill } = buildContextSummary();
+  const { ctxLead, ctxTail } = buildContextSummary();
   if (emptyHeroEl) emptyHeroEl.hidden = true;
   chipsEl.hidden = true;
   bodyEl.hidden = false;
@@ -1529,7 +1542,7 @@ async function submitPrompt(rawText) {
     </article>
   `).join('');
 
-  bodyEl.innerHTML = `<div class="ha-arc-ctx-pill">${esc(ctxPill)}</div>${priorMarkup}`;
+  bodyEl.innerHTML = `${renderContextDividerHtml(ctxLead, ctxTail)}${priorMarkup}`;
   const userBubble = document.createElement('div');
   userBubble.className = 'ha-arc-sheet-user';
   userBubble.textContent = question;

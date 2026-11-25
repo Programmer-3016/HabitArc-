@@ -531,26 +531,88 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-ctx-pill {
-  align-self: center;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 34%, rgb(var(--ha-surface-container-lowest, 255 255 255)));
-  border: 1px solid rgb(var(--ha-primary, 124 58 237) / 0.28);
-  color: rgb(var(--ha-primary, 124 58 237));
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-align: center;
-  max-width: 100%;
-  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 2px 0 4px;
 }
 
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-pill {
-  background: rgb(var(--ha-primary, 167 139 250) / 0.15);
-  border-color: rgb(var(--ha-primary, 167 139 250) / 0.32);
-  color: rgb(var(--ha-primary-container, 196 181 253));
+.ha-arc-ctx-line {
+  flex: 1 1 18px;
+  height: 1px;
+}
+
+.ha-arc-ctx-line.is-left {
+  background: linear-gradient(to right, transparent, rgb(var(--ha-outline-variant, 18 18 21) / 0.16));
+}
+
+.ha-arc-ctx-line.is-right {
+  background: linear-gradient(to left, transparent, rgb(var(--ha-outline-variant, 18 18 21) / 0.16));
+}
+
+.ha-arc-ctx-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: calc(100% - 44px);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+.ha-arc-ctx-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: #16a34a;
+}
+
+.ha-arc-ctx-lead {
+  font-weight: 700;
+  color: rgb(var(--ha-on-surface, 18 18 21) / 0.86);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.ha-arc-ctx-sep {
+  color: rgb(var(--ha-on-surface, 18 18 21) / 0.36);
+  flex: 0 0 auto;
+}
+
+.ha-arc-ctx-tail {
+  font-weight: 500;
+  color: rgb(var(--ha-on-surface, 18 18 21) / 0.60);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-line.is-left {
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.14));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-line.is-right {
+  background: linear-gradient(to left, transparent, rgba(255, 255, 255, 0.14));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-dot {
+  background: #4ade80;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-lead {
+  color: rgb(var(--ha-on-surface, 250 250 252) / 0.88);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-sep {
+  color: rgb(var(--ha-on-surface, 250 250 252) / 0.34);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-ctx-tail {
+  color: rgb(var(--ha-on-surface, 250 250 252) / 0.60);
 }
 
 .ha-arc-sheet-user {
