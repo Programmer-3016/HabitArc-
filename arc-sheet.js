@@ -49,7 +49,13 @@ const STOP_SVG = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentC
 const BACK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
 const CHATS_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path d="M13 9h5M13 13h4"/></svg>';
 const NEW_CHAT_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-const CLOSE_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+const CLOSE_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+const SEARCH_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>';
+const PLUS_SM_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const MORE_DOTS_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>';
+const PIN_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
+const PEN_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const TRASH_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>';
 
 let fab = null;
 let dialog = null;
@@ -94,6 +100,7 @@ let cloudSaveQueued = false;
 let cloudChatUnsubscribe = null;
 let subscribedCloudUid = '';
 let renamingChatId = '';
+let openHistMenuChatId = '';
 
 // Active conversation state (100% compatible with Arc_AI / arc-chat-store)
 let sheetTurns = [];
@@ -573,6 +580,7 @@ function detachViewportSync() {
 
 function closeSheetSubDrawers() {
   renamingChatId = '';
+  openHistMenuChatId = '';
   if (histDrawerEl) histDrawerEl.hidden = true;
   if (hubDrawerEl) hubDrawerEl.hidden = true;
   if (subBackdropEl) subBackdropEl.hidden = true;
@@ -673,6 +681,10 @@ function formatChatDateShort(ts) {
 
 function renderSheetHistoryDrawer() {
   ensureSheetChatsLoaded(getActiveUid());
+  const meta = getAiMeta();
+  const histKickerEl = dialog?.querySelector('#ha-sheet-hist-kicker');
+  if (histKickerEl) histKickerEl.textContent = `${meta.aiName} STUDIO`;
+
   const live = getLiveArcChats(chatThreads).filter((c) => Array.isArray(c.turns) && c.turns.length > 0);
   if (histCountBadgeEl) {
     histCountBadgeEl.textContent = String(live.length);
@@ -694,19 +706,34 @@ function renderSheetHistoryDrawer() {
 
   if (histEmptyEl) histEmptyEl.hidden = filtered.length > 0;
   if (!filtered.length) {
+    openHistMenuChatId = '';
     histListEl.innerHTML = '';
     return;
   }
 
   const groups = groupArcChatsByRecency(filtered);
+  const flatItems = groups.flatMap((g) => g.items);
+  const lastFlatId = flatItems.length >= 4 ? flatItems[flatItems.length - 1]?.id : '';
+
   histListEl.innerHTML = groups.map((group) => `
     <section class="ha-sheet-hist-group" aria-label="${esc(group.label)}">
-      <div class="ha-sheet-hist-group-lbl">${esc(group.label)}</div>
+      <div class="ha-sheet-hist-group-lbl">
+        <span class="ha-sheet-hist-gline is-left" aria-hidden="true"></span>
+        <span class="ha-sheet-hist-gtxt">${esc(group.label)}</span>
+        <span class="ha-sheet-hist-gline is-right" aria-hidden="true"></span>
+      </div>
       ${group.items.map((chat) => {
         const isActive = chat.id === sheetChatId && sheetTurns.length > 0;
-        const metaTxt = `${chat.turns.length} turn${chat.turns.length === 1 ? '' : 's'}${chat.updatedAt ? ` · ${formatChatDateShort(chat.updatedAt)}` : ''}`;
+        const turnsTxt = `${chat.turns.length} turn${chat.turns.length === 1 ? '' : 's'}`;
+        const dateTxt = chat.updatedAt ? formatChatDateShort(chat.updatedAt) : '';
+        const lastTurn = chat.turns[chat.turns.length - 1];
+        const rawPreview = cleanArcDisplayText(lastTurn?.answer || lastTurn?.question || '').replace(/\s+/g, ' ').trim();
+        const previewTxt = rawPreview ? clipWords(rawPreview, 130) : '';
         const safeId = esc(chat.id);
         const safeTitle = esc(chat.title || 'Conversation');
+        const menuOpen = openHistMenuChatId === chat.id;
+        const flipUp = menuOpen && chat.id === lastFlatId;
+
         if (renamingChatId === chat.id) {
           return `
             <div class="ha-sheet-hist-item is-renaming" role="listitem">
@@ -719,16 +746,26 @@ function renderSheetHistoryDrawer() {
           `;
         }
         return `
-          <div class="ha-sheet-hist-item${isActive ? ' is-active' : ''}" role="listitem">
+          <div class="ha-sheet-hist-item${isActive ? ' is-active' : ''}${menuOpen ? ' has-pop' : ''}" role="listitem">
             <button type="button" class="ha-sheet-hist-open" data-sheet-chat-open="${safeId}">
-              <span class="ha-sheet-hist-title">${chat.pinned ? '📌 ' : ''}${safeTitle}</span>
-              <span class="ha-sheet-hist-meta">${esc(metaTxt)}</span>
+              <span class="ha-sheet-hist-rtop">
+                <span class="ha-sheet-hist-title">${chat.pinned ? `<span class="ha-sheet-hist-pinico" aria-hidden="true">${PIN_SVG}</span>` : ''}<span class="ha-sheet-hist-ttext">${safeTitle}</span></span>
+                ${dateTxt ? `<span class="ha-sheet-hist-date">${esc(dateTxt)}</span>` : ''}
+              </span>
+              ${previewTxt ? `<span class="ha-sheet-hist-preview">${esc(previewTxt)}</span>` : ''}
             </button>
-            <div class="ha-sheet-hist-tools">
-              <button type="button" class="ha-sheet-hist-tool${chat.pinned ? ' is-pinned' : ''}" data-sheet-chat-pin="${safeId}" title="${chat.pinned ? 'Unpin' : 'Pin'}" aria-label="${chat.pinned ? 'Unpin' : 'Pin'} ${safeTitle}">📌</button>
-              <button type="button" class="ha-sheet-hist-tool" data-sheet-chat-rename="${safeId}" title="Rename" aria-label="Rename ${safeTitle}">✎</button>
-              <button type="button" class="ha-sheet-hist-tool is-del" data-sheet-chat-del="${safeId}" title="Delete" aria-label="Delete ${safeTitle}">✕</button>
+            <div class="ha-sheet-hist-footrow">
+              <span class="ha-sheet-hist-turnpill">${esc(turnsTxt)}</span>
+              ${isActive ? '<span class="ha-sheet-hist-turnpill is-live">● Active now</span>' : ''}
+              <button type="button" class="ha-sheet-hist-more${menuOpen ? ' is-open' : ''}" data-sheet-chat-menu="${safeId}" aria-haspopup="menu" aria-expanded="${menuOpen ? 'true' : 'false'}" title="Chat options" aria-label="Options for ${safeTitle}">${MORE_DOTS_SVG}</button>
             </div>
+            ${menuOpen ? `
+              <div class="ha-sheet-hist-pop${flipUp ? ' is-flip-up' : ''}" role="menu">
+                <button type="button" role="menuitem" class="ha-sheet-pop-item${chat.pinned ? ' is-pinned' : ''}" data-sheet-chat-pin="${safeId}">${PIN_SVG}<span>${chat.pinned ? 'Unpin chat' : 'Pin to top'}</span></button>
+                <button type="button" role="menuitem" class="ha-sheet-pop-item" data-sheet-chat-rename="${safeId}">${PEN_SVG}<span>Rename chat</span></button>
+                <div class="ha-sheet-pop-sep" role="separator"></div>
+                <button type="button" role="menuitem" class="ha-sheet-pop-item is-del" data-sheet-chat-del="${safeId}">${TRASH_SVG}<span>Delete chat</span></button>
+              </div>` : ''}
           </div>
         `;
       }).join('')}
@@ -1945,20 +1982,25 @@ export function mountArcSheet() {
 
         <aside id="ha-arc-sheet-hist-drawer" class="ha-sheet-subdrawer is-hist" aria-label="Saved conversations" hidden>
           <div class="ha-sheet-drawer-hdr">
-            <strong>Saved Chats</strong>
-            <div class="ha-sheet-drawer-hdr-actions">
-              <button type="button" id="ha-sheet-hist-new" class="ha-sheet-new-pill">+ New</button>
-              <button type="button" id="ha-sheet-hist-close" class="ha-sheet-drawer-close" aria-label="Close saved chats">${CLOSE_SVG}</button>
+            <div class="min-w-0">
+              <div id="ha-sheet-hist-kicker" class="ha-sheet-hist-kicker">ARC STUDIO</div>
+              <strong>Saved Chats</strong>
             </div>
+            <button type="button" id="ha-sheet-hist-close" class="ha-sheet-drawer-close" aria-label="Close saved chats">${CLOSE_SVG}</button>
           </div>
           <div class="ha-sheet-search-wrap">
-            <input type="search" id="ha-sheet-hist-search" class="ha-sheet-search-input" placeholder="Search saved chats…" autocomplete="off" aria-label="Search saved chats" />
+            <label class="ha-sheet-search-field" for="ha-sheet-hist-search">
+              <span class="ha-sheet-search-ico" aria-hidden="true">${SEARCH_SVG}</span>
+              <input type="search" id="ha-sheet-hist-search" class="ha-sheet-search-input" placeholder="Search threads…" autocomplete="off" aria-label="Search saved chats" />
+            </label>
+            <button type="button" id="ha-sheet-hist-new" class="ha-sheet-new-pill">${PLUS_SM_SVG}<span>New</span></button>
           </div>
           <div id="ha-sheet-hist-list" class="ha-sheet-hist-list" role="list"></div>
           <div id="ha-sheet-hist-empty" class="ha-sheet-hist-empty" hidden>
             <p>Your conversations save here automatically across sessions.</p>
           </div>
           <div class="ha-sheet-hist-foot">
+            <span class="ha-sheet-sync-dot" aria-hidden="true"></span>
             <span id="ha-sheet-hist-sync">Saved on this device</span>
           </div>
         </aside>
@@ -2049,12 +2091,28 @@ export function mountArcSheet() {
     });
     histSearchEl?.addEventListener('input', renderSheetHistoryDrawer);
 
+    histDrawerEl?.addEventListener('click', (event) => {
+      if (!openHistMenuChatId) return;
+      const t = event.target;
+      if (t?.closest?.('.ha-sheet-hist-pop') || t?.closest?.('[data-sheet-chat-menu]')) return;
+      openHistMenuChatId = '';
+      renderSheetHistoryDrawer();
+    });
+
     histListEl?.addEventListener('click', (event) => {
       const target = event.target;
+      const menuBtn = target?.closest?.('[data-sheet-chat-menu]');
+      if (menuBtn) {
+        const id = menuBtn.getAttribute('data-sheet-chat-menu') || '';
+        openHistMenuChatId = openHistMenuChatId === id ? '' : id;
+        renderSheetHistoryDrawer();
+        return;
+      }
       const pinBtn = target?.closest?.('[data-sheet-chat-pin]');
       if (pinBtn) {
         const id = pinBtn.getAttribute('data-sheet-chat-pin');
         const uid = getActiveUid();
+        openHistMenuChatId = '';
         if (id && uid) {
           chatThreads = togglePinArcChat(chatThreads, id, Date.now());
           chatThreads = saveLocalArcChats(uid, chatThreads, getChatStorage());
@@ -2066,6 +2124,7 @@ export function mountArcSheet() {
       const renBtn = target?.closest?.('[data-sheet-chat-rename]');
       if (renBtn) {
         const id = renBtn.getAttribute('data-sheet-chat-rename');
+        openHistMenuChatId = '';
         if (id) {
           renamingChatId = id;
           renderSheetHistoryDrawer();
@@ -2101,6 +2160,7 @@ export function mountArcSheet() {
       if (delBtn) {
         const id = delBtn.getAttribute('data-sheet-chat-del');
         const uid = getActiveUid();
+        openHistMenuChatId = '';
         if (id && uid) {
           const nowMs = Date.now();
           chatThreads = deleteArcChat(chatThreads, id, nowMs);
@@ -2118,6 +2178,7 @@ export function mountArcSheet() {
       }
       const openBtn = target?.closest?.('[data-sheet-chat-open]');
       if (openBtn) {
+        openHistMenuChatId = '';
         const id = openBtn.getAttribute('data-sheet-chat-open');
         const thread = getLiveArcChats(chatThreads).find((c) => c.id === id);
         if (thread) {
@@ -2161,6 +2222,12 @@ export function mountArcSheet() {
       dialog.close();
     });
     dialog.addEventListener('cancel', (e) => {
+      if (openHistMenuChatId) {
+        e.preventDefault();
+        openHistMenuChatId = '';
+        renderSheetHistoryDrawer();
+        return;
+      }
       if ((histDrawerEl && !histDrawerEl.hidden) || (hubDrawerEl && !hubDrawerEl.hidden)) {
         e.preventDefault();
         closeSheetSubDrawers();

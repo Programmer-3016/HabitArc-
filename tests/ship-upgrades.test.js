@@ -287,6 +287,8 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   assert.match(sheetJs, /id="ha-arc-sheet-retry"/, 'Ask ARC sheet must provide 1-tap Retry on errors');
   assert.doesNotMatch(sheetJs, /inputEl\?\.focus\(/, 'Ask ARC must never auto-focus text input or pop keyboard on open');
   assert.match(sheetJs, /renderContextDividerHtml/, 'Ask ARC thread must render editorial hairline context divider');
+  assert.match(sheetJs, /data-sheet-chat-menu/, 'Saved Chats drawer must render floating context menu trigger instead of 3 loose row icons');
+  assert.match(sheetJs, /ha-sheet-hist-pop/, 'Saved Chats drawer must render Claude/Linear-style floating context popover menu');
   assert.doesNotMatch(sheetJs, /LIVE SYNC/, 'Ask ARC header/kicker must not render noisy LIVE SYNC dot/label');
 
   const sheetCss = read('arc-sheet.css');
@@ -294,6 +296,8 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   assert.match(sheetCss, /var\(--arc-vvh,\s*100svh\)/, 'Sheet dialog must use --arc-vvh with 100svh fallback instead of 100dvh');
   assert.match(sheetCss, /\.ha-arc-sheet-panel\.is-thread \.ha-arc-constellation\s*\{\s*display:\s*none/i, 'Active conversation must hide background constellation animation to preserve reading focus');
   assert.match(sheetCss, /\.ha-arc-ctx-line\.is-left\b/, 'Ask ARC thread context divider must style hairline fade lines');
+  assert.match(sheetCss, /\.ha-sheet-hist-pop\b/, 'Saved Chats drawer must style floating context popover menu');
+  assert.match(sheetCss, /\.ha-sheet-search-field\b/, 'Saved Chats drawer search bar must use HabitArc native bordered field');
 
   const shellPages = [
     'Dashboard.html',
