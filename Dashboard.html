@@ -137,10 +137,9 @@
     <section class="ha-progress-card ha-dashboard-hero fade-up" aria-labelledby="progress-title">
         <div class="ha-rpg-hero-toprow">
             <h2 id="progress-title" class="ha-dashboard-eyebrow">DAILY PROGRESS</h2>
-            <a id="dash-ai-pill" href="Arc_AI.html?hub=1" class="ha-ai-dash-pill" aria-label="Open HabitArc AI">
-                <span id="dash-ai-pill-buddy" class="ha-ai-dash-pill-buddy" aria-hidden="true"></span>
+            <span id="dash-ai-pill" class="ha-ai-dash-pill sr-only" aria-label="Open HabitArc AI">
                 <span id="dash-ai-pill-label">ARC · LVL 1</span>
-            </a>
+            </span>
         </div>
         <div class="ha-dashboard-progress">
             <div class="ha-dashboard-progress-copy">
@@ -323,8 +322,6 @@
         };
         const pillLabel = document.getElementById('dash-ai-pill-label');
         if (pillLabel) pillLabel.textContent = `${prog.aiName} · LVL ${prog.level}`;
-        const pillBuddy = document.getElementById('dash-ai-pill-buddy');
-        if (pillBuddy) HabitArc.mountLiveBuddy?.(pillBuddy, prog.aiAvatar, 22);
         const pillEl = document.getElementById('dash-ai-pill');
         if (pillEl) pillEl.setAttribute('aria-label', `${prog.aiName} Level ${prog.level} · Open AI`);
         const dashAiName = document.getElementById('dash-ai-name');

@@ -71,62 +71,81 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 @media (hover: hover) {
   .lb-chest:hover { transform: translate(-1px, -2px); box-shadow: 5px 5px 0 var(--rpg-shadow-ink, #121215); }
 }
-.lb-chest-media { position: relative; background: #130f22; }
+.lb-chest-media { position: relative; background: transparent; }
 .lb-chest-stamp {
-    position: absolute; top: 8px; left: 8px; z-index: 2; pointer-events: none;
-    border: 1.5px solid rgba(255,255,255,.22); border-radius: 9999px;
-    padding: 3px 8px; color: #f8fafc; background: rgba(19, 15, 34, .76);
-    backdrop-filter: blur(4px);
-    font: 700 .6rem/1 var(--mono); text-transform: uppercase; letter-spacing: .04em;
+    position: absolute; top: 8px; left: 8px; z-index: 3; pointer-events: none;
+    border: 1.5px solid #031e13; border-radius: 9999px;
+    padding: 3px 8.5px; color: #031e13; background: #ffffff;
+    box-shadow: 0 2px 0 #031e13;
+    font: 800 .58rem/1.1 var(--mono); text-transform: uppercase; letter-spacing: .04em;
     white-space: nowrap;
 }
-.lb-chest[data-state="ready"] .lb-chest-stamp { background: var(--rpg-gold, #facc15); color: #121215; border-color: #121215; }
-.lb-chest[data-state="collected"] .lb-chest-stamp { background: rgba(19, 15, 34, .82); color: #e2e8f0; border-color: rgba(255,255,255,.24); }
+.lb-chest[data-state="ready"] .lb-chest-stamp { background: var(--rpg-gold, #facc15); color: #031e13; border-color: #031e13; }
+.lb-chest[data-state="collected"] .lb-chest-stamp,
+.lb-chest[data-state="equipped"] .lb-chest-stamp { background: var(--rpg-mint, #47e393); color: #031e13; border-color: #031e13; }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest[data-state="locked"] .lb-chest-stamp {
+    background: rgba(18, 18, 24, .88); color: #f8fafc; border-color: rgba(255,255,255,.26); box-shadow: none;
+}
 .lb-chest[data-state="collected"] .lb-chest-action:disabled {
     background: var(--rpg-mint, #47e393); color: #121215;
     border: 2px solid #121215; box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
     opacity: 1; cursor: default;
 }
 .lb-chest-preview {
-    position: absolute; top: 8px; right: 8px; z-index: 2;
+    position: absolute; top: 8px; right: 8px; z-index: 3;
     width: 28px; height: 28px; padding: 0;
     display: grid; place-items: center;
-    background: rgba(19, 15, 34, .76); color: #f8fafc;
-    border: 1.5px solid rgba(255,255,255,.24); border-radius: 8px;
-    backdrop-filter: blur(4px); cursor: pointer;
-    transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+    background: #ffffff; color: #031e13;
+    border: 1.5px solid #031e13; border-radius: 9px;
+    box-shadow: 0 2px 0 #031e13;
+    cursor: pointer;
+    transition: background-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
 }
-.lb-chest-preview svg { width: 14px; height: 14px; display: block; }
-.lb-chest-preview:hover { background: rgba(19, 15, 34, .95); border-color: #ffffff; transform: translateY(-1px); }
-.lb-chest-preview:active { transform: translateY(1px); }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-preview {
+    background: rgba(18, 18, 24, .86); color: #f8fafc;
+    border-color: rgba(255,255,255,.26); box-shadow: none;
+}
+.lb-chest-preview svg { width: 13px; height: 13px; display: block; }
+.lb-chest-preview:hover { transform: translateY(-1px); }
+.lb-chest-preview:active { transform: translateY(1px); box-shadow: none; }
 .lb-chest-preview:focus-visible { outline: 2.5px solid #facc15; outline-offset: 2px; }
 .lb-chest-stage-btn {
     position: relative;
     display: block; width: 100%; padding: 0; border: 0; background: transparent;
     cursor: pointer; border-radius: 0; text-align: center;
 }
-.lb-chest-stage-btn:hover .lb-chest-canvas { transform: translateY(-4px) scale(1.04); }
-.lb-chest-stage-btn:active .lb-chest-canvas { transform: translateY(-1px) scale(0.98); }
+.lb-chest-stage-btn:hover .ha-live-chest { transform: translate3d(0, -3px, 0) scale(1.04); }
+.lb-chest-stage-btn:active .ha-live-chest { transform: translate3d(0, 0, 0) scale(0.97); }
 .lb-chest-stage-btn:focus-visible { outline: 3px solid rgb(var(--ha-primary)); outline-offset: -3px; }
-/* Edge-to-edge crisp pixel stage grounded on a twilight stone dais. */
+/* Clean HabitArc Neo-Brutalist Tactile Studio Stage + 60fps Articulated 256x256 Live Chest Engine */
 .lb-chest-art {
-    position:relative; isolation:isolate; overflow:hidden; display:grid; place-items:end center;
-    height:clamp(96px, 15vw, 134px); padding-bottom:0; border-radius:0;
+    --chest-stage-bg: #fef6e2;
+    --chest-aura-rgb: 71 227 147;
+    position: relative; isolation: isolate; overflow: hidden;
+    display: grid; place-items: center;
+    height: clamp(96px, 15vw, 134px); padding-bottom: 0; border-radius: 0;
     border: 0; border-bottom: 2px solid var(--edge);
-    background-color: #130f22;
-    image-rendering: pixelated;
+    background-color: var(--chest-stage-bg);
+    background-image: radial-gradient(rgba(3, 30, 19, 0.08) 1px, transparent 1.2px);
+    background-size: 14px 14px;
+}
+.lb-chest-art[data-tier="wood"] { --chest-stage-bg: #fef6e2; --chest-aura-rgb: 251 191 36; }
+.lb-chest-art[data-tier="iron"] { --chest-stage-bg: #eafbf3; --chest-aura-rgb: 56 189 248; }
+.lb-chest-art[data-tier="gold"] { --chest-stage-bg: #f1ebff; --chest-aura-rgb: 196 181 253; }
+.lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #fdeef6; --chest-aura-rgb: 251 113 133; }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1.2px);
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art[data-tier="wood"] { --chest-stage-bg: #221c18; }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art[data-tier="iron"] { --chest-stage-bg: #142024; }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art[data-tier="gold"] { --chest-stage-bg: #1e182e; }
+:root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #261422; }
+
+.lb-chest-art[data-live-chest="1"] > .lb-chest-canvas {
+    display: none !important;
 }
 .lb-chest-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center bottom;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    pointer-events: none;
+    display: none;
 }
 .lb-chest-canvas {
     position: relative;
@@ -137,8 +156,210 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     aspect-ratio: 1;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    transform: translateY(-3px);
-    transition: transform 150ms ease;
+}
+
+/* 60fps Articulated 256x256 GPU Chest Rig (Zero pixelated stair-stepping!) */
+.ha-live-chest {
+    position: relative;
+    display: block;
+    width: clamp(88px, 13.5vw, 118px);
+    height: clamp(88px, 13.5vw, 118px);
+    pointer-events: none;
+    user-select: none;
+    transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ha-live-chest-shadow {
+    position: absolute;
+    left: 17%;
+    right: 15%;
+    bottom: 8%;
+    height: 11%;
+    border-radius: 999px;
+    background: rgba(3, 30, 19, 0.22);
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-live-chest-shadow {
+    background: rgba(0, 0, 0, 0.48);
+}
+.ha-live-chest-aura {
+    position: absolute;
+    inset: 10%;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgb(var(--chest-aura-rgb) / 0.42) 0%, rgb(var(--chest-aura-rgb) / 0) 70%);
+    opacity: 0;
+    will-change: transform, opacity;
+    pointer-events: none;
+}
+.ha-live-chest-rig {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+.ha-live-chest-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+.ha-live-chest-sheen-mask {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-mask-image: var(--chest-mask-url);
+    mask-image: var(--chest-mask-url);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    pointer-events: none;
+}
+.ha-live-chest-sheen {
+    position: absolute;
+    display: block;
+    inset: -12% -45%;
+    background: linear-gradient(
+      116deg,
+      transparent 40%,
+      rgba(167, 243, 208, 0.42) 46%,
+      rgba(255, 255, 255, 0.92) 50%,
+      rgba(167, 243, 208, 0.36) 54%,
+      transparent 60%
+    );
+    will-change: transform, opacity;
+}
+
+@keyframes haLiveChestLockedFloat {
+    0%, 100% { transform: translate3d(0, 0%, 0); }
+    50%      { transform: translate3d(0, -2.6%, 0); }
+}
+@keyframes haLiveChestLockedShadow {
+    0%, 100% { transform: scale(1); opacity: 0.95; }
+    50%      { transform: scale(0.91); opacity: 0.72; }
+}
+@keyframes haLiveChestSheenSweep {
+    0%, 18%   { transform: translate3d(-78%, 0, 0); opacity: 0.92; }
+    50%       { transform: translate3d(78%, 0, 0); opacity: 0.92; }
+    56%, 100% { transform: translate3d(82%, 0, 0); opacity: 0; }
+}
+@keyframes haLiveChestReadyFloat {
+    0%, 100% { transform: translate3d(0, 0%, 0) scale(1); }
+    45%      { transform: translate3d(0, -5.8%, 0) scale(1.025); }
+    55%      { transform: translate3d(0, -5.2%, 0) scale(1.02); }
+}
+@keyframes haLiveChestReadyShadow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(0.84); opacity: 0.6; }
+}
+@keyframes haLiveChestPeekCrossfade {
+    0%, 24%, 78%, 100% { opacity: 0; transform: translate3d(0, 0%, 0); }
+    42%, 60%           { opacity: 1; transform: translate3d(0, -1.2%, 0); }
+}
+@keyframes haLiveChestAuraPulse {
+    0%, 100% { opacity: 0.38; transform: scale(0.92); }
+    50%      { opacity: 0.88; transform: scale(1.08); }
+}
+@keyframes haLiveChestOpenFloat {
+    0%, 100% { transform: translate3d(0, 0%, 0); }
+    50%      { transform: translate3d(0, -2.8%, 0); }
+}
+@keyframes haLiveChestHoardBob {
+    0%, 100% { transform: translate3d(0, 1.5%, 0); }
+    50%      { transform: translate3d(0, -4.2%, 0); }
+}
+@keyframes haLiveChestSparkStream {
+    0%        { opacity: 0; transform: translate3d(0, 5%, 0) scale(0.8); }
+    24%       { opacity: 1; transform: translate3d(0, 0%, 0) scale(1); }
+    72%       { opacity: 0.88; transform: translate3d(0, -7%, 0) scale(1); }
+    100%      { opacity: 0; transform: translate3d(0, -11%, 0) scale(0.75); }
+}
+
+/* Staggered subtle phase offsets per tier so the 2x2 grid feels organically alive */
+.ha-live-chest[data-tier="iron"] { --chest-delay: -0.6s; }
+.ha-live-chest[data-tier="gold"] { --chest-delay: -1.3s; }
+.ha-live-chest[data-tier="ruby"] { --chest-delay: -2.0s; }
+
+/* State 1: LOCKED — Calm hover + periodic 60fps metallic light sheen */
+.ha-live-chest[data-state="locked"] .ha-live-chest-rig {
+    animation: haLiveChestLockedFloat 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
+}
+.ha-live-chest[data-state="locked"] .ha-live-chest-shadow {
+    animation: haLiveChestLockedShadow 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
+}
+.ha-live-chest[data-state="locked"] .ha-live-chest-sheen {
+    animation: haLiveChestSheenSweep 4.2s cubic-bezier(0.4, 0, 0.2, 1) var(--chest-delay, 0s) infinite;
+}
+
+/* State 2: READY — Buoyant float + smooth unclasped lid-peek + aura + sparks */
+.ha-live-chest[data-state="ready"] .ha-live-chest-rig {
+    animation: haLiveChestReadyFloat 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.ha-live-chest[data-state="ready"] .ha-live-chest-shadow {
+    animation: haLiveChestReadyShadow 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.ha-live-chest[data-state="ready"] .ha-live-chest-aura {
+    animation: haLiveChestAuraPulse 2.4s ease-in-out infinite;
+}
+.ha-live-chest[data-state="ready"] .is-peek {
+    animation: haLiveChestPeekCrossfade 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.ha-live-chest[data-state="ready"] .ha-live-chest-sheen {
+    animation: haLiveChestSheenSweep 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.ha-live-chest[data-state="ready"] .is-sparks-a {
+    animation: haLiveChestSparkStream 2.4s ease-out infinite;
+}
+.ha-live-chest[data-state="ready"] .is-sparks-b {
+    animation: haLiveChestSparkStream 2.4s ease-out -1.2s infinite;
+}
+
+/* State 3: COLLECTED & EQUIPPED — Proud open chest + 2.5D levitating gems + dual spark streams */
+.ha-live-chest[data-state="collected"] .ha-live-chest-rig,
+.ha-live-chest[data-state="equipped"] .ha-live-chest-rig {
+    animation: haLiveChestOpenFloat 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
+}
+.ha-live-chest[data-state="collected"] .ha-live-chest-shadow,
+.ha-live-chest[data-state="equipped"] .ha-live-chest-shadow {
+    animation: haLiveChestLockedShadow 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
+}
+.ha-live-chest[data-state="collected"] .ha-live-chest-aura,
+.ha-live-chest[data-state="equipped"] .ha-live-chest-aura {
+    animation: haLiveChestAuraPulse 3.4s ease-in-out var(--chest-delay, 0s) infinite;
+}
+.ha-live-chest[data-state="collected"] .is-hoard-float,
+.ha-live-chest[data-state="equipped"] .is-hoard-float {
+    animation: haLiveChestHoardBob 2.6s ease-in-out var(--chest-delay, 0s) infinite;
+}
+.ha-live-chest[data-state="collected"] .is-sparks-a,
+.ha-live-chest[data-state="equipped"] .is-sparks-a {
+    animation: haLiveChestSparkStream 2.8s ease-out var(--chest-delay, 0s) infinite;
+}
+.ha-live-chest[data-state="collected"] .is-sparks-b,
+.ha-live-chest[data-state="equipped"] .is-sparks-b {
+    animation: haLiveChestSparkStream 2.8s ease-out -1.4s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ha-live-chest-rig,
+    .ha-live-chest-shadow,
+    .ha-live-chest-aura,
+    .ha-live-chest-layer,
+    .ha-live-chest-sheen {
+        animation: none !important;
+    }
 }
 .lb-chest-body {
     display: flex; flex-direction: column; gap: 7px; flex: 1;
@@ -185,41 +406,211 @@ html.lb-reveal-active body::-webkit-scrollbar {
     display:none;
 }
 .lb-reveal-kicker {
-    position:relative; z-index:1; max-width:92vw;
-    display:grid; justify-items:center; gap:.55rem; margin:0;
+    position:relative; z-index:2; max-width:92vw;
+    display:grid; justify-items:center; gap:.6rem; margin:0;
 }
 .lb-reveal-badge {
-    display:inline-flex; align-items:center; gap:.55em; padding:.28rem .65rem;
-    color:#fef08a; background:#1c1724; border:1.5px solid var(--case-trim);
-    border-radius:8px; font:700 .72rem/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:.5em; padding:.36rem .85rem;
+    color:#031e13; background:#47e393; border:2px solid #031e13;
+    box-shadow:0 2.5px 0 #031e13;
+    border-radius:999px; font:800 .72rem/1.2 var(--mono); letter-spacing:.06em; text-transform:uppercase;
 }
-.lb-reveal-badge::before { content:""; width:5px; height:5px; background:currentColor; }
+.lb-reveal[data-tier="gold"] .lb-reveal-badge { background:#facc15; }
+.lb-reveal[data-tier="iron"] .lb-reveal-badge { background:#7dd3fc; }
+.lb-reveal[data-tier="ruby"] .lb-reveal-badge { background:#fda4af; }
+.lb-reveal-badge::before { content:""; width:6px; height:6px; border-radius:999px; background:#031e13; }
 .lb-reveal-chest-name {
-    color:#ffffff; font:700 clamp(14px,4vw,22px)/1.3 "Press Start 2P", var(--head);
-    letter-spacing:.03em; text-shadow:0 3px 0 #000000; min-height:1.3em;
+    color:#ffffff; font:800 clamp(22px,5.6vw,30px)/1.15 "Space Grotesk", var(--head);
+    letter-spacing:-.025em; min-height:1.2em;
 }
 .lb-reveal .lb-reveal-stage {
     position:fixed; inset:0; z-index:0; width:100%; height:100%; max-width:none;
-    padding:0; border:0; border-radius:0; background:#0a090e; background-image:none;
-    box-shadow:none; pointer-events:none; display:block;
+    padding:0; border:0; border-radius:0;
+    background: radial-gradient(circle at 50% 46%, #1f1933 0%, #110f1a 62%, #0a090e 100%);
+    background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1.3px), radial-gradient(circle at 50% 46%, #1f1933 0%, #110f1a 62%, #0a090e 100%);
+    background-size: 20px 20px, 100% 100%;
+    box-shadow:none; pointer-events:none; display:grid; place-items:center;
+}
+.lb-reveal-stage[data-live-reveal="1"] > .lb-reveal-canvas {
+    position:absolute; inset:0; opacity:0; pointer-events:none;
 }
 .lb-reveal-canvas {
     display:block; width:100%; height:100%;
     image-rendering:pixelated; image-rendering:crisp-edges;
 }
+
+/* 60fps Articulated Fullscreen Chest Reveal Hero */
+.ha-reveal-hero {
+    --rev-c1: #facc15;
+    --rev-c2: #47e393;
+    position: relative;
+    width: min(82vw, 320px);
+    height: min(82vw, 320px);
+    display: grid;
+    place-items: center;
+    transform: translateY(-2dvh);
+}
+.ha-reveal-hero[data-tier="iron"] { --rev-c1: #38bdf8; --rev-c2: #47e393; }
+.ha-reveal-hero[data-tier="gold"] { --rev-c1: #c4b5fd; --rev-c2: #facc15; }
+.ha-reveal-hero[data-tier="ruby"] { --rev-c1: #fb7185; --rev-c2: #facc15; }
+
+@keyframes haRevealRaysSpin {
+    from { transform: rotate(0deg) scale(1); }
+    to   { transform: rotate(360deg) scale(1); }
+}
+@keyframes haRevealSealedFloat {
+    0%, 100% { transform: translate3d(0, 0%, 0) scale(1); }
+    50%      { transform: translate3d(0, -4.5%, 0) scale(1.03); }
+}
+@keyframes haRevealAntic {
+    0%   { transform: translate3d(0, 0%, 0) scale(1, 1); }
+    30%  { transform: translate3d(-2%, 3%, 0) scale(1.07, 0.92); }
+    60%  { transform: translate3d(2%, 4%, 0) scale(1.09, 0.90); }
+    85%  { transform: translate3d(-1.5%, 2%, 0) scale(1.05, 0.94); }
+    100% { transform: translate3d(0, -3%, 0) scale(0.96, 1.06); }
+}
+@keyframes haRevealPopOpen {
+    0%   { transform: translate3d(0, 4%, 0) scale(0.92, 1.08); }
+    38%  { transform: translate3d(0, -7%, 0) scale(1.08, 0.96); }
+    72%  { transform: translate3d(0, 1%, 0) scale(0.99, 1.01); }
+    100% { transform: translate3d(0, 0%, 0) scale(1, 1); }
+}
+@keyframes haRevealRingPop {
+    0%   { opacity: 0.95; transform: scale(0.35); }
+    100% { opacity: 0; transform: scale(1.55); }
+}
+
+.ha-reveal-rays {
+    position: absolute;
+    inset: -26%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(
+      from 0deg,
+      color-mix(in srgb, var(--rev-c1) 24%, transparent) 0deg 15deg,
+      transparent 15deg 30deg
+    );
+    -webkit-mask-image: radial-gradient(circle, #000 18%, rgba(0,0,0,0.5) 48%, transparent 72%);
+    mask-image: radial-gradient(circle, #000 18%, rgba(0,0,0,0.5) 48%, transparent 72%);
+    opacity: 0;
+    transition: opacity 360ms ease;
+    animation: haRevealRaysSpin 18s linear infinite;
+}
+.ha-reveal-hero[data-phase="burst"] .ha-reveal-rays,
+.ha-reveal-hero[data-phase="revealed"] .ha-reveal-rays {
+    opacity: 1;
+}
+.ha-reveal-glow {
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--rev-c2) 44%, transparent) 0%, color-mix(in srgb, var(--rev-c1) 22%, transparent) 44%, transparent 72%);
+    opacity: 0.45;
+    transition: opacity 320ms ease, transform 360ms ease;
+}
+.ha-reveal-hero[data-phase="burst"] .ha-reveal-glow,
+.ha-reveal-hero[data-phase="revealed"] .ha-reveal-glow {
+    opacity: 0.95;
+    transform: scale(1.18);
+}
+.ha-reveal-ring {
+    position: absolute;
+    width: 66%;
+    height: 66%;
+    border-radius: 50%;
+    border: 3px solid var(--rev-c2);
+    opacity: 0;
+}
+.ha-reveal-hero[data-phase="burst"] .ha-reveal-ring {
+    animation: haRevealRingPop 680ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.ha-reveal-shadow {
+    position: absolute;
+    width: 46%;
+    height: 8%;
+    bottom: 16%;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.58);
+}
+.ha-reveal-chest {
+    position: relative;
+    display: block;
+    width: clamp(164px, 48vw, 212px);
+    height: clamp(164px, 48vw, 212px);
+    will-change: transform;
+}
+.ha-reveal-hero[data-phase="sealed"] .ha-reveal-chest {
+    animation: haRevealSealedFloat 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.ha-reveal-hero[data-phase="sealed"] .is-open,
+.ha-reveal-hero[data-phase="sealed"] .is-hoard-float {
+    opacity: 0;
+}
+.ha-reveal-hero[data-phase="sealed"] .is-peek {
+    animation: haLiveChestPeekCrossfade 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.ha-reveal-hero[data-phase="sealed"] .ha-live-chest-sheen {
+    animation: haLiveChestSheenSweep 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.ha-reveal-hero[data-phase="sealed"] .is-sparks-a {
+    animation: haLiveChestSparkStream 2.4s ease-out infinite;
+}
+.ha-reveal-hero[data-phase="sealed"] .is-sparks-b {
+    animation: haLiveChestSparkStream 2.4s ease-out -1.2s infinite;
+}
+
+.ha-reveal-hero[data-phase="opening"] .ha-reveal-chest {
+    animation: haRevealAntic 540ms cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
+}
+.ha-reveal-hero[data-phase="opening"] .is-open,
+.ha-reveal-hero[data-phase="opening"] .is-hoard-float {
+    opacity: 0;
+}
+.ha-reveal-hero[data-phase="opening"] .is-peek {
+    opacity: 1;
+}
+
+.ha-reveal-hero[data-phase="burst"] .is-closed,
+.ha-reveal-hero[data-phase="burst"] .is-peek,
+.ha-reveal-hero[data-phase="burst"] .ha-live-chest-sheen-mask,
+.ha-reveal-hero[data-phase="revealed"] .is-closed,
+.ha-reveal-hero[data-phase="revealed"] .is-peek,
+.ha-reveal-hero[data-phase="revealed"] .ha-live-chest-sheen-mask {
+    opacity: 0;
+}
+.ha-reveal-hero[data-phase="burst"] .ha-reveal-chest {
+    animation: haRevealPopOpen 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.ha-reveal-hero[data-phase="revealed"] .ha-reveal-chest {
+    animation: haLiveChestOpenFloat 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.ha-reveal-hero[data-phase="burst"] .is-hoard-float,
+.ha-reveal-hero[data-phase="revealed"] .is-hoard-float {
+    opacity: 1;
+    animation: haLiveChestHoardBob 2.4s ease-in-out infinite;
+}
+.ha-reveal-hero[data-phase="burst"] .is-sparks-a,
+.ha-reveal-hero[data-phase="revealed"] .is-sparks-a {
+    opacity: 1;
+    animation: haLiveChestSparkStream 2.4s ease-out infinite;
+}
+.ha-reveal-hero[data-phase="burst"] .is-sparks-b,
+.ha-reveal-hero[data-phase="revealed"] .is-sparks-b {
+    opacity: 1;
+    animation: haLiveChestSparkStream 2.4s ease-out -1.2s infinite;
+}
+
 .lb-reveal-slot {
-    position:relative; z-index:1; min-height:96px; width:min(92vw, 32rem);
-    display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:12px;
+    position:relative; z-index:2; min-height:104px; width:min(92vw, 32rem);
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:14px;
 }
 .lb-reveal-copy {
     width:100%;
-    text-shadow:0 2px 10px rgba(0,0,0,.92), 0 1px 2px #000000;
 }
-.lb-reveal-title { margin:0; font:700 clamp(1.45rem,4vw,2.2rem)/1.15 var(--head,system-ui); letter-spacing:-.03em; color:#ffffff; }
-.lb-reveal-detail { margin:.35rem 0 0; font:600 .86rem/1.4 var(--mono,monospace); color:#e2e8f0; }
+.lb-reveal-title { margin:0; font:800 clamp(1.5rem,4.5vw,2.15rem)/1.15 "Space Grotesk", var(--head); letter-spacing:-.03em; color:#ffffff; }
+.lb-reveal-detail { margin:.35rem 0 0; font:600 .86rem/1.4 var(--mono,monospace); color:#cbd5e1; }
 .lb-reveal-done {
-    min-height:44px; width:max-content; max-width:90%;
-    padding:.6rem 1.35rem; cursor:pointer;
+    min-height:46px; width:max-content; max-width:90%;
+    padding:.7rem 1.6rem; cursor:pointer;
 }
 @media (max-height:540px) {
     .lb-reveal[open] { padding-block:14px; }
@@ -235,8 +626,8 @@ html.lb-reveal-active body::-webkit-scrollbar {
     transition:transform 120ms ease, box-shadow 120ms ease;
 }
 .lb-reveal-done {
-    background:var(--case-trim, #f5b82e); color:#121215; border-color:#000000;
-    box-shadow:3px 3px 0 #000000; font-family:"Press Start 2P", var(--head); font-size:.72rem; letter-spacing:.03em;
+    background:#47e393; color:#031e13; border:2px solid #031e13; border-radius:16px;
+    box-shadow:0 3.5px 0 #031e13; font-family:"Space Grotesk", var(--head); font-size:.92rem; font-weight:800; letter-spacing:-.01em;
 }
 .lb-reveal-done:active, .lb-chest-action:enabled:active { box-shadow:none; transform:translate(1px, 1px); }
 .lb-reveal-done:focus-visible { outline:3px solid var(--case-trim, #f5b82e); outline-offset:4px; }
@@ -264,8 +655,8 @@ html.lb-reveal-active body::-webkit-scrollbar {
 .lb-quest-fill {
     position: absolute; inset: 0 auto 0 0; z-index: 0; pointer-events: none;
     width: var(--quest-fill, 0%);
-    background: rgb(var(--ha-primary, 124 58 237) / .22);
-    border-right: 2px solid rgb(var(--ha-primary, 124 58 237));
+    background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 42%, transparent);
+    border-right: 0;
     transition: width 240ms ease;
 }
 .lb-chest-action-locked[data-zero="true"] .lb-quest-fill { border-right: 0; }

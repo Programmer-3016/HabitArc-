@@ -1,7 +1,7 @@
 // Offline-capable app-shell service worker for HabitArc PWA.
 // Static shell files return from cache while they refresh; query navigations
 // stay network-first and never replace the public shell with their responses.
-const CACHE_NAME = 'habitarc-shell-v124';
+const CACHE_NAME = 'habitarc-shell-v125';
 const CDN_CACHE_NAME = 'habitarc-cdn-v1';
 const OFFLINE_URL = '/offline.html';
 const SHELL_ASSETS = [
@@ -93,6 +93,34 @@ const SHELL_ASSETS = [
   '/icons/ai-buddies/layers/zen-sprout.png',
   '/icons/ai-buddies/layers/zen-eyes.png',
   '/icons/ai-buddies/layers/zen-mouth.png',
+  '/icons/chests/layers/wood-closed.png',
+  '/icons/chests/layers/wood-peek.png',
+  '/icons/chests/layers/wood-sheen-mask.png',
+  '/icons/chests/layers/wood-open.png',
+  '/icons/chests/layers/wood-hoard-float.png',
+  '/icons/chests/layers/wood-sparks-a.png',
+  '/icons/chests/layers/wood-sparks-b.png',
+  '/icons/chests/layers/iron-closed.png',
+  '/icons/chests/layers/iron-peek.png',
+  '/icons/chests/layers/iron-sheen-mask.png',
+  '/icons/chests/layers/iron-open.png',
+  '/icons/chests/layers/iron-hoard-float.png',
+  '/icons/chests/layers/iron-sparks-a.png',
+  '/icons/chests/layers/iron-sparks-b.png',
+  '/icons/chests/layers/gold-closed.png',
+  '/icons/chests/layers/gold-peek.png',
+  '/icons/chests/layers/gold-sheen-mask.png',
+  '/icons/chests/layers/gold-open.png',
+  '/icons/chests/layers/gold-hoard-float.png',
+  '/icons/chests/layers/gold-sparks-a.png',
+  '/icons/chests/layers/gold-sparks-b.png',
+  '/icons/chests/layers/ruby-closed.png',
+  '/icons/chests/layers/ruby-peek.png',
+  '/icons/chests/layers/ruby-sheen-mask.png',
+  '/icons/chests/layers/ruby-open.png',
+  '/icons/chests/layers/ruby-hoard-float.png',
+  '/icons/chests/layers/ruby-sparks-a.png',
+  '/icons/chests/layers/ruby-sparks-b.png',
   '/logo.png',
 ];
 const SHELL_ASSET_SET = new Set(SHELL_ASSETS);

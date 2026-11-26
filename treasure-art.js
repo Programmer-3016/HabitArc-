@@ -227,28 +227,28 @@ const SHIELD_PAL = {
   b:'#075985', B:'#0284c7', C:'#38bdf8', I:'#0369a1', W:'#f0f9ff',
 };
 
-const LEGENDARY_CROWN = [
+const LEGENDARY_STAR_PRISM = [
   '...........kk...........',
-  '..kk......kYYk......kk..',
-  '.kYYk....kYWWYk....kYYk.',
-  '.kYGYk...kYMMYk...kYGYk.',
-  'kYYGYYk.kYYMMYYk.kYYGYYk',
-  'kYYOYYkkYYMMMMYYkkYYOYYk',
-  'kYYYYYYYYYYWWYYYYYYYYYYk',
-  'kYWOYYYYWWMMMMWWYYYYOWYk',
-  'kYYOYYYRMMMMMMMMRYOYYOYk',
-  'kYYOYYYRMMMMMMMMRYOYYOYk',
-  'kYYOYYYYWWMMMMWWYYYYOYYk',
-  'kYYYYYYYYYYYYYYYYYYYYYYk',
-  'kOOOOOOOOOOOOOOOOOOOOOOk',
-  '.kRRkGGkMMWWWWMMkBBkRRk.',
-  '.kRRkGGkMMWWWWMMkBBkRRk.',
-  '.kOOOOOOOOOOOOOOOOOOOOk.',
-  '..kkkkkkkkkkkkkkkkkkkk..',
+  '..........kWWk..........',
+  '.........kWYYWk.........',
+  '........kWYLLYWk........',
+  '.......kYYLLLLYYk.......',
+  '..kkkkkYYLLLLLLYYkkkkk..',
+  '.kWWYYYYYLLWWLLYYYYYWWk.',
+  'kWWYYYYYLLWWWWLLYYYYYWWk',
+  '.kOOYYYYYLLWWLLYYYYYOOk.',
+  '..kkOOYYYYLLLLYYYYOOkk..',
+  '....kkOYYYYRRYYYYOkk....',
+  '.....kYYYYRRRRYYYYk.....',
+  '....kYYOYYkRRkYYOYYk....',
+  '...kYYOkk..kk..kkOYYk...',
+  '..kOYkk..........kkYOk..',
+  '..kkk..............kkk..',
+  '........................',
 ];
 const LEGENDARY_PAL = {
-  k:'#2a1004', Y:'#facc15', W:'#fefce8', O:'#d97706',
-  M:'#c084fc', R:'#ef4444', G:'#fde047', B:'#38bdf8',
+  k:'#031e13', Y:'#facc15', W:'#ffffff', O:'#eab308',
+  L:'#c4b5fd', R:'#ff4d6d', G:'#47e393', B:'#38bdf8',
 };
 
 const PHOENIX_WINGS = [
@@ -279,59 +279,59 @@ const PHOENIX_PAL = {
 export const CHEST_THEMES = Object.freeze({
   wood: {
     pal: [
-      '#000000','#181721','#29211d','#3e2920','#543528',
-      '#241a18','#3f2f2b','#5e4740','#806358','#b08f80',
-      '#3e1e10','#592d17','#6b381e','#8a4a24','#b56834','#d98f52',
-      '#a16207','#f59e0b','#fef08a','#7c2d12','#ea580c','#fb923c','#fef9c3',
+      '#000000','#031e13','#3b1d0a','#5c2d10','#7c3f16',
+      '#78350f','#b45309','#d97706','#fcd34d','#fef9c3',
+      '#7c2d12','#9a3412','#b45309','#d97706','#f59e0b','#fbbf24',
+      '#b45309','#facc15','#ffffff','#064e3b','#10b981','#47e393','#ecfdf5',
     ],
     art: COMMON_TORCH_EMBER,
     artPal: COMMON_PAL,
     label: 'COMMON',
     fg: '#fef08a',
-    shadow: '#23110d',
-    glowName: 'Warm Amber Pillar + Dust Embers',
+    shadow: '#031e13',
+    glowName: 'Warm Amber & HabitArc Mint Glow',
   },
   iron: {
     pal: [
-      '#000000','#181721','#292632','#443540','#563342',
-      '#303340','#515665','#79818e','#a8afba','#d3d4c8',
-      '#44312d','#624737','#70503e','#86624a','#ac805b','#cba073',
-      '#b17a41','#e4a954','#ffe395','#21565a','#318e86','#7de6b2','#edfff0',
+      '#000000','#031e13','#0f172a','#1e293b','#334155',
+      '#334155','#64748b','#94a3b8','#e2e8f0','#ffffff',
+      '#1e293b','#334155','#475569','#64748b','#94a3b8','#cbd5e1',
+      '#0284c7','#38bdf8','#f0f9ff','#064e3b','#0d9488','#47e393','#ecfeff',
     ],
     art: SHIELD_AEGIS,
     artPal: SHIELD_PAL,
     label: 'SHIELD',
     fg: '#bae6fd',
-    shadow: '#09111f',
-    glowName: 'Frost Cyan Barrier Rings + Orbiting Orbs',
+    shadow: '#031e13',
+    glowName: 'Frost Cyan & Mint Barrier Rings',
   },
   gold: {
     pal: [
-      '#000000','#181721','#2b1a24','#4a1d32','#632841',
-      '#59320a','#8c520d','#c98114','#f5ba2e','#fef08a',
-      '#2f0f1d','#4a182d','#5c1e38','#762747','#9c385f','#c45a80',
-      '#92400e','#facc15','#fef9c3','#4c1d95','#7c3aed','#c084fc','#f5d0fe',
+      '#000000','#031e13','#2e1065','#4c1d95','#5b21b6',
+      '#854d0e','#ca8a04','#eab308','#facc15','#fef9c3',
+      '#4c1d95','#5b21b6','#6d28d9','#8b5cf6','#a78bfa','#ddd6fe',
+      '#ca8a04','#facc15','#ffffff','#4c1d95','#8b5cf6','#c4b5fd','#ffffff',
     ],
-    art: LEGENDARY_CROWN,
+    art: LEGENDARY_STAR_PRISM,
     artPal: LEGENDARY_PAL,
     label: '* LEGENDARY *',
     fg: '#fef08a',
-    shadow: '#2a1004',
-    glowName: 'Cosmic Gold & Violet Rays',
+    shadow: '#031e13',
+    glowName: 'HabitArc Lavender & Solar Gold Rays',
   },
   ruby: {
     pal: [
-      '#000000','#12050b','#260714','#3d0b1f','#56102d',
-      '#181024','#2d1b44','#4c2b73','#7e47b5','#d8b4fe',
-      '#45060b','#730c15','#99131e','#b91c1c','#dc2626','#f87171',
-      '#92400e','#f59e0b','#fef08a','#7f1d1d','#e11d48','#fb7185','#fef08a',
+      '#000000','#031e13','#1a0626','#2e0b42','#4a1268',
+      '#78350f','#b45309','#f59e0b','#fbbf24','#fef9c3',
+      '#4c0519','#881337','#9f1239','#be123c','#e11d48','#fb7185',
+      '#b45309','#facc15','#ffffff','#500724','#e11d48','#47e393','#fff1f2',
     ],
     art: PHOENIX_WINGS,
     artPal: PHOENIX_PAL,
     label: '* MYTHIC *',
     fg: '#fef08a',
-    shadow: '#2b0612',
-    glowName: 'Crimson-Gold Supernova Rays + Nova Ring',
+    shadow: '#031e13',
+    glowName: 'Crimson-Mint Dragon Supernova Rays',
   },
 });
 
@@ -370,49 +370,45 @@ function paintTierChestOverlay(r, tier, fIdx, ox, oy, dropY = 0) {
     if (dy >= 0 && dy < r.h) r.put(r.is32 ? col32(col) : col, ox + sx, dy);
   };
 
-  if (tier === 'iron') {
+  if (tier === 'wood') {
+    const lift = fIdx >= 2 && fIdx <= 3 ? -1 : 0;
+    px('#059669', 23, 44 + lift); px('#47e393', 24, 44 + lift);
+    px('#10b981', 23, 45 + lift); px('#a7f3d0', 24, 45 + lift);
+    px('#fef9c3', 10, 41); px('#fef9c3', 38, 41);
+  } else if (tier === 'iron') {
     const lockShift = fIdx <= 1 ? 0 : fIdx <= 3 ? -1 : 0;
     if (fIdx <= 3) {
       px('#0369a1', 23, 44); px('#38bdf8', 24, 44);
-      px('#0284c7', 23, 45); px('#bae6fd', 24, 45);
+      px('#10b981', 23, 45); px('#47e393', 24, 45);
       if (fIdx >= 2) {
-        px('#38bdf8', 23, 40 + lockShift); px('#e0f2fe', 24, 40 + lockShift);
+        px('#47e393', 23, 40 + lockShift); px('#ecfeff', 24, 40 + lockShift);
       }
     } else {
       px('#0369a1', 23, 44); px('#38bdf8', 24, 44);
-      px('#0284c7', 23, 45); px('#7dd3fc', 24, 45);
+      px('#10b981', 23, 45); px('#47e393', 24, 45);
     }
-    px('#e2e8f0', 10, 41); px('#e2e8f0', 38, 41);
+    px('#ffffff', 10, 41); px('#ffffff', 38, 41);
   } else if (tier === 'gold') {
-    const cmap = { k:'#140509', 1:'#c98114', 2:'#f5ba2e', 3:'#fef08a', R:'#ff4d6d' };
-    const skullRows = [
-      '..k......k..',
-      '.k3k....k3k.',
-      '.k22k33k22k.',
-      '..k233332k..',
-      '..k2RkkR2k..',
-      '..k1k22k1k..',
-      '...k2kk2k...',
-      '...k1111k...',
+    const cmap = { k:'#031e13', 1:'#ca8a04', 2:'#facc15', 3:'#fef9c3', R:'#ff4d6d', W:'#ffffff' };
+    const starCrestRows = [
+      '.kk......kk.',
+      'k32k.kk.k23k',
+      '.k23k33k32k.',
+      '..k23WW32k..',
+      '..k2WRRW2k..',
+      '..k12RR21k..',
+      '...k1221k...',
       '....kkkk....',
     ];
     if (fIdx <= 3) {
       const lift = fIdx <= 1 ? 0 : -1;
-      drawPatternRows(px, skullRows, cmap, 18, 39 + lift);
+      drawPatternRows(px, starCrestRows, cmap, 18, 40 + lift);
     } else {
-      px('#ef4444', 23, 44); px('#ff6b8b', 24, 44);
-      px('#991b1b', 23, 45); px('#ef4444', 24, 45);
-      if (fIdx >= 9 && fIdx <= 11) {
-        px('#140509', 23, 11); px('#fef08a', 24, 11); px('#140509', 25, 11);
-        px('#140509', 31, 11); px('#fef08a', 32, 11); px('#140509', 33, 11);
-        px('#140509', 24, 12); px('#f5ba2e', 25, 12); px('#fef08a', 26, 12); px('#f5ba2e', 27, 12);
-        px('#f5ba2e', 28, 12); px('#fef08a', 29, 12); px('#f5ba2e', 30, 12); px('#140509', 31, 12);
-        px('#140509', 25, 13); px('#ff4d6d', 26, 13); px('#140509', 27, 13);
-        px('#f5ba2e', 28, 13); px('#140509', 29, 13); px('#ff4d6d', 30, 13); px('#140509', 31, 13);
-      }
+      px('#ff4d6d', 23, 44); px('#fda4af', 24, 44);
+      px('#be123c', 23, 45); px('#ff4d6d', 24, 45);
     }
-    px('#ef4444', 10, 41); px('#ef4444', 10, 50);
-    px('#ef4444', 39, 41); px('#ff6b8b', 38, 49);
+    px('#fef9c3', 10, 41); px('#c4b5fd', 10, 50);
+    px('#fef9c3', 39, 41); px('#c4b5fd', 38, 49);
   } else if (tier === 'ruby') {
     const cmap = {
       k:'#14040a', 1:'#b45309', 2:'#f59e0b', 3:'#fef08a',
@@ -1202,7 +1198,55 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
   });
 }
 
-/** Build a Vault Card chest stage displaying an animated 64x64 3/4 pixel chest on a pixel twilight pedestal. */
+const CHEST_LAYER_ROOT = 'icons/chests/layers';
+
+function buildLiveChestRig(tier, opened, chestState) {
+  const mk = (tag, cls) => {
+    const n = document.createElement(tag);
+    n.className = cls;
+    return n;
+  };
+  const img = (file, cls) => {
+    const i = mk('img', `ha-live-chest-layer ${cls}`);
+    i.setAttribute('src', `${CHEST_LAYER_ROOT}/${file}`);
+    i.setAttribute('alt', '');
+    return i;
+  };
+
+  const wrap = mk('div', 'ha-live-chest');
+  wrap.dataset.tier = tier;
+  wrap.dataset.state = chestState;
+  wrap.setAttribute('aria-hidden', 'true');
+
+  const shadow = mk('span', 'ha-live-chest-shadow');
+  const aura = mk('span', 'ha-live-chest-aura');
+  const rig = mk('span', 'ha-live-chest-rig');
+
+  if (opened) {
+    rig.append(img(`${tier}-open.png`, 'is-open'));
+    rig.append(img(`${tier}-hoard-float.png`, 'is-hoard-float'));
+    rig.append(img(`${tier}-sparks-a.png`, 'is-sparks-a'));
+    rig.append(img(`${tier}-sparks-b.png`, 'is-sparks-b'));
+  } else {
+    rig.append(img(`${tier}-closed.png`, 'is-closed'));
+    if (chestState === 'ready') {
+      rig.append(img(`${tier}-peek.png`, 'is-peek'));
+      rig.append(img(`${tier}-sparks-a.png`, 'is-sparks-a'));
+      rig.append(img(`${tier}-sparks-b.png`, 'is-sparks-b'));
+    }
+    const mask = mk('span', 'ha-live-chest-sheen-mask');
+    mask.setAttribute('style', `--chest-mask-url:url('${CHEST_LAYER_ROOT}/${tier}-sheen-mask.png')`);
+    mask.append(mk('span', 'ha-live-chest-sheen'));
+    rig.append(mask);
+  }
+
+  wrap.append(shadow);
+  wrap.append(aura);
+  wrap.append(rig);
+  return wrap;
+}
+
+/** Build a Vault Card chest stage displaying a 60fps articulated 256x256 HabitArc pixel chest. */
 export function chestArt(chest, opened, { state } = {}) {
   const tier = normTier(chest?.id);
   const chestState = state || (opened ? 'collected' : 'locked');
@@ -1211,6 +1255,7 @@ export function chestArt(chest, opened, { state } = {}) {
   stage.dataset.tier = tier;
   stage.dataset.open = String(Boolean(opened));
   stage.dataset.style = 'pixel-game';
+  stage.dataset.liveChest = '1';
   stage.setAttribute('aria-hidden', 'true');
 
   const canvas = document.createElement('canvas');
@@ -1225,38 +1270,54 @@ export function chestArt(chest, opened, { state } = {}) {
     const surface = makeSurface32(64, 64, buf32);
     paintCardChestFrame(surface, tier, Boolean(opened), chestState, 0);
     ctx.putImageData(img, 0, 0);
-
-    if (typeof requestAnimationFrame === 'function') {
-      const startMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
-      cardAnimEntries.add({
-        canvas,
-        ctx,
-        img,
-        surface,
-        tier,
-        opened: Boolean(opened),
-        state: chestState,
-        startMs,
-        lastStep: 0,
-      });
-      wakeCardChestAnimations();
-    }
   }
 
-  const bg = document.createElement('canvas');
-  bg.className = 'lb-chest-bg';
-  bg.width = BG_W;
-  bg.height = BG_H;
-  const bgCtx = bg.getContext?.('2d');
-  if (bgCtx) {
-    bgCtx.imageSmoothingEnabled = false;
-    const bgImg = bgCtx.createImageData(BG_W, BG_H);
-    new Uint32Array(bgImg.data.buffer).set(buildVaultBackdrop32());
-    bgCtx.putImageData(bgImg, 0, 0);
-  }
-
-  stage.append(canvas, bg);
+  const liveChest = buildLiveChestRig(tier, Boolean(opened), chestState);
+  stage.append(canvas);
+  stage.append(liveChest);
   return stage;
+}
+
+function buildLiveRevealHero(tier, opened) {
+  const mk = (tag, cls) => {
+    const n = document.createElement(tag);
+    n.className = cls;
+    return n;
+  };
+  const img = (file, cls) => {
+    const i = mk('img', `ha-live-chest-layer ${cls}`);
+    i.setAttribute('src', `${CHEST_LAYER_ROOT}/${file}`);
+    i.setAttribute('alt', '');
+    return i;
+  };
+
+  const hero = mk('div', 'ha-reveal-hero');
+  hero.dataset.tier = tier;
+  hero.dataset.phase = opened ? 'revealed' : 'sealed';
+
+  const rays = mk('span', 'ha-reveal-rays');
+  const glow = mk('span', 'ha-reveal-glow');
+  const ring = mk('span', 'ha-reveal-ring');
+  const shadow = mk('span', 'ha-reveal-shadow');
+
+  const chestWrap = mk('span', 'ha-reveal-chest');
+  chestWrap.append(img(`${tier}-closed.png`, 'is-closed'));
+  chestWrap.append(img(`${tier}-peek.png`, 'is-peek'));
+  chestWrap.append(img(`${tier}-open.png`, 'is-open'));
+  chestWrap.append(img(`${tier}-hoard-float.png`, 'is-hoard-float'));
+  chestWrap.append(img(`${tier}-sparks-a.png`, 'is-sparks-a'));
+  chestWrap.append(img(`${tier}-sparks-b.png`, 'is-sparks-b'));
+  const mask = mk('span', 'ha-live-chest-sheen-mask');
+  mask.setAttribute('style', `--chest-mask-url:url('${CHEST_LAYER_ROOT}/${tier}-sheen-mask.png')`);
+  mask.append(mk('span', 'ha-live-chest-sheen'));
+  chestWrap.append(mask);
+
+  hero.append(rays);
+  hero.append(glow);
+  hero.append(ring);
+  hero.append(shadow);
+  hero.append(chestWrap);
+  return hero;
 }
 
 /**
@@ -1271,11 +1332,15 @@ export function createRevealStage(chest, opened = false) {
   stage.dataset.tier = tier;
   stage.dataset.open = String(Boolean(opened));
   stage.dataset.style = 'pixel-reveal';
+  stage.dataset.liveReveal = '1';
   stage.setAttribute('aria-hidden', 'true');
 
   const canvas = document.createElement('canvas');
   canvas.className = 'lb-reveal-canvas';
   stage.append(canvas);
+
+  const revealHero = buildLiveRevealHero(tier, Boolean(opened));
+  stage.append(revealHero);
 
   const ctx = canvas.getContext?.('2d') || null;
   if (ctx) ctx.imageSmoothingEnabled = false;
@@ -1372,12 +1437,14 @@ export function createRevealStage(chest, opened = false) {
       initSurface();
       if (reducedMotion) {
         mode = 'revealed';
+        revealHero.dataset.phase = 'revealed';
         paintState({ mode: 'showcase', t: 6 }, 'reduced');
         onClimax?.();
         return;
       }
 
       mode = 'opening';
+      revealHero.dataset.phase = 'opening';
       let notified = false;
       let lastDrawAt = -Infinity;
       const { rattleMs: RATTLE_END, riseStartMs: RISE_START, riseDurMs: RISE_DUR, climaxMs: CLIMAX_MS } = REVEAL_TIMING;
@@ -1403,12 +1470,14 @@ export function createRevealStage(chest, opened = false) {
         }
 
         if (elapsed < CLIMAX_MS) {
+          if (revealHero.dataset.phase !== 'burst') revealHero.dataset.phase = 'burst';
           const p = (elapsed - RISE_START) / RISE_DUR;
           paintState({ mode: 'rising', p, climax: p > 0.93 ? 1 : 0 });
           return;
         }
 
         mode = 'revealed';
+        if (revealHero.dataset.phase !== 'revealed') revealHero.dataset.phase = 'revealed';
         const t = ((elapsed - CLIMAX_MS) % 3080) / 95;
         paintState({ mode: 'showcase', t });
         if (!notified && elapsed >= CLIMAX_MS + 70) {

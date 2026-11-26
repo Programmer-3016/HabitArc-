@@ -467,7 +467,16 @@ try {
     iron: document.querySelector('[data-tier="iron"] .lb-chest-action')?.textContent.trim(),
     gold: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim(),
     ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
-    rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked')
+    rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked'),
+    liveChests: Array.from(document.querySelectorAll('.lb-chest .ha-live-chest')).map(el => {
+      const img = el.querySelector('.ha-live-chest-layer');
+      return {
+        tier: el.dataset.tier,
+        state: el.dataset.state,
+        w: Math.round(el.getBoundingClientRect().width),
+        nw: img?.naturalWidth || 0
+      };
+    })
   })`);
   await saveShot('rewards-clean-390.png');
   assert.equal(vaultCheck.overflow, false, 'Rewards renders cleanly at 390px without overflow');
@@ -478,6 +487,8 @@ try {
   assert.equal(vaultCheck.iron, '✓ Unlocked');
   assert.equal(vaultCheck.gold, 'Open now');
   assert.equal(vaultCheck.rubyLockedClass, true);
+  assert.equal(vaultCheck.liveChests.length, 4, 'All 4 Rewards cards mount 60fps .ha-live-chest rigs');
+  assert.equal(vaultCheck.liveChests.every(c => c.w >= 80 && c.nw === 256), true, 'All 4 live chests render >=80px wide backed by 256px crisp textures');
   assert.ok(/d left$/.test(vaultCheck.ruby), `Expected countdown pill label on Dragon card, got: ${vaultCheck.ruby}`);
   await ev(`document.querySelector('[data-tier="ruby"] .lb-chest-action').click()`);
   await sleep(150);
@@ -618,12 +629,11 @@ try {
     const isOpen = backdrop && !backdrop.hidden;
     const title = document.getElementById('ha-notif-perm-title')?.textContent.trim();
     const liveBuddy = backdrop?.querySelector('.ha-notif-perm-avatar .ha-live-buddy')?.getAttribute('data-buddy');
-    const heroBuddy = document.querySelector('#dash-ai-pill-buddy .ha-live-buddy')?.getAttribute('data-buddy');
+    const heroPillSrOnly = Boolean(document.getElementById('dash-ai-pill')?.classList.contains('sr-only'));
     const fabBuddy = document.querySelector('#ha-arc-fab .ha-live-buddy')?.getAttribute('data-buddy');
-    const heroW = Math.round(document.querySelector('#dash-ai-pill-buddy .ha-live-buddy .is-base')?.getBoundingClientRect().width || 0);
     const fabW = Math.round(document.querySelector('#ha-arc-fab .ha-live-buddy .is-base')?.getBoundingClientRect().width || 0);
     const notifW = Math.round(backdrop?.querySelector('.ha-notif-perm-avatar .ha-live-buddy .is-base')?.getBoundingClientRect().width || 0);
-    return { isOpen, title, liveBuddy, heroBuddy, fabBuddy, heroW, fabW, notifW };
+    return { isOpen, title, liveBuddy, heroPillSrOnly, fabBuddy, fabW, notifW };
   })()`);
   await sleep(120);
   await saveShot('dashboard-post-ob-notif-390.png');
@@ -634,9 +644,9 @@ try {
   assert.equal(postObSheet.isOpen, true, 'Post-onboarding notification permission sheet opens on Dashboard');
   assert.equal(postObSheet.title, 'Allow NOVA to send reminders?');
   assert.equal(postObSheet.liveBuddy, 'winky', 'Dashboard notification sheet renders unified live buddy');
-  assert.equal(postObSheet.heroBuddy, 'winky', 'Dashboard hero pill renders identical unified live buddy');
+  assert.equal(postObSheet.heroPillSrOnly, true, 'Daily Progress card hides AI pill visually cleanly');
   assert.equal(postObSheet.fabBuddy, 'winky', 'Dashboard floating Ask FAB renders identical unified live buddy');
-  assert.equal(postObSheet.heroW >= 20 && postObSheet.fabW >= 20 && postObSheet.notifW >= 40, true, 'Dashboard live buddy layers render non-zero visible boxes');
+  assert.equal(postObSheet.fabW >= 20 && postObSheet.notifW >= 40, true, 'Dashboard live buddy layers render non-zero visible boxes');
   assert.equal(closedAfterTap, true, 'Dismissing notification sheet hides it cleanly');
 
   const dashLvl1 = await ev(`(() => {
