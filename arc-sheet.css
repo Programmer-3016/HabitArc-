@@ -203,6 +203,26 @@ html.ha-arc-sheet-open body > main {
   }
 }
 
+@keyframes haArcWaveDot {
+  0%, 80%, 100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes haArcCaretBlink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0.2;
+  }
+}
+
 /* ─── Theme-Adaptive Dialog Shell (Light & Sage Day Studio / 6 Dark Night Studios) */
 .ha-arc-sheet-dialog {
   position: fixed;
@@ -890,17 +910,25 @@ html.ha-arc-sheet-open body > main {
   border-radius: 20.5px;
 }
 
+.ha-arc-composer-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-form {
-  flex-direction: row;
-  align-items: flex-end;
-  padding: 7px 8px 7px 11px;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 7px 8px;
+  gap: 7px;
   border: 1.8px solid var(--rpg-shadow-ink, #121215);
   border-radius: 18px;
+  overflow: visible;
 }
 
 :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread .ha-arc-sheet-form {
-  border: 1.2px solid rgba(255, 255, 255, 0.18);
+  border: 1.4px solid rgba(255, 255, 255, 0.18);
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-beam-frame {
@@ -908,6 +936,7 @@ html.ha-arc-sheet-open body > main {
   border-radius: 18px;
   background: transparent;
   box-shadow: none;
+  overflow: visible;
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-beam-frame::before {
@@ -928,10 +957,15 @@ html.ha-arc-sheet-open body > main {
   border-top-color: rgba(255, 255, 255, 0.08);
 }
 
-.ha-arc-sheet-panel.is-thread .ha-arc-composer-foot {
-  padding-top: 0;
-  border-top: 0;
-  width: auto;
+.ha-arc-sheet-panel.is-thread .ha-arc-composer-main {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 9px;
+}
+
+.ha-arc-sheet-panel.is-thread .ha-arc-composer-foot,
+.ha-arc-sheet-panel.is-thread .ha-arc-composer-pills {
+  display: contents;
 }
 
 .ha-arc-composer-pills {
@@ -965,24 +999,56 @@ html.ha-arc-sheet-open body > main {
   color: rgb(var(--ha-on-surface, 250 250 252));
 }
 
-.ha-arc-sheet-plus[aria-pressed="true"] {
-  background: rgb(var(--ha-secondary-container, 209 250 229));
-  border-color: var(--rpg-shadow-ink, #121215);
-  color: rgb(var(--ha-on-secondary-container, 6 78 59));
+.ha-arc-sheet-plus.ha-arc-attach-active,
+.ha-arc-sheet-plus[aria-expanded="true"] {
+  background: #ece8ff;
+  border-color: rgb(var(--ha-primary, 124 58 237));
+  color: rgb(var(--ha-primary, 124 58 237));
 }
 
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-plus[aria-pressed="true"] {
-  background: rgb(var(--ha-secondary, 71 227 147) / 0.14);
-  border-color: rgb(var(--ha-secondary, 71 227 147) / 0.45);
-  color: rgb(var(--ha-secondary, 71 227 147));
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-plus.ha-arc-attach-active,
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-plus[aria-expanded="true"] {
+  background: rgba(167, 139, 250, 0.16);
+  border-color: #c4b5fd;
+  color: #c4b5fd;
 }
 
+/* Thread mode: [ + ] anchored cleanly on LEFT corner, [ ↑ ] on RIGHT corner */
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-plus {
-  width: 32px;
-  height: 32px;
+  order: 1;
+  width: 36px;
+  height: 36px;
   padding: 0;
-  font-size: 17px;
-  margin-bottom: 2px;
+  border-radius: 12px;
+  border: 1.8px solid var(--rpg-shadow-ink, #121215);
+  background: #ebe8e0;
+  display: grid;
+  place-items: center;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread .ha-arc-sheet-plus {
+  border: 1.4px solid rgba(255, 255, 255, 0.2);
+  background: #262632;
+}
+
+.ha-arc-sheet-panel.is-thread .ha-arc-sheet-plus.ha-arc-attach-active,
+.ha-arc-sheet-panel.is-thread .ha-arc-sheet-plus[aria-expanded="true"] {
+  background: #ece8ff;
+  border-color: rgb(var(--ha-primary, 124 58 237));
+  color: rgb(var(--ha-primary, 124 58 237));
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread .ha-arc-sheet-plus.ha-arc-attach-active,
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread .ha-arc-sheet-plus[aria-expanded="true"] {
+  background: rgba(167, 139, 250, 0.16);
+  border-color: #c4b5fd;
+  color: #c4b5fd;
+}
+
+#ha-arc-plus-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ha-arc-tone-chip {
@@ -1043,6 +1109,7 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-input {
+  order: 2;
   min-height: 36px;
   max-height: 108px;
   padding: 6px 0;
@@ -1071,9 +1138,15 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-arc-sheet-panel.is-thread .ha-arc-sheet-send {
+  order: 3;
   width: 36px;
   height: 36px;
   padding: 0;
+  border: 1.8px solid var(--rpg-shadow-ink, #121215);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-thread .ha-arc-sheet-send {
+  border-color: #000000;
 }
 
 .ha-arc-sheet-send.is-streaming {
@@ -1243,90 +1316,182 @@ html.ha-arc-sheet-open body > main {
   position: fixed;
   left: 14px;
   right: 14px;
-  bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   margin: 0 auto;
   max-width: 440px;
   z-index: 55;
   pointer-events: none;
 }
 
-/* ─── Unified Answer Card Header & Tools (COPY, RETRY, LVL) ──────────────── */
-.ha-sheet-resp-hdr {
+/* In active thread, anchor directly above the composer so attached chips never collide */
+.ha-arc-sheet-panel.is-thread .ha-sheet-context-host {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: calc(100% + 4px);
+}
+
+/* ─── Reply 3: Tactile Paper Bubble Card + Live 3-Dot Wave + Footer Tools ── */
+.ha-sheet-bubble-card {
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  border: 2px solid var(--rpg-shadow-ink, #121215);
+  border-radius: 6px 20px 20px 20px;
+  padding: 12px 14px;
+  box-shadow: 2.5px 2.5px 0 var(--rpg-shadow-ink, #121215);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-bubble-card {
+  background: #1d1d26;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+}
+
+.ha-sheet-bhead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.1);
+  margin-bottom: 7px;
 }
 
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-resp-hdr {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-
-.ha-sheet-resp-brand {
+.ha-sheet-bbrand {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
+  gap: 7px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: rgb(var(--ha-on-surface, 18 18 21));
 }
 
-.ha-sheet-resp-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: var(--rpg-mint, #47e393);
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-bbrand {
+  color: rgb(var(--ha-on-surface, 248 248 252));
 }
 
-.ha-sheet-resp-tools {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
+.ha-sheet-mini-buddy {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--ha-hero-bg, #c4b5fd);
+  border: 1.4px solid #121215;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 }
 
-.ha-sheet-resp-lvl {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--ha-hero-bg, #c4b5fd) 38%, rgb(var(--ha-surface-container-lowest, 255 255 255)));
-  border: 1.2px solid rgb(var(--ha-primary, 124 58 237) / 0.35);
-  color: rgb(var(--ha-on-surface, 18 18 21));
+.ha-sheet-lvl-plain {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgb(var(--ha-primary, 124 58 237));
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 800;
+  letter-spacing: 0.02em;
   cursor: pointer;
 }
 
-.ha-sheet-resp-lvl.is-static {
+.ha-sheet-lvl-plain.is-static {
   cursor: default;
+  opacity: 0.85;
 }
 
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-resp-lvl {
-  background: rgb(var(--ha-primary, 167 139 250) / 0.16);
-  border-color: rgb(var(--ha-primary, 167 139 250) / 0.38);
-  color: rgb(var(--ha-primary-container, 196 181 253));
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-lvl-plain {
+  color: #c4b5fd;
 }
 
-.ha-sheet-ans-tool {
-  padding: 3px 8px;
-  border-radius: 7px;
-  border: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.2);
-  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+.ha-sheet-wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  padding: 2px 2px;
+}
+
+.ha-sheet-wave i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--ha-primary, 124 58 237));
+  display: block;
+  animation: haArcWaveDot 1.05s ease-in-out infinite;
+}
+
+.ha-sheet-wave i:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.ha-sheet-wave i:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-wave i {
+  background: #c4b5fd;
+}
+
+.ha-arc-sheet-reply.is-streaming .ha-sheet-ans-prose > :last-child::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  border-radius: 3px;
+  background: rgb(var(--ha-primary, 124 58 237));
+  vertical-align: -2px;
+  margin-left: 4px;
+  animation: haArcCaretBlink 0.9s steps(2, start) infinite;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-reply.is-streaming .ha-sheet-ans-prose > :last-child::after {
+  background: #c4b5fd;
+}
+
+.ha-sheet-bfoot {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin-top: 9px;
+  padding-top: 7px;
+  border-top: 1px solid rgb(var(--ha-outline-variant, 18 18 21) / 0.11);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-bfoot {
+  border-top-color: rgba(255, 255, 255, 0.11);
+}
+
+.ha-sheet-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 9px;
+  border: 0;
+  background: transparent;
   color: rgb(var(--ha-on-surface-variant, 82 82 91));
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
 }
 
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-ans-tool {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.14);
+.ha-sheet-tool-btn:hover,
+.ha-sheet-tool-btn:focus-visible {
+  background: rgb(var(--ha-outline-variant, 18 18 21) / 0.08);
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  outline: none;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-tool-btn {
+  color: rgba(245, 245, 248, 0.62);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-tool-btn:hover,
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-sheet-tool-btn:focus-visible {
+  background: rgba(255, 255, 255, 0.09);
+  color: rgb(var(--ha-on-surface, 248 248 252));
 }
 
 .ha-sheet-ans-prose {
@@ -1335,7 +1500,7 @@ html.ha-arc-sheet-open body > main {
 }
 
 .ha-sheet-evidence {
-  margin: 0;
+  margin: 6px 0 0;
   font-size: 11.5px;
   color: rgb(var(--ha-on-surface-variant, 82 82 91));
 }

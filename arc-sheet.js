@@ -44,7 +44,8 @@ const SUPPORTED_ACTION_TYPES = new Set([
 
 const BUDDY_FAB_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="1" fill="#ffffff"/><rect x="3" y="5" width="1" height="8" fill="#ffffff"/><rect x="12" y="5" width="1" height="8" fill="#ffffff"/><rect x="4" y="5" width="8" height="8" fill="#c5b6ff"/><rect x="5" y="7" width="2" height="2" fill="#121215"/><rect x="9" y="7" width="2" height="2" fill="#121215"/></svg>';
 const BUDDY_STAGE_SVG = '<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect class="ha-arc-buddy-antenna" x="7" y="1" width="2" height="2"/><rect class="ha-arc-buddy-body" x="4" y="4" width="8" height="9"/><rect class="ha-arc-buddy-body" x="3" y="5" width="10" height="7"/><g class="ha-arc-buddy-eyes"><rect class="ha-arc-buddy-eye" x="5" y="7" width="2" height="2"/><rect class="ha-arc-buddy-eye" x="9" y="7" width="2" height="2"/></g></svg>';
-const SEND_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const BUDDY_MINI_SVG = '<svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="9" fill="#121215"/><rect x="3" y="5" width="10" height="7" fill="#121215"/><rect x="5" y="7" width="2" height="2" fill="#ffffff"/><rect x="9" y="7" width="2" height="2" fill="#ffffff"/></svg>';
+const SEND_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 const STOP_SVG = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/></svg>';
 const BACK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
 const CHATS_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path d="M13 9h5M13 13h4"/></svg>';
@@ -52,6 +53,9 @@ const NEW_CHAT_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none
 const CLOSE_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>';
 const SEARCH_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>';
 const PLUS_SM_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const PLUS_THREAD_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const COPY_SVG = '<svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
+const RETRY_SVG = '<svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
 const MORE_DOTS_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>';
 const PIN_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
 const PEN_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
@@ -631,7 +635,7 @@ function syncComposerChrome() {
   }
 
   if (plusLabelEl) {
-    plusLabelEl.textContent = isEmptyMode ? '+ Attach' : '+';
+    plusLabelEl.innerHTML = isEmptyMode ? '+ Attach' : PLUS_THREAD_SVG;
   }
 
   const meta = getAiMeta();
@@ -1436,23 +1440,28 @@ function renderSheetHome() {
             `<button type="button" class="ha-arc-turn-fchip" data-fprompt="${esc(fp)}">${esc(fp)} ↗</button>`
           )).join('')}</div>`
         : '';
-      const respTools = isLast
-        ? `<div class="ha-sheet-resp-tools">
-            <button type="button" class="ha-sheet-resp-lvl" data-open-sheet-hub="1">LVL ${meta.level}</button>
-            <button type="button" id="ha-sheet-ans-retry" class="ha-sheet-ans-tool" title="Regenerate response">↻ RETRY</button>
-            <button type="button" id="ha-sheet-ans-copy" class="ha-sheet-ans-tool" title="Copy response">COPY</button>
+      const lvlHeadMarkup = isLast
+        ? `<button type="button" class="ha-sheet-lvl-plain" data-open-sheet-hub="1">LVL ${meta.level} ›</button>`
+        : `<span class="ha-sheet-lvl-plain is-static">LVL ${meta.level}</span>`;
+      const footTools = isLast
+        ? `<div class="ha-sheet-bfoot">
+            <button type="button" id="ha-sheet-ans-copy" class="ha-sheet-tool-btn" title="Copy response">${COPY_SVG}<span data-copy-lbl>Copy</span></button>
+            <button type="button" id="ha-sheet-ans-retry" class="ha-sheet-tool-btn" title="Regenerate response">${RETRY_SVG}<span>Retry</span></button>
           </div>`
-        : `<div class="ha-sheet-resp-tools"><span class="ha-sheet-resp-lvl is-static">LVL ${meta.level}</span></div>`;
+        : '';
 
       return `
         <div class="ha-arc-sheet-user">${esc(t.question)}</div>
         <article class="ha-arc-sheet-reply">
-          <div class="ha-sheet-resp-hdr">
-            <span class="ha-sheet-resp-brand"><span class="ha-sheet-resp-dot" aria-hidden="true"></span>${esc(meta.chatLabel)}</span>
-            ${respTools}
+          <div class="ha-sheet-bubble-card">
+            <div class="ha-sheet-bhead">
+              <span class="ha-sheet-bbrand"><span class="ha-sheet-mini-buddy" aria-hidden="true">${BUDDY_MINI_SVG}</span><span>${esc(meta.chatLabel)}</span></span>
+              ${lvlHeadMarkup}
+            </div>
+            <div class="ha-sheet-ans-prose">${ansHtml}</div>
+            ${evidenceHtml}
+            ${footTools}
           </div>
-          <div class="ha-sheet-ans-prose">${ansHtml}</div>
-          ${evidenceHtml}
           ${actionCard}
           ${followupHtml}
         </article>
@@ -1490,12 +1499,13 @@ function renderSheetHome() {
 
     bodyEl.querySelector('#ha-sheet-ans-copy')?.addEventListener('click', (ev) => {
       const btn = ev.currentTarget;
+      const lbl = btn?.querySelector?.('[data-copy-lbl]');
       const latest = sheetTurns[sheetTurns.length - 1];
       if (!latest?.answer || !navigator.clipboard?.writeText) return;
       const clean = cleanArcDisplayText(latest.answer);
       void navigator.clipboard.writeText(clean).then(() => {
-        if (btn) btn.textContent = 'COPIED ✓';
-        setTimeout(() => { if (btn?.isConnected) btn.textContent = 'COPY'; }, 1400);
+        if (lbl) lbl.textContent = 'Copied ✓';
+        setTimeout(() => { if (lbl?.isConnected) lbl.textContent = 'Copy'; }, 1400);
       }).catch(() => {});
     });
 
@@ -1563,15 +1573,17 @@ async function submitPrompt(rawText) {
   showStatusMessage('');
   syncComposerChrome();
 
-  // Render prior turns + live incoming bubble immediately
+  // Render prior turns + live incoming tactile paper bubble immediately
   const priorMarkup = sheetTurns.map((t) => `
     <div class="ha-arc-sheet-user">${esc(t.question)}</div>
     <article class="ha-arc-sheet-reply">
-      <div class="ha-sheet-resp-hdr">
-        <span class="ha-sheet-resp-brand"><span class="ha-sheet-resp-dot" aria-hidden="true"></span>${esc(meta.chatLabel)}</span>
-        <div class="ha-sheet-resp-tools"><span class="ha-sheet-resp-lvl is-static">LVL ${meta.level}</span></div>
+      <div class="ha-sheet-bubble-card">
+        <div class="ha-sheet-bhead">
+          <span class="ha-sheet-bbrand"><span class="ha-sheet-mini-buddy" aria-hidden="true">${BUDDY_MINI_SVG}</span><span>${esc(meta.chatLabel)}</span></span>
+          <span class="ha-sheet-lvl-plain is-static">LVL ${meta.level}</span>
+        </div>
+        <div class="ha-sheet-ans-prose">${renderArcChatAnswer(t.answer, esc)}</div>
       </div>
-      <div class="ha-sheet-ans-prose">${renderArcChatAnswer(t.answer, esc)}</div>
     </article>
   `).join('');
 
@@ -1580,13 +1592,15 @@ async function submitPrompt(rawText) {
   userBubble.className = 'ha-arc-sheet-user';
   userBubble.textContent = question;
   const replyCard = document.createElement('article');
-  replyCard.className = 'ha-arc-sheet-reply';
+  replyCard.className = 'ha-arc-sheet-reply is-streaming';
   replyCard.innerHTML = `
-    <div class="ha-sheet-resp-hdr">
-      <span class="ha-sheet-resp-brand"><span class="ha-sheet-resp-dot" aria-hidden="true"></span>${esc(meta.chatLabel)}</span>
-      <div class="ha-sheet-resp-tools"><span class="ha-sheet-resp-lvl is-static">LVL ${meta.level}</span></div>
+    <div class="ha-sheet-bubble-card">
+      <div class="ha-sheet-bhead">
+        <span class="ha-sheet-bbrand"><span class="ha-sheet-mini-buddy" aria-hidden="true">${BUDDY_MINI_SVG}</span><span>${esc(meta.chatLabel)}</span></span>
+        <span class="ha-sheet-wave" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <div class="ha-sheet-ans-prose"><span class="ha-arc-thinking">Thinking through your routines…</span></div>
     </div>
-    <div class="ha-sheet-ans-prose"><span class="ha-arc-thinking"><span class="ha-arc-thinking-dot" aria-hidden="true"></span>Thinking through your routines…</span></div>
   `;
   const liveProseEl = replyCard.querySelector('.ha-sheet-ans-prose');
   bodyEl.append(userBubble, replyCard);
@@ -1644,7 +1658,7 @@ async function submitPrompt(rawText) {
           wordReveal.reset();
           receivedDraft = '';
           if (liveProseEl) {
-            liveProseEl.innerHTML = '<span class="ha-arc-thinking"><span class="ha-arc-thinking-dot" aria-hidden="true"></span>Finishing your reply…</span>';
+            liveProseEl.innerHTML = '<span class="ha-arc-thinking">Finishing your reply…</span>';
           }
         } else if (ev === 'done') {
           if (!streamFellBack) {
@@ -1958,13 +1972,15 @@ export function mountArcSheet() {
             <div class="ha-arc-beam-frame">
               <form id="ha-arc-sheet-form" class="ha-arc-sheet-form">
                 <div id="ha-arc-sheet-context-chips" class="ha-arc-context-chips hidden" aria-label="Attached context"></div>
-                <textarea id="ha-arc-sheet-input" class="ha-arc-sheet-input" rows="2" maxlength="1000" placeholder="Ask for a 2-minute backup habit, split a tough task, or audit your 28-day consistency…" autocomplete="off" aria-label="Ask ARC anything"></textarea>
-                <div class="ha-arc-composer-foot">
-                  <div class="ha-arc-composer-pills">
-                    <button type="button" id="ha-arc-sheet-plus" class="ha-arc-sheet-plus" aria-haspopup="dialog" aria-expanded="false" title="Attach Tasks, Focus sessions or Notes" aria-label="Attach Tasks, Focus sessions or Notes"><span id="ha-arc-plus-label">+ Attach</span></button>
-                    <button type="button" id="ha-arc-tone-chip" class="ha-arc-tone-chip" aria-label="Open quests, powers and AI voice tones">Coach · LVL 1 ›</button>
+                <div class="ha-arc-composer-main">
+                  <textarea id="ha-arc-sheet-input" class="ha-arc-sheet-input" rows="2" maxlength="1000" placeholder="Ask for a 2-minute backup habit, split a tough task, or audit your 28-day consistency…" autocomplete="off" aria-label="Ask ARC anything"></textarea>
+                  <div class="ha-arc-composer-foot">
+                    <div class="ha-arc-composer-pills">
+                      <button type="button" id="ha-arc-sheet-plus" class="ha-arc-sheet-plus" aria-haspopup="dialog" aria-expanded="false" title="Attach Tasks, Focus sessions or Notes" aria-label="Attach Tasks, Focus sessions or Notes"><span id="ha-arc-plus-label">+ Attach</span></button>
+                      <button type="button" id="ha-arc-tone-chip" class="ha-arc-tone-chip" aria-label="Open quests, powers and AI voice tones">Coach · LVL 1 ›</button>
+                    </div>
+                    <button id="ha-arc-sheet-send" class="ha-arc-sheet-send" type="submit" aria-label="Ask ARC"><span>Ask</span><span aria-hidden="true">→</span></button>
                   </div>
-                  <button id="ha-arc-sheet-send" class="ha-arc-sheet-send" type="submit" aria-label="Ask ARC"><span>Ask</span><span aria-hidden="true">→</span></button>
                 </div>
               </form>
             </div>
