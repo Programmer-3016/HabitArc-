@@ -5233,3 +5233,12 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     padding: 8px 2px !important;
   }
 }
+
+@media (min-width: 768px) and (max-width: 880px) {
+  .ha-arc-spot {
+    grid-column: span 6;
+  }
+  .ha-arc-pill-card {
+    grid-column: span 3;
+  }
+}

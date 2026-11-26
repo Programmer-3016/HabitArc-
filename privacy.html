@@ -18,10 +18,22 @@ ul,ol{padding-left:20px}
 .callout{background:#eef7f2;border:1.5px solid var(--accent);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px}
 .danger-box{background:#fff5f4;border:1.5px solid var(--danger);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px}
 table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
-th,td{border:1px solid #d5dbd7;padding:8px 10px;text-align:left;vertical-align:top}
+th,td{border:1px solid #d5dbd7;padding:8px 10px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+code{overflow-wrap:anywhere}
 th{background:#f2f4f3;font-weight:700}
 a{color:var(--accent);font-weight:700}
 .nav-links{margin-top:26px;display:flex;flex-wrap:wrap;gap:14px}
+@media(max-width:560px){
+  body{padding:14px 12px 48px}
+  main{padding:20px 15px;box-shadow:3.5px 3.5px 0 var(--ink)}
+  h1{font-size:22px}
+  table,thead,tbody,tr,th,td{display:block;width:100%}
+  thead{display:none}
+  tr{border:1.5px solid #d5dbd7;border-radius:10px;margin-bottom:10px;overflow:hidden}
+  td{border:0;border-bottom:1px solid #e6ebe8;padding:8px 11px}
+  td:first-child{background:#f2f4f3;font-weight:700}
+  td:last-child{border-bottom:0}
+}
 </style>
 </head>
 <body>
