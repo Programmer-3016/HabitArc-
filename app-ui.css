@@ -4878,7 +4878,7 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     background-image: none;
   }
 
-  body.ha-arc-body > main.ha-arc-ai {
+  body.ha-arc-body:not(.is-arc-thread-active) > main.ha-arc-ai {
     max-width: 880px;
     width: 100%;
     margin-inline: auto;
@@ -5168,14 +5168,14 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     font-size: 13.5px;
   }
 
-  /* Studio Composer Card on Desktop */
-  .ha-arc-composer {
+  /* Studio Composer Card on Desktop Home (Thread view stays 100% original) */
+  body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-composer {
     width: 100%;
     gap: 7px;
     padding-top: 2px;
   }
 
-  .ha-arc-prompt-box {
+  body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-prompt-box {
     border-radius: 20px;
     padding: 9px 10px;
     gap: 11px;
@@ -5186,18 +5186,18 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     transition: box-shadow 140ms ease, border-color 140ms ease;
   }
 
-  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-prompt-box {
+  :root:not([data-theme="light"]):not([data-theme="sage"]) body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-prompt-box {
     background: rgb(var(--ha-surface, 26 26 35));
     border: 1.6px solid rgba(255, 255, 255, 0.22);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
   }
 
-  .ha-arc-prompt-box:focus-within {
+  body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-prompt-box:focus-within {
     border-color: rgb(var(--ha-primary, 124 58 237));
     box-shadow: 0 0 0 4px rgb(var(--ha-primary, 124 58 237) / 0.14), 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
   }
 
-  .ha-arc-attach-btn {
+  body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-attach-btn {
     width: 40px !important;
     height: 40px !important;
     border-radius: 12px !important;
@@ -5207,12 +5207,12 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     box-shadow: none !important;
   }
 
-  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-attach-btn {
+  :root:not([data-theme="light"]):not([data-theme="sage"]) body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-attach-btn {
     border-color: rgba(255, 255, 255, 0.2) !important;
     background: rgba(255, 255, 255, 0.07) !important;
   }
 
-  .ha-arc-send-btn {
+  body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-send-btn {
     width: 40px;
     height: 40px;
     border-radius: 12px;
@@ -5222,26 +5222,14 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     box-shadow: none;
   }
 
-  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-send-btn {
+  :root:not([data-theme="light"]):not([data-theme="sage"]) body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-send-btn {
     background: var(--ha-toggle-done-bg, #47e393);
     color: var(--ha-toggle-done-fg, #121215);
     border-color: #000000;
   }
 
-  .ha-arc-prompt-box textarea {
+  body.ha-arc-body:not(.is-arc-thread-active) .ha-arc-prompt-box textarea {
     font-size: 15.5px;
     padding: 8px 2px !important;
-  }
-
-  /* Desktop Thread View Polish */
-  body.ha-arc-body.is-arc-thread-active .ha-arc-answer-card {
-    border-radius: 18px;
-    border: 1.8px solid var(--rpg-shadow-ink, #121215);
-    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
-  }
-
-  :root:not([data-theme="light"]):not([data-theme="sage"]) body.ha-arc-body.is-arc-thread-active .ha-arc-answer-card {
-    border: 1.4px solid rgba(255, 255, 255, 0.16);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
   }
 }
