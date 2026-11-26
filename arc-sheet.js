@@ -45,6 +45,11 @@ const SUPPORTED_ACTION_TYPES = new Set([
 const BUDDY_FAB_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="1" fill="#ffffff"/><rect x="3" y="5" width="1" height="8" fill="#ffffff"/><rect x="12" y="5" width="1" height="8" fill="#ffffff"/><rect x="4" y="5" width="8" height="8" fill="#c5b6ff"/><rect x="5" y="7" width="2" height="2" fill="#121215"/><rect x="9" y="7" width="2" height="2" fill="#121215"/></svg>';
 const BUDDY_STAGE_SVG = '<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect class="ha-arc-buddy-antenna" x="7" y="1" width="2" height="2"/><rect class="ha-arc-buddy-body" x="4" y="4" width="8" height="9"/><rect class="ha-arc-buddy-body" x="3" y="5" width="10" height="7"/><g class="ha-arc-buddy-eyes"><rect class="ha-arc-buddy-eye" x="5" y="7" width="2" height="2"/><rect class="ha-arc-buddy-eye" x="9" y="7" width="2" height="2"/></g></svg>';
 const BUDDY_MINI_SVG = '<svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="9" fill="#121215"/><rect x="3" y="5" width="10" height="7" fill="#121215"/><rect x="5" y="7" width="2" height="2" fill="#ffffff"/><rect x="9" y="7" width="2" height="2" fill="#ffffff"/></svg>';
+function getBuddyAvatarImg(sizePx, fallbackSvg) {
+  const src = window.HabitArc?.getAiAvatarSrc?.();
+  if (!src) return fallbackSvg;
+  return `<img src="${esc(src)}" alt="" width="${sizePx}" height="${sizePx}" style="width:${sizePx}px;height:${sizePx}px;object-fit:contain;image-rendering:pixelated;display:block;" aria-hidden="true"/>`;
+}
 const SEND_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 const STOP_SVG = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/></svg>';
 const BACK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
@@ -713,6 +718,12 @@ function syncComposerChrome() {
   }
 
   const meta = getAiMeta();
+  const stageBuddyBox = emptyHeroEl?.querySelector('.ha-arc-buddy-box');
+  if (stageBuddyBox) stageBuddyBox.innerHTML = getBuddyAvatarImg(34, BUDDY_STAGE_SVG);
+  if (fab) {
+    const fabLabel = meta.aiName === 'ARC' ? 'Ask ARC' : `Ask ${meta.aiName}`;
+    fab.innerHTML = `${getBuddyAvatarImg(20, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(fabLabel)}</span>`;
+  }
   const toneLabels = { default: 'Coach', calm: 'Calm', drill: 'Drill', hinglish: 'Hinglish' };
   const toneText = toneLabels[meta.activeTone || meta.aiTone] || 'Coach';
   if (toneChipEl) {
@@ -761,6 +772,12 @@ function formatChatDateShort(ts) {
 function renderSheetHistoryDrawer() {
   ensureSheetChatsLoaded(getActiveUid());
   const meta = getAiMeta();
+  const stageBuddyBox = emptyHeroEl?.querySelector('.ha-arc-buddy-box');
+  if (stageBuddyBox) stageBuddyBox.innerHTML = getBuddyAvatarImg(34, BUDDY_STAGE_SVG);
+  if (fab) {
+    const fabLabel = meta.aiName === 'ARC' ? 'Ask ARC' : `Ask ${meta.aiName}`;
+    fab.innerHTML = `${getBuddyAvatarImg(20, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(fabLabel)}</span>`;
+  }
   const histKickerEl = dialog?.querySelector('#ha-sheet-hist-kicker');
   if (histKickerEl) histKickerEl.textContent = `${meta.aiName} STUDIO`;
 
@@ -870,6 +887,12 @@ const HUB_TONE_ICONS = {
 function renderSheetHubDrawer() {
   if (!hubBodyEl) return;
   const meta = getAiMeta();
+  const stageBuddyBox = emptyHeroEl?.querySelector('.ha-arc-buddy-box');
+  if (stageBuddyBox) stageBuddyBox.innerHTML = getBuddyAvatarImg(34, BUDDY_STAGE_SVG);
+  if (fab) {
+    const fabLabel = meta.aiName === 'ARC' ? 'Ask ARC' : `Ask ${meta.aiName}`;
+    fab.innerHTML = `${getBuddyAvatarImg(20, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(fabLabel)}</span>`;
+  }
   const doneQ = meta.questsDoneCount ?? 0;
   const totalQ = meta.questsTotalCount ?? 3;
   const quests = Array.isArray(meta.quests) ? meta.quests : [];
@@ -930,7 +953,7 @@ function renderSheetHubDrawer() {
       <div class="ha-sheet-hub-hero">
         <div class="ha-sheet-hub-hero-top">
           <div class="ha-sheet-hub-id">
-            <div class="ha-sheet-hub-buddy" aria-hidden="true">${BUDDY_STAGE_SVG}</div>
+            <div class="ha-sheet-hub-buddy" aria-hidden="true">${getBuddyAvatarImg(32, BUDDY_STAGE_SVG)}</div>
             <div class="min-w-0">
               <div class="ha-sheet-hub-kicker">LVL ${meta.level} · ${esc(String(meta.rank || 'Habit Builder').toUpperCase())}</div>
               <strong class="ha-sheet-hub-title">${esc(meta.aiName)} Progression</strong>
@@ -1275,6 +1298,12 @@ function undoActiveActionNow() {
 function renderActiveActionMarkup() {
   if (!activeAction || activeActionDismissed || !SUPPORTED_ACTION_TYPES.has(activeAction.type)) return '';
   const meta = getAiMeta();
+  const stageBuddyBox = emptyHeroEl?.querySelector('.ha-arc-buddy-box');
+  if (stageBuddyBox) stageBuddyBox.innerHTML = getBuddyAvatarImg(34, BUDDY_STAGE_SVG);
+  if (fab) {
+    const fabLabel = meta.aiName === 'ARC' ? 'Ask ARC' : `Ask ${meta.aiName}`;
+    fab.innerHTML = `${getBuddyAvatarImg(20, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(fabLabel)}</span>`;
+  }
   const aiUpper = meta.aiName.toUpperCase();
   const isUpdatedWithUndo = Boolean(activeActionApplied && activePrevHabitPatch && activeAction.type === 'update_habit');
   const hasGenericUndo = Boolean(activeActionApplied && activeActionUndo);
@@ -1470,6 +1499,12 @@ function showStatusMessage(messageHtml, retryQuestion = '') {
 function renderSheetHome() {
   if (!bodyEl || !chipsEl) return;
   const meta = getAiMeta();
+  const stageBuddyBox = emptyHeroEl?.querySelector('.ha-arc-buddy-box');
+  if (stageBuddyBox) stageBuddyBox.innerHTML = getBuddyAvatarImg(34, BUDDY_STAGE_SVG);
+  if (fab) {
+    const fabLabel = meta.aiName === 'ARC' ? 'Ask ARC' : `Ask ${meta.aiName}`;
+    fab.innerHTML = `${getBuddyAvatarImg(20, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(fabLabel)}</span>`;
+  }
   const { firstName, ctxLead, ctxTail, chips } = buildContextSummary();
   const { recentChat, totalSaved } = hydrateSavedSheetSession(false);
 
@@ -1658,6 +1693,12 @@ async function submitPrompt(rawText) {
   if (!question || activeController) return;
   const app = window.HabitArc;
   const meta = getAiMeta();
+  const stageBuddyBox = emptyHeroEl?.querySelector('.ha-arc-buddy-box');
+  if (stageBuddyBox) stageBuddyBox.innerHTML = getBuddyAvatarImg(34, BUDDY_STAGE_SVG);
+  if (fab) {
+    const fabLabel = meta.aiName === 'ARC' ? 'Ask ARC' : `Ask ${meta.aiName}`;
+    fab.innerHTML = `${getBuddyAvatarImg(20, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(fabLabel)}</span>`;
+  }
 
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     showStatusMessage(`You appear to be offline. Reconnect to ask ${esc(meta.chatLabel)}.`, question);

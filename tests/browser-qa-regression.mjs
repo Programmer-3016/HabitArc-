@@ -518,6 +518,8 @@ try {
     await sleep(160);
   }
   const obAi = await ev(`(() => {
+    const winkyBtn = document.querySelector('#ai-avatar-grid .ai-face-opt[data-avatar="winky"]');
+    winkyBtn?.click();
     const inp = document.getElementById('ai-name-input');
     inp.value = 'NOVA';
     inp.dispatchEvent(new Event('input', { bubbles: true }));
@@ -526,6 +528,9 @@ try {
       indicator: document.getElementById('step-indicator')?.textContent.trim(),
       preview: document.getElementById('ob-ai-preview-name')?.textContent.trim(),
       inline: document.getElementById('ob-ai-preview-inline')?.textContent.trim(),
+      faceCount: document.querySelectorAll('#ai-avatar-grid .ai-face-opt').length,
+      selectedFace: document.querySelector('#ai-avatar-grid .ai-face-opt.selected')?.dataset.avatar,
+      hasOldLvlCard: /LVL\\s*1/i.test(document.getElementById('step-5')?.innerText || ''),
       overflow: document.documentElement.scrollWidth > innerWidth
     };
   })()`);
@@ -534,7 +539,30 @@ try {
   assert.equal(obAi.indicator, '5 / 8');
   assert.equal(obAi.preview, 'NOVA');
   assert.equal(obAi.inline, 'NOVA');
+  assert.equal(obAi.faceCount, 6, 'Onboarding Step 5 renders all 6 Pack 2 pixel buddies');
+  assert.equal(obAi.selectedFace, 'winky', 'Tapping a pixel buddy selects it cleanly');
+  assert.equal(obAi.hasOldLvlCard, false, 'LVL 1 card is completely removed from Onboarding Step 5');
   assert.equal(obAi.overflow, false, 'Onboarding Step 5 fits 390px without horizontal overflow');
+
+  // Verify Step 6 is now Wake-Up Time (Gentle reminders removed)
+  await ev(`document.getElementById('next-step-btn')?.click()`);
+  await sleep(160);
+  const obWake = await ev(`(() => {
+    const earlyBtn = document.querySelector('#wake-time-options .wake-opt[data-val="06:00"]');
+    earlyBtn?.click();
+    return {
+      step6Active: document.getElementById('step-6')?.classList.contains('active'),
+      indicator: document.getElementById('step-indicator')?.textContent.trim(),
+      wakeInputVal: document.getElementById('wake-time-input')?.value,
+      hasGentleReminders: /Gentle reminders/i.test(document.getElementById('step-6')?.innerText || ''),
+      overflow: document.documentElement.scrollWidth > innerWidth
+    };
+  })()`);
+  assert.equal(obWake.step6Active, true, 'Onboarding Step 6 Wake-Up Time activates cleanly');
+  assert.equal(obWake.indicator, '6 / 8');
+  assert.equal(obWake.wakeInputVal, '06:00', 'Wake-up time preset syncs custom time input');
+  assert.equal(obWake.hasGentleReminders, false, 'Gentle reminders step is removed from Onboarding');
+  assert.equal(obWake.overflow, false, 'Onboarding Step 6 fits 390px without horizontal overflow');
 
   await go(`${base}/Settings.html`);
   await ev(`(() => {
@@ -572,6 +600,31 @@ try {
   assert.equal(settingsAi.overflow, false, 'Settings HabitArc AI section fits 390px cleanly');
 
   await go(`${base}/Dashboard.html`);
+  // Verify Post-Onboarding Phone Notification Permission Sheet opens cleanly right after onboarding
+  const postObSheet = await ev(`(() => {
+    const d = JSON.parse(localStorage.getItem('habitarc_data') || '{}');
+    d.settings = { ...(d.settings || {}), aiName: 'NOVA', aiAvatar: 'winky', wakeUpTime: '06:30', defaultReminderTime: '07:00' };
+    localStorage.setItem('habitarc_data', JSON.stringify(d));
+    localStorage.setItem('habitarc_post_onboarding_notif_prompt', '1');
+    localStorage.removeItem('habitarc_notif_prompt_dismissed');
+    window.dispatchEvent(new CustomEvent('habitarc:data-changed', { detail: { source: 'storage' } }));
+    const backdrop = document.getElementById('ha-post-ob-notif-backdrop');
+    const isOpen = backdrop && !backdrop.hidden;
+    const title = document.getElementById('ha-notif-perm-title')?.textContent.trim();
+    const imgSrc = document.getElementById('ha-notif-perm-img')?.getAttribute('src');
+    return { isOpen, title, imgSrc };
+  })()`);
+  await sleep(120);
+  await saveShot('dashboard-post-ob-notif-390.png');
+  const closedAfterTap = await ev(`(() => {
+    document.getElementById('ha-notif-later-btn')?.click();
+    return Boolean(document.getElementById('ha-post-ob-notif-backdrop')?.hidden);
+  })()`);
+  assert.equal(postObSheet.isOpen, true, 'Post-onboarding notification permission sheet opens on Dashboard');
+  assert.equal(postObSheet.title, 'Allow NOVA to send reminders?');
+  assert.equal(postObSheet.imgSrc, 'icons/ai-buddies/winky.png');
+  assert.equal(closedAfterTap, true, 'Dismissing notification sheet hides it cleanly');
+
   const dashLvl1 = await ev(`(() => {
     const firstHabit = document.querySelector('.ha-dashboard-habit');
     const dock = document.querySelector('.ha-bottom-nav');

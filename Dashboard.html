@@ -212,6 +212,39 @@
 
 </main>
 
+<!-- Post-Onboarding Phone Notification Permission Sheet -->
+<div id="ha-post-ob-notif-backdrop" class="ha-notif-perm-backdrop" hidden aria-hidden="true">
+    <section id="ha-post-ob-notif-card" class="ha-notif-perm-card" role="dialog" aria-modal="true" aria-labelledby="ha-notif-perm-title" aria-describedby="ha-notif-perm-desc">
+        <div class="ha-notif-perm-head">
+            <div class="ha-notif-perm-avatar">
+                <img id="ha-notif-perm-img" src="icons/ai-buddies/beam.png" alt="" width="52" height="52"/>
+            </div>
+            <div class="min-w-0 flex-1">
+                <h2 id="ha-notif-perm-title" class="ha-notif-perm-title">Allow ARC to send reminders?</h2>
+                <p id="ha-notif-perm-desc" class="ha-notif-perm-desc">Get timely habit nudges on your phone aligned with your morning schedule.</p>
+            </div>
+        </div>
+
+        <div class="ha-notif-perm-demo" aria-hidden="true">
+            <div class="ha-notif-perm-demo-top">
+                <span class="ha-notif-perm-pill">
+                    <span class="ha-notif-perm-mini"><img id="ha-notif-perm-mini-img" src="icons/ai-buddies/beam.png" alt=""/></span>
+                    <span id="ha-notif-perm-pill-name" class="geist">ARC</span>
+                </span>
+                <span id="ha-notif-perm-time" class="ha-notif-perm-time geist">7:30 AM</span>
+            </div>
+            <p id="ha-notif-perm-msg" class="ha-notif-perm-msg">Hey, time for Daily Meditation</p>
+        </div>
+
+        <p id="ha-notif-perm-feedback" class="ha-notif-perm-feedback" hidden role="status" aria-live="polite"></p>
+
+        <div class="ha-notif-perm-actions">
+            <button id="ha-notif-allow-btn" type="button" class="ha-notif-allow-btn">Allow notifications</button>
+            <button id="ha-notif-later-btn" type="button" class="ha-notif-later-btn">Not now</button>
+        </div>
+    </section>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- BOTTOM NAV — Mobile (4 Clear Core Tabs) -->
 <!-- ═══════════════════════════════════════════════════════ -->
@@ -431,6 +464,125 @@
 
     render();
 
+    // Post-Onboarding Phone Notification Permission Prompt
+    let refreshPostObNotifPrompt = () => {};
+    (function setupPostOnboardingNotifPrompt() {
+        const backdrop = document.getElementById('ha-post-ob-notif-backdrop');
+        const allowBtn = document.getElementById('ha-notif-allow-btn');
+        const laterBtn = document.getElementById('ha-notif-later-btn');
+        const titleEl = document.getElementById('ha-notif-perm-title');
+        const descEl = document.getElementById('ha-notif-perm-desc');
+        const imgEl = document.getElementById('ha-notif-perm-img');
+        const miniImgEl = document.getElementById('ha-notif-perm-mini-img');
+        const pillNameEl = document.getElementById('ha-notif-perm-pill-name');
+        const timeEl = document.getElementById('ha-notif-perm-time');
+        const msgEl = document.getElementById('ha-notif-perm-msg');
+        const feedbackEl = document.getElementById('ha-notif-perm-feedback');
+        if (!backdrop || !allowBtn || !laterBtn) return;
+
+        function fmt12(hhmm) {
+            const m = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(hhmm || '').trim());
+            if (!m) return '7:30 AM';
+            const h24 = Number(m[1]);
+            const min = m[2];
+            return `${h24 % 12 || 12}:${min} ${h24 >= 12 ? 'PM' : 'AM'}`;
+        }
+
+        function dismissPrompt(markDismissed = true) {
+            backdrop.hidden = true;
+            backdrop.setAttribute?.('aria-hidden', 'true');
+            try {
+                window.localStorage?.removeItem?.('habitarc_post_onboarding_notif_prompt');
+                if (markDismissed) window.localStorage?.setItem?.('habitarc_notif_prompt_dismissed', '1');
+            } catch {}
+        }
+
+        function maybeOpenPrompt() {
+            const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
+            const supportsWebNotif = typeof window !== 'undefined' && 'Notification' in window;
+            if (!isNative && !supportsWebNotif) return;
+
+            let postObFlag = false;
+            let dismissedFlag = false;
+            try {
+                postObFlag = window.localStorage?.getItem?.('habitarc_post_onboarding_notif_prompt') === '1';
+                dismissedFlag = window.localStorage?.getItem?.('habitarc_notif_prompt_dismissed') === '1';
+            } catch {}
+
+            const settings = HabitArc.getSettings?.() || {};
+            if (supportsWebNotif && Notification.permission === 'granted') {
+                if (postObFlag) {
+                    HabitArc.setReminderPreferences?.({ dailyReminder: true });
+                    dismissPrompt(true);
+                }
+                return;
+            }
+            if (supportsWebNotif && Notification.permission === 'denied') {
+                if (postObFlag) dismissPrompt(true);
+                return;
+            }
+
+            const shouldPrompt = postObFlag || (Boolean(settings.dailyReminder) && !dismissedFlag);
+            if (!shouldPrompt) return;
+
+            const aiName = HabitArc.normaliseAiName?.(settings.aiName) || settings.aiName || 'ARC';
+            const avatarSrc = HabitArc.getAiAvatarSrc?.(settings.aiAvatar) || 'icons/ai-buddies/beam.png';
+            const wakeLabel = fmt12(settings.wakeUpTime || '07:00');
+            const firstHabit = (HabitArc.getTodayHabits?.() || HabitArc.getHabits?.() || [])[0];
+            const previewTime = fmt12(firstHabit?.reminder || settings.defaultReminderTime || '07:30');
+            const habitTitle = firstHabit?.name || 'your daily habit';
+
+            if (titleEl) titleEl.textContent = `Allow ${aiName} to send reminders?`;
+            if (descEl) descEl.textContent = `Get timely habit nudges on your phone aligned with your ${wakeLabel} wake-up time.`;
+            if (imgEl) imgEl.src = avatarSrc;
+            if (miniImgEl) miniImgEl.src = avatarSrc;
+            if (pillNameEl) pillNameEl.textContent = aiName;
+            if (timeEl) timeEl.textContent = previewTime;
+            if (msgEl) msgEl.textContent = `Hey, time for ${habitTitle}`;
+
+            backdrop.hidden = false;
+            backdrop.setAttribute?.('aria-hidden', 'false');
+        }
+
+        allowBtn.addEventListener?.('click', async () => {
+            allowBtn.disabled = true;
+            allowBtn.textContent = 'Requesting…';
+            try {
+                const res = await (HabitArc.requestNotificationPermission?.() || Promise.resolve({ granted: false }));
+                if (res?.granted) {
+                    HabitArc.setReminderPreferences?.({ dailyReminder: true });
+                    void HabitArc.syncNativeReminders?.();
+                    dismissPrompt(true);
+                    window.HabitArcUI?.announce?.('Phone notifications enabled.');
+                } else {
+                    if (feedbackEl) {
+                        feedbackEl.hidden = false;
+                        feedbackEl.textContent = res?.message || 'Permission was not granted. You can enable reminders anytime in Settings.';
+                    }
+                    window.setTimeout?.(() => dismissPrompt(true), 1600);
+                }
+            } finally {
+                allowBtn.disabled = false;
+                allowBtn.textContent = 'Allow notifications';
+            }
+        });
+
+        laterBtn.addEventListener?.('click', () => {
+            dismissPrompt(true);
+        });
+
+        backdrop.addEventListener?.('click', (e) => {
+            if (e.target === backdrop) dismissPrompt(true);
+        });
+
+        document.addEventListener?.('keydown', (e) => {
+            if (e.key === 'Escape' && !backdrop.hidden) dismissPrompt(true);
+        });
+
+        refreshPostObNotifPrompt = maybeOpenPrompt;
+        maybeOpenPrompt();
+    })();
+
     function applyAuthenticatedUser(user) {
         signedInUser = user || null;
         renderHeader();
@@ -456,6 +608,7 @@
         lastSig = stateSig();
         if (source === 'cloud' || source === 'user-cache' || source === 'storage' || source === 'visibility') {
             render();
+            refreshPostObNotifPrompt();
         }
     });
     document.addEventListener?.('visibilitychange', () => {

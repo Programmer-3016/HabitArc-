@@ -20,11 +20,19 @@ async function checkSupport(){
    }catch{}
  }
  const cloud=window.HabitArc?.getCloudSyncStatus?.();
+ const reminderPrefs=window.HabitArc?.getReminderPreferences?.();
+ const timedHabits=(window.HabitArc?.getHabits?.()||[]).filter(h=>/^([01]\d|2[0-3]):[0-5]\d$/.test(String(h?.reminder||''))).length;
+ const reminderMode=reminderPrefs?.nativeSupported
+   ? 'Native exact alarms ('+timedHabits+' timed)'
+   : (reminderPrefs?.dailyReminder && notifications==='granted'
+     ? 'Active while open ('+timedHabits+' timed)'
+     : (timedHabits+' timed · enable Daily Reminder'));
  return [
    {label:'Secure HTTPS context',ok:secure,value:secure?'Available':'Not secure'},
    {label:'Offline service worker',ok:sw&&cached,value:sw?(cached?'Cached shell found':'Shell not cached yet'):'Unavailable'},
    {label:'Installed PWA',ok:Boolean(standalone),value:standalone?'Running standalone':'Opened in browser'},
-   {label:'Notification permission',ok:notifications==='granted',value:notifications},
+   {label:'Notification permission',ok:notifications==='granted'||reminderPrefs?.permission==='granted',value:reminderPrefs?.permission||notifications},
+   {label:'Habit reminder engine',ok:Boolean(reminderPrefs?.dailyReminder&&(notifications==='granted'||reminderPrefs?.permission==='granted')),value:reminderMode},
    {label:'Local storage protection',ok:storage==='persistent',value:storage+(usage?' · '+usage:'')},
    {label:'Habit cloud connection',ok:Boolean(cloud?.connected),value:cloud?.connected?'Connection reported':'Not verified / offline'}
  ];

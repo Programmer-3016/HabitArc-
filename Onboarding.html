@@ -319,7 +319,78 @@
     .check-badge .material-symbols-outlined { font-size: 14px; font-weight: 700; }
 
     .chip { padding: 8px 14px; border-radius: 9999px; font-size: 14px; font-weight: 600; box-shadow: 0 2.5px 0 #031e13; }
-    .chip:hover { background: #0d1612; color: #ffffff; border-color: #031e13; }
+    .chip:hover, .chip.selected-chip { background: #0d1612; color: #ffffff; border-color: #031e13; }
+
+    /* Step 5 Pack 2 Pixel Buddy Selector */
+    .ai-face-opt {
+        position: relative;
+        background: #ffffff;
+        border: 2px solid #031e13;
+        box-shadow: 0 3px 0 #031e13;
+        border-radius: 22px;
+        padding: 12px 6px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition: background-color 0.14s ease-out, box-shadow 0.14s ease-out;
+    }
+    .ai-face-opt:active { transform: none; }
+    .ai-face-opt.selected {
+        background: #c4b5fd;
+        border-color: #031e13;
+        box-shadow: 0 4px 0 #031e13;
+    }
+    .ai-face-opt .check-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 20px;
+        height: 20px;
+        background: #0d1612;
+        color: #47e393;
+    }
+    .ai-face-spr {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+        image-rendering: pixelated;
+        pointer-events: none;
+        user-select: none;
+    }
+    .ai-face-lbl {
+        font-size: 11px;
+        font-weight: 800;
+        color: #012d1d;
+        letter-spacing: 0.03em;
+    }
+    .wake-sub {
+        font-size: 11.5px;
+        font-weight: 500;
+        color: rgba(1, 45, 29, 0.65);
+        margin-top: -4px;
+        transition: color 0.12s ease-out;
+    }
+    .opt.selected .wake-sub {
+        color: rgba(255, 255, 255, 0.72);
+    }
+    #wake-time-input,
+    #wake-time-input:focus,
+    #wake-time-input:focus-visible {
+        background: #eafaf1 !important;
+        border: 1.5px solid #031e13 !important;
+        border-radius: 12px !important;
+        padding: 6px 10px !important;
+        font-size: 14px;
+        font-weight: 700;
+        color: #012d1d;
+        outline: none !important;
+        box-shadow: none !important;
+        --tw-ring-shadow: 0 0 #0000 !important;
+    }
 
     .custom-option-input,
     .custom-option-input:focus,
@@ -597,6 +668,8 @@
         #step-1 .step-1-headline { font-size: 29px; }
         .hero-card-float { width: 215px; }
         .step-card { padding-top: 12px !important; }
+        .ai-face-spr { width: 50px; height: 50px; }
+        .ai-face-opt { padding: 9px 4px 8px; border-radius: 18px; }
     }
 </style>
 </head>
@@ -797,45 +870,89 @@
     </div>
 
     <!-- STEP 5: Name your AI buddy -->
-    <div id="step-5" class="step-card animate-in pt-6 sm:pt-10 w-full">
+    <div id="step-5" class="step-card animate-in pt-5 sm:pt-8 w-full">
         <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Name your AI.</h2>
-        <p class="mt-2 text-[15px] text-outline">Starts at Level 1 building habits for you.</p>
+        <p class="mt-1.5 text-[15px] text-outline">Pick your pixel buddy &amp; give it a name.</p>
+        <p class="sr-only" aria-live="polite"><span id="ob-ai-preview-name">ARC</span> (<span id="ob-ai-preview-face">BEAM</span>) — <span id="ob-ai-preview-inline">ARC</span> selected</p>
 
-        <div class="mt-6 bg-white/95 border-2 border-[#031e13] shadow-[0_4px_0_#031e13] rounded-2xl p-4 flex items-center gap-3.5">
-            <span class="w-12 h-12 rounded-xl bg-[#012d1d] border-2 border-[#031e13] grid place-items-center shrink-0" aria-hidden="true">
-                <svg width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges">
-                    <rect x="7" y="1" width="2" height="2" fill="#47e393"/>
-                    <rect x="4" y="4" width="8" height="1" fill="#47e393"/>
-                    <rect x="4" y="5" width="8" height="8" fill="#1b4332"/>
-                    <rect x="5" y="7" width="2" height="2" fill="#ffffff"/>
-                    <rect x="9" y="7" width="2" height="2" fill="#ffffff"/>
-                </svg>
-            </span>
-            <div class="min-w-0 flex-1">
-                <div class="flex items-center justify-between gap-2">
-                    <strong id="ob-ai-preview-name" class="text-[16px] font-extrabold text-[#012d1d] truncate">ARC</strong>
-                    <span class="px-2 py-0.5 rounded-md bg-[#47e393] border border-[#031e13] text-[#012d1d] text-[10px] font-extrabold geist tracking-wider shrink-0">LVL 1</span>
-                </div>
-                <p id="ob-ai-preview-sub" class="text-xs text-[#012d1d]/80 mt-0.5 leading-snug">Right now <span id="ob-ai-preview-inline">ARC</span> can make habits for you. Level up as your streak grows.</p>
-            </div>
+        <div id="ai-avatar-grid" class="mt-5 grid grid-cols-3 gap-2.5" role="radiogroup" aria-label="Choose an AI pixel buddy">
+            <button type="button" class="ai-face-opt selected" data-avatar="beam" role="radio" aria-checked="true" aria-label="Beam — Happy pixel bot">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <img src="icons/ai-buddies/beam.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-lbl geist">BEAM</span>
+            </button>
+            <button type="button" class="ai-face-opt" data-avatar="winky" role="radio" aria-checked="false" aria-label="Winky — Playful headset bot">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <img src="icons/ai-buddies/winky.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-lbl geist">WINKY</span>
+            </button>
+            <button type="button" class="ai-face-opt" data-avatar="shades" role="radio" aria-checked="false" aria-label="Shades — Cool sunglasses bot">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <img src="icons/ai-buddies/shades.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-lbl geist">SHADES</span>
+            </button>
+            <button type="button" class="ai-face-opt" data-avatar="nova" role="radio" aria-checked="false" aria-label="Nova — Lavender cat bot">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <img src="icons/ai-buddies/nova.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-lbl geist">NOVA</span>
+            </button>
+            <button type="button" class="ai-face-opt" data-avatar="locked" role="radio" aria-checked="false" aria-label="Locked — Fierce focus bot">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <img src="icons/ai-buddies/locked.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-lbl geist">LOCKED</span>
+            </button>
+            <button type="button" class="ai-face-opt" data-avatar="zen" role="radio" aria-checked="false" aria-label="Zen — Calm sprout bot">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <img src="icons/ai-buddies/zen.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-lbl geist">ZEN</span>
+            </button>
         </div>
 
-        <input id="ai-name-input" type="text" maxlength="16" autocomplete="off" aria-label="Name your HabitArc AI" class="mt-6 w-full bg-transparent border-0 border-b-2 border-primary px-0 py-2 text-[22px] font-semibold text-primary outline-none focus:outline-none focus:ring-0 focus:shadow-none shadow-none focus:border-primary placeholder:font-normal placeholder:text-outline/50" placeholder="e.g. ARC, NOVA, KAI" value="ARC"/>
-        <div class="mt-4 flex flex-wrap gap-2" id="ai-name-chips">
-            <button type="button" class="chip btn-press">ARC</button>
+        <input id="ai-name-input" type="text" maxlength="16" autocomplete="off" aria-label="Name your HabitArc AI" class="mt-5 w-full bg-transparent border-0 border-b-2 border-primary px-0 py-2 text-[22px] font-semibold text-primary outline-none focus:outline-none focus:ring-0 focus:shadow-none shadow-none focus:border-primary placeholder:font-normal placeholder:text-outline/50" placeholder="e.g. ARC, NOVA, KAI" value="ARC"/>
+        <div class="mt-3.5 flex flex-wrap gap-2" id="ai-name-chips">
+            <button type="button" class="chip selected-chip btn-press">ARC</button>
             <button type="button" class="chip btn-press">NOVA</button>
             <button type="button" class="chip btn-press">KAI</button>
             <button type="button" class="chip btn-press">ATLAS</button>
         </div>
     </div>
 
-    <!-- STEP 6: Notifications -->
-    <div id="step-6" class="step-card animate-in pt-6 sm:pt-10 w-full">
-        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">Gentle reminders?</h2>
-        <p class="mt-2 text-[15px] text-outline">Only when you need them.</p>
-        <div class="mt-7 grid grid-cols-2 gap-3" id="notification-options">
-            <button type="button" class="notif-opt opt-big btn-press selected" data-val="true"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined">notifications_active</span><span class="opt-label">Yes, notify me</span></button>
-            <button type="button" class="notif-opt opt-big btn-press" data-val="false"><span class="check-badge"><span class="material-symbols-outlined">check</span></span><span class="material-symbols-outlined">notifications_off</span><span class="opt-label">No thanks</span></button>
+    <!-- STEP 6: Wake-Up Time -->
+    <div id="step-6" class="step-card animate-in pt-5 sm:pt-8 w-full">
+        <h2 class="text-[30px] leading-tight font-bold tracking-tight text-primary">When do you usually<br/>wake up?</h2>
+        <p class="mt-2 text-[15px] text-outline">We'll align your morning rhythm &amp; daily schedule around your day.</p>
+        <div class="mt-5 grid grid-cols-2 gap-3" id="wake-time-options" role="radiogroup" aria-label="Usual wake-up time">
+            <button type="button" class="wake-opt opt btn-press" data-val="06:00" role="radio" aria-checked="false">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <span class="material-symbols-outlined opt-ico">wb_twilight</span>
+                <span class="opt-label geist">6:00 AM</span>
+                <span class="wake-sub">Early bird</span>
+            </button>
+            <button type="button" class="wake-opt opt btn-press selected" data-val="07:00" role="radio" aria-checked="true">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <span class="material-symbols-outlined opt-ico">wb_sunny</span>
+                <span class="opt-label geist">7:00 AM</span>
+                <span class="wake-sub">Classic start</span>
+            </button>
+            <button type="button" class="wake-opt opt btn-press" data-val="08:00" role="radio" aria-checked="false">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <span class="material-symbols-outlined opt-ico">light_mode</span>
+                <span class="opt-label geist">8:00 AM</span>
+                <span class="wake-sub">Steady rhythm</span>
+            </button>
+            <button type="button" class="wake-opt opt btn-press" data-val="09:00" role="radio" aria-checked="false">
+                <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
+                <span class="material-symbols-outlined opt-ico">coffee</span>
+                <span class="opt-label geist">9:00 AM</span>
+                <span class="wake-sub">Flexible start</span>
+            </button>
+        </div>
+        <div class="mt-3.5 bg-white border-2 border-[#031e13] shadow-[0_3px_0_#031e13] rounded-2xl px-4 py-2.5 flex items-center justify-between gap-3">
+            <label for="wake-time-input" class="text-[14px] font-semibold text-[#012d1d] flex items-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined" style="font-size:19px;">schedule</span>
+                <span>Custom wake-up time</span>
+            </label>
+            <input id="wake-time-input" type="time" value="07:00" class="geist shrink-0"/>
         </div>
     </div>
 
@@ -985,9 +1102,10 @@
     let selectedCap = '5';
     let selectedTheme = 'light';
     let selectedAiName = 'ARC';
+    let selectedAiAvatar = 'beam';
+    let selectedWakeTime = '07:00';
     let selectedGridShape = 'square';
     let selectedDuration = '30';
-    let notificationsEnabled = true;
     const googleRedirectDraftKey = 'habitarc.googleRedirectDraft.v1';
     const googleRedirectDraftVersion = 2;
     const googleRedirectDraftMaxAgeMs = 10 * 60 * 1000;
@@ -1029,9 +1147,10 @@
                 selectedCap,
                 selectedTheme,
                 aiName: aiNameInput?.value || selectedAiName || 'ARC',
+                aiAvatar: selectedAiAvatar || 'beam',
+                wakeUpTime: document.getElementById('wake-time-input')?.value || selectedWakeTime || '07:00',
                 selectedGridShape,
                 selectedDuration,
-                notificationsEnabled,
                 northStar: northStarInput?.value || '',
                 name: nameInput?.value || '',
                 authMode,
@@ -1071,14 +1190,17 @@
         if (typeof pendingGoogleRedirectDraft.aiName === 'string') {
             selectedAiName = HabitArc.normaliseAiName?.(pendingGoogleRedirectDraft.aiName) || pendingGoogleRedirectDraft.aiName || 'ARC';
         }
+        if (typeof pendingGoogleRedirectDraft.aiAvatar === 'string') {
+            selectedAiAvatar = HabitArc.normaliseAiAvatar?.(pendingGoogleRedirectDraft.aiAvatar) || pendingGoogleRedirectDraft.aiAvatar || 'beam';
+        }
+        if (typeof pendingGoogleRedirectDraft.wakeUpTime === 'string') {
+            selectedWakeTime = HabitArc.normaliseWakeUpTime?.(pendingGoogleRedirectDraft.wakeUpTime) || pendingGoogleRedirectDraft.wakeUpTime || '07:00';
+        }
         if (typeof pendingGoogleRedirectDraft.selectedGridShape === 'string') {
             selectedGridShape = pendingGoogleRedirectDraft.selectedGridShape;
         }
         if (typeof pendingGoogleRedirectDraft.selectedDuration === 'string') {
             selectedDuration = pendingGoogleRedirectDraft.selectedDuration;
-        }
-        if (typeof pendingGoogleRedirectDraft.notificationsEnabled === 'boolean') {
-            notificationsEnabled = pendingGoogleRedirectDraft.notificationsEnabled;
         }
     }
     function updateStep() {
@@ -1362,15 +1484,38 @@
     }
     document.querySelector('.theme-btn[data-theme="light"]')?.classList.add('selected-theme');
 
-    // Step 5: Name your AI buddy
+    // Step 5: Name your AI buddy & Pick Pixel Face
     const aiNameInput = document.getElementById('ai-name-input');
     const aiPreviewName = document.getElementById('ob-ai-preview-name');
+    const aiPreviewFace = document.getElementById('ob-ai-preview-face');
     const aiPreviewInline = document.getElementById('ob-ai-preview-inline');
+
+    function syncAiAvatarSelection(avatarId) {
+        const cleanAvatar = HabitArc.normaliseAiAvatar?.(avatarId) || String(avatarId || 'beam').trim().toLowerCase() || 'beam';
+        selectedAiAvatar = cleanAvatar;
+        document.querySelectorAll('#ai-avatar-grid .ai-face-opt').forEach((btn) => {
+            const active = btn.dataset.avatar === cleanAvatar;
+            btn.classList.toggle('selected', active);
+            btn.setAttribute('aria-checked', String(active));
+        });
+        if (aiPreviewFace) aiPreviewFace.textContent = cleanAvatar.toUpperCase();
+    }
+
+    document.querySelectorAll('#ai-avatar-grid .ai-face-opt').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            syncAiAvatarSelection(btn.dataset.avatar);
+        });
+    });
+
     function syncAiNamePreview(rawValue) {
         const resolved = HabitArc.normaliseAiName?.(rawValue) || String(rawValue || '').trim().slice(0, 16) || 'ARC';
         selectedAiName = resolved;
         if (aiPreviewName) aiPreviewName.textContent = resolved;
         if (aiPreviewInline) aiPreviewInline.textContent = resolved;
+        const upperTyped = String(rawValue || '').trim().toUpperCase();
+        document.querySelectorAll('#ai-name-chips .chip').forEach((chip) => {
+            chip.classList.toggle('selected-chip', chip.textContent.trim().toUpperCase() === upperTyped);
+        });
     }
     if (aiNameInput) {
         aiNameInput.addEventListener('input', () => syncAiNamePreview(aiNameInput.value));
@@ -1385,16 +1530,33 @@
             syncAiNamePreview(picked);
         });
     });
+    syncAiAvatarSelection(selectedAiAvatar);
     syncAiNamePreview(aiNameInput?.value || selectedAiName);
 
-    // Step 6: notifications
-    document.querySelectorAll('.notif-opt').forEach(opt => {
+    // Step 6: Wake-Up Time
+    const wakeTimeInput = document.getElementById('wake-time-input');
+    function syncWakeTimeSelection(rawTime, updateInput = true) {
+        const cleanTime = HabitArc.normaliseWakeUpTime?.(rawTime) || (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(rawTime || '').trim()) ? String(rawTime).trim() : '07:00');
+        selectedWakeTime = cleanTime;
+        if (updateInput && wakeTimeInput && wakeTimeInput.value !== cleanTime) {
+            wakeTimeInput.value = cleanTime;
+        }
+        document.querySelectorAll('#wake-time-options .wake-opt').forEach((btn) => {
+            const match = btn.dataset.val === cleanTime;
+            btn.classList.toggle('selected', match);
+            btn.setAttribute('aria-checked', String(match));
+        });
+    }
+    document.querySelectorAll('#wake-time-options .wake-opt').forEach((opt) => {
         opt.addEventListener('click', function() {
-            document.querySelectorAll('.notif-opt').forEach(o => o.classList.remove('selected'));
-            this.classList.add('selected');
-            notificationsEnabled = (this.dataset.val === 'true');
+            syncWakeTimeSelection(this.dataset.val, true);
         });
     });
+    if (wakeTimeInput) {
+        wakeTimeInput.addEventListener('input', () => syncWakeTimeSelection(wakeTimeInput.value, false));
+        wakeTimeInput.addEventListener('change', () => syncWakeTimeSelection(wakeTimeInput.value, true));
+    }
+    syncWakeTimeSelection(selectedWakeTime, true);
 
     // Step 6: North Star suggestion chips
     document.querySelectorAll('#north-star-chips .chip').forEach(chip => {
@@ -1510,6 +1672,12 @@
             const restoredAi = HabitArc.normaliseAiName?.(draft.aiName) || draft.aiName || 'ARC';
             if (aiNameInput) aiNameInput.value = restoredAi;
             syncAiNamePreview(restoredAi);
+        }
+        if (typeof draft.aiAvatar === 'string') {
+            syncAiAvatarSelection(draft.aiAvatar);
+        }
+        if (typeof draft.wakeUpTime === 'string') {
+            syncWakeTimeSelection(draft.wakeUpTime, true);
         }
         if (typeof draft.northStar === 'string') {
             const northStarInput = document.getElementById('north-star-input');
@@ -1758,24 +1926,33 @@
         const northStar = (northStarInput && northStarInput.value.trim()) ? northStarInput.value.trim() : 'Daily Meditation & Mindful Reflection';
 
         const finalAiName = HabitArc.normaliseAiName?.(aiNameInput?.value || selectedAiName) || 'ARC';
+        const finalAiAvatar = HabitArc.normaliseAiAvatar?.(selectedAiAvatar) || 'beam';
+        const finalWakeTime = HabitArc.normaliseWakeUpTime?.(wakeTimeInput?.value || selectedWakeTime) || '07:00';
+        const morningReminderTime = HabitArc.deriveReminderFromWakeTime?.(finalWakeTime) || '07:30';
+        const alreadyGranted = Boolean('Notification' in window && Notification.permission === 'granted');
+
+        try {
+            window.localStorage.setItem('habitarc_post_onboarding_notif_prompt', '1');
+            window.localStorage.removeItem('habitarc_notif_prompt_dismissed');
+        } catch {
+            // Storage is optional if restricted.
+        }
+
         HabitArc.updateSettings({
             userName,
             aiName: finalAiName,
+            aiAvatar: finalAiAvatar,
+            wakeUpTime: finalWakeTime,
+            defaultReminderTime: morningReminderTime,
             userBio: `North Star: ${northStar}`,
             theme: selectedTheme,
             goalDuration: parseInt(selectedDuration) || 30,
-            // Browser permission is requested later from the explicit
-            // Settings toggle, never during an authentication redirect. Do
-            // not display a false "enabled" state before that permission.
-            dailyReminder: Boolean(
-                notificationsEnabled
-                && 'Notification' in window
-                && Notification.permission === 'granted'
-            ),
+            // Phone/browser notification permission is requested cleanly right
+            // after onboarding when the member lands on Dashboard.html.
+            dailyReminder: alreadyGranted,
             intents: selectedIntents,
             challenge: selectedChallenges[0] || '',
             challenges: selectedChallenges,
-            notificationsEnabled,
             onboardingComplete: true
         });
 
@@ -1784,6 +1961,7 @@
                 name: northStar,
                 icon: 'stars',
                 category: 'Mindfulness',
+                reminder: morningReminderTime,
                 repeat: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
             });
         }

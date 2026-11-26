@@ -114,16 +114,8 @@
         </div>
 
         <div class="ha-arc-zen-top">
-            <div class="ha-arc-mascot-sq" aria-hidden="true">
-                <svg width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges">
-                    <rect class="ha-arc-desk-ant" x="7" y="1" width="2" height="2" fill="var(--rpg-mint, #47e393)"/>
-                    <rect class="ha-arc-desk-body" x="4" y="4" width="8" height="9" fill="#121215"/>
-                    <rect class="ha-arc-desk-body" x="3" y="5" width="10" height="7" fill="#121215"/>
-                    <g class="ha-arc-desk-eyes">
-                        <rect class="ha-arc-desk-eye" x="5" y="7" width="2" height="2" fill="#ffffff"/>
-                        <rect class="ha-arc-desk-eye" x="9" y="7" width="2" height="2" fill="#ffffff"/>
-                    </g>
-                </svg>
+            <div id="arc-zen-mascot" class="ha-arc-mascot-sq" aria-hidden="true">
+                <img id="arc-zen-mascot-img" src="icons/ai-buddies/beam.png" alt="" width="40" height="40" style="width:40px;height:40px;object-fit:contain;image-rendering:pixelated;"/>
             </div>
             <h1 id="arc-zen-title" class="ha-arc-zen-q">What should we fix today?</h1>
             <p id="arc-telemetry-pill" class="ha-arc-zen-meta">
@@ -690,6 +682,11 @@ import {
         ).join('');
         if (hubLvlBadge) hubLvlBadge.textContent = `LVL ${meta.level}`;
         if (hubNameEl) hubNameEl.textContent = meta.aiName;
+        const mascotImg = document.getElementById('arc-zen-mascot-img');
+        if (mascotImg) {
+            const avatarSrc = meta.aiAvatarSrc || HabitArc.getAiAvatarSrc?.(settings?.aiAvatar) || 'icons/ai-buddies/beam.png';
+            if (mascotImg.src !== avatarSrc) mascotImg.src = avatarSrc;
+        }
         if (hubPxBar) {
             hubPxBar.setAttribute?.('aria-valuenow', String(meta.progressPct || 0));
             hubPxBar.innerHTML = pxSegmentsMarkup;

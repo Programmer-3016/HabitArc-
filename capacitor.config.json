@@ -1,0 +1,16 @@
+{
+  "appId": "app.habitarc.tracker",
+  "appName": "HabitArc",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_habitarc",
+      "iconColor": "#0e8f63",
+      "sound": "default"
+    }
+  }
+}

@@ -20,40 +20,53 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">window.tailwind = window.tailwind || { config: { darkMode: "class" } };</script>
 <style>
-	/* Custom toggle switch styles */
+	/* Option 3 Tactile Mint toggle switch styles */
 	.toggle-checkbox:checked {
 	    right: 0;
-	    border-color: #1b4332; /* primary-container */
+	    border-color: #121215;
 	}
 	.toggle-checkbox:checked + .toggle-label {
-	    background-color: #1b4332; /* primary-container */
+	    background-color: #47e393;
+	    border-color: #121215;
 	}
 	.toggle-checkbox {
 	    right: 0;
 	    z-index: 1;
-	    border-color: #e1e3e4; /* surface-variant */
-	    transition: all 0.3s;
+	    border-color: #121215;
+	    transition: all 0.22s ease;
 	}
 	.toggle-label {
-	    width: 3rem;
-	    height: 1.5rem;
-	    background-color: #e1e3e4; /* surface-variant */
+	    width: 2.9rem;
+	    height: 1.55rem;
+	    background-color: #e4e2dc;
+	    border: 2px solid #121215;
 	    border-radius: 9999px;
-	    transition: all 0.3s;
+	    transition: all 0.22s ease;
+	}
+	:root:not([data-theme="light"]):not([data-theme="sage"]) .toggle-label {
+	    background-color: #26262e;
+	    border-color: rgba(255,255,255,0.28);
+	}
+	:root:not([data-theme="light"]):not([data-theme="sage"]) .toggle-checkbox:checked + .toggle-label {
+	    background-color: #47e393;
+	    border-color: #121215;
 	}
 	.toggle-checkbox-inner {
 	    position: absolute;
 	    left: 2px;
 	    top: 2px;
-	    width: 1.25rem;
-	    height: 1.25rem;
-	    background-color: white;
+	    width: 1.05rem;
+	    height: 1.05rem;
+	    background-color: #121215;
 	    border-radius: 9999px;
-	    transition: all 0.3s;
-	    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+	    transition: all 0.22s ease;
+	}
+	:root:not([data-theme="light"]):not([data-theme="sage"]) .toggle-checkbox:not(:checked) ~ .toggle-label .toggle-checkbox-inner {
+	    background-color: #e5e7eb;
 	}
 	.toggle-checkbox:checked ~ .toggle-label .toggle-checkbox-inner {
-	    transform: translateX(1.5rem);
+	    transform: translateX(1.32rem);
+	    background-color: #121215;
 	}
     </style>
 <link rel="stylesheet" href="app-ui.css"/>
@@ -197,8 +210,16 @@
     </div>
     <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4 space-y-3">
         <div>
-            <label for="settings-ai-name-input" class="block font-headline-md text-sm font-bold text-on-surface">AI Assistant Name</label>
+            <label for="settings-ai-name-input" class="block font-headline-md text-sm font-bold text-on-surface">AI Assistant &amp; Pixel Buddy</label>
             <p id="settings-ai-power-summary" class="text-xs text-on-surface-variant mt-0.5">Right now ARC can make habits for you. Clear days to level up.</p>
+        </div>
+        <div id="settings-ai-avatar-row" class="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Choose AI pixel buddy">
+            <button type="button" data-ai-avatar="beam" role="radio" aria-checked="true" aria-label="Beam" class="settings-ai-face-btn rounded-xl border-2 border-outline-variant/40 bg-surface-container-low p-1.5 flex items-center justify-center transition-all cursor-pointer"><img src="icons/ai-buddies/beam.png" alt="" class="w-9 h-9 object-contain" style="image-rendering:pixelated;"/></button>
+            <button type="button" data-ai-avatar="winky" role="radio" aria-checked="false" aria-label="Winky" class="settings-ai-face-btn rounded-xl border-2 border-outline-variant/40 bg-surface-container-low p-1.5 flex items-center justify-center transition-all cursor-pointer"><img src="icons/ai-buddies/winky.png" alt="" class="w-9 h-9 object-contain" style="image-rendering:pixelated;"/></button>
+            <button type="button" data-ai-avatar="shades" role="radio" aria-checked="false" aria-label="Shades" class="settings-ai-face-btn rounded-xl border-2 border-outline-variant/40 bg-surface-container-low p-1.5 flex items-center justify-center transition-all cursor-pointer"><img src="icons/ai-buddies/shades.png" alt="" class="w-9 h-9 object-contain" style="image-rendering:pixelated;"/></button>
+            <button type="button" data-ai-avatar="nova" role="radio" aria-checked="false" aria-label="Nova" class="settings-ai-face-btn rounded-xl border-2 border-outline-variant/40 bg-surface-container-low p-1.5 flex items-center justify-center transition-all cursor-pointer"><img src="icons/ai-buddies/nova.png" alt="" class="w-9 h-9 object-contain" style="image-rendering:pixelated;"/></button>
+            <button type="button" data-ai-avatar="locked" role="radio" aria-checked="false" aria-label="Locked" class="settings-ai-face-btn rounded-xl border-2 border-outline-variant/40 bg-surface-container-low p-1.5 flex items-center justify-center transition-all cursor-pointer"><img src="icons/ai-buddies/locked.png" alt="" class="w-9 h-9 object-contain" style="image-rendering:pixelated;"/></button>
+            <button type="button" data-ai-avatar="zen" role="radio" aria-checked="false" aria-label="Zen" class="settings-ai-face-btn rounded-xl border-2 border-outline-variant/40 bg-surface-container-low p-1.5 flex items-center justify-center transition-all cursor-pointer"><img src="icons/ai-buddies/zen.png" alt="" class="w-9 h-9 object-contain" style="image-rendering:pixelated;"/></button>
         </div>
         <div class="flex items-center gap-2">
             <input id="settings-ai-name-input" type="text" maxlength="16" autocomplete="off" placeholder="ARC" class="flex-1 min-w-0 rounded-xl border border-outline-variant/60 bg-surface-container-low px-3.5 py-2 text-sm font-semibold text-on-surface focus:outline-none focus:border-primary"/>
@@ -216,8 +237,9 @@
 <div class="flex items-center gap-element-gap">
 <span class="material-symbols-outlined text-primary-container">notifications_active</span>
 <div>
-<div class="font-body-lg text-body-lg text-on-surface">Daily Reminder</div>
-<div class="font-body-md text-body-md text-on-surface-variant">Notify me while HabitArc is open</div>
+<div class="font-body-lg text-body-lg text-on-surface font-semibold">Scheduled Reminders</div>
+<div id="daily-reminder-desc" class="font-body-md text-body-md text-on-surface-variant">Notify me at each habit's time while HabitArc is open (3h wake catch-up)</div>
+<div id="daily-reminder-times" class="mt-1 font-mono text-[11px] font-bold text-primary"></div>
 </div>
 </div>
 <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
@@ -262,7 +284,10 @@
 </div>
 </div>
 </div>
-<p id="notification-status" class="px-card-padding pb-4 text-xs text-on-surface-variant" role="status" aria-live="polite"></p>
+<div class="px-card-padding pb-4 pt-1 flex flex-wrap items-center justify-between gap-2.5">
+<p id="notification-status" class="text-xs text-on-surface-variant flex-1 min-w-[180px]" role="status" aria-live="polite"></p>
+<button id="test-notification-btn" type="button" class="btn-press px-3.5 py-1.5 rounded-xl border border-outline-variant/60 bg-surface-container-low text-xs font-semibold text-on-surface hover:border-primary/40 transition-colors shrink-0 cursor-pointer">Send Test Notification</button>
+</div>
 </section>
 <!-- Consent-based Background Web Push: daily IST digest, not precise alarms. -->
 <section class="mb-section-margin" aria-labelledby="ha-bg-push-heading">
@@ -522,6 +547,14 @@
             aiInput.value = prog.aiName;
         }
         if (aiLevelPill) aiLevelPill.textContent = `LVL ${prog.level} · ${prog.rank.toUpperCase()}`;
+        const curAvatar = HabitArc.normaliseAiAvatar?.(prog.aiAvatar || HabitArc.getSettings?.()?.aiAvatar) || 'beam';
+        document.querySelectorAll('.settings-ai-face-btn').forEach((btn) => {
+            const active = btn.dataset.aiAvatar === curAvatar;
+            btn.setAttribute('aria-checked', String(active));
+            btn.style.backgroundColor = active ? '#c4b5fd' : '';
+            btn.style.borderColor = active ? '#121215' : '';
+            btn.style.boxShadow = active ? '0 2.5px 0 #121215' : '';
+        });
         const left = Math.max(0, (prog.questsTotalCount ?? 3) - (prog.questsDoneCount ?? 0));
         if (aiPowerSummary) aiPowerSummary.textContent = prog.level === 1
             ? `Right now ${prog.aiName} can make habits for you. Finish ${left} quest${left === 1 ? '' : 's'} for LVL 2.`
@@ -536,6 +569,15 @@
         if (aiStatus) aiStatus.textContent = `Saved AI name as ${chosen}.`;
         window.HabitArcUI?.announce?.(`AI name updated to ${chosen}.`);
     }
+
+    document.querySelectorAll('.settings-ai-face-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const chosenAvatar = HabitArc.normaliseAiAvatar?.(btn.dataset.aiAvatar) || 'beam';
+            HabitArc.updateSettings({ aiAvatar: chosenAvatar });
+            syncAiSettingsUI(true);
+            if (aiStatus) aiStatus.textContent = `Updated AI pixel buddy to ${chosenAvatar.toUpperCase()}.`;
+        });
+    });
 
     aiSaveBtn?.addEventListener('click', saveSettingsAiName);
     aiInput?.addEventListener('keydown', (event) => {
@@ -648,10 +690,12 @@
     });
 
     const dailyToggle = document.getElementById('toggle-daily');
+    const dailyDesc = document.getElementById('daily-reminder-desc');
     const weeklyToggle = document.getElementById('toggle-weekly');
     const taskAlertsToggle=document.getElementById('toggle-task-alerts');
     const morningPlanToggle=document.getElementById('toggle-morning-plan');
     const notificationStatus = document.getElementById('notification-status');
+    const testNotificationBtn = document.getElementById('test-notification-btn');
 
     function setNotificationStatus(message, tone = 'muted') {
         if (!notificationStatus) return;
@@ -669,19 +713,61 @@
         if (weeklyToggle) weeklyToggle.checked = preferences.weeklySummary;
         if(taskAlertsToggle)taskAlertsToggle.checked=preferences.taskAlerts;
         if(morningPlanToggle)morningPlanToggle.checked=preferences.morningPlan;
+        if (dailyDesc) {
+            dailyDesc.textContent = preferences.nativeSupported
+                ? 'Exact local alarms at each habit’s scheduled time (works offline)'
+                : "Notify me at each habit's time while HabitArc is open (3h wake catch-up)";
+        }
+        const dailyTimesEl = document.getElementById('daily-reminder-times');
+        if (dailyTimesEl) {
+            const times = [...new Set((HabitArc.getHabits?.() || [])
+                .map((h) => String(h?.reminder || '').trim())
+                .filter((t) => /^([01]\d|2[0-3]):[0-5]\d$/.test(t))
+                .sort())];
+            dailyTimesEl.textContent = times.length
+                ? times.slice(0, 4).join(' · ') + (times.length > 4 ? ` +${times.length - 4} more` : '')
+                : 'No habit times set yet';
+        }
+        if (testNotificationBtn) {
+            testNotificationBtn.disabled = !preferences.supported || preferences.permission === 'denied';
+        }
 
         if (!preferences.supported) {
             setNotificationStatus('Notifications are not supported in this browser.', 'error');
         } else if (preferences.permission === 'granted' && (preferences.dailyReminder || preferences.weeklySummary || preferences.taskAlerts || preferences.morningPlan)) {
-            setNotificationStatus('Notifications are enabled while HabitArc is open.', 'success');
+            setNotificationStatus(
+                preferences.nativeSupported
+                    ? 'Exact device reminders are active (even when HabitArc is closed).'
+                    : 'Notifications are enabled while HabitArc is open.',
+                'success'
+            );
         } else if (preferences.permission === 'granted') {
-            setNotificationStatus('Browser permission is allowed. Turn on a reminder to receive notifications.');
+            setNotificationStatus('Permission is allowed. Turn on a reminder to receive notifications.');
         } else if (preferences.permission === 'denied') {
-            setNotificationStatus('Notifications are blocked in browser settings. Enable them there to use reminders.', 'error');
+            setNotificationStatus('Notifications are blocked in device/browser settings. Enable them there to use reminders.', 'error');
         } else {
-            setNotificationStatus('Turn on a reminder to allow HabitArc notifications in your browser.');
+            setNotificationStatus('Turn on a reminder or send a test notification to allow alerts.');
         }
     }
+
+    testNotificationBtn?.addEventListener('click', async () => {
+        if (!HabitArc.sendTestReminder) return;
+        testNotificationBtn.disabled = true;
+        const originalText = testNotificationBtn.textContent;
+        testNotificationBtn.textContent = 'Sending…';
+        try {
+            const res = await HabitArc.sendTestReminder();
+            updateReminderUI();
+            setNotificationStatus(res.message, res.sent ? 'success' : 'error');
+            if (res.message) window.HabitArcUI?.announce?.(res.message);
+        } catch (error) {
+            setNotificationStatus(error?.message || 'Could not send test notification.', 'error');
+        } finally {
+            testNotificationBtn.textContent = originalText;
+            const prefs = HabitArc.getReminderPreferences?.();
+            testNotificationBtn.disabled = Boolean(prefs && (!prefs.supported || prefs.permission === 'denied'));
+        }
+    });
 
     async function enableNotificationPreference(preference) {
         const result = await HabitArc.requestNotificationPermission();

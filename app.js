@@ -51,6 +51,7 @@ const HabitArc = (() => {
     const PENDING_COMPLETION_HISTORY_PREFIX = `${STORAGE_KEY}:pending-completion-history`;
     const REMINDER_RECEIPT_PREFIX = 'habitarc_reminder_receipt';
     const REMINDER_CHECK_INTERVAL_MS = 30000;
+    const REMINDER_CATCHUP_WINDOW_MINUTES = 180;
     const DEFAULT_HABIT_ACCENTS = {
         Health: '#0e8f63',
         Mindfulness: '#7c5ce0',
@@ -69,6 +70,7 @@ const HabitArc = (() => {
         settings: {
             theme: 'dark', // "dark" | "light" | "forest" | "midnight"
             aiName: 'ARC',
+            aiAvatar: 'beam',
             aiTone: 'default',
             aiQuestStats: {
                 createdViaAi: 0,
@@ -79,11 +81,12 @@ const HabitArc = (() => {
             },
             goalDuration: 30,
             startWeekOn: 'monday',
+            wakeUpTime: '07:00',
             defaultReminderTime: '09:00',
             userName: 'Alex Thorne',
             userBio: 'Building stillness, one day at a time.',
             // These preferences are deliberately opt-in. Browser permission is
-            // requested only from a direct Settings-page user action.
+            // requested only from a direct user gesture (post-onboarding or Settings).
             dailyReminder: false,
             weeklySummary: false
         },
@@ -566,8 +569,10 @@ const HabitArc = (() => {
             ..._cloneData(settings)
         };
         mergedSettings.aiName = normaliseAiName(mergedSettings.aiName);
+        mergedSettings.aiAvatar = normaliseAiAvatar(mergedSettings.aiAvatar);
         mergedSettings.aiTone = normaliseAiTone(mergedSettings.aiTone);
         mergedSettings.aiQuestStats = normaliseAiStats(mergedSettings.aiQuestStats);
+        mergedSettings.wakeUpTime = normaliseWakeUpTime(mergedSettings.wakeUpTime);
 
         return {
             habits,
@@ -736,6 +741,7 @@ const HabitArc = (() => {
 
         if (emit) _emitDataChange(source, initial);
         if (!cloudApplyingRemoteData) _scheduleCloudSave();
+        _queueNativeReminderSync();
 
         return normalisedData;
     }
@@ -763,13 +769,16 @@ const HabitArc = (() => {
         if (data.habits.length >= 20) {
             return { success: false, message: 'Maximum 20 habits allowed' };
         }
+        const resolvedReminder = reminder !== undefined
+            ? String(reminder).trim()
+            : data.settings.defaultReminderTime;
         const habit = {
             id: _generateId(),
             name: name || 'Untitled Habit',
             icon: icon || 'check_circle',
             category: category || 'General',
             accentColor: _normaliseHabitAccent(accentColor, category || 'General'),
-            reminder: reminder || data.settings.defaultReminderTime,
+            reminder: resolvedReminder,
             repeat: repeat || ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
             why: why || '',
             motivation: motivation || '',
@@ -1275,6 +1284,10 @@ const HabitArc = (() => {
         if ('aiName' in settingsUpdates) {
             settingsUpdates.aiName = normaliseAiName(settingsUpdates.aiName);
         }
+        if ('aiAvatar' in settingsUpdates) {
+            settingsUpdates.aiAvatar = normaliseAiAvatar(settingsUpdates.aiAvatar);
+            _warmAvatarImageCache(settingsUpdates.aiAvatar);
+        }
         if ('aiTone' in settingsUpdates) {
             settingsUpdates.aiTone = normaliseAiTone(settingsUpdates.aiTone);
         }
@@ -1283,6 +1296,9 @@ const HabitArc = (() => {
         }
         if ('startWeekOn' in settingsUpdates) {
             settingsUpdates.startWeekOn = String(settingsUpdates.startWeekOn || '').toLowerCase() === 'sunday' ? 'sunday' : 'monday';
+        }
+        if ('wakeUpTime' in settingsUpdates) {
+            settingsUpdates.wakeUpTime = normaliseWakeUpTime(settingsUpdates.wakeUpTime);
         }
         if ('defaultReminderTime' in settingsUpdates) {
             const rawTime = String(settingsUpdates.defaultReminderTime || '').trim();
@@ -1302,15 +1318,79 @@ const HabitArc = (() => {
         _save(data);
     }
 
-    // ─── Browser reminders ──────────────────────────
-    // HabitArc can surface reminders while the web app is open. Reliable
-    // delivery after a browser is fully closed requires a server-triggered
-    // push service (FCM), which is intentionally kept outside this local
-    // scheduler so no notification is falsely promised to the user.
+    // ─── Browser & Native Exact Reminders ───────────
+    // In Capacitor Android/iOS builds, HabitArc schedules OS-level exact local
+    // notifications via @capacitor/local-notifications. In web/PWA mode, HabitArc
+    // checks on minute boundaries + tab wake-up with a 3-hour catch-up grace window.
+    let nativePermissionCache = 'default';
+    let nativeModulePromise = null;
+    let nativeSyncDebounceTimer = null;
+
+    function _isCapacitorNative() {
+        if (typeof window === 'undefined' || !window.Capacitor) return false;
+        const cap = window.Capacitor;
+        const isNative = typeof cap.isNativePlatform === 'function'
+            ? Boolean(cap.isNativePlatform())
+            : (typeof cap.getPlatform === 'function' && cap.getPlatform() !== 'web');
+        return Boolean(
+            isNative && (
+                typeof cap.Plugins?.HabitArcTicketNotifications?.syncTickets === 'function'
+                || typeof cap.Plugins?.LocalNotifications?.schedule === 'function'
+            )
+        );
+    }
+
+    async function _loadNativeReminderBridge() {
+        if (typeof window !== 'undefined' && window.HabitArcNativeReminders) {
+            return window.HabitArcNativeReminders;
+        }
+        if (!_isCapacitorNative()) return null;
+        if (!nativeModulePromise) {
+            nativeModulePromise = import('./native-reminders.js')
+                .then((mod) => mod?.default || mod || window.HabitArcNativeReminders || null)
+                .catch(() => {
+                    nativeModulePromise = null;
+                    return null;
+                });
+        }
+        return nativeModulePromise;
+    }
+
+    async function syncNativeReminders() {
+        if (!_isCapacitorNative() && !(typeof window !== 'undefined' && window.HabitArcNativeReminders)) {
+            return { synced: false, count: 0 };
+        }
+        const bridge = await _loadNativeReminderBridge();
+        if (!bridge?.syncFromHabitArc) return { synced: false, count: 0 };
+        const perm = await bridge.checkNativePermission?.();
+        if (perm?.permission) nativePermissionCache = perm.permission;
+        return bridge.syncFromHabitArc(HabitArc);
+    }
+
+    function _queueNativeReminderSync() {
+        if (typeof window === 'undefined') return;
+        if (!_isCapacitorNative() && !window.HabitArcNativeReminders) return;
+        if (typeof window.setTimeout !== 'function') {
+            void syncNativeReminders();
+            return;
+        }
+        if (nativeSyncDebounceTimer && typeof window.clearTimeout === 'function') {
+            window.clearTimeout(nativeSyncDebounceTimer);
+        }
+        nativeSyncDebounceTimer = window.setTimeout(() => {
+            nativeSyncDebounceTimer = null;
+            void syncNativeReminders();
+        }, 60);
+    }
+
     function getReminderPreferences() {
         const settings = getSettings();
-        const supported = typeof window !== 'undefined' && 'Notification' in window;
-        const permission = supported ? Notification.permission : 'unsupported';
+        const nativeSupported = _isCapacitorNative();
+        const webSupported = typeof window !== 'undefined' && 'Notification' in window;
+        const supported = nativeSupported || webSupported;
+        const permission = nativeSupported
+            ? nativePermissionCache
+            : (webSupported ? Notification.permission : 'unsupported');
 
         return {
             dailyReminder: Boolean(settings.dailyReminder),
@@ -1318,8 +1398,11 @@ const HabitArc = (() => {
             taskAlerts: Boolean(settings.taskAlerts),
             morningPlan: Boolean(settings.morningPlan),
             supported,
+            nativeSupported,
             permission,
-            delivery: supported && permission === 'granted' ? 'while-open' : 'permission-required'
+            delivery: !supported || permission !== 'granted'
+                ? 'permission-required'
+                : (nativeSupported ? 'native-exact' : 'while-open')
         };
     }
 
@@ -1340,10 +1423,30 @@ const HabitArc = (() => {
 
         updateSettings(next);
         _startReminderScheduler();
+        _queueNativeReminderSync();
         return { ...getReminderPreferences(), ...next };
     }
 
     async function requestNotificationPermission() {
+        if (_isCapacitorNative()) {
+            const bridge = await _loadNativeReminderBridge();
+            if (bridge?.requestNativePermission) {
+                const res = await bridge.requestNativePermission();
+                nativePermissionCache = res.permission || 'default';
+                if (res.granted) {
+                    _startReminderScheduler();
+                    void syncNativeReminders();
+                }
+                return {
+                    granted: Boolean(res.granted),
+                    permission: nativePermissionCache,
+                    message: res.message || (res.granted
+                        ? 'Exact device reminders are enabled.'
+                        : 'Device notification permission was not granted.')
+                };
+            }
+        }
+
         if (typeof window === 'undefined' || !('Notification' in window)) {
             return { granted: false, permission: 'unsupported', message: 'This browser does not support notifications.' };
         }
@@ -1365,6 +1468,305 @@ const HabitArc = (() => {
                 message: error?.message || 'HabitArc could not request notification permission.'
             };
         }
+    }
+
+    function _currentAiDisplayName() {
+        const raw = getSettings()?.aiName;
+        return normaliseAiName(raw) || 'ARC';
+    }
+
+    function _format12HourParts(value) {
+        const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(value || '').trim());
+        if (!match) return { time: 'Now', period: '', full: 'Now' };
+        const h24 = Number(match[1]);
+        const min = match[2];
+        const period = h24 >= 12 ? 'PM' : 'AM';
+        const h12 = String(h24 % 12 || 12);
+        return { time: `${h12}:${min}`, period, shortPeriod: period, full: `${h12}:${min} ${period}` };
+    }
+
+    function _drawPixelBuddyFace(ctx, cx, cy, scale = 1) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(scale, scale);
+        // Antenna
+        ctx.fillStyle = '#121215';
+        ctx.fillRect(-2.5, -13.5, 5, 5);
+        // Head
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') ctx.roundRect(-12, -9, 24, 19, 5);
+        else ctx.rect(-12, -9, 24, 19);
+        ctx.fill();
+        // Mint eyes
+        ctx.fillStyle = '#47e393';
+        ctx.fillRect(-7.5, -3.5, 4.6, 4.6);
+        ctx.fillRect(2.9, -3.5, 4.6, 4.6);
+        // Mouth
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-5, 4.2, 10, 2.4);
+        ctx.restore();
+    }
+
+    const _avatarImgCache = new Map();
+    function _warmAvatarImageCache(avatarId) {
+        try {
+            if (typeof Image !== 'function') return null;
+            const cleanId = normaliseAiAvatar(avatarId);
+            if (_avatarImgCache.has(cleanId)) return _avatarImgCache.get(cleanId);
+            const img = new Image();
+            img.decoding = 'async';
+            img.src = getAiAvatarSrc(cleanId);
+            _avatarImgCache.set(cleanId, img);
+            return img;
+        } catch {
+            return null;
+        }
+    }
+
+    function _drawSelectedBuddyOrFallback(ctx, cx, cy, sizePx, fallbackScale) {
+        const avatarId = normaliseAiAvatar(getSettings()?.aiAvatar);
+        const img = _warmAvatarImageCache(avatarId);
+        if (img && img.complete && img.naturalWidth > 0) {
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, cx - sizePx / 2, cy - sizePx / 2, sizePx, sizePx);
+            ctx.restore();
+            return;
+        }
+        _drawPixelBuddyFace(ctx, cx, cy, fallbackScale);
+    }
+
+    function _buildBuddyAvatarIcon() {
+        try {
+            if (typeof document === 'undefined' || typeof document.createElement !== 'function') {
+                return '/icons/icon-192.png';
+            }
+            const canvas = document.createElement('canvas');
+            if (!canvas || typeof canvas.getContext !== 'function') return '/icons/icon-192.png';
+            canvas.width = 192;
+            canvas.height = 192;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return '/icons/icon-192.png';
+
+            ctx.fillStyle = '#c4b5fd';
+            ctx.strokeStyle = '#121215';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') ctx.roundRect(8, 8, 176, 176, 44);
+            else ctx.rect(8, 8, 176, 176);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(96, 96, 62, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            _drawSelectedBuddyOrFallback(ctx, 96, 96, 92, 3.2);
+
+            const url = canvas.toDataURL('image/png');
+            return typeof url === 'string' && url.startsWith('data:image/png') ? url : '/icons/icon-192.png';
+        } catch {
+            return '/icons/icon-192.png';
+        }
+    }
+
+    function _buildBuddyPillBannerImage({ aiName = 'ARC', timeValue = '', message = '' } = {}) {
+        try {
+            if (typeof document === 'undefined' || typeof document.createElement !== 'function') return '';
+            const canvas = document.createElement('canvas');
+            if (!canvas || typeof canvas.getContext !== 'function') return '';
+            canvas.width = 780;
+            canvas.height = 176;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return '';
+
+            const parts = _format12HourParts(timeValue);
+            const safeAi = String(aiName || 'ARC').toUpperCase().slice(0, 16);
+            const isDark = typeof document.documentElement?.classList?.contains === 'function'
+                && document.documentElement.classList.contains('dark');
+
+            // Demo 3 Card Frame
+            ctx.fillStyle = isDark ? '#1b1b20' : '#ffffff';
+            ctx.strokeStyle = isDark ? '#353542' : '#121215';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') ctx.roundRect(6, 6, 768, 164, 38);
+            else ctx.rect(6, 6, 768, 164);
+            ctx.fill();
+            ctx.stroke();
+
+            // Lavender AI Name Pill on top-left
+            ctx.font = '800 22px "JetBrains Mono", monospace';
+            const nameWidth = Math.ceil(ctx.measureText(safeAi).width);
+            const pillW = Math.max(124, 68 + nameWidth + 24);
+            ctx.fillStyle = '#c4b5fd';
+            ctx.strokeStyle = '#121215';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') ctx.roundRect(30, 28, pillW, 48, 24);
+            else ctx.rect(30, 28, pillW, 48);
+            ctx.fill();
+            ctx.stroke();
+
+            // Mini circular white buddy icon inside pill
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(56, 52, 18, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+            _drawSelectedBuddyOrFallback(ctx, 56, 52, 28, 0.86);
+
+            // AI Name text inside pill
+            ctx.fillStyle = '#121215';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(safeAi, 84, 53);
+
+            // Time on top-right
+            ctx.textAlign = 'right';
+            ctx.fillStyle = isDark ? '#9ca3af' : '#575a58';
+            ctx.font = '700 22px "JetBrains Mono", monospace';
+            ctx.fillText(parts.full, 742, 52);
+
+            // Clean message line on bottom
+            ctx.textAlign = 'left';
+            ctx.fillStyle = isDark ? '#f5f5f7' : '#121215';
+            ctx.font = '700 31px "Space Grotesk", system-ui, sans-serif';
+            ctx.fillText(String(message).slice(0, 42), 32, 124);
+
+            const url = canvas.toDataURL('image/png');
+            return typeof url === 'string' && url.startsWith('data:image/png') ? url : '';
+        } catch {
+            return '';
+        }
+    }
+
+    let activeTicketToastTimer = null;
+    function _showInAppTimeTicketToast({ timeValue = '', title = '', subtitle = 'Daily reminder', href = 'Dashboard.html' } = {}) {
+        try {
+            if (typeof document === 'undefined' || !document.body || typeof document.createElement !== 'function') return;
+            const existing = document.getElementById('ha-reminder-ticket-toast');
+            existing?.remove();
+            if (activeTicketToastTimer && typeof window !== 'undefined' && typeof window.clearTimeout === 'function') {
+                window.clearTimeout(activeTicketToastTimer);
+                activeTicketToastTimer = null;
+            }
+
+            const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(timeValue || '').trim());
+            const stampTime = match ? `${String(Number(match[1]) % 12 || 12).padStart(2, '0')}:${match[2]}` : 'NOW';
+            const stampPeriod = match ? (Number(match[1]) >= 12 ? 'PM' : 'AM') : '';
+
+            const toast = document.createElement('a');
+            toast.id = 'ha-reminder-ticket-toast';
+            toast.className = 'ha-reminder-ticket-toast';
+            toast.href = href || 'Dashboard.html';
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            toast.innerHTML = `
+                <span class="ha-reminder-ticket-stamp" aria-hidden="true">
+                    <span class="ha-reminder-ticket-time">${escapeHTML(stampTime)}</span>
+                    ${stampPeriod ? `<span class="ha-reminder-ticket-period">${escapeHTML(stampPeriod)}</span>` : ''}
+                </span>
+                <span class="ha-reminder-ticket-body">
+                    <strong class="ha-reminder-ticket-title">${escapeHTML(title)}</strong>
+                    <span class="ha-reminder-ticket-sub">${escapeHTML(subtitle)}</span>
+                </span>
+            `;
+            document.body.appendChild(toast);
+
+            if (typeof window !== 'undefined' && typeof window.setTimeout === 'function') {
+                activeTicketToastTimer = window.setTimeout(() => {
+                    toast.classList.add('is-leaving');
+                    window.setTimeout(() => toast.remove(), 220);
+                }, 5500);
+            }
+        } catch {
+            // Non-DOM test contexts ignore visual toast rendering safely.
+        }
+    }
+
+    async function sendTestReminder() {
+        const nowClock = (() => {
+            const d = new Date();
+            return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        })();
+        const aiName = _currentAiDisplayName();
+        const testMsg = `Hey, your ${aiName} reminders are active`;
+
+        if (_isCapacitorNative()) {
+            const bridge = await _loadNativeReminderBridge();
+            if (bridge?.sendNativeTestNotification) {
+                const res = await bridge.sendNativeTestNotification(window, aiName);
+                if (res.sent) {
+                    nativePermissionCache = 'granted';
+                    _showInAppTimeTicketToast({
+                        timeValue: nowClock,
+                        title: 'Reminders Active',
+                        subtitle: 'Daily reminder',
+                        href: 'Dashboard.html'
+                    });
+                }
+                return {
+                    sent: Boolean(res.sent),
+                    delivery: 'native-exact',
+                    message: res.message || `Test reminder sent from ${aiName}!`
+                };
+            }
+        }
+
+        if (typeof window === 'undefined' || !('Notification' in window)) {
+            return { sent: false, delivery: 'unsupported', message: 'Notifications are not supported in this browser.' };
+        }
+
+        if (Notification.permission === 'default') {
+            const req = await requestNotificationPermission();
+            if (!req.granted) {
+                return { sent: false, delivery: 'permission-required', message: req.message };
+            }
+        } else if (Notification.permission !== 'granted') {
+            return {
+                sent: false,
+                delivery: 'permission-required',
+                message: 'Notifications are blocked in browser settings. Allow them for this site first.'
+            };
+        }
+
+        const testImage = _buildBuddyPillBannerImage({
+            aiName,
+            timeValue: nowClock,
+            message: testMsg
+        });
+
+        const shown = await _showReminderNotification(`${aiName} · ${_format12HourParts(nowClock).full}`, {
+            body: testMsg,
+            icon: _buildBuddyAvatarIcon(),
+            badge: '/icons/icon-192.png',
+            ...(testImage ? { image: testImage } : {}),
+            tag: `habitarc-test-${Date.now()}`,
+            renotify: true,
+            data: { url: '/Dashboard.html' }
+        }, activeUserId);
+
+        if (shown) {
+            _showInAppTimeTicketToast({
+                timeValue: nowClock,
+                title: 'Reminders Active',
+                subtitle: 'Daily reminder',
+                href: 'Dashboard.html'
+            });
+        }
+
+        return {
+            sent: shown,
+            delivery: 'while-open',
+            message: shown
+                ? `Test reminder sent from ${aiName}!`
+                : 'Could not display the test notification. Check system Do Not Disturb settings.'
+        };
     }
 
     function _reminderReceiptKey(kind, identifier, date = _today()) {
@@ -1437,7 +1839,9 @@ const HabitArc = (() => {
             const nowMinutes = (now.getHours() * 60) + now.getMinutes();
             const today = _today();
 
-            if (preferences.dailyReminder) {
+            // When running inside Capacitor native Android/iOS, OS LocalNotifications
+            // handle exact per-habit alarms even when closed, so avoid double-firing.
+            if (!preferences.nativeSupported && preferences.dailyReminder) {
                 const dayName = _getDayName(today);
                 const todayHabits = getHabits().filter((habit) =>
                     (!habit.repeat || habit.repeat.includes(dayName))
@@ -1446,19 +1850,41 @@ const HabitArc = (() => {
 
                 for (const habit of todayHabits) {
                     const reminderMinutes = _timeToMinutes(habit.reminder);
+                    // 3-hour wake catch-up grace window ensures brief tab sleep or screen-off
+                    // never drops a due reminder while still skipping old morning alarms at night.
                     const isDue = reminderMinutes !== null
                         && nowMinutes >= reminderMinutes
-                        && nowMinutes <= reminderMinutes + 1;
+                        && nowMinutes <= reminderMinutes + REMINDER_CATCHUP_WINDOW_MINUTES;
                     if (!isDue || _hasReminderReceipt('habit', habit.id, today)) continue;
 
+                    const aiName = _currentAiDisplayName();
+                    const prettyTime = _format12HourParts(habit.reminder).full;
+                    const buddyMessage = `Hey, time for ${habit.name}`;
+                    const buddyImage = _buildBuddyPillBannerImage({
+                        aiName,
+                        timeValue: habit.reminder,
+                        message: buddyMessage
+                    });
+
                     await _deliverReminder('habit', habit.id, today, `Time for ${habit.name}`, {
-                        body: 'A small step now keeps your HabitArc moving.',
-                        icon: '/logo.png',
-                        badge: '/logo.png',
+                        body: `${aiName} · ${prettyTime} — ${buddyMessage}`,
+                        icon: _buildBuddyAvatarIcon(),
+                        badge: '/icons/icon-192.png',
+                        ...(buddyImage ? { image: buddyImage } : {}),
                         tag: `habit-${habit.id}-${today}`,
                         renotify: false,
                         data: { url: '/Dashboard.html' }
                     });
+
+                    if (typeof document !== 'undefined' && !document.hidden) {
+                        const isDaily = !Array.isArray(habit.repeat) || habit.repeat.length >= 7;
+                        _showInAppTimeTicketToast({
+                            timeValue: habit.reminder,
+                            title: habit.name,
+                            subtitle: isDaily ? 'Daily reminder' : 'Scheduled reminder',
+                            href: 'Dashboard.html'
+                        });
+                    }
                 }
             }
 
@@ -1502,7 +1928,7 @@ const HabitArc = (() => {
 
             // A lightweight weekly check-in: Sunday at 6 PM local time, only
             // while the app is open and only once for the current week.
-            const isWeeklyWindow = now.getDay() === 0 && nowMinutes >= 1080 && nowMinutes <= 1081;
+            const isWeeklyWindow = now.getDay() === 0 && nowMinutes >= 1080 && nowMinutes <= 1200;
             if (preferences.weeklySummary && isWeeklyWindow && !_hasReminderReceipt('weekly', 'summary', today)) {
                 const weeklyRate = getOverallCompletionRate(7);
                 await _deliverReminder('weekly', 'summary', today, 'Your HabitArc weekly check-in', {
@@ -1519,11 +1945,31 @@ const HabitArc = (() => {
         }
     }
 
+    function _scheduleNextMinuteTick() {
+        if (typeof window === 'undefined' || typeof window.setTimeout !== 'function') return;
+        const msIntoMinute = Date.now() % 60000;
+        const delay = Math.max(1000, 60000 - msIntoMinute + 120);
+        window.setTimeout(() => {
+            void checkReminderSchedule();
+            _scheduleNextMinuteTick();
+        }, delay);
+    }
+
     function _startReminderScheduler() {
         if (reminderSchedulerStarted || typeof window === 'undefined') return;
         reminderSchedulerStarted = true;
         void checkReminderSchedule();
+        void syncNativeReminders();
         window.setInterval(() => void checkReminderSchedule(), REMINDER_CHECK_INTERVAL_MS);
+        _scheduleNextMinuteTick();
+        if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) void checkReminderSchedule();
+            });
+        }
+        if (typeof window.addEventListener === 'function') {
+            window.addEventListener('focus', () => void checkReminderSchedule());
+        }
     }
 
     function startReminderScheduler() {
@@ -1659,7 +2105,7 @@ const HabitArc = (() => {
         }
         data.habits.push(...toAdd.map(h => _cloneData(h)));
         if (includeSettings && snapshot.settings && typeof snapshot.settings === 'object') {
-            const allowed = ['theme','goalDuration','startWeekOn','defaultReminderTime','userName','userBio','dailyReminder','weeklySummary'];
+            const allowed = ['theme','aiName','aiAvatar','aiTone','wakeUpTime','goalDuration','startWeekOn','defaultReminderTime','userName','userBio','dailyReminder','weeklySummary'];
             for (const key of allowed) if (Object.hasOwn(snapshot.settings,key)) data.settings[key] = snapshot.settings[key];
         }
         _save(data);
@@ -2480,11 +2926,45 @@ const HabitArc = (() => {
     ]);
     const _aiDays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
+    const AI_AVATARS = Object.freeze([
+        { id: 'beam',   label: 'BEAM',   vibe: 'Happy Bot',    src: 'icons/ai-buddies/beam.png' },
+        { id: 'winky',  label: 'WINKY',  vibe: 'Headset Wink', src: 'icons/ai-buddies/winky.png' },
+        { id: 'shades', label: 'SHADES', vibe: 'Cyber Cool',   src: 'icons/ai-buddies/shades.png' },
+        { id: 'nova',   label: 'NOVA',   vibe: 'Cat Buddy',    src: 'icons/ai-buddies/nova.png' },
+        { id: 'locked', label: 'LOCKED', vibe: 'Focus Mode',   src: 'icons/ai-buddies/locked.png' },
+        { id: 'zen',    label: 'ZEN',    vibe: 'Calm Sprout',  src: 'icons/ai-buddies/zen.png' },
+    ]);
+
     function normaliseAiName(value) {
         const clean = typeof value === 'string'
             ? value.replace(/[\u0000-\u001f\u007f<>"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 16)
             : '';
         return clean || 'ARC';
+    }
+
+    function normaliseAiAvatar(value) {
+        const id = typeof value === 'string' ? value.trim().toLowerCase() : '';
+        return AI_AVATARS.some(a => a.id === id) ? id : 'beam';
+    }
+
+    function getAiAvatarSrc(value) {
+        const id = normaliseAiAvatar(value ?? getSettings()?.aiAvatar);
+        const found = AI_AVATARS.find(a => a.id === id) || AI_AVATARS[0];
+        return found.src;
+    }
+
+    function normaliseWakeUpTime(value) {
+        const clean = typeof value === 'string' ? value.trim() : '';
+        return /^([01]\d|2[0-3]):[0-5]\d$/.test(clean) ? clean : '07:00';
+    }
+
+    function deriveReminderFromWakeTime(wakeTime) {
+        const valid = normaliseWakeUpTime(wakeTime);
+        const [hh, mm] = valid.split(':').map(Number);
+        const total = Math.min(23 * 60 + 55, hh * 60 + mm + 30);
+        const outH = String(Math.floor(total / 60)).padStart(2, '0');
+        const outM = String(total % 60).padStart(2, '0');
+        return `${outH}:${outM}`;
     }
 
     function normaliseAiTone(value) {
@@ -2613,6 +3093,8 @@ const HabitArc = (() => {
     function _computeAiProgressionFrom(data, statsOverride = null) {
         const settings = data.settings || {};
         const aiName = normaliseAiName(settings.aiName);
+        const aiAvatar = normaliseAiAvatar(settings.aiAvatar);
+        const aiAvatarSrc = getAiAvatarSrc(aiAvatar);
         const aiTone = normaliseAiTone(settings.aiTone);
         const metrics = _measureAiMetrics(data, statsOverride);
         const q2 = _buildLevelQuests(2, metrics, aiName);
@@ -2631,6 +3113,8 @@ const HabitArc = (() => {
         const questsTotalCount = quests.length;
         return {
             aiName,
+            aiAvatar,
+            aiAvatarSrc,
             aiTone,
             activeTone: current.level >= 4 ? aiTone : 'default',
             level: current.level,
@@ -2691,7 +3175,12 @@ const HabitArc = (() => {
     return {
         // AI Buddy & Progression
         AI_TONES,
+        AI_AVATARS,
         normaliseAiName,
+        normaliseAiAvatar,
+        getAiAvatarSrc,
+        normaliseWakeUpTime,
+        deriveReminderFromWakeTime,
         normaliseAiTone,
         getAiProgression,
         recordAiAction,
@@ -2758,6 +3247,8 @@ const HabitArc = (() => {
         requestNotificationPermission,
         checkReminderSchedule,
         startReminderScheduler,
+        sendTestReminder,
+        syncNativeReminders,
 
         // Audio
         playCompletionSound,

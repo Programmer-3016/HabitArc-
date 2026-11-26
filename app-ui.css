@@ -5242,3 +5242,278 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
     grid-column: span 3;
   }
 }
+
+/* ─── In-App Reminder Toast: Clean 3A Split Ticket (Phone OS uses Demo 3 AI Pill) ─── */
+.ha-reminder-ticket-toast {
+  position: fixed;
+  top: calc(58px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9500;
+  width: min(392px, calc(100vw - 24px));
+  height: 64px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  text-decoration: none;
+  background: rgb(var(--ha-surface-container-lowest, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  border: 2px solid var(--rpg-shadow-ink, #121215);
+  border-radius: 15px;
+  box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215), 0 12px 28px rgba(18, 18, 21, 0.18);
+  animation: haTicketSlideIn 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-reminder-ticket-toast {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 2.5px 2.5px 0 #050507, 0 14px 32px rgba(0, 0, 0, 0.5);
+}
+.ha-reminder-ticket-toast.is-leaving {
+  opacity: 0;
+  transform: translate(-50%, -10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+@keyframes haTicketSlideIn {
+  from { opacity: 0; transform: translate(-50%, -14px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+.ha-reminder-ticket-stamp {
+  width: 72px;
+  background: #121215;
+  color: #47e393;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 2px solid var(--rpg-shadow-ink, #121215);
+  flex-shrink: 0;
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-reminder-ticket-stamp {
+  border-right-color: rgba(255, 255, 255, 0.16);
+}
+.ha-reminder-ticket-time {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 17.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+.ha-reminder-ticket-period {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.72);
+}
+.ha-reminder-ticket-body {
+  flex: 1;
+  min-width: 0;
+  padding: 0 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ha-reminder-ticket-title {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ha-reminder-ticket-sub {
+  font-size: 12px;
+  line-height: 1.25;
+  margin-top: 2px;
+  color: rgb(var(--ha-on-surface-variant, 104 108 106));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ha-time-ticket-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 9px;
+  border-radius: 999px;
+  background: #c4b5fd;
+  color: #121215;
+  border: 1.5px solid #121215;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.ha-time-ticket-mini small {
+  color: #121215;
+  opacity: 0.72;
+  font-size: 10px;
+}
+
+/* ─── Post-Onboarding Phone Notification Permission Sheet ─── */
+.ha-notif-perm-backdrop[hidden] {
+  display: none !important;
+}
+.ha-notif-perm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(12, 14, 16, 0.56);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+}
+@media (min-width: 640px) {
+  .ha-notif-perm-backdrop {
+    align-items: center;
+  }
+}
+@keyframes haNotifSheetUp {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.ha-notif-perm-card {
+  width: 100%;
+  max-width: 392px;
+  background: rgb(var(--ha-surface, 255 255 255));
+  color: rgb(var(--ha-on-surface, 18 18 21));
+  border: 2.5px solid #121215;
+  box-shadow: 0 5px 0 #121215;
+  border-radius: 26px;
+  padding: 20px 18px 18px;
+  animation: haNotifSheetUp 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-notif-perm-card {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 5px 0 #050507;
+}
+.ha-notif-perm-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ha-notif-perm-avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 18px;
+  background: #eafaf1;
+  border: 2px solid #121215;
+  box-shadow: 3px 3px 0 #c4b5fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ha-notif-perm-avatar img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.ha-notif-perm-title {
+  font-family: 'Space Grotesk', 'Hanken Grotesk', system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.ha-notif-perm-desc {
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 4px;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
+}
+.ha-notif-perm-demo {
+  margin-top: 15px;
+  background: rgb(var(--ha-surface-container-low, 241 238 232));
+  border: 2px solid #121215;
+  box-shadow: 0 3px 0 #121215;
+  border-radius: 18px;
+  padding: 11px 13px;
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-notif-perm-demo {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 3px 0 #050507;
+}
+.ha-notif-perm-demo-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.ha-notif-perm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2.5px 10px 2.5px 4px;
+  border-radius: 999px;
+  background: #c4b5fd;
+  color: #121215;
+  border: 1.5px solid #121215;
+  font-size: 11px;
+  font-weight: 800;
+}
+.ha-notif-perm-mini {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1.2px solid #121215;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ha-notif-perm-mini img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.ha-notif-perm-time {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
+}
+.ha-notif-perm-msg {
+  font-family: 'Space Grotesk', 'Hanken Grotesk', system-ui, sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.ha-notif-perm-feedback {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
+}
+.ha-notif-perm-actions {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ha-notif-allow-btn {
+  width: 100%;
+  padding: 12.5px 16px;
+  border-radius: 16px;
+  background: #47e393;
+  color: #031e13;
+  border: 2px solid #031e13;
+  box-shadow: 0 3px 0 #031e13;
+  font-size: 14.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.ha-notif-later-btn {
+  width: 100%;
+  padding: 9px 16px;
+  border-radius: 14px;
+  background: transparent;
+  color: rgb(var(--ha-on-surface-variant, 82 82 91));
+  border: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+

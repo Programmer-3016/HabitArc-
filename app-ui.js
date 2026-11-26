@@ -80,7 +80,7 @@
         ]);
         // Never attach pageAbortController to Firebase SDK's internal visibilitychange
         // token-refresh listeners or persistent shell ES modules (app.js, arc-sheet.js, stores).
-        const PERSISTENT_MODULE_RE = /(?:firebase|gstatic\.com|\/(?:app|app-ui|arc-sheet|task-store|focus-store|notes-cloud|notes-studio|leaderboard|league-store|productivity-hub|push-subscriptions|treasure-art)\.js)/i;
+        const PERSISTENT_MODULE_RE = /(?:firebase|gstatic\.com|\/(?:app|app-ui|arc-sheet|task-store|focus-store|notes-cloud|notes-studio|leaderboard|league-store|productivity-hub|push-subscriptions|native-reminders|treasure-art)\.js)/i;
         const shouldScopeToPage = (type) => {
             if (capturingPageListeners) return true;
             const scriptEl = document.currentScript;
