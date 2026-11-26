@@ -44,6 +44,7 @@ const HabitArc = (() => {
     // ─── Storage Keys ───────────────────────────────
     const STORAGE_KEY = 'habitarc_data';
     const ACTIVE_USER_KEY = 'habitarc_active_uid';
+    const AUTH_USER_CACHE_KEY = 'habitarc_auth_user_cache';
     const LEGACY_MIGRATION_OWNER_KEY = 'habitarc_legacy_owner_uid';
     const USER_STORAGE_PREFIX = `${STORAGE_KEY}:`;
     const PENDING_SYNC_PREFIX = `${STORAGE_KEY}:pending-sync`;
@@ -106,6 +107,8 @@ const HabitArc = (() => {
     let cloudRetryAttempts = 0;
     let localMutationRevision = 0;
     let authReadyPromise = null;
+    let authStateSettled = false;
+    let explicitSignOutInProgress = false;
     let reminderSchedulerStarted = false;
     let reminderCheckRunning = false;
 
@@ -1949,17 +1952,87 @@ const HabitArc = (() => {
         return storageChanged;
     }
 
+    function _hasPersistedFirebaseSession(expectedUid = '') {
+        try {
+            if (typeof localStorage === 'undefined') return false;
+            for (let i = 0; i < localStorage.length; i += 1) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('firebase:authUser:')) {
+                    const parsed = JSON.parse(localStorage.getItem(key) || 'null');
+                    if (parsed?.uid && parsed?.stsTokenManager?.refreshToken) {
+                        if (!expectedUid || parsed.uid === expectedUid) return true;
+                    }
+                }
+            }
+        } catch {}
+        return false;
+    }
+
+    function _readCachedPublicUser() {
+        if (explicitSignOutInProgress) return null;
+        const uid = activeUserId || _readStorageValue(ACTIVE_USER_KEY);
+        if (!uid) return null;
+        const raw = _readStorageValue(AUTH_USER_CACHE_KEY);
+        if (raw) {
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object' && parsed.uid === uid) {
+                    return {
+                        uid: String(parsed.uid),
+                        displayName: typeof parsed.displayName === 'string' ? parsed.displayName : '',
+                        email: typeof parsed.email === 'string' ? parsed.email : '',
+                        photoURL: typeof parsed.photoURL === 'string' ? parsed.photoURL : '',
+                        isAnonymous: Boolean(parsed.isAnonymous)
+                    };
+                }
+            } catch {}
+        }
+        // Fallback for sessions established before AUTH_USER_CACHE_KEY existed if Firebase storage still holds this uid
+        if (_hasPersistedFirebaseSession(uid)) {
+            const localSettings = _loadStorageData(`${USER_STORAGE_PREFIX}${uid}`)?.settings || {};
+            return {
+                uid: String(uid),
+                displayName: typeof localSettings.userName === 'string' && localSettings.userName !== 'Alex Thorne' ? localSettings.userName : '',
+                email: '',
+                photoURL: '',
+                isAnonymous: false
+            };
+        }
+        return null;
+    }
+
+    function _writeCachedPublicUser(user) {
+        if (!user?.uid) return;
+        _writeStorageValue(AUTH_USER_CACHE_KEY, JSON.stringify({
+            uid: String(user.uid),
+            displayName: user.displayName || '',
+            email: user.email || '',
+            photoURL: user.photoURL || '',
+            isAnonymous: Boolean(user.isAnonymous)
+        }));
+    }
+
     function _isProtectedAppPage() {
         const pageName = window.location.pathname.split('/').pop()?.toLowerCase() || '';
         return !['', 'index.html', 'onboarding.html', 'leaderboard.html'].includes(pageName);
     }
 
     function _handleSignedOutState() {
+        const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+        const preserveOfflineSession = !explicitSignOutInProgress
+            && isOffline
+            && Boolean(activeUserId || _readStorageValue(ACTIVE_USER_KEY) || _hasPersistedFirebaseSession());
+        if (preserveOfflineSession) {
+            _clearCloudSubscription();
+            return;
+        }
+
         _clearCloudSubscription();
         cloudActivatedUserId = null;
         activeUserId = null;
         activeStorageKey = STORAGE_KEY;
         _removeStorageValue(ACTIVE_USER_KEY);
+        _removeStorageValue(AUTH_USER_CACHE_KEY);
         lastKnownStorageRaw = _readStorageValue(activeStorageKey);
         _emitDataChange('signed-out', true);
 
@@ -2081,6 +2154,9 @@ const HabitArc = (() => {
             _handleSignedOutState();
             return;
         }
+        explicitSignOutInProgress = false;
+        _writeStorageValue(ACTIVE_USER_KEY, user.uid);
+        _writeCachedPublicUser(user);
         if (cloudActivatedUserId === user.uid) {
             if (!cloudSyncReady && !cloudRetryTimer && cloudHydratingUserId !== user.uid) {
                 void _hydrateCloudUser(user);
@@ -2101,6 +2177,7 @@ const HabitArc = (() => {
             .then(async (authClient) => {
                 cloudClient = authClient;
                 await authClient.waitForInitialAuthState();
+                authStateSettled = true;
                 authClient.subscribe((user) => {
                     if (user) {
                         _handleSignedInState(user);
@@ -2112,12 +2189,17 @@ const HabitArc = (() => {
             })
             .catch((error) => {
                 // Authentication remains optional for local development and
-                // the app deliberately keeps its local cache usable here.
+                // offline/flaky CDN loads keep the active account cache intact.
                 console.warn('HabitArc: Firebase could not be initialized. Continuing with local data.', error);
                 return null;
             });
 
         window.addEventListener('online', () => {
+            if (!cloudClient) {
+                // Recover Firebase Auth automatically if initial page load happened while offline.
+                _initializeAuthAndCloudSync();
+                return;
+            }
             const user = cloudClient?.getCurrentUser?.();
             if (!user || user.uid !== cloudActivatedUserId) return;
 
@@ -2132,12 +2214,20 @@ const HabitArc = (() => {
             _scheduleCloudRetry(user);
         });
 
-        const checkCrossTabForegroundSync = (source = 'visibility') => {
+        const syncScopeFromStorage = () => {
             const nextUid = _readStorageValue(ACTIVE_USER_KEY);
-            if (!cloudClient?.getCurrentUser?.() && nextUid !== activeUserId) {
-                activeUserId = nextUid;
-                activeStorageKey = activeUserId ? `${USER_STORAGE_PREFIX}${activeUserId}` : STORAGE_KEY;
+            if (cloudClient?.getCurrentUser?.() || nextUid === activeUserId) return;
+            // Never downgrade a known activeUserId to null before Firebase Auth has settled
+            // or while Firebase's persisted auth token still exists in localStorage.
+            if (!nextUid && activeUserId && (!authStateSettled || _hasPersistedFirebaseSession(activeUserId))) {
+                return;
             }
+            activeUserId = nextUid;
+            activeStorageKey = activeUserId ? `${USER_STORAGE_PREFIX}${activeUserId}` : STORAGE_KEY;
+        };
+
+        const checkCrossTabForegroundSync = (source = 'visibility') => {
+            syncScopeFromStorage();
             const latestRaw = _readStorageValue(activeStorageKey);
             if (latestRaw !== lastKnownStorageRaw) {
                 lastKnownStorageRaw = latestRaw;
@@ -2153,11 +2243,7 @@ const HabitArc = (() => {
                     event.key === ACTIVE_USER_KEY ||
                     (typeof event.key === 'string' && event.key.startsWith(USER_STORAGE_PREFIX))
                 ) {
-                    const nextUid = _readStorageValue(ACTIVE_USER_KEY);
-                    if (!cloudClient?.getCurrentUser?.() && nextUid !== activeUserId) {
-                        activeUserId = nextUid;
-                        activeStorageKey = activeUserId ? `${USER_STORAGE_PREFIX}${activeUserId}` : STORAGE_KEY;
-                    }
+                    syncScopeFromStorage();
                     lastKnownStorageRaw = _readStorageValue(activeStorageKey);
                     _emitDataChange('storage');
                 }
@@ -2173,15 +2259,27 @@ const HabitArc = (() => {
     }
 
     function getAuthUser() {
-        return cloudClient?.getPublicUser?.() || window.HabitArcAuth?.getPublicUser?.() || null;
+        const live = cloudClient?.getPublicUser?.() || window.HabitArcAuth?.getPublicUser?.() || null;
+        if (live) return live;
+        if (!authStateSettled || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
+            return _readCachedPublicUser();
+        }
+        return null;
     }
 
     async function whenAuthReady() {
         const authClient = await authReadyPromise;
-        if (!authClient) return null;
+        if (!authClient) {
+            return _readCachedPublicUser();
+        }
 
         await authClient.waitForInitialAuthState();
-        return authClient.getPublicUser();
+        const live = authClient.getPublicUser();
+        if (live) return live;
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            return _readCachedPublicUser();
+        }
+        return null;
     }
 
     async function signOutUser() {
@@ -2189,6 +2287,7 @@ const HabitArc = (() => {
         if (!authClient) {
             throw new Error('Authentication is not available right now.');
         }
+        explicitSignOutInProgress = true;
         // On shared Android devices, stop this account's browser push before
         // switching identities. Cloud record removal is best-effort offline.
         try {
@@ -2199,7 +2298,14 @@ const HabitArc = (() => {
                 ]);
             }
         } catch {}
-        await authClient.signOut();
+        _removeStorageValue(ACTIVE_USER_KEY);
+        _removeStorageValue(AUTH_USER_CACHE_KEY);
+        try {
+            await authClient.signOut();
+        } catch (error) {
+            explicitSignOutInProgress = false;
+            throw error;
+        }
     }
 
     async function _wipeAccountNotesIndexedDB(uid) {
@@ -2251,6 +2357,7 @@ const HabitArc = (() => {
                         (uid && (key.endsWith(`:${uid}`) || key.endsWith(`_${uid}`))) ||
                         key === STORAGE_KEY ||
                         key === ACTIVE_USER_KEY ||
+                        key === AUTH_USER_CACHE_KEY ||
                         key === 'habitarc_push_device_owner' ||
                         key === 'habitarc_arc_rescue_prompt'
                     ) {
@@ -2288,12 +2395,19 @@ const HabitArc = (() => {
             cloudSaveTimer = null;
         }
 
-        if (currentUser?.uid && authClient?.deleteAccountAndCloudData) {
-            await authClient.deleteAccountAndCloudData();
+        explicitSignOutInProgress = true;
+        try {
+            if (currentUser?.uid && authClient?.deleteAccountAndCloudData) {
+                await authClient.deleteAccountAndCloudData();
+            }
+        } catch (error) {
+            explicitSignOutInProgress = false;
+            throw error;
         }
 
         await _wipeAccountNotesIndexedDB(targetUid);
         _wipeScopedBrowserStorage(targetUid);
+        _removeStorageValue(AUTH_USER_CACHE_KEY);
         activeUserId = null;
         cloudActivatedUserId = null;
         cloudSyncReady = false;

@@ -34,67 +34,129 @@ function getAuthErrorMessage(error) {
     return messages[error?.code] || 'We could not sign you in. Please try again.';
 }
 
+const AUTH_USER_CACHE_KEY = 'habitarc_auth_user_cache';
+
+async function importFirebaseModule(url) {
+    try {
+        return await import(url);
+    } catch {
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        return import(`${url}${url.includes('?') ? '&' : '?'}retry=1`);
+    }
+}
+
+function readPersistedFirebaseUserFromStorage() {
+    try {
+        const prefix = `firebase:authUser:${firebaseConfig.apiKey}:`;
+        for (let i = 0; i < localStorage.length; i += 1) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(prefix)) {
+                const parsed = JSON.parse(localStorage.getItem(key) || 'null');
+                if (parsed?.uid && parsed?.stsTokenManager?.refreshToken) {
+                    return parsed;
+                }
+            }
+        }
+    } catch {
+        // Storage access is optional in restricted browsing modes.
+    }
+    return null;
+}
+
 window.HabitArcAuthReady = (async () => {
     try {
-        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js');
-        const {
-            GoogleAuthProvider,
-            browserLocalPersistence,
-            createUserWithEmailAndPassword,
-            deleteUser,
-            getAuth,
-            getRedirectResult,
-            onAuthStateChanged,
-            setPersistence,
-            signOut,
-            signInAnonymously,
-            signInWithEmailAndPassword,
-            signInWithRedirect,
-            updateProfile
-        } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js');
-        const {
-            arrayRemove,
-            arrayUnion,
-            collection,
-            deleteDoc,
-            doc,
-            getDoc,
-            getDocs,
-            getFirestore,
-            limit,
-            onSnapshot,
-            orderBy,
-            query,
-            serverTimestamp,
-            setDoc,
-            writeBatch
-        } = await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js');
+        const [
+            { initializeApp },
+            {
+                GoogleAuthProvider,
+                browserLocalPersistence,
+                browserPopupRedirectResolver,
+                createUserWithEmailAndPassword,
+                deleteUser,
+                getAuth,
+                getRedirectResult,
+                indexedDBLocalPersistence,
+                initializeAuth,
+                onAuthStateChanged,
+                signOut,
+                signInAnonymously,
+                signInWithEmailAndPassword,
+                signInWithRedirect,
+                updateProfile
+            },
+            {
+                arrayRemove,
+                collection,
+                deleteDoc,
+                doc,
+                getDoc,
+                getDocs,
+                getFirestore,
+                limit,
+                onSnapshot,
+                orderBy,
+                query,
+                serverTimestamp,
+                setDoc,
+                writeBatch
+            }
+        ] = await Promise.all([
+            importFirebaseModule('https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js'),
+            importFirebaseModule('https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js'),
+            importFirebaseModule('https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js')
+        ]);
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        // Configure browserLocalPersistence + indexedDBLocalPersistence upfront via
+        // initializeAuth instead of calling getAuth() + setPersistence() on every load,
+        // which caused cross-tab and rapid-refresh persistence migration logouts.
+        let auth;
+        if (typeof initializeAuth === 'function') {
+            try {
+                const persistence = [browserLocalPersistence, indexedDBLocalPersistence].filter(Boolean);
+                auth = initializeAuth(app, {
+                    ...(persistence.length ? { persistence } : {}),
+                    ...(browserPopupRedirectResolver ? { popupRedirectResolver: browserPopupRedirectResolver } : {})
+                });
+            } catch {
+                auth = getAuth(app);
+            }
+        } else {
+            auth = getAuth(app);
+        }
         const firestore = getFirestore(app);
         // Do not load Storage on app startup: it is optional and can require billing.
         let storagePromise = null;
         function storageClient() {
-            if (!storagePromise) storagePromise = import('https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js')
+            if (!storagePromise) storagePromise = importFirebaseModule('https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js')
                 .then(api => ({ api, storage: api.getStorage(app) }))
                 .catch(error => { storagePromise = null; throw error; });
             return storagePromise;
         }
         const googleProvider = new GoogleAuthProvider();
-
         googleProvider.setCustomParameters({ prompt: 'select_account' });
-        await setPersistence(auth, browserLocalPersistence);
 
-        // Keep one shared result promise so the onboarding UI can safely
-        // resume a completed mobile redirect after this page reloads.
-        const googleRedirectResult = getRedirectResult(auth)
-            .then((result) => ({ user: result?.user || null, error: null }))
-            .catch((error) => ({ user: null, error }));
+        // Lazily evaluate redirect result only when requested (e.g. Onboarding Google handoff)
+        // so normal refreshes on Dashboard/Habits never trigger redundant redirect state checks.
+        let googleRedirectResult = null;
+        function ensureGoogleRedirectResult() {
+            if (!googleRedirectResult) {
+                const req = browserPopupRedirectResolver
+                    ? getRedirectResult(auth, browserPopupRedirectResolver)
+                    : getRedirectResult(auth);
+                googleRedirectResult = req
+                    .then((result) => ({ user: result?.user || null, error: null }))
+                    .catch((error) => ({ user: null, error }));
+            }
+            return googleRedirectResult;
+        }
 
         let currentUser = null;
+        let explicitSignOut = false;
+        let authReadySettled = false;
         let initialAuthStateResolved = false;
         let resolveInitialAuthState;
+        let pendingNullTimer = null;
         const authStateListeners = new Set();
         const initialAuthState = new Promise((resolve) => {
             resolveInitialAuthState = resolve;
@@ -330,14 +392,21 @@ window.HabitArcAuthReady = (async () => {
             });
         }
 
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
+        function commitResolvedAuthState(user) {
+            if (pendingNullTimer) {
+                clearTimeout(pendingNullTimer);
+                pendingNullTimer = null;
+            }
+            currentUser = user || null;
 
             try {
-                if (user) {
-                    localStorage.setItem('habitarc_active_uid', user.uid);
+                if (currentUser) {
+                    explicitSignOut = false;
+                    localStorage.setItem('habitarc_active_uid', currentUser.uid);
+                    localStorage.setItem(AUTH_USER_CACHE_KEY, JSON.stringify(toPublicUser(currentUser)));
                 } else {
                     localStorage.removeItem('habitarc_active_uid');
+                    localStorage.removeItem(AUTH_USER_CACHE_KEY);
                 }
             } catch {
                 // The app still works when browser storage is unavailable.
@@ -345,14 +414,71 @@ window.HabitArcAuthReady = (async () => {
 
             if (!initialAuthStateResolved) {
                 initialAuthStateResolved = true;
-                resolveInitialAuthState(user);
+                resolveInitialAuthState(currentUser);
             }
 
-            notifyAuthState(user);
+            notifyAuthState(currentUser);
             window.dispatchEvent(new CustomEvent('habitarc-auth-state-changed', {
-                detail: { user: toPublicUser(user) }
+                detail: { user: toPublicUser(currentUser) }
             }));
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                commitResolvedAuthState(user);
+                return;
+            }
+
+            // Ignore pre-hydration null emissions until auth.authStateReady() settles.
+            if (!authReadySettled && !explicitSignOut) {
+                return;
+            }
+
+            if (explicitSignOut) {
+                commitResolvedAuthState(null);
+                return;
+            }
+
+            // Protect offline launches & transient cross-tab storage blips from false logouts.
+            const persisted = readPersistedFirebaseUserFromStorage();
+            if (typeof navigator !== 'undefined' && navigator.onLine === false && persisted?.uid) {
+                if (!initialAuthStateResolved) {
+                    initialAuthStateResolved = true;
+                    resolveInitialAuthState(currentUser);
+                }
+                return;
+            }
+
+            if (pendingNullTimer) clearTimeout(pendingNullTimer);
+            pendingNullTimer = setTimeout(() => {
+                pendingNullTimer = null;
+                if (auth.currentUser) {
+                    commitResolvedAuthState(auth.currentUser);
+                    return;
+                }
+                const stillPersisted = readPersistedFirebaseUserFromStorage();
+                if (!explicitSignOut && stillPersisted?.uid && typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    return;
+                }
+                commitResolvedAuthState(null);
+            }, persisted?.uid ? 320 : 0);
         });
+
+        if (typeof auth.authStateReady === 'function') {
+            await auth.authStateReady().catch(() => {});
+        }
+        authReadySettled = true;
+        if (auth.currentUser) {
+            commitResolvedAuthState(auth.currentUser);
+        } else if (!initialAuthStateResolved) {
+            const persistedOnBoot = readPersistedFirebaseUserFromStorage();
+            if (!explicitSignOut && typeof navigator !== 'undefined' && navigator.onLine === false && persistedOnBoot?.uid) {
+                initialAuthStateResolved = true;
+                resolveInitialAuthState(null);
+            } else {
+                commitResolvedAuthState(null);
+            }
+        }
 
         async function loadUserData(user = currentUser) {
             if (!user) {
@@ -676,12 +802,21 @@ window.HabitArcAuthReady = (async () => {
                 return result.user;
             },
             async getGoogleRedirectResult() {
-                return googleRedirectResult;
+                return ensureGoogleRedirectResult();
             },
             async startGoogleRedirect() {
-                await signInWithRedirect(auth, googleProvider);
+                if (browserPopupRedirectResolver) {
+                    await signInWithRedirect(auth, googleProvider, browserPopupRedirectResolver);
+                } else {
+                    await signInWithRedirect(auth, googleProvider);
+                }
             },
             async signOut() {
+                explicitSignOut = true;
+                try {
+                    localStorage.removeItem('habitarc_active_uid');
+                    localStorage.removeItem(AUTH_USER_CACHE_KEY);
+                } catch {}
                 await signOut(auth);
             },
             loadUserData,
@@ -929,12 +1064,18 @@ window.HabitArcAuthReady = (async () => {
                     } catch { /* Root user doc may not exist yet */ }
 
                     // Finally delete Firebase Auth identity
+                    explicitSignOut = true;
+                    try {
+                        localStorage.removeItem('habitarc_active_uid');
+                        localStorage.removeItem(AUTH_USER_CACHE_KEY);
+                    } catch {}
                     const liveAuthUser = auth.currentUser || user;
                     if (liveAuthUser) {
                         try {
                             await deleteUser(liveAuthUser);
                         } catch (error) {
                             if (error?.code === 'auth/requires-recent-login') {
+                                explicitSignOut = false;
                                 const recentErr = new Error(getAuthErrorMessage(error));
                                 recentErr.code = 'auth/requires-recent-login';
                                 throw recentErr;
@@ -943,6 +1084,11 @@ window.HabitArcAuthReady = (async () => {
                         }
                     }
                 } else {
+                    explicitSignOut = true;
+                    try {
+                        localStorage.removeItem('habitarc_active_uid');
+                        localStorage.removeItem(AUTH_USER_CACHE_KEY);
+                    } catch {}
                     try { await signOut(auth); } catch {}
                 }
 

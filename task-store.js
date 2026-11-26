@@ -285,8 +285,14 @@ function makeStore() {
       if (!client) return;
       cloud = client;
       unsubscribeAuth?.();
-      unsubscribeAuth = client.subscribe((user) => activate(user?.uid || 'local'));
-      activate(client.getCurrentUser?.()?.uid || 'local');
+      unsubscribeAuth = client.subscribe((user) => {
+        if (!user?.uid && navigator.onLine === false) {
+          const cachedUid = userScope();
+          if (cachedUid && cachedUid !== 'local') return;
+        }
+        activate(user?.uid || 'local');
+      });
+      activate(client.getCurrentUser?.()?.uid || (navigator.onLine === false ? userScope() : 'local'));
     }).catch(() => { state = 'local'; notify(); });
   }
   return { start, subscribe, getTasks, getTask, getStatus, put, remove, flush };

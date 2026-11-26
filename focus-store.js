@@ -194,6 +194,12 @@ export function startFocusCloudSync(){
     if(!client){updateCloudStatus('local');return;}
     focusClient=client;
     // subscribe() delivers the initial identity too.
-    focusAuthUnsubscribe=client.subscribe(user=>{void activateFocus(user?.uid||'local');});
+    focusAuthUnsubscribe=client.subscribe(user=>{
+      if(!user?.uid&&navigator.onLine===false){
+        const cachedUid=scope();
+        if(cachedUid&&cachedUid!=='local')return;
+      }
+      void activateFocus(user?.uid||'local');
+    });
   }).catch(()=>updateCloudStatus('local','Focus saved locally · Sign-in unavailable'));
 }

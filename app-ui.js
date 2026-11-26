@@ -78,11 +78,18 @@
             'pagehide',
             'visibilitychange',
         ]);
+        // Never attach pageAbortController to Firebase SDK's internal visibilitychange
+        // token-refresh listeners or persistent shell ES modules (app.js, arc-sheet.js, stores).
+        const PERSISTENT_MODULE_RE = /(?:firebase|gstatic\.com|\/(?:app|app-ui|arc-sheet|task-store|focus-store|notes-cloud|notes-studio|leaderboard|league-store|productivity-hub|push-subscriptions|treasure-art)\.js)/i;
         const shouldScopeToPage = (type) => {
             if (capturingPageListeners) return true;
             const scriptEl = document.currentScript;
             if (scriptEl) return !scriptEl.src;
-            return PAGE_SCOPED_EVENTS.has(type);
+            if (document.documentElement?.classList?.contains('ha-spa-navigated')) return false;
+            if (!PAGE_SCOPED_EVENTS.has(type)) return false;
+            const stack = typeof Error === 'function' ? (new Error().stack || '') : '';
+            if (stack && PERSISTENT_MODULE_RE.test(stack)) return false;
+            return true;
         };
         const withPageSignal = (options) => {
             if (!pageAbortController) return options;
@@ -514,8 +521,12 @@
 
         async function navigateInPlace(targetUrl, { pushState = true } = {}) {
             // A direct visit to the sample league does not require an account.
-            // When leaving it without a session, let the destination run its normal entry checks.
-            if (document.querySelector('main.ha-leaderboard') && !window.HabitArc?.getAuthUser?.()
+            // When leaving it without a session (nor a cached active UID), let the destination run its normal entry checks.
+            const hasActiveSession = Boolean(
+                window.HabitArc?.getAuthUser?.()
+                || (() => { try { return localStorage.getItem('habitarc_active_uid'); } catch { return ''; } })()
+            );
+            if (document.querySelector('main.ha-leaderboard') && !hasActiveSession
                 && !targetUrl.pathname.endsWith('/Leaderboard.html')) {
                 if (pushState) location.assign(targetUrl.href);
                 else location.replace(targetUrl.href);
@@ -664,10 +675,6 @@
             if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             const target = navigationLink(event);
             if (!target) return;
-            // Direct Notes deep links lack the Tailwind shell needed by other
-            // pages. Only that cold entry uses one normal navigation.
-            if (location.pathname.endsWith('/Notes.html')
-                && !window.tailwind?.config?.theme?.extend?.colors) return;
             event.preventDefault();
             if (target.url.pathname === location.pathname && target.url.search === location.search) return;
             void navigateInPlace(target.url, { pushState: true });

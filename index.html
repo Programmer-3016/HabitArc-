@@ -135,7 +135,8 @@
             }
 
             const user = await HabitArc.whenAuthReady();
-            const offlineSignedIn = !user && (navigator.onLine === false || Boolean(window.HabitArcAuthInitError)) && (Boolean(activeUid) || cachedComplete);
+            const firebaseUnavailable = !window.HabitArcAuth && (navigator.onLine === false || Boolean(window.HabitArcAuthInitError) || Boolean(activeUid));
+            const offlineSignedIn = !user && firebaseUnavailable && (Boolean(activeUid) || cachedComplete);
             window.location.replace(user || offlineSignedIn ? 'Dashboard.html' : 'Onboarding.html');
         });
     </script>

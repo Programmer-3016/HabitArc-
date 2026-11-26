@@ -1980,6 +1980,24 @@
     if (pendingGoogleRedirectDraft) showGoogleAuthHandoff();
     updateStep();
     resumeGoogleRedirectWhenAuthIsReady();
+
+    // Self-healing guard: if an already-onboarded signed-in member lands on Onboarding.html
+    // (via stale history, Back button, or reload race), return seamlessly to Dashboard.html.
+    if (!pendingGoogleRedirectDraft) {
+        HabitArc.whenAuthReady?.()?.then((user) => {
+            if (
+                user?.uid
+                && !user.isAnonymous
+                && !pendingGoogleRedirectDraft
+                && !googleRedirectResumeRunning
+                && !transitionRunning
+                && currentStep === 1
+                && HabitArc.isOnboardingComplete?.()
+            ) {
+                window.location.replace('Dashboard.html');
+            }
+        }).catch(() => {});
+    }
 })();
 </script>
 </body></html>

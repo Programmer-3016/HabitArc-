@@ -196,7 +196,13 @@ export function createNotesSync({ list, get, save, remove, owner, onUpdate, onSt
       if(!alive||!client) {tell('local');return;}
       cloud=client;
       // subscribe() delivers initial user state; do not double-subscribe.
-      unsubscribeAuth=client.subscribe(user=>{void activate(user?.uid||'local');});
+      unsubscribeAuth=client.subscribe(user=>{
+        if(!user?.uid&&navigator.onLine===false){
+          const cachedUid=current();
+          if(validScope(cachedUid))return;
+        }
+        void activate(user?.uid||'local');
+      });
     }catch{
       tell('error','Cloud sign-in unavailable · Local notes safe');
     }

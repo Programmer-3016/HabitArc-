@@ -272,7 +272,7 @@
         if (!authUser && typeof HabitArc.whenAuthReady === 'function') {
             authUser = await Promise.race([
                 HabitArc.whenAuthReady().catch(() => null),
-                new Promise((resolve) => window.setTimeout(() => resolve(typeof HabitArc.getAuthUser === 'function' ? HabitArc.getAuthUser() : null), 1200))
+                new Promise((resolve) => window.setTimeout(() => resolve(typeof HabitArc.getAuthUser === 'function' ? HabitArc.getAuthUser() : null), 5000))
             ]);
         }
         habit = HabitArc.getHabitById(habitId);
