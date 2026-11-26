@@ -299,6 +299,9 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   assert.match(sheetCss, /\.ha-sheet-hist-pop\b/, 'Saved Chats drawer must style floating context popover menu');
   assert.match(sheetCss, /\.ha-sheet-search-field\b/, 'Saved Chats drawer search bar must use HabitArc native bordered field');
   assert.match(sheetCss, /\.ha-sheet-bubble-card\b/, 'Ask ARC replies must render Tactile Paper Bubble Card');
+  assert.match(sheetCss, /\.ha-arc-typewrap\b/, 'Ask ARC empty composer must style the typewriter prompt overlay');
+  assert.match(sheetCss, /\.ha-arc-sheet-dialog:not\(\.is-kb-open\) \.ha-arc-sheet-panel\.is-empty \.ha-arc-empty-hero\s*\{\s*flex-direction:\s*column/, 'Ask ARC empty hero must center the Buddy greeting');
+  assert.match(sheetJs, /syncTypewriter/, 'Ask ARC empty composer must run the typewriter prompt');
   assert.match(sheetCss, /\.ha-arc-sheet-panel\.is-thread \.ha-arc-sheet-plus[\s\S]*?order:\s*1\b/, 'Thread composer must anchor + button on left corner');
   assert.match(sheetCss, /\.ha-arc-sheet-panel\.is-thread \.ha-arc-sheet-send[\s\S]*?order:\s*3\b/, 'Thread composer must anchor send arrow on right corner');
 

@@ -533,6 +533,145 @@ html.ha-arc-sheet-open body > main {
   font-size: 18px;
 }
 
+/* ─── Home: Centered Buddy greeting + word-reveal heading + typewriter composer ─── */
+@keyframes haArcWord {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes haArcBuddyPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) translateY(12px);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes haArcRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ha-arc-sheet-dialog:not(.is-kb-open) .ha-arc-sheet-panel.is-empty .ha-arc-empty-hero {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ha-arc-sheet-dialog:not(.is-kb-open) .ha-arc-sheet-panel.is-empty .ha-arc-buddy-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 23px;
+}
+
+.ha-arc-sheet-dialog:not(.is-kb-open) .ha-arc-sheet-panel.is-empty .ha-arc-buddy-box svg {
+  width: 40px;
+  height: 40px;
+}
+
+.ha-arc-hword {
+  display: inline-block;
+}
+
+.ha-arc-sheet-panel.is-empty.is-enter .ha-arc-hword {
+  animation: haArcWord 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 160ms);
+}
+
+.ha-arc-sheet-panel.is-empty.is-enter .ha-arc-buddy-box {
+  animation: haArcBuddyPop 0.65s cubic-bezier(0.22, 1, 0.36, 1) both, haArcBuddyFloat 2.8s ease-in-out 0.65s infinite;
+}
+
+.ha-arc-sheet-panel.is-empty.is-enter .ha-arc-empty-kicker {
+  animation: haArcRise 0.5s ease both;
+  animation-delay: 0.1s;
+}
+
+/* Typewriter prompt inside the empty composer (replaces static placeholder) */
+.ha-arc-composer-main {
+  position: relative;
+}
+
+.ha-arc-typewrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 16px;
+  line-height: 1.44;
+  color: rgb(var(--ha-outline, 113 113 122));
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ha-arc-typewrap[hidden] {
+  display: none !important;
+}
+
+.ha-arc-sheet-panel.is-thread .ha-arc-typewrap {
+  display: none !important;
+}
+
+.ha-arc-typecaret {
+  display: inline-block;
+  width: 2.5px;
+  height: 1.15em;
+  margin-left: 2px;
+  border-radius: 2px;
+  vertical-align: -0.2em;
+  background: rgb(var(--ha-primary, 124 58 237));
+  animation: haArcCaretBlink 1s steps(1) infinite;
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-typecaret {
+  background: rgb(var(--ha-primary, 196 181 253));
+}
+
+.ha-arc-sheet-panel.has-typewriter .ha-arc-sheet-input::placeholder {
+  color: transparent;
+}
+
+.ha-arc-sheet-panel.is-empty .ha-arc-beam-frame {
+  box-shadow: 0 0 0 4px rgb(var(--ha-primary, 124 58 237) / 0.12), 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+}
+
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sheet-panel.is-empty .ha-arc-beam-frame {
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.48);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ha-arc-sheet-panel .ha-arc-hword,
+  .ha-arc-sheet-panel .ha-arc-buddy-box,
+  .ha-arc-sheet-panel .ha-arc-empty-kicker,
+  .ha-arc-typecaret {
+    animation: none !important;
+  }
+}
+
 /* ─── Active Conversation Body (Thread Mode, Theme-Adaptive) ──────────────── */
 .ha-arc-sheet-body {
   flex: 1 1 0%;

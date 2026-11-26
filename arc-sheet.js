@@ -74,6 +74,19 @@ let lvlUpBannerEl = null;
 let lvlUpTextEl = null;
 let inputEl = null;
 let sendBtn = null;
+let typeWrapEl = null;
+let typeTextEl = null;
+let typeTimer = 0;
+let typeIdx = 0;
+let typePos = 0;
+let typeDeleting = false;
+
+const TYPEWRITER_PROMPTS = [
+  'Spot my biggest 28-day consistency leak',
+  'Make me a 2-minute backup habit',
+  'Split my toughest task into 3 steps',
+  'Which weekday do I miss the most?',
+];
 let plusBtn = null;
 let plusLabelEl = null;
 let contextHostEl = null;
@@ -590,9 +603,70 @@ function closeSheetSubDrawers() {
   if (subBackdropEl) subBackdropEl.hidden = true;
 }
 
+function stopTypewriter() {
+  clearTimeout(typeTimer);
+  typeTimer = 0;
+  typePos = 0;
+  typeDeleting = false;
+  if (typeTextEl) typeTextEl.textContent = '';
+}
+
+function runTypewriterStep() {
+  typeTimer = 0;
+  if (!dialog?.open || !typeTextEl) return;
+  const full = TYPEWRITER_PROMPTS[typeIdx % TYPEWRITER_PROMPTS.length];
+  let delay;
+  if (!typeDeleting) {
+    typePos += 1;
+    typeTextEl.textContent = full.slice(0, typePos);
+    if (typePos >= full.length) {
+      typeDeleting = true;
+      delay = 1900;
+    } else {
+      delay = 42;
+    }
+  } else {
+    typePos -= 1;
+    typeTextEl.textContent = full.slice(0, Math.max(0, typePos));
+    if (typePos <= 0) {
+      typeDeleting = false;
+      typeIdx += 1;
+      delay = 380;
+    } else {
+      delay = 20;
+    }
+  }
+  typeTimer = setTimeout(runTypewriterStep, delay);
+}
+
+function syncTypewriter() {
+  if (!typeWrapEl || !typeTextEl || !inputEl) return;
+  const reduceMotion = typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const idle = Boolean(panelEl?.classList?.contains('is-empty')) && !inputEl.value && !activeController;
+  if (!idle || reduceMotion) {
+    stopTypewriter();
+    typeWrapEl.hidden = true;
+    panelEl?.classList?.remove('has-typewriter');
+    return;
+  }
+  typeWrapEl.hidden = false;
+  panelEl?.classList?.add('has-typewriter');
+  if (!typeTimer) typeTimer = setTimeout(runTypewriterStep, 380);
+}
+
+function replayHomeEnter() {
+  if (!panelEl) return;
+  panelEl.classList.remove('is-enter');
+  void panelEl.offsetWidth;
+  panelEl.classList.add('is-enter');
+}
+
 function cleanupClosedState() {
   activeController?.abort();
   stopConstellation();
+  stopTypewriter();
   detachViewportSync();
   closeSheetSubDrawers();
   sheetContextApi?.dispose?.();
@@ -654,6 +728,7 @@ function syncComposerChrome() {
 
   syncSendButtonState();
   resizeComposerInput();
+  syncTypewriter();
 }
 
 function syncSendButtonState() {
@@ -1374,9 +1449,16 @@ function renderSheetHome() {
   }
   if (newChatBtn) newChatBtn.hidden = sheetTurns.length === 0;
   if (headingEl) {
-    headingEl.textContent = firstName && firstName !== 'there'
+    const headingText = firstName && firstName !== 'there'
       ? `What’s on your mind, ${firstName}?`
       : 'What’s on your mind today?';
+    if (headingEl.dataset.txt !== headingText) {
+      headingEl.dataset.txt = headingText;
+      headingEl.innerHTML = headingText
+        .split(' ')
+        .map((w, i) => `<span class="ha-arc-hword" style="--i:${i}">${esc(w)}</span>`)
+        .join(' ');
+    }
   }
 
   syncComposerChrome();
@@ -1766,6 +1848,7 @@ export function startNewSheetChat() {
   closeSheetSubDrawers();
   showStatusMessage('');
   renderSheetHome();
+  replayHomeEnter();
 }
 
 export function openArcSheetChatById(chatId) {
@@ -1787,6 +1870,7 @@ export function openArcSheet(prefill = '', { autoSubmit = false } = {}) {
   closeSheetSubDrawers();
   showStatusMessage('');
   renderSheetHome();
+  replayHomeEnter();
 
   if (typeof document !== 'undefined') {
     document.documentElement?.classList?.add('ha-arc-sheet-open');
@@ -1973,6 +2057,7 @@ export function mountArcSheet() {
               <form id="ha-arc-sheet-form" class="ha-arc-sheet-form">
                 <div id="ha-arc-sheet-context-chips" class="ha-arc-context-chips hidden" aria-label="Attached context"></div>
                 <div class="ha-arc-composer-main">
+                  <div id="ha-arc-type" class="ha-arc-typewrap" aria-hidden="true" hidden><span id="ha-arc-type-text" class="ha-arc-typetxt"></span><span class="ha-arc-typecaret"></span></div>
                   <textarea id="ha-arc-sheet-input" class="ha-arc-sheet-input" rows="2" maxlength="1000" placeholder="Ask for a 2-minute backup habit, split a tough task, or audit your 28-day consistency…" autocomplete="off" aria-label="Ask ARC anything"></textarea>
                   <div class="ha-arc-composer-foot">
                     <div class="ha-arc-composer-pills">
@@ -2033,6 +2118,8 @@ export function mountArcSheet() {
     lvlUpBannerEl = dialog.querySelector('#ha-arc-lvlup-banner');
     lvlUpTextEl = dialog.querySelector('#ha-arc-lvlup-text');
     inputEl = dialog.querySelector('#ha-arc-sheet-input');
+    typeWrapEl = dialog.querySelector('#ha-arc-type');
+    typeTextEl = dialog.querySelector('#ha-arc-type-text');
     sendBtn = dialog.querySelector('#ha-arc-sheet-send');
     plusBtn = dialog.querySelector('#ha-arc-sheet-plus');
     plusLabelEl = dialog.querySelector('#ha-arc-plus-label');
@@ -2069,7 +2156,10 @@ export function mountArcSheet() {
       followLatestScroll = gap <= 100;
     }, { passive: true });
 
-    inputEl?.addEventListener('input', resizeComposerInput);
+    inputEl?.addEventListener('input', () => {
+      resizeComposerInput();
+      syncTypewriter();
+    });
     inputEl?.addEventListener('focus', () => {
       syncSheetViewport();
       setTimeout(syncSheetViewport, 60);
