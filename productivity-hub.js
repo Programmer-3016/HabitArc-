@@ -83,7 +83,7 @@ function capture(kind){
   }catch(error){status.textContent='Task not saved: '+error.message;}
   return;
  }
- if(kind==='ai'&&window.HabitArcSheet?.open&&!location.pathname.endsWith('Arc_AI.html')){
+ if(kind==='ai'&&typeof window.innerWidth==='number'&&window.innerWidth<768&&window.HabitArcSheet?.open&&!location.pathname.endsWith('Arc_AI.html')){
   dialog.close();
   window.HabitArcSheet.open(title);
   return;
@@ -120,7 +120,7 @@ function initialize(){
   const a=e.target.closest('a');
   if(!a)return;
   const href=a.getAttribute('href')||'';
-  if(href.startsWith('Arc_AI.html?chat=')&&window.HabitArcSheet?.openChat&&!location.pathname.endsWith('Arc_AI.html')){
+  if(href.startsWith('Arc_AI.html?chat=')&&typeof window.innerWidth==='number'&&window.innerWidth<768&&window.HabitArcSheet?.openChat&&!location.pathname.endsWith('Arc_AI.html')){
    e.preventDefault();
    const chatId=decodeURIComponent(href.split('chat=')[1]||'');
    dialog.close();

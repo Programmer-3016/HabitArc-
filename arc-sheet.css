@@ -48,10 +48,7 @@ body:has(dialog[open]) .ha-arc-fab {
 
 @media (min-width: 768px) {
   .ha-arc-fab {
-    right: 24px;
-    bottom: 24px;
-    padding: 10px 17px;
-    font-size: 13px;
+    display: none !important;
   }
 }
 

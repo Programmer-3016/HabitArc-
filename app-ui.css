@@ -4754,3 +4754,494 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
   font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800;
   padding: 2px 6px; cursor: pointer;
 }
+
+/* ─── Desktop ARC AI Studio Upgrade (Clean Aura + 6-Col Bento + Studio Composer + Skill Tree Modal) ─── */
+@keyframes haArcDeskFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes haArcDeskBlink {
+  0%, 45%, 49%, 95%, 100% { transform: scaleY(1); }
+  47%, 97% { transform: scaleY(0.12); }
+}
+
+.ha-arc-bento-head,
+.ha-arc-bento-copy,
+.ha-arc-wide-copy {
+  display: contents;
+}
+.ha-arc-wide-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ha-arc-wide-ico.is-mint { color: rgb(var(--ha-secondary, 14 108 74)); }
+.ha-arc-wide-ico.is-amber { color: #d97706; }
+
+/* Upgrade #arc-hub-dialog modal to match Option 1 + Connected Skill Tree */
+.ha-ai-hub-hdr {
+  background: var(--ha-hero-bg, #c5b6ff);
+  background-image: none;
+  color: var(--ha-hero-fg, #121215);
+  border-bottom: 1.8px solid var(--rpg-shadow-ink, #121215);
+  padding: 14px 16px;
+}
+:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-ai-hub-hdr {
+  background: color-mix(in srgb, var(--ha-hero-bg, #322756) 82%, rgb(var(--ha-surface, 26 26 36)));
+  color: rgb(var(--ha-on-surface, 248 248 252));
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+.ha-ai-hub-hdr .ha-ai-hub-name { color: inherit; font-size: 18px; }
+.ha-ai-hub-hdr .ha-arc-rank,
+.ha-ai-hub-hdr .ha-ai-hub-sub { color: inherit; opacity: 0.78; }
+#arc-tier-grid {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 2px;
+}
+#arc-tier-grid::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  bottom: 18px;
+  width: 2.5px;
+  background: rgb(var(--ha-outline-variant) / 0.25);
+  border-radius: 99px;
+}
+.ha-arc-tier {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 13px;
+  border: 1.4px solid rgb(var(--ha-outline-variant) / 0.25);
+  background: rgb(var(--ha-surface-container-low));
+}
+.ha-arc-tier:last-child {
+  border-bottom: 1.4px solid rgb(var(--ha-outline-variant) / 0.25);
+}
+.ha-arc-tier.is-unlocked {
+  background: rgb(var(--ha-surface-container-lowest));
+  border: 1.8px solid var(--rpg-shadow-ink, #121215);
+  box-shadow: 2px 2px 0 var(--rpg-shadow-ink, #121215);
+}
+.ha-arc-tier-lvl {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+.ha-arc-tier.is-unlocked .ha-arc-tier-lvl {
+  background: var(--ha-toggle-done-bg, #47e393);
+  color: var(--ha-toggle-done-fg, #121215);
+  border-color: #121215;
+}
+.ha-arc-tone-pills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.ha-arc-tone-btn {
+  padding: 8px 11px;
+  border-radius: 11px;
+  text-align: left;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+}
+
+@media (min-width: 768px) {
+  body.ha-arc-body > .grid-bg {
+    display: none !important;
+  }
+  body.ha-arc-body {
+    background-image: radial-gradient(
+      circle at 50% 16%,
+      color-mix(in srgb, var(--ha-hero-bg, #c5b6ff) 24%, rgb(var(--ha-background, 246 244 239))) 0%,
+      rgb(var(--ha-background, 246 244 239)) 58%
+    );
+  }
+  :root:not([data-theme="light"]):not([data-theme="sage"]) body.ha-arc-body {
+    background-image: radial-gradient(
+      circle at 50% 16%,
+      color-mix(in srgb, var(--ha-hero-bg, #2a2145) 58%, rgb(var(--ha-background, 18 18 21))) 0%,
+      rgb(var(--ha-background, 18 18 21)) 56%
+    );
+  }
+  body.ha-arc-body.is-arc-thread-active {
+    background-image: none;
+  }
+
+  body.ha-arc-body > main.ha-arc-ai {
+    max-width: 880px;
+    width: 100%;
+    margin-inline: auto;
+    padding: 22px 28px 30px;
+    gap: 18px;
+  }
+
+  .ha-arc-zen-v3 {
+    min-height: 0;
+    gap: 20px;
+    padding: 0;
+  }
+
+  .ha-arc-zen-v3 .ha-arc-zen-bar {
+    margin: 0;
+    padding: 0 !important;
+  }
+
+  .ha-arc-hist-btn {
+    padding: 7px 14px;
+    font-size: 12.5px;
+    border-radius: 12px;
+  }
+
+  #arc-open-hub-btn,
+  .ha-arc-hub-pill {
+    padding: 6px 13px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+
+  /* Centered Lavender Neo-Buddy Hero */
+  .ha-arc-zen-top {
+    padding: 6px 12px 2px;
+  }
+
+  .ha-arc-mascot-sq {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px;
+    border-radius: 20px;
+    background: var(--ha-hero-bg, #c5b6ff);
+    border: 2px solid var(--rpg-shadow-ink, #121215);
+    box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+    animation: haArcDeskFloat 3s ease-in-out infinite;
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-mascot-sq {
+    background: rgb(var(--ha-primary, 167 139 250) / 0.18);
+    border: 1.6px solid rgb(var(--ha-primary, 167 139 250) / 0.48);
+    box-shadow: 0 0 28px rgb(var(--ha-primary, 167 139 250) / 0.24);
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-desk-body {
+    fill: rgb(var(--ha-primary-container, 196 181 253));
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-desk-eye {
+    fill: #121215;
+  }
+
+  .ha-arc-desk-eyes {
+    transform-origin: center 7.5px;
+    animation: haArcDeskBlink 3.8s infinite;
+  }
+
+  .ha-arc-zen-q {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.14;
+  }
+
+  .ha-arc-zen-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 9px;
+    padding: 5px 13px;
+    border-radius: 999px;
+    background: rgb(var(--ha-surface-container-lowest) / 0.86);
+    border: 1.4px solid rgb(var(--ha-outline-variant) / 0.22);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .ha-arc-sync-dot {
+    width: 6.5px;
+    height: 6.5px;
+    border-radius: 999px;
+    background: #16a34a;
+    flex-shrink: 0;
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-sync-dot {
+    background: #4ade80;
+  }
+
+  /* Reveal Rich Desktop Stat Chips & Subtitles */
+  .ha-arc-desk-stat,
+  .ha-arc-desk-badge,
+  .ha-arc-desk-sub {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+
+  /* 6-Column Architectural Bento Grid (Row 1: 3 Cards · Row 2: 2 Equal Action Cards) */
+  .ha-arc-cards {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 13px;
+    margin-top: 2px;
+  }
+
+  .ha-arc-spot {
+    grid-column: span 2;
+    border-radius: 20px;
+    box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+  }
+
+  .ha-arc-spot-body {
+    height: 100%;
+    padding: 16px 17px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .ha-arc-spot-top {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .ha-arc-spot-eyebrow {
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+
+  .ha-arc-desk-stat {
+    padding: 2px 7px !important;
+    border-radius: 999px;
+    background: rgba(18, 18, 21, 0.1);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: inherit;
+    white-space: nowrap !important;
+  }
+
+  .ha-arc-spot-title {
+    font-size: 16.5px;
+    font-weight: 800;
+    line-height: 1.22;
+  }
+
+  .ha-arc-spot .ha-arc-desk-sub {
+    font-size: 12px;
+    line-height: 1.38;
+    opacity: 0.78;
+  }
+
+  /* Bento Cards 2 & 3 (Streak + Weekly Recap — Crisp Rounded Rectangles, NEVER Ovals) */
+  .ha-arc-pill-card {
+    grid-column: span 2;
+    border-radius: 20px !important;
+    padding: 16px 17px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215) !important;
+  }
+
+  .ha-arc-bento-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .ha-arc-pill-card .ha-arc-pill-ico,
+  .ha-arc-wide-ico {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: rgb(var(--ha-surface-container-low));
+    border: 1.5px solid rgb(var(--ha-outline-variant) / 0.22);
+  }
+
+  .ha-arc-pill-card .ha-arc-pill-ico.is-mint,
+  .ha-arc-wide-ico.is-mint {
+    background: rgba(71, 227, 147, 0.18);
+    border-color: rgba(16, 122, 87, 0.28);
+  }
+
+  .ha-arc-pill-card .ha-arc-pill-ico.is-lav {
+    background: color-mix(in srgb, var(--ha-hero-bg, #c5b6ff) 32%, transparent);
+    border-color: rgb(var(--ha-primary, 124 58 237) / 0.26);
+  }
+
+  .ha-arc-wide-ico.is-amber {
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(217, 119, 6, 0.28);
+  }
+
+  .ha-arc-desk-badge {
+    padding: 3px 8px !important;
+    border-radius: 999px;
+    background: rgb(var(--ha-surface-container-low));
+    border: 1px solid rgb(var(--ha-outline-variant) / 0.25);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    color: rgb(var(--ha-on-surface-variant));
+    white-space: nowrap !important;
+  }
+
+  .ha-arc-bento-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .ha-arc-pill-card .ha-arc-pill-label {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    white-space: normal;
+    line-height: 1.24;
+  }
+
+  .ha-arc-pill-card .ha-arc-desk-sub,
+  .ha-arc-wide-copy .ha-arc-desk-sub {
+    font-size: 12px;
+    line-height: 1.36;
+    color: rgb(var(--ha-on-surface-variant));
+  }
+
+  /* Row 2: 2 Equal Tactile Action Cards (Momentum + Daily Rescue) */
+  .ha-arc-wide-pill,
+  .ha-arc-zen-v3 .ha-arc-rescue-shortcut {
+    grid-column: span 3;
+    border-radius: 18px !important;
+    padding: 13px 16px !important;
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215) !important;
+  }
+
+  .ha-arc-wide-pill-left {
+    gap: 12px;
+  }
+
+  .ha-arc-wide-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5px;
+    min-width: 0;
+  }
+
+  .ha-arc-wide-copy .ha-arc-pill-label {
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .ha-arc-wide-arrow {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: rgb(var(--ha-surface-container-low));
+    border: 1.4px solid rgb(var(--ha-outline-variant) / 0.22);
+    display: grid;
+    place-items: center;
+    font-size: 13.5px;
+  }
+
+  /* Studio Composer Card on Desktop */
+  .ha-arc-composer {
+    width: 100%;
+    gap: 7px;
+    padding-top: 2px;
+  }
+
+  .ha-arc-prompt-box {
+    border-radius: 20px;
+    padding: 9px 10px;
+    gap: 11px;
+    align-items: center;
+    background: rgb(var(--ha-surface-container-lowest));
+    border: 2px solid var(--rpg-shadow-ink, #121215);
+    box-shadow: 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+    transition: box-shadow 140ms ease, border-color 140ms ease;
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-prompt-box {
+    background: rgb(var(--ha-surface, 26 26 35));
+    border: 1.6px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+  }
+
+  .ha-arc-prompt-box:focus-within {
+    border-color: rgb(var(--ha-primary, 124 58 237));
+    box-shadow: 0 0 0 4px rgb(var(--ha-primary, 124 58 237) / 0.14), 3.5px 3.5px 0 var(--rpg-shadow-ink, #121215);
+  }
+
+  .ha-arc-attach-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 12px !important;
+    border: 1.8px solid var(--rpg-shadow-ink, #121215) !important;
+    background: rgb(var(--ha-surface-container-low)) !important;
+    color: rgb(var(--ha-on-surface)) !important;
+    box-shadow: none !important;
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-attach-btn {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+  }
+
+  .ha-arc-send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--rpg-cta, #121215);
+    color: var(--rpg-cta-fg, #ffffff);
+    border: 1.8px solid var(--rpg-shadow-ink, #121215);
+    box-shadow: none;
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-send-btn {
+    background: var(--ha-toggle-done-bg, #47e393);
+    color: var(--ha-toggle-done-fg, #121215);
+    border-color: #000000;
+  }
+
+  .ha-arc-prompt-box textarea {
+    font-size: 15.5px;
+    padding: 8px 2px !important;
+  }
+
+  /* Desktop Thread View Polish */
+  body.ha-arc-body.is-arc-thread-active .ha-arc-answer-card {
+    border-radius: 18px;
+    border: 1.8px solid var(--rpg-shadow-ink, #121215);
+    box-shadow: 3px 3px 0 var(--rpg-shadow-ink, #121215);
+  }
+
+  :root:not([data-theme="light"]):not([data-theme="sage"]) body.ha-arc-body.is-arc-thread-active .ha-arc-answer-card {
+    border: 1.4px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+  }
+}
