@@ -137,7 +137,8 @@
     <section class="ha-progress-card ha-dashboard-hero fade-up" aria-labelledby="progress-title">
         <div class="ha-rpg-hero-toprow">
             <h2 id="progress-title" class="ha-dashboard-eyebrow">DAILY PROGRESS</h2>
-            <a id="dash-ai-pill" href="Arc_AI.html?hub=1" class="ha-ai-dash-pill sr-only" aria-label="Open HabitArc AI">
+            <a id="dash-ai-pill" href="Arc_AI.html?hub=1" class="ha-ai-dash-pill" aria-label="Open HabitArc AI">
+                <span id="dash-ai-pill-buddy" class="ha-ai-dash-pill-buddy" aria-hidden="true"></span>
                 <span id="dash-ai-pill-label">ARC · LVL 1</span>
             </a>
         </div>
@@ -322,6 +323,8 @@
         };
         const pillLabel = document.getElementById('dash-ai-pill-label');
         if (pillLabel) pillLabel.textContent = `${prog.aiName} · LVL ${prog.level}`;
+        const pillBuddy = document.getElementById('dash-ai-pill-buddy');
+        if (pillBuddy) HabitArc.mountLiveBuddy?.(pillBuddy, prog.aiAvatar, 22);
         const pillEl = document.getElementById('dash-ai-pill');
         if (pillEl) pillEl.setAttribute('aria-label', `${prog.aiName} Level ${prog.level} · Open AI`);
         const dashAiName = document.getElementById('dash-ai-name');
@@ -526,7 +529,8 @@
             if (!shouldPrompt) return;
 
             const aiName = HabitArc.normaliseAiName?.(settings.aiName) || settings.aiName || 'ARC';
-            const avatarSrc = HabitArc.getAiAvatarSrc?.(settings.aiAvatar) || 'icons/ai-buddies/beam.png';
+            const avatarId = HabitArc.normaliseAiAvatar?.(settings.aiAvatar) || 'beam';
+            const avatarSrc = HabitArc.getAiAvatarSrc?.(avatarId) || 'icons/ai-buddies/beam.png';
             const wakeLabel = fmt12(settings.wakeUpTime || '07:00');
             const firstHabit = (HabitArc.getTodayHabits?.() || HabitArc.getHabits?.() || [])[0];
             const previewTime = fmt12(firstHabit?.reminder || settings.defaultReminderTime || '07:30');
@@ -536,6 +540,10 @@
             if (descEl) descEl.textContent = `Get timely habit nudges on your phone aligned with your ${wakeLabel} wake-up time.`;
             if (imgEl) imgEl.src = avatarSrc;
             if (miniImgEl) miniImgEl.src = avatarSrc;
+            const avatarWrap = backdrop.querySelector?.('.ha-notif-perm-avatar');
+            const miniWrap = backdrop.querySelector?.('.ha-notif-perm-mini');
+            if (avatarWrap && HabitArc.mountLiveBuddy) HabitArc.mountLiveBuddy(avatarWrap, avatarId, 48);
+            if (miniWrap && HabitArc.mountLiveBuddy) HabitArc.mountLiveBuddy(miniWrap, avatarId, 16);
             if (pillNameEl) pillNameEl.textContent = aiName;
             if (timeEl) timeEl.textContent = previewTime;
             if (msgEl) msgEl.textContent = `Hey, time for ${habitTitle}`;

@@ -14,6 +14,7 @@
 <script defer src="pwa-register.js"></script>
 <title>HabitArc - Welcome Journey</title>
 <link rel="stylesheet" href="tailwind.generated.css"/>
+<link rel="stylesheet" href="ai-buddy.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">window.tailwind = window.tailwind || { config: { darkMode: "class" } };</script>
@@ -353,13 +354,20 @@
         background: #0d1612;
         color: #47e393;
     }
-    .ai-face-spr {
-        width: 64px;
+    .ai-face-slot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         height: 64px;
-        object-fit: contain;
-        image-rendering: pixelated;
-        pointer-events: none;
-        user-select: none;
+    }
+    @keyframes obBuddySelectPop {
+        0%   { transform: scale(0.92); }
+        55%  { transform: scale(1.06); }
+        100% { transform: scale(1); }
+    }
+    .ai-face-opt.just-picked { animation: obBuddySelectPop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @media (prefers-reduced-motion: reduce) {
+        .ai-face-opt.just-picked { animation: none !important; }
     }
     .ai-face-lbl {
         font-size: 11px;
@@ -668,7 +676,8 @@
         #step-1 .step-1-headline { font-size: 29px; }
         .hero-card-float { width: 215px; }
         .step-card { padding-top: 12px !important; }
-        .ai-face-spr { width: 50px; height: 50px; }
+        .ai-face-slot { height: 50px; }
+        .ai-face-slot .ha-live-buddy { --buddy-size: 50px !important; }
         .ai-face-opt { padding: 9px 4px 8px; border-radius: 18px; }
     }
 </style>
@@ -878,32 +887,32 @@
         <div id="ai-avatar-grid" class="mt-5 grid grid-cols-3 gap-2.5" role="radiogroup" aria-label="Choose an AI pixel buddy">
             <button type="button" class="ai-face-opt selected" data-avatar="beam" role="radio" aria-checked="true" aria-label="Beam — Happy pixel bot">
                 <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
-                <img src="icons/ai-buddies/beam.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-slot" data-buddy-slot="beam"></span>
                 <span class="ai-face-lbl geist">BEAM</span>
             </button>
             <button type="button" class="ai-face-opt" data-avatar="winky" role="radio" aria-checked="false" aria-label="Winky — Playful headset bot">
                 <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
-                <img src="icons/ai-buddies/winky.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-slot" data-buddy-slot="winky"></span>
                 <span class="ai-face-lbl geist">WINKY</span>
             </button>
             <button type="button" class="ai-face-opt" data-avatar="shades" role="radio" aria-checked="false" aria-label="Shades — Cool sunglasses bot">
                 <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
-                <img src="icons/ai-buddies/shades.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-slot" data-buddy-slot="shades"></span>
                 <span class="ai-face-lbl geist">SHADES</span>
             </button>
             <button type="button" class="ai-face-opt" data-avatar="nova" role="radio" aria-checked="false" aria-label="Nova — Lavender cat bot">
                 <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
-                <img src="icons/ai-buddies/nova.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-slot" data-buddy-slot="nova"></span>
                 <span class="ai-face-lbl geist">NOVA</span>
             </button>
             <button type="button" class="ai-face-opt" data-avatar="locked" role="radio" aria-checked="false" aria-label="Locked — Fierce focus bot">
                 <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
-                <img src="icons/ai-buddies/locked.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-slot" data-buddy-slot="locked"></span>
                 <span class="ai-face-lbl geist">LOCKED</span>
             </button>
             <button type="button" class="ai-face-opt" data-avatar="zen" role="radio" aria-checked="false" aria-label="Zen — Calm sprout bot">
                 <span class="check-badge"><span class="material-symbols-outlined">check</span></span>
-                <img src="icons/ai-buddies/zen.png" alt="" class="ai-face-spr"/>
+                <span class="ai-face-slot" data-buddy-slot="zen"></span>
                 <span class="ai-face-lbl geist">ZEN</span>
             </button>
         </div>
@@ -1501,9 +1510,15 @@
         if (aiPreviewFace) aiPreviewFace.textContent = cleanAvatar.toUpperCase();
     }
 
+    document.querySelectorAll('#ai-avatar-grid [data-buddy-slot]').forEach((slot) => {
+        HabitArc.mountLiveBuddy?.(slot, slot.dataset.buddySlot, 64);
+    });
     document.querySelectorAll('#ai-avatar-grid .ai-face-opt').forEach((btn) => {
         btn.addEventListener('click', () => {
             syncAiAvatarSelection(btn.dataset.avatar);
+            btn.classList.remove('just-picked');
+            void btn.offsetWidth;
+            btn.classList.add('just-picked');
         });
     });
 

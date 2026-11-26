@@ -7,8 +7,8 @@
   z-index: 48;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 9px 15px;
+  gap: 6.5px;
+  padding: 6.5px 14px 6.5px 9.5px;
   border-radius: 999px;
   background: #121215;
   color: #ffffff;

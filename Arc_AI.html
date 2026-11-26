@@ -682,10 +682,15 @@ import {
         ).join('');
         if (hubLvlBadge) hubLvlBadge.textContent = `LVL ${meta.level}`;
         if (hubNameEl) hubNameEl.textContent = meta.aiName;
-        const mascotImg = document.getElementById('arc-zen-mascot-img');
-        if (mascotImg) {
-            const avatarSrc = meta.aiAvatarSrc || HabitArc.getAiAvatarSrc?.(settings?.aiAvatar) || 'icons/ai-buddies/beam.png';
-            if (mascotImg.src !== avatarSrc) mascotImg.src = avatarSrc;
+        const mascotHost = document.getElementById('arc-zen-mascot');
+        if (mascotHost && HabitArc.mountLiveBuddy) {
+            HabitArc.mountLiveBuddy(mascotHost, meta.aiAvatar || settings?.aiAvatar, 44);
+        } else {
+            const mascotImg = document.getElementById('arc-zen-mascot-img');
+            if (mascotImg) {
+                const avatarSrc = meta.aiAvatarSrc || HabitArc.getAiAvatarSrc?.(settings?.aiAvatar) || 'icons/ai-buddies/beam.png';
+                if (mascotImg.src !== avatarSrc) mascotImg.src = avatarSrc;
+            }
         }
         if (hubPxBar) {
             hubPxBar.setAttribute?.('aria-valuenow', String(meta.progressPct || 0));

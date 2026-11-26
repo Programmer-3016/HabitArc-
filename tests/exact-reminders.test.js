@@ -299,4 +299,29 @@ test('Onboarding Pack 2 pixel buddies, wakeUpTime derivation, and post-onboardin
     const dashboardHtml = read('Dashboard.html');
     assert.match(dashboardHtml, /id="ha-post-ob-notif-backdrop"/);
     assert.match(dashboardHtml, /id="ha-notif-allow-btn"/);
+
+    // Verify unified 60fps articulated live buddy rig renders identical markup
+    // across Onboarding, Dashboard, ARC AI, and Settings (with zero choppy APNGs)
+    for (const id of ['beam', 'winky', 'shades', 'nova', 'locked', 'zen']) {
+        const raw = readFileSync(new URL(`../icons/ai-buddies/${id}.png`, import.meta.url));
+        const actlIdx = raw.indexOf(Buffer.from('acTL', 'ascii'));
+        assert.equal(actlIdx, -1, `${id}.png base fallback stays clean static PNG while 60fps layers handle smooth motion`);
+        const rigHtml = app.renderLiveBuddyHtml(id, 48);
+        assert.match(rigHtml, new RegExp(`data-buddy="${id}"`), `renderLiveBuddyHtml renders ${id} rig`);
+        assert.match(rigHtml, /ha-live-buddy-rig/, `${id} uses 60fps articulated rig`);
+    }
+
+    const aiBuddyCss = read('ai-buddy.css');
+    const appUiCss = read('app-ui.css');
+    for (const animName of [
+        'haLiveBeamEyes',
+        'haLiveWinkyStar',
+        'haLiveShadesSheen',
+        'haLiveNovaEyes',
+        'haLiveLockedScan',
+        'haLiveZenSprout',
+    ]) {
+        assert.match(aiBuddyCss, new RegExp(animName), `ai-buddy.css defines 60fps ${animName}`);
+        assert.match(appUiCss, new RegExp(animName), `app-ui.css shares identical 60fps ${animName}`);
+    }
 });

@@ -2953,6 +2953,53 @@ const HabitArc = (() => {
         return found.src;
     }
 
+    const _BUDDY_LAYER_ROOT = 'icons/ai-buddies/layers';
+    function _buddyImgLayer(file, extraClass) {
+        return `<img src="${_BUDDY_LAYER_ROOT}/${file}" alt="" class="ha-live-buddy-layer ${extraClass || ''}"/>`;
+    }
+    function _renderBuddyRigInner(buddy) {
+        if (buddy === 'beam') {
+            return `<span class="ha-live-buddy-rig">${_buddyImgLayer('beam-base.png', 'is-base')}<span class="ha-live-buddy-beacon"></span>${_buddyImgLayer('beam-eyes.png', 'is-eyes')}${_buddyImgLayer('beam-mouth.png', 'is-mouth')}</span>`;
+        }
+        if (buddy === 'winky') {
+            return `<span class="ha-live-buddy-rig">${_buddyImgLayer('winky-base.png', 'is-base')}${_buddyImgLayer('winky-eye-l.png', 'is-eye-l')}${_buddyImgLayer('winky-eye-open.png', 'is-eye-open')}${_buddyImgLayer('winky-eye-wink.png', 'is-eye-wink')}${_buddyImgLayer('winky-mouth.png', 'is-mouth')}${_buddyImgLayer('winky-star.png', 'is-star')}</span>`;
+        }
+        if (buddy === 'shades') {
+            return `<span class="ha-live-buddy-rig">${_buddyImgLayer('shades-base.png', 'is-base')}<span class="ha-live-buddy-lens-mask" style="--lens-mask-url:url('${_BUDDY_LAYER_ROOT}/shades-lens-mask.png')"><span class="ha-live-buddy-lens-sheen"></span></span></span>`;
+        }
+        if (buddy === 'nova') {
+            return `<span class="ha-live-buddy-rig">${_buddyImgLayer('nova-base.png', 'is-base')}${_buddyImgLayer('nova-eyes.png', 'is-eyes')}${_buddyImgLayer('nova-mouth.png', 'is-mouth')}</span>`;
+        }
+        if (buddy === 'locked') {
+            return `<span class="ha-live-buddy-rig">${_buddyImgLayer('locked-base.png', 'is-base')}<span class="ha-live-buddy-scanwrap"><span class="ha-live-buddy-scanbar"></span></span>${_buddyImgLayer('locked-eyes.png', 'is-eyes')}</span>`;
+        }
+        return `<span class="ha-live-buddy-rig">${_buddyImgLayer('zen-base.png', 'is-base')}${_buddyImgLayer('zen-sprout.png', 'is-sprout')}${_buddyImgLayer('zen-eyes.png', 'is-eyes')}${_buddyImgLayer('zen-mouth.png', 'is-mouth')}<span class="ha-live-buddy-zenorb"></span></span>`;
+    }
+    function renderLiveBuddyHtml(avatarId, sizePx = 48, extraClass = '') {
+        const buddy = normaliseAiAvatar(avatarId ?? getSettings()?.aiAvatar);
+        const sz = Number(sizePx) > 0 ? Number(sizePx) : 48;
+        const cls = extraClass ? `ha-live-buddy ${extraClass}` : 'ha-live-buddy';
+        return `<span class="${cls}" data-buddy="${buddy}" style="--buddy-size:${sz}px" aria-hidden="true">${_renderBuddyRigInner(buddy)}</span>`;
+    }
+    function mountLiveBuddy(hostEl, avatarId, sizePx = 48) {
+        if (!hostEl) return;
+        const buddy = normaliseAiAvatar(avatarId ?? getSettings()?.aiAvatar);
+        const sz = Number(sizePx) > 0 ? Number(sizePx) : 48;
+        const existing = typeof hostEl.querySelector === 'function' ? hostEl.querySelector('.ha-live-buddy') : null;
+        if (existing && typeof existing.getAttribute === 'function' && existing.getAttribute('data-buddy') === buddy) {
+            existing.style?.setProperty?.('--buddy-size', `${sz}px`);
+            return;
+        }
+        hostEl.innerHTML = renderLiveBuddyHtml(buddy, sz);
+    }
+    if (typeof globalThis !== 'undefined' && !globalThis.HabitArcBuddy) {
+        globalThis.HabitArcBuddy = Object.freeze({
+            normaliseId: normaliseAiAvatar,
+            html: renderLiveBuddyHtml,
+            mount: mountLiveBuddy,
+        });
+    }
+
     function normaliseWakeUpTime(value) {
         const clean = typeof value === 'string' ? value.trim() : '';
         return /^([01]\d|2[0-3]):[0-5]\d$/.test(clean) ? clean : '07:00';
@@ -3179,6 +3226,8 @@ const HabitArc = (() => {
         normaliseAiName,
         normaliseAiAvatar,
         getAiAvatarSrc,
+        renderLiveBuddyHtml,
+        mountLiveBuddy,
         normaliseWakeUpTime,
         deriveReminderFromWakeTime,
         normaliseAiTone,

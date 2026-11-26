@@ -529,6 +529,10 @@ try {
       preview: document.getElementById('ob-ai-preview-name')?.textContent.trim(),
       inline: document.getElementById('ob-ai-preview-inline')?.textContent.trim(),
       faceCount: document.querySelectorAll('#ai-avatar-grid .ai-face-opt').length,
+      renderedBases: Array.from(document.querySelectorAll('#ai-avatar-grid .ha-live-buddy .is-base')).map(img => ({
+        w: Math.round(img.getBoundingClientRect().width),
+        nw: img.naturalWidth
+      })),
       selectedFace: document.querySelector('#ai-avatar-grid .ai-face-opt.selected')?.dataset.avatar,
       hasOldLvlCard: /LVL\\s*1/i.test(document.getElementById('step-5')?.innerText || ''),
       overflow: document.documentElement.scrollWidth > innerWidth
@@ -540,6 +544,8 @@ try {
   assert.equal(obAi.preview, 'NOVA');
   assert.equal(obAi.inline, 'NOVA');
   assert.equal(obAi.faceCount, 6, 'Onboarding Step 5 renders all 6 Pack 2 pixel buddies');
+  assert.equal(obAi.renderedBases.length, 6, 'All 6 Onboarding live buddy base layers mount');
+  assert.equal(obAi.renderedBases.every(b => b.w >= 48 && b.nw === 256), true, 'All 6 Onboarding live buddy layers render at >=48px with 256px crisp textures');
   assert.equal(obAi.selectedFace, 'winky', 'Tapping a pixel buddy selects it cleanly');
   assert.equal(obAi.hasOldLvlCard, false, 'LVL 1 card is completely removed from Onboarding Step 5');
   assert.equal(obAi.overflow, false, 'Onboarding Step 5 fits 390px without horizontal overflow');
@@ -611,8 +617,13 @@ try {
     const backdrop = document.getElementById('ha-post-ob-notif-backdrop');
     const isOpen = backdrop && !backdrop.hidden;
     const title = document.getElementById('ha-notif-perm-title')?.textContent.trim();
-    const imgSrc = document.getElementById('ha-notif-perm-img')?.getAttribute('src');
-    return { isOpen, title, imgSrc };
+    const liveBuddy = backdrop?.querySelector('.ha-notif-perm-avatar .ha-live-buddy')?.getAttribute('data-buddy');
+    const heroBuddy = document.querySelector('#dash-ai-pill-buddy .ha-live-buddy')?.getAttribute('data-buddy');
+    const fabBuddy = document.querySelector('#ha-arc-fab .ha-live-buddy')?.getAttribute('data-buddy');
+    const heroW = Math.round(document.querySelector('#dash-ai-pill-buddy .ha-live-buddy .is-base')?.getBoundingClientRect().width || 0);
+    const fabW = Math.round(document.querySelector('#ha-arc-fab .ha-live-buddy .is-base')?.getBoundingClientRect().width || 0);
+    const notifW = Math.round(backdrop?.querySelector('.ha-notif-perm-avatar .ha-live-buddy .is-base')?.getBoundingClientRect().width || 0);
+    return { isOpen, title, liveBuddy, heroBuddy, fabBuddy, heroW, fabW, notifW };
   })()`);
   await sleep(120);
   await saveShot('dashboard-post-ob-notif-390.png');
@@ -622,7 +633,10 @@ try {
   })()`);
   assert.equal(postObSheet.isOpen, true, 'Post-onboarding notification permission sheet opens on Dashboard');
   assert.equal(postObSheet.title, 'Allow NOVA to send reminders?');
-  assert.equal(postObSheet.imgSrc, 'icons/ai-buddies/winky.png');
+  assert.equal(postObSheet.liveBuddy, 'winky', 'Dashboard notification sheet renders unified live buddy');
+  assert.equal(postObSheet.heroBuddy, 'winky', 'Dashboard hero pill renders identical unified live buddy');
+  assert.equal(postObSheet.fabBuddy, 'winky', 'Dashboard floating Ask FAB renders identical unified live buddy');
+  assert.equal(postObSheet.heroW >= 20 && postObSheet.fabW >= 20 && postObSheet.notifW >= 40, true, 'Dashboard live buddy layers render non-zero visible boxes');
   assert.equal(closedAfterTap, true, 'Dismissing notification sheet hides it cleanly');
 
   const dashLvl1 = await ev(`(() => {

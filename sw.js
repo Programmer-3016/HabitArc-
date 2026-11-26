@@ -1,7 +1,7 @@
 // Offline-capable app-shell service worker for HabitArc PWA.
 // Static shell files return from cache while they refresh; query navigations
 // stay network-first and never replace the public shell with their responses.
-const CACHE_NAME = 'habitarc-shell-v122';
+const CACHE_NAME = 'habitarc-shell-v124';
 const CDN_CACHE_NAME = 'habitarc-cdn-v1';
 const OFFLINE_URL = '/offline.html';
 const SHELL_ASSETS = [
@@ -54,6 +54,8 @@ const SHELL_ASSETS = [
   '/Onboarding.html',
   '/app-ui.css',
   '/app-ui.js',
+  '/ai-buddy.css',
+  '/ai-buddy.js',
   '/app.js',
   '/habit-analytics.js',
   '/firebase-auth.js',
@@ -71,6 +73,26 @@ const SHELL_ASSETS = [
   '/icons/ai-buddies/nova.png',
   '/icons/ai-buddies/locked.png',
   '/icons/ai-buddies/zen.png',
+  '/icons/ai-buddies/layers/beam-base.png',
+  '/icons/ai-buddies/layers/beam-eyes.png',
+  '/icons/ai-buddies/layers/beam-mouth.png',
+  '/icons/ai-buddies/layers/winky-base.png',
+  '/icons/ai-buddies/layers/winky-eye-l.png',
+  '/icons/ai-buddies/layers/winky-eye-open.png',
+  '/icons/ai-buddies/layers/winky-eye-wink.png',
+  '/icons/ai-buddies/layers/winky-mouth.png',
+  '/icons/ai-buddies/layers/winky-star.png',
+  '/icons/ai-buddies/layers/shades-base.png',
+  '/icons/ai-buddies/layers/shades-lens-mask.png',
+  '/icons/ai-buddies/layers/nova-base.png',
+  '/icons/ai-buddies/layers/nova-eyes.png',
+  '/icons/ai-buddies/layers/nova-mouth.png',
+  '/icons/ai-buddies/layers/locked-base.png',
+  '/icons/ai-buddies/layers/locked-eyes.png',
+  '/icons/ai-buddies/layers/zen-base.png',
+  '/icons/ai-buddies/layers/zen-sprout.png',
+  '/icons/ai-buddies/layers/zen-eyes.png',
+  '/icons/ai-buddies/layers/zen-mouth.png',
   '/logo.png',
 ];
 const SHELL_ASSET_SET = new Set(SHELL_ASSETS);

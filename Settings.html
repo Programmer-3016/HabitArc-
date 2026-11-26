@@ -571,6 +571,9 @@
     }
 
     document.querySelectorAll('.settings-ai-face-btn').forEach((btn) => {
+        if (HabitArc.mountLiveBuddy && btn.dataset.aiAvatar) {
+            HabitArc.mountLiveBuddy(btn, btn.dataset.aiAvatar, 36);
+        }
         btn.addEventListener('click', () => {
             const chosenAvatar = HabitArc.normaliseAiAvatar?.(btn.dataset.aiAvatar) || 'beam';
             HabitArc.updateSettings({ aiAvatar: chosenAvatar });

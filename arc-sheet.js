@@ -46,9 +46,12 @@ const BUDDY_FAB_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" shape-ren
 const BUDDY_STAGE_SVG = '<svg width="28" height="28" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect class="ha-arc-buddy-antenna" x="7" y="1" width="2" height="2"/><rect class="ha-arc-buddy-body" x="4" y="4" width="8" height="9"/><rect class="ha-arc-buddy-body" x="3" y="5" width="10" height="7"/><g class="ha-arc-buddy-eyes"><rect class="ha-arc-buddy-eye" x="5" y="7" width="2" height="2"/><rect class="ha-arc-buddy-eye" x="9" y="7" width="2" height="2"/></g></svg>';
 const BUDDY_MINI_SVG = '<svg width="13" height="13" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="#47e393"/><rect x="4" y="4" width="8" height="9" fill="#121215"/><rect x="3" y="5" width="10" height="7" fill="#121215"/><rect x="5" y="7" width="2" height="2" fill="#ffffff"/><rect x="9" y="7" width="2" height="2" fill="#ffffff"/></svg>';
 function getBuddyAvatarImg(sizePx, fallbackSvg) {
+  if (typeof window !== 'undefined' && typeof window.HabitArc?.renderLiveBuddyHtml === 'function') {
+    return window.HabitArc.renderLiveBuddyHtml(undefined, sizePx);
+  }
   const src = window.HabitArc?.getAiAvatarSrc?.();
   if (!src) return fallbackSvg;
-  return `<img src="${esc(src)}" alt="" width="${sizePx}" height="${sizePx}" style="width:${sizePx}px;height:${sizePx}px;object-fit:contain;image-rendering:pixelated;display:block;" aria-hidden="true"/>`;
+  return `<img src="${esc(src)}" alt="" width="${sizePx}" height="${sizePx}" style="width:${sizePx}px;height:${sizePx}px;object-fit:contain;display:block;" aria-hidden="true"/>`;
 }
 const SEND_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 const STOP_SVG = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/></svg>';
@@ -2069,8 +2072,15 @@ export function syncArcFab() {
   const hide = HIDDEN_FAB_PAGES.has(page);
   fab.hidden = hide;
   const aiName = getAiName();
-  const label = fab.querySelector('.ha-arc-fab-label');
-  if (label) label.textContent = `Ask ${aiName}`;
+  const fabText = aiName === 'ARC' ? 'Ask ARC' : `Ask ${aiName}`;
+  const curAvatar = window.HabitArc?.normaliseAiAvatar?.(window.HabitArc?.getSettings?.()?.aiAvatar) || 'beam';
+  const existingBuddy = fab.querySelector('.ha-live-buddy');
+  if (!existingBuddy || existingBuddy.getAttribute('data-buddy') !== curAvatar) {
+    fab.innerHTML = `${getBuddyAvatarImg(24, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(fabText)}</span>`;
+  } else {
+    const label = fab.querySelector('.ha-arc-fab-label');
+    if (label) label.textContent = fabText;
+  }
   fab.setAttribute('aria-label', `Ask ${aiName} AI Assistant`);
   syncInlineContextualPrompts();
 }
@@ -2084,7 +2094,9 @@ export function mountArcSheet() {
     fab.type = 'button';
     fab.id = 'ha-arc-fab';
     fab.className = 'ha-arc-fab';
-    fab.innerHTML = `${BUDDY_FAB_SVG}<span class="ha-arc-fab-label">Ask ARC</span>`;
+    const initName = getAiName();
+    const initFabText = initName === 'ARC' ? 'Ask ARC' : `Ask ${initName}`;
+    fab.innerHTML = `${getBuddyAvatarImg(24, BUDDY_FAB_SVG)}<span class="ha-arc-fab-label">${esc(initFabText)}</span>`;
     fab.addEventListener('click', () => openArcSheet());
     document.body.append(fab);
   }
