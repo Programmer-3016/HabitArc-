@@ -302,6 +302,7 @@ test('Placement B Floating Ask ARC pill and contextual slide-up sheet are wired 
   assert.match(sheetCss, /\.ha-arc-typewrap\b/, 'Ask ARC empty composer must style the typewriter prompt overlay');
   assert.match(sheetCss, /\.ha-arc-sheet-dialog:not\(\.is-kb-open\) \.ha-arc-sheet-panel\.is-empty \.ha-arc-empty-hero\s*\{\s*flex-direction:\s*column/, 'Ask ARC empty hero must center the Buddy greeting');
   assert.match(sheetJs, /syncTypewriter/, 'Ask ARC empty composer must run the typewriter prompt');
+  assert.doesNotMatch(sheetJs, /id="ha-arc-empty-kicker"/, 'Ask ARC empty hero must not render KAI/ARC STUDIO kicker above greeting');
   assert.match(sheetCss, /\.ha-arc-sheet-panel\.is-thread \.ha-arc-sheet-plus[\s\S]*?order:\s*1\b/, 'Thread composer must anchor + button on left corner');
   assert.match(sheetCss, /\.ha-arc-sheet-panel\.is-thread \.ha-arc-sheet-send[\s\S]*?order:\s*3\b/, 'Thread composer must anchor send arrow on right corner');
 

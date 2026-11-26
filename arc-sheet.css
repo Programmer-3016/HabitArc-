@@ -506,21 +506,8 @@ html.ha-arc-sheet-open body > main {
   animation: haArcAntennaPulse 1.7s ease-in-out infinite;
 }
 
-.ha-arc-empty-kicker {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: rgb(var(--ha-primary, 124 58 237));
-}
-
-:root:not([data-theme="light"]):not([data-theme="sage"]) .ha-arc-empty-kicker {
-  color: var(--rpg-mint, #47e393);
-}
-
 .ha-arc-empty-heading {
-  margin: 3px 0 0;
+  margin: 0;
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
   font-size: 22px;
   font-weight: 800;
@@ -605,11 +592,6 @@ html.ha-arc-sheet-open body > main {
   animation: haArcBuddyPop 0.65s cubic-bezier(0.22, 1, 0.36, 1) both, haArcBuddyFloat 2.8s ease-in-out 0.65s infinite;
 }
 
-.ha-arc-sheet-panel.is-empty.is-enter .ha-arc-empty-kicker {
-  animation: haArcRise 0.5s ease both;
-  animation-delay: 0.1s;
-}
-
 /* Typewriter prompt inside the empty composer (replaces static placeholder) */
 .ha-arc-composer-main {
   position: relative;
@@ -666,7 +648,6 @@ html.ha-arc-sheet-open body > main {
 @media (prefers-reduced-motion: reduce) {
   .ha-arc-sheet-panel .ha-arc-hword,
   .ha-arc-sheet-panel .ha-arc-buddy-box,
-  .ha-arc-sheet-panel .ha-arc-empty-kicker,
   .ha-arc-typecaret {
     animation: none !important;
   }

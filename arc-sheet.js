@@ -1435,8 +1435,6 @@ function renderSheetHome() {
 
   const titleNode = dialog?.querySelector('#ha-arc-sheet-title');
   if (titleNode) titleNode.textContent = meta.aiName;
-  const kickerNode = dialog?.querySelector('#ha-arc-empty-kicker');
-  if (kickerNode) kickerNode.textContent = `${meta.aiName} STUDIO`;
 
   if (histBtnEl) {
     const label = totalSaved > 0 ? `Saved chats (${totalSaved})` : 'Saved chats';
@@ -2042,7 +2040,6 @@ export function mountArcSheet() {
           <div id="ha-arc-empty-hero" class="ha-arc-empty-hero">
             <div class="ha-arc-buddy-box">${BUDDY_STAGE_SVG}</div>
             <div class="min-w-0">
-              <div id="ha-arc-empty-kicker" class="ha-arc-empty-kicker">ARC STUDIO</div>
               <h1 id="ha-arc-empty-heading" class="ha-arc-empty-heading">What’s on your mind?</h1>
             </div>
           </div>
