@@ -724,7 +724,6 @@ function renderSheetHistoryDrawer() {
       </div>
       ${group.items.map((chat) => {
         const isActive = chat.id === sheetChatId && sheetTurns.length > 0;
-        const turnsTxt = `${chat.turns.length} turn${chat.turns.length === 1 ? '' : 's'}`;
         const dateTxt = chat.updatedAt ? formatChatDateShort(chat.updatedAt) : '';
         const lastTurn = chat.turns[chat.turns.length - 1];
         const rawPreview = cleanArcDisplayText(lastTurn?.answer || lastTurn?.question || '').replace(/\s+/g, ' ').trim();
@@ -753,12 +752,9 @@ function renderSheetHistoryDrawer() {
                 ${dateTxt ? `<span class="ha-sheet-hist-date">${esc(dateTxt)}</span>` : ''}
               </span>
               ${previewTxt ? `<span class="ha-sheet-hist-preview">${esc(previewTxt)}</span>` : ''}
-            </button>
-            <div class="ha-sheet-hist-footrow">
-              <span class="ha-sheet-hist-turnpill">${esc(turnsTxt)}</span>
               ${isActive ? '<span class="ha-sheet-hist-turnpill is-live">● Active now</span>' : ''}
-              <button type="button" class="ha-sheet-hist-more${menuOpen ? ' is-open' : ''}" data-sheet-chat-menu="${safeId}" aria-haspopup="menu" aria-expanded="${menuOpen ? 'true' : 'false'}" title="Chat options" aria-label="Options for ${safeTitle}">${MORE_DOTS_SVG}</button>
-            </div>
+            </button>
+            <button type="button" class="ha-sheet-hist-more${menuOpen ? ' is-open' : ''}" data-sheet-chat-menu="${safeId}" aria-haspopup="menu" aria-expanded="${menuOpen ? 'true' : 'false'}" title="Chat options" aria-label="Options for ${safeTitle}">${MORE_DOTS_SVG}</button>
             ${menuOpen ? `
               <div class="ha-sheet-hist-pop${flipUp ? ' is-flip-up' : ''}" role="menu">
                 <button type="button" role="menuitem" class="ha-sheet-pop-item${chat.pinned ? ' is-pinned' : ''}" data-sheet-chat-pin="${safeId}">${PIN_SVG}<span>${chat.pinned ? 'Unpin chat' : 'Pin to top'}</span></button>

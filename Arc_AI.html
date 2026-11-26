@@ -1017,7 +1017,7 @@ import {
                 <div class="ha-ai-hist-group-lbl">${HabitArc.escapeHTML(group.label)}</div>
                 ${group.items.map(chat => {
                     const isActive = chat.id === activeChatId && !threadView?.classList?.contains?.('hidden');
-                    const metaTxt = `${chat.turns.length} turn${chat.turns.length === 1 ? '' : 's'}${chat.updatedAt ? ` · ${formatChatTimeShort(chat.updatedAt)}` : ''}`;
+                    const metaTxt = chat.updatedAt ? formatChatTimeShort(chat.updatedAt) : '';
                     const safeId = HabitArc.escapeHTML(chat.id);
                     const safeTitle = HabitArc.escapeHTML(chat.title);
                     if (renamingChatId === chat.id) {
@@ -1035,7 +1035,7 @@ import {
                         <div class="ha-ai-hist-item${isActive ? ' is-active' : ''}" role="listitem">
                             <button type="button" class="ha-ai-hist-open" data-chat-open="${safeId}">
                                 <span class="ha-ai-hist-item-title">${chat.pinned ? '📌 ' : ''}${safeTitle}</span>
-                                <span class="ha-ai-hist-item-meta">${HabitArc.escapeHTML(metaTxt)}</span>
+                                ${metaTxt ? `<span class="ha-ai-hist-item-meta">${HabitArc.escapeHTML(metaTxt)}</span>` : ''}
                             </button>
                             <div class="ha-ai-hist-item-actions">
                                 <button type="button" class="ha-ai-hist-pin${chat.pinned ? ' is-pinned' : ''}" data-chat-pin="${safeId}" aria-pressed="${chat.pinned ? 'true' : 'false'}" aria-label="${chat.pinned ? 'Unpin' : 'Pin'} ${safeTitle}" title="${chat.pinned ? 'Unpin chat' : 'Pin chat'}">📌</button>
