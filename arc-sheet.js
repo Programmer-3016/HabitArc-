@@ -857,27 +857,36 @@ export function openSheetHistoryDrawer() {
   histDrawerEl.hidden = false;
 }
 
-/* ─── In-Sheet Quests, Power Tiers (L1-L4) & AI Voice/Tones Drawer ────────── */
+/* ─── In-Sheet Quests, Skill Tree Roadmap (L1-L4) & AI Voice Bottom Sheet ── */
+const HUB_LOCK_SVG = '<svg width="11.5" height="11.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+const HUB_CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>';
+const HUB_TONE_ICONS = {
+  default: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-3 6h6l-3-6ZM19 7l-3 6h6l-3-6Z"/></svg>',
+  calm: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+  drill: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>',
+  hinglish: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c1.5 3.5 4 5.5 4 9a4 4 0 1 1-8 0c0-2 1-3.5 2-5-.5 2 1 3 2 2 0-2.5-.5-4.5 0-6Z"/><path d="M8.5 14.5A6.5 6.5 0 0 0 12 22a6.5 6.5 0 0 0 3.5-7.5"/></svg>',
+};
+
 function renderSheetHubDrawer() {
   if (!hubBodyEl) return;
   const meta = getAiMeta();
   const doneQ = meta.questsDoneCount ?? 0;
   const totalQ = meta.questsTotalCount ?? 3;
-  const filledSegs = Math.max(0, Math.min(8, Math.round((meta.progressPct || 0) / 12.5)));
-  const segsHtml = Array.from({ length: 8 }, (_, idx) => (
-    `<span class="ha-sheet-px-seg${idx < filledSegs ? ' is-filled' : ''}"></span>`
-  )).join('');
-
-  const powerSummary = meta.level === 1
-    ? `At Level 1, ${meta.aiName} can create daily habits directly in chat with 1-tap Undo.`
-    : `Level ${meta.level} Active — ${String(meta.summary || '').replace(/\.+$/, '')}.`;
-
   const quests = Array.isArray(meta.quests) ? meta.quests : [];
+  const partialPct = quests.length > 0
+    ? Math.round((quests.reduce((acc, q) => acc + Math.min(1, (q.current || 0) / Math.max(1, q.target || 1)), 0) / quests.length) * 100)
+    : (meta.progressPct || 0);
+  const xpPct = meta.nextLevel ? Math.max(meta.progressPct || 0, partialPct) : 100;
+
+  const xpSummaryHtml = meta.nextLevel
+    ? `<span><strong>${doneQ} of ${totalQ}</strong> quests done to unlock <strong>LVL ${meta.nextLevel}</strong></span>`
+    : `<span><strong>All 4 power levels unlocked</strong> · Max Rank</span>`;
+
   const tierDefs = [
-    { level: 1, title: 'Make Habits', desc: 'Draft & save new daily habits right in chat', prompt: 'Create a 10-min stretching habit at 08:00' },
-    { level: 2, title: 'Delete, Edit & Tasks', desc: 'Update cues, check off habits & add Planner tasks', prompt: 'Change my first habit reminder to 08:30' },
-    { level: 3, title: 'Streak Shield & Plan-B', desc: '2-minute fallback habits to save streaks on hard days', prompt: 'Create a 5-min low-energy Plan-B backup habit for tight days' },
-    { level: 4, title: 'Batch Tune & Tones', desc: 'Rebalance schedules in bulk & switch AI personality', prompt: 'Rebalance my daily habit schedule so mornings feel lighter' },
+    { level: 1, reqTag: 'START', title: 'Make Habits', desc: 'Create daily habits in chat with 1-tap Undo', prompt: 'Create a 10-min stretching habit at 08:00' },
+    { level: 2, reqTag: '3Q', title: 'Delete, Edit & Tasks', desc: 'Update cues, tick habits & add Planner tasks', prompt: 'Change my first habit reminder to 08:30' },
+    { level: 3, reqTag: '7D', title: 'Streak Shield & Plan-B', desc: '2-min fallback habits on busy or low-energy days', prompt: 'Create a 5-min low-energy Plan-B backup habit for tight days' },
+    { level: 4, reqTag: '14D', title: 'Batch Tune & AI Tones', desc: 'Bulk schedule rebalance + 4 coaching voices', prompt: 'Rebalance my daily habit schedule so mornings feel lighter' },
   ];
   const unlockedTone = meta.level >= 4;
   const curTone = meta.activeTone || meta.aiTone || 'default';
@@ -888,67 +897,84 @@ function renderSheetHubDrawer() {
     { id: 'hinglish', label: 'Hinglish Bro' },
   ];
 
-  hubBodyEl.innerHTML = `
-    <div class="ha-sheet-hub-top">
-      <div class="ha-sheet-hub-id">
-        <span class="ha-sheet-hub-lvl">LVL ${meta.level}</span>
-        <div>
-          <div class="ha-sheet-hub-name-row">
-            <strong>${esc(meta.aiName)}</strong>
-            <span class="ha-sheet-hub-rank">${esc(String(meta.rank || 'Habit Builder').toUpperCase())}</span>
-          </div>
-          <p class="ha-sheet-hub-sub">Quests, powers &amp; personality unlocks</p>
-        </div>
-      </div>
-      <button type="button" id="ha-sheet-hub-close" class="ha-sheet-drawer-close" aria-label="Close quests drawer">${CLOSE_SVG}</button>
-    </div>
+  const unlockedCount = tierDefs.filter((td) => {
+    const tierMeta = (meta.tiers || []).find((x) => x.level === td.level);
+    return tierMeta ? Boolean(tierMeta.unlocked) : td.level <= meta.level;
+  }).length;
+  const treeFillPct = Math.max(0, Math.min(100, Math.round(((unlockedCount - 1) / (tierDefs.length - 1)) * 100)));
 
-    <div class="ha-sheet-hub-xp">
-      <div class="ha-sheet-px-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${meta.progressPct || 0}">${segsHtml}</div>
-      <p class="ha-sheet-power-copy">${esc(powerSummary)}</p>
-    </div>
-
-    <div class="ha-sheet-hub-scroll">
+  const questsSectionHtml = quests.length > 0 ? `
       <section class="ha-sheet-hub-sec">
         <div class="ha-sheet-sec-hdr">
-          <span>${meta.nextLevel ? `QUESTS TO LVL ${meta.nextLevel}` : 'ALL LEVELS UNLOCKED ✓'}</span>
-          <span>${meta.nextLevel ? `${doneQ}/${totalQ}` : 'MAX'}</span>
+          <span>${meta.nextLevel ? `QUESTS TO LVL ${meta.nextLevel}` : 'ALL QUESTS COMPLETED'}</span>
+          <span>${meta.nextLevel ? `${doneQ} / ${totalQ} DONE` : 'MAX ✓'}</span>
         </div>
-        <div class="ha-sheet-quest-list">
-          ${quests.map((q) => `
+        <div class="ha-sheet-qcard">
+          ${quests.map((q, idx) => `
             <div class="ha-sheet-quest-row${q.done ? ' is-done' : ''}">
-              <span class="ha-sheet-q-box">${q.done ? '✓' : '·'}</span>
+              <span class="ha-sheet-q-box">${q.done ? HUB_CHECK_SVG : (idx + 1)}</span>
               <div class="ha-sheet-q-main">
                 <span class="ha-sheet-q-lbl">${esc(q.label)}</span>
                 ${q.hint ? `<small class="ha-sheet-q-hint">${esc(q.hint)}</small>` : ''}
               </div>
-              <span class="ha-sheet-q-prog">${q.done ? 'DONE' : `${q.current}/${q.target}`}</span>
+              <span class="ha-sheet-q-prog${q.done ? ' is-done' : ''}">${q.done ? 'DONE' : `${q.current}/${q.target}`}</span>
             </div>
           `).join('')}
         </div>
       </section>
+  ` : '';
+
+  hubBodyEl.innerHTML = `
+    <div class="ha-sheet-hub-grab-wrap" aria-hidden="true"><span class="ha-sheet-hub-grab"></span></div>
+    <div class="ha-sheet-hub-scroll">
+      <div class="ha-sheet-hub-hero">
+        <div class="ha-sheet-hub-hero-top">
+          <div class="ha-sheet-hub-id">
+            <div class="ha-sheet-hub-buddy" aria-hidden="true">${BUDDY_STAGE_SVG}</div>
+            <div class="min-w-0">
+              <div class="ha-sheet-hub-kicker">LVL ${meta.level} · ${esc(String(meta.rank || 'Habit Builder').toUpperCase())}</div>
+              <strong class="ha-sheet-hub-title">${esc(meta.aiName)} Progression</strong>
+            </div>
+          </div>
+          <button type="button" id="ha-sheet-hub-close" class="ha-sheet-drawer-close" aria-label="Close quests and powers sheet">${CLOSE_SVG}</button>
+        </div>
+        <div class="ha-sheet-hub-xp-block">
+          <div class="ha-sheet-hub-xp-meta">
+            ${xpSummaryHtml}
+            <span class="ha-sheet-hub-xp-pct">${xpPct}%</span>
+          </div>
+          <div class="ha-sheet-xp-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${xpPct}">
+            <span class="ha-sheet-xp-fill" style="width:${xpPct}%"></span>
+          </div>
+        </div>
+      </div>
+
+      ${questsSectionHtml}
 
       <section class="ha-sheet-hub-sec">
         <div class="ha-sheet-sec-hdr">
-          <span>POWER TIERS</span>
-          <span>L1 → L4</span>
+          <span>SKILL TREE ROADMAP (L1 → L4)</span>
+          <span>${unlockedCount} / ${tierDefs.length} UNLOCKED</span>
         </div>
-        <div class="ha-sheet-quest-list">
+        <div class="ha-sheet-skill-tree" style="--tree-fill:${treeFillPct}%">
           ${tierDefs.map((td) => {
             const tierMeta = (meta.tiers || []).find((x) => x.level === td.level);
             const unlocked = tierMeta ? Boolean(tierMeta.unlocked) : td.level <= meta.level;
             const current = tierMeta ? Boolean(tierMeta.current) : td.level === meta.level;
-            const stateLbl = current ? 'ACTIVE' : (unlocked ? 'ON ✓' : 'LOCKED');
+            const reqLabel = tierMeta?.reqLabel && tierMeta.reqLabel !== 'START' ? tierMeta.reqLabel : td.reqTag;
             return `
-              <div class="ha-sheet-tier-row${unlocked ? ' is-unlocked' : ''}">
-                <span class="ha-sheet-tier-badge">L${td.level}</span>
-                <div class="ha-sheet-tier-copy">
-                  <strong>${esc(td.title)}</strong>
-                  <small>${esc(td.desc)}</small>
-                </div>
-                <div class="ha-sheet-tier-right">
-                  ${unlocked ? `<button type="button" class="ha-sheet-try-btn" data-hub-try-prompt="${esc(td.prompt)}">Try</button>` : ''}
-                  <span class="ha-sheet-tier-state">${stateLbl}</span>
+              <div class="ha-sheet-tree-node${unlocked ? ' is-unlocked' : ''}${current ? ' is-current' : ''}">
+                <span class="ha-sheet-tree-orb">L${td.level}</span>
+                <div class="ha-sheet-tree-card">
+                  <div class="ha-sheet-tier-copy">
+                    <strong>${esc(td.title)}</strong>
+                    <small>${esc(td.desc)}</small>
+                  </div>
+                  <div class="ha-sheet-tier-right">
+                    ${unlocked
+                      ? `<button type="button" class="ha-sheet-try-btn" data-hub-try-prompt="${esc(td.prompt)}">Try ↗</button>`
+                      : `<span class="ha-sheet-lock-tag"><span>${esc(reqLabel)}</span>${HUB_LOCK_SVG}</span>`}
+                  </div>
                 </div>
               </div>
             `;
@@ -959,14 +985,27 @@ function renderSheetHubDrawer() {
       <section class="ha-sheet-hub-sec">
         <div class="ha-sheet-sec-hdr">
           <span>AI VOICE &amp; TONE</span>
-          <span>${unlockedTone ? 'ACTIVE' : 'LOCKED · LVL 4'}</span>
+          <span class="ha-sheet-sec-lock">${unlockedTone ? 'ACTIVE · TAP TO SWITCH' : `${HUB_LOCK_SVG} UNLOCKS AT LVL 4`}</span>
         </div>
         <div class="ha-sheet-tone-grid">
-          ${tones.map((t) => `
-            <button type="button" class="ha-sheet-tone-btn${unlockedTone && curTone === t.id ? ' is-active' : ''}" data-hub-tone="${t.id}" ${unlockedTone ? '' : 'disabled'}>
-              ${esc(t.label)}
-            </button>
-          `).join('')}
+          ${tones.map((t) => {
+            const isCur = curTone === t.id;
+            const isDefaultPreview = !unlockedTone && t.id === 'default';
+            const rightBadge = unlockedTone
+              ? (isCur ? '<span class="ha-sheet-tone-tag is-on">ACTIVE</span>' : '')
+              : (isDefaultPreview
+                ? '<span class="ha-sheet-tone-tag is-on">DEFAULT</span>'
+                : `<span class="ha-sheet-tone-lock" aria-hidden="true">${HUB_LOCK_SVG}</span>`);
+            return `
+              <button type="button" class="ha-sheet-tone-btn${(unlockedTone && isCur) || isDefaultPreview ? ' is-active' : ''}" data-hub-tone="${t.id}" ${unlockedTone ? '' : 'disabled'}>
+                <span class="ha-sheet-tone-left">
+                  <span class="ha-sheet-tone-ico">${HUB_TONE_ICONS[t.id] || ''}</span>
+                  <span>${esc(t.label)}</span>
+                </span>
+                ${rightBadge}
+              </button>
+            `;
+          }).join('')}
         </div>
       </section>
     </div>
@@ -980,6 +1019,7 @@ function renderSheetHubDrawer() {
       if (inputEl && !activeController) {
         inputEl.value = prompt;
         resizeComposerInput();
+        syncTypewriter();
         inputEl.focus();
       }
     });
