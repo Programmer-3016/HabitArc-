@@ -44,6 +44,7 @@
         .pop { animation: pop 0.3s ease; }
     </style>
 <link rel="stylesheet" href="app-ui.css"/>
+<link rel="stylesheet" href="dashboard-pixel.css"/>
 <link rel="stylesheet" href="day-workspace.css"/>
 <script src="app-ui.js"></script>
 </head>
@@ -127,23 +128,23 @@
     <section class="ha-dashboard-greeting ha-today-head fade-up">
         <div>
             <p id="today-date" class="ha-today-kicker text-sm text-on-surface-variant geist font-medium">Loading...</p>
-            <h1 class="ha-today-title text-on-surface">Today</h1>
-            <p id="greeting" class="sr-only"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></p>
+            <h1 id="greeting" class="ha-today-title text-on-surface"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></h1>
         </div>
         <span id="today-done-pill" class="ha-today-done-pill" aria-live="polite">0 of 0 done</span>
     </section>
 
-    <!-- Focused hero: Single Bold Lavender Daily Progress Card -->
+    <!-- Focused hero: daily progress, backed entirely by the user's real habit data. -->
     <section class="ha-progress-card ha-dashboard-hero fade-up" aria-labelledby="progress-title">
         <div class="ha-rpg-hero-toprow">
-            <h2 id="progress-title" class="ha-dashboard-eyebrow">DAILY PROGRESS</h2>
+            <h2 id="progress-title" class="ha-dashboard-eyebrow">TODAY'S PROGRESS</h2>
             <span id="dash-ai-pill" class="ha-ai-dash-pill sr-only" aria-label="Open HabitArc AI">
                 <span id="dash-ai-pill-label">ARC · LVL 1</span>
             </span>
         </div>
         <div class="ha-dashboard-progress">
             <div class="ha-dashboard-progress-copy">
-                <p class="ha-dashboard-count"><span id="progress-pct">0%</span> <span class="ha-dashboard-complete-word">complete</span></p>
+                <p class="ha-dashboard-count"><span id="progress-completed">0</span><span class="ha-dashboard-count-of"> of <span id="progress-total">0</span></span></p>
+                <p class="ha-dashboard-complete-word">habits completed</p>
                 <p id="progress-msg">Start your day strong.</p>
             </div>
             <div id="progress-ring" class="ha-dashboard-ring" role="progressbar" aria-label="Today's habit completion" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
@@ -152,14 +153,14 @@
                     <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.8" stroke-dasharray="0, 100" stroke-linecap="round" class="ha-ring-fill progress-ring-circle"/>
                 </svg>
                 <div class="ha-dashboard-ring-label">
-                    <span class="ha-dashboard-ring-frac"><span id="progress-completed">0</span>/<span id="progress-total">0</span></span>
+                    <span id="progress-pct" class="ha-dashboard-ring-frac">0%</span>
                 </div>
             </div>
         </div>
         <div class="ha-today-hero-bar" aria-hidden="true">
             <div id="progress-bar-fill" class="ha-today-hero-bar-fill" style="width: 0%"></div>
         </div>
-        <div class="ha-dashboard-streaks sr-only">
+        <div class="ha-dashboard-streaks">
             <div class="ha-dashboard-stat">
                 <h3>Current streak</h3>
                 <p><span id="current-streak">0</span><span class="ha-dashboard-unit">days</span></p>
@@ -177,10 +178,10 @@
         </div>
     </section>
 
-    <!-- ─── Up Next Today (Tasks due today + Scheduled habits) ── -->
+    <!-- ─── Today's scheduled habits ── -->
     <section class="ha-dashboard-habits ha-today-surface fade-up" aria-labelledby="today-habits-title">
         <div class="ha-today-surface-head">
-            <h2 id="today-habits-title">UP NEXT TODAY</h2>
+            <h2 id="today-habits-title">TODAY'S HABITS</h2>
             <span id="habits-remaining"></span>
         </div>
         <div id="ha-today-tasks-slot" class="ha-today-tasks-slot"></div>
@@ -399,6 +400,7 @@
             const safeName = HabitArc.escapeHTML(habit.name);
             const safeCategory = HabitArc.escapeHTML(habit.category || 'Daily');
             const safeReminder = habit.reminder ? HabitArc.escapeHTML(habit.reminder) : '';
+            const safeIcon = HabitArc.escapeHTML(habit.icon || 'check_circle');
             const habitUrlId = encodeURIComponent(String(habit.id || ''));
             const metaLine = isCompleted
                 ? `Completed today · ${safeCategory} habit`
@@ -417,17 +419,18 @@
 
             card.innerHTML = `
                 <div class="ha-dashboard-habit-main">
-                    <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle" data-id="${HabitArc.escapeHTML(habit.id)}">
-                        <span class="material-symbols-outlined" aria-hidden="true">check</span>
-                    </button>
+                    <span class="ha-dashboard-habit-icon" aria-hidden="true"><span class="material-symbols-outlined">${safeIcon}</span></span>
                     <a class="ha-dashboard-habit-link" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
                         <div class="ha-dashboard-habit-copy">
                             <h3 class="text-on-surface">${safeName}</h3>
                             <span class="ha-dashboard-habit-meta text-on-surface-variant">${metaLine}</span>
                         </div>
                     </a>
+                    <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle" data-id="${HabitArc.escapeHTML(habit.id)}">
+                        <span class="material-symbols-outlined" aria-hidden="true">check</span>
+                    </button>
                 </div>
-                <div class="ha-dashboard-history sr-only"><div class="ha-dashboard-week" role="group" aria-label="Last seven days for ${safeName}">${dotsHtml}</div><span class="ha-dashboard-history-caption">Last 7 days</span></div>
+                <div class="ha-dashboard-history"><div class="ha-dashboard-week" role="group" aria-label="Last seven days for ${safeName}">${dotsHtml}</div><span class="ha-dashboard-history-caption">Last 7 days</span></div>
             `;
 
             container.appendChild(card);
