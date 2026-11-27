@@ -1,4 +1,4 @@
-import { CHESTS, changeTreasure, clearedDays, inventory } from './runner-treasures.js';
+import { CHESTS, changeTreasure, chestCycle, clearedDays, inventory } from './runner-treasures.js';
 import {
   buildSelfLeagueMember,
   getLeagueProfileSettings,
@@ -800,9 +800,10 @@ function mountTreasureRoom(root, find, redrawLeague) {
     return { ready, writable, scope, settings, count, bag: inventory(settings.treasureRoom) };
   }
   function render() {
-    const { ready, writable, scope, count, bag } = read();
+    const { ready, writable, scope, settings, count, bag } = read();
     if (showing && (scope !== showing.scope || (showing.ready && !ready))) showing.dialog.close();
-    const key = JSON.stringify([ready, writable, scope, count, bag]);
+    const cycles = CHESTS.map(c => ({ chest: c, cycle: chestCycle(settings.treasureRoom, c.id, count) }));
+    const key = JSON.stringify([ready, writable, scope, count, bag, cycles.map(x => [x.cycle.progress, x.cycle.ready, x.cycle.opens])]);
     if (key === lastRenderKey) return;
     lastRenderKey = key;
     const focusNode = root.contains(document.activeElement) && document.activeElement;
@@ -811,18 +812,20 @@ function mountTreasureRoom(root, find, redrawLeague) {
     const clearsEl = find('treasure-clears');
     if (clearsEl) clearsEl.textContent = String(count);
     const openedCountEl = find('treasure-opened-count');
-    if (openedCountEl) openedCountEl.textContent = `${bag.opened.length} / ${CHESTS.length}`;
+    if (openedCountEl) {
+      const totalOpens = cycles.reduce((sum, x) => sum + x.cycle.opens, 0);
+      openedCountEl.textContent = String(totalOpens);
+    }
 
     const summaryEl = find('treasure-summary');
     if (summaryEl) {
-      const next = CHESTS.find(c => !bag.opened.includes(c.id));
+      const readyEntry = cycles.find(x => x.cycle.ready);
+      const soonest = [...cycles].sort((a, b) => a.cycle.daysLeft - b.cycle.daysLeft)[0];
       summaryEl.textContent = !ready
         ? 'Finish setup to track clear days and unlock milestone chests.'
-        : !next
-          ? `All ${CHESTS.length} milestone chests unlocked.`
-          : count >= next.days
-            ? `${next.name} is ready to open.`
-            : `${next.days - count} more clear ${next.days - count === 1 ? 'day' : 'days'} until ${next.name}.`;
+        : readyEntry
+          ? `${readyEntry.chest.name} is ready to open.`
+          : `${soonest.cycle.daysLeft} more clear ${soonest.cycle.daysLeft === 1 ? 'day' : 'days'} until ${soonest.chest.name}.`;
     }
 
 function makeReplayIcon(opened) {
@@ -872,20 +875,19 @@ function makeLockIcon() {
   return svg;
 }
 
-    const shortNames = { wood: 'Wooden', iron: 'Iron', gold: 'Gold', ruby: 'Dragon' };
-    const cards = CHESTS.map(c => {
-      const opened = bag.opened.includes(c.id);
-      const canOpen = writable && !opened && count >= c.days;
-      const state = opened ? 'collected' : canOpen ? 'ready' : 'locked';
-      const isLocked = state === 'locked';
+    const shortNames = { wood: 'Spark', iron: 'Pulse', gold: 'Nova', ruby: 'Apex' };
+    const cards = cycles.map(({ chest: c, cycle }) => {
+      const canOpen = Boolean(writable && cycle.ready);
+      const state = canOpen ? 'ready' : 'locked';
+      const isLocked = !canOpen;
 
       const card = el('article', 'lb-chest');
       card.dataset.tier = c.id;
       card.dataset.state = state;
 
       const media = el('div', 'lb-chest-media');
-      const shownDays = Math.min(count, c.days);
-      const stampText = opened ? 'Opened' : canOpen ? 'Ready' : 'Locked';
+      const shownDays = cycle.progress;
+      const stampText = canOpen ? 'Ready' : 'Locked';
       const stamp = el('span', 'lb-chest-stamp', stampText);
 
       const stageBtn = el('button', 'lb-chest-stage-btn');
@@ -894,19 +896,17 @@ function makeLockIcon() {
         'aria-label',
         canOpen
           ? `Open ${c.name}`
-          : opened
-            ? `Replay ${c.name} opening`
-            : `Preview ${c.name} opening`
+          : `Preview ${c.name} opening`
       );
-      stageBtn.append(chestArt(c, opened, { state }));
+      stageBtn.append(chestArt(c, false, { state }));
       stageBtn.addEventListener('click', () => reveal(c, !canOpen, stageBtn));
 
       const preview = el('button', 'lb-chest-preview');
       preview.type = 'button';
-      const previewLabel = opened ? 'Replay opening' : 'Preview chest';
+      const previewLabel = 'Preview chest';
       preview.title = previewLabel;
       preview.setAttribute('aria-label', `${previewLabel}: ${c.name}`);
-      preview.append(makeReplayIcon(opened));
+      preview.append(makeReplayIcon(false));
       preview.addEventListener('click', () => reveal(c, true, preview));
 
       media.append(stageBtn, stamp, preview);
@@ -914,18 +914,14 @@ function makeLockIcon() {
       const body = el('div', 'lb-chest-body');
       const heading = el('div', 'lb-chest-kicker');
       heading.append(el('h3', null, shortNames[c.id] || c.name));
-      heading.append(el('span', 'lb-chest-days', opened ? `${c.days}d` : `${shownDays}/${c.days}d`));
+      heading.append(el('span', 'lb-chest-days', `${shownDays}/${c.days}d`));
 
       const daysLabel = c.days === 1 ? '1 clear day' : `${c.days} clear days`;
       const pct = Math.max(0, Math.min(100, Math.round((shownDays / Math.max(1, c.days)) * 100)));
-      const daysLeft = Math.max(0, c.days - shownDays);
-      const buttonLabel = opened
-        ? '✓ Unlocked'
-        : canOpen
-          ? 'Open now'
-          : `${daysLeft}d left`;
+      const daysLeft = cycle.daysLeft;
+      const buttonLabel = canOpen ? 'Open now' : `${daysLeft}d left`;
 
-      const button = el('button', isLocked ? 'lb-chest-action lb-chest-action-locked' : 'lb-chest-action');
+      const button = el('button', isLocked ? 'lb-chest-action lb-chest-action-locked' : 'lb-chest-action lb-chest-action-ready');
       button.type = 'button';
       button.dataset.chest = c.id;
       if (isLocked) {
@@ -939,7 +935,6 @@ function makeLockIcon() {
       } else {
         button.textContent = buttonLabel;
       }
-      button.disabled = opened;
       button.setAttribute(
         'aria-label',
         isLocked
@@ -947,7 +942,7 @@ function makeLockIcon() {
           : `${c.name}: ${buttonLabel}`
       );
       button.addEventListener('click', () => {
-        if (!opened) reveal(c, !canOpen, button);
+        reveal(c, !canOpen, button);
       });
 
       const milestoneLine = el(

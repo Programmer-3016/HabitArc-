@@ -279,59 +279,59 @@ const PHOENIX_PAL = {
 export const CHEST_THEMES = Object.freeze({
   wood: {
     pal: [
-      '#000000','#031e13','#3b1d0a','#5c2d10','#7c3f16',
-      '#78350f','#b45309','#d97706','#fcd34d','#fef9c3',
-      '#7c2d12','#9a3412','#b45309','#d97706','#f59e0b','#fbbf24',
-      '#b45309','#facc15','#ffffff','#064e3b','#10b981','#47e393','#ecfdf5',
+      '#000000','#031e13','#451a03','#78350f','#92400e',
+      '#064e3b','#047857','#10b981','#6ee7b7','#ecfdf5',
+      '#9a3412','#b45309','#d97706','#f59e0b','#fcd34d','#fef3c7',
+      '#b45309','#facc15','#ffffff','#064e3b','#10b981','#47e393','#ffffff',
     ],
     art: COMMON_TORCH_EMBER,
     artPal: COMMON_PAL,
-    label: 'COMMON',
+    label: 'SPARK',
     fg: '#fef08a',
     shadow: '#031e13',
-    glowName: 'Warm Amber & HabitArc Mint Glow',
+    glowName: 'Spark Amber & Emerald-Mint Glow',
   },
   iron: {
     pal: [
-      '#000000','#031e13','#0f172a','#1e293b','#334155',
-      '#334155','#64748b','#94a3b8','#e2e8f0','#ffffff',
-      '#1e293b','#334155','#475569','#64748b','#94a3b8','#cbd5e1',
-      '#0284c7','#38bdf8','#f0f9ff','#064e3b','#0d9488','#47e393','#ecfeff',
+      '#000000','#031e13','#022c22','#064e3b','#065f46',
+      '#0f172a','#1e293b','#475569','#94a3b8','#f8fafc',
+      '#064e3b','#047857','#059669','#10b981','#34d399','#a7f3d0',
+      '#0284c7','#38bdf8','#ffffff','#0f172a','#0284c7','#38bdf8','#ffffff',
     ],
     art: SHIELD_AEGIS,
     artPal: SHIELD_PAL,
-    label: 'SHIELD',
+    label: 'PULSE',
     fg: '#bae6fd',
     shadow: '#031e13',
-    glowName: 'Frost Cyan & Mint Barrier Rings',
+    glowName: 'Pulse Cyber-Emerald & Cyan Barrier',
   },
   gold: {
     pal: [
-      '#000000','#031e13','#2e1065','#4c1d95','#5b21b6',
-      '#854d0e','#ca8a04','#eab308','#facc15','#fef9c3',
+      '#000000','#031e13','#1e1b4b','#2e1065','#4c1d95',
+      '#713f12','#a16207','#eab308','#facc15','#fef9c3',
       '#4c1d95','#5b21b6','#6d28d9','#8b5cf6','#a78bfa','#ddd6fe',
-      '#ca8a04','#facc15','#ffffff','#4c1d95','#8b5cf6','#c4b5fd','#ffffff',
+      '#ca8a04','#facc15','#ffffff','#2e1065','#7c3aed','#c4b5fd','#ffffff',
     ],
     art: LEGENDARY_STAR_PRISM,
     artPal: LEGENDARY_PAL,
-    label: '* LEGENDARY *',
+    label: '* NOVA *',
     fg: '#fef08a',
     shadow: '#031e13',
-    glowName: 'HabitArc Lavender & Solar Gold Rays',
+    glowName: 'Nova Royal Amethyst & Solar Gold Rays',
   },
   ruby: {
     pal: [
-      '#000000','#031e13','#1a0626','#2e0b42','#4a1268',
-      '#78350f','#b45309','#f59e0b','#fbbf24','#fef9c3',
-      '#4c0519','#881337','#9f1239','#be123c','#e11d48','#fb7185',
-      '#b45309','#facc15','#ffffff','#500724','#e11d48','#47e393','#fff1f2',
+      '#000000','#031e13','#020617','#041311','#08221e',
+      '#78350f','#b45309','#f59e0b','#facc15','#fef9c3',
+      '#061916','#0b2924','#113c35','#175248','#227062','#5eead4',
+      '#059669','#47e393','#ffffff','#022c22','#10b981','#47e393','#ffffff',
     ],
     art: PHOENIX_WINGS,
     artPal: PHOENIX_PAL,
-    label: '* MYTHIC *',
-    fg: '#fef08a',
+    label: '* APEX *',
+    fg: '#a7f3d0',
     shadow: '#031e13',
-    glowName: 'Crimson-Mint Dragon Supernova Rays',
+    glowName: 'Apex Stealth Obsidian & Neon-Mint Rays',
   },
 });
 
@@ -411,8 +411,8 @@ function paintTierChestOverlay(r, tier, fIdx, ox, oy, dropY = 0) {
     px('#fef9c3', 39, 41); px('#c4b5fd', 38, 49);
   } else if (tier === 'ruby') {
     const cmap = {
-      k:'#14040a', 1:'#b45309', 2:'#f59e0b', 3:'#fef08a',
-      R:'#ff2e63', S:'#ffe4e6', C:'#fb7185',
+      k:'#031e13', 1:'#b45309', 2:'#f59e0b', 3:'#fef9c3',
+      R:'#47e393', S:'#ffffff', C:'#facc15',
     };
     const leftHandle = [
       '..kkk.',
@@ -1218,8 +1218,10 @@ function buildLiveChestRig(tier, opened, chestState) {
   wrap.dataset.state = chestState;
   wrap.setAttribute('aria-hidden', 'true');
 
+  const rays = mk('span', 'ha-live-chest-rays');
   const shadow = mk('span', 'ha-live-chest-shadow');
   const aura = mk('span', 'ha-live-chest-aura');
+  const ring = mk('span', 'ha-live-chest-ring');
   const rig = mk('span', 'ha-live-chest-rig');
 
   if (opened) {
@@ -1240,8 +1242,10 @@ function buildLiveChestRig(tier, opened, chestState) {
     rig.append(mask);
   }
 
+  wrap.append(rays);
   wrap.append(shadow);
   wrap.append(aura);
+  wrap.append(ring);
   wrap.append(rig);
   return wrap;
 }

@@ -1,9 +1,9 @@
 // Private progression. Standings, preview points and other users are never inputs.
 export const CHESTS = Object.freeze([
-  { id: 'wood', name: 'Wooden chest', days: 1, xp: 30, power: 'First Clear', description: 'Unlocked on your first cleared day.' },
-  { id: 'iron', name: 'Iron chest', days: 7, xp: 70, power: 'Week Strong', description: 'Unlocked after clearing 7 scheduled days.' },
-  { id: 'gold', name: 'Gold chest', days: 14, xp: 140, power: 'Fortnight Crown', description: 'Unlocked after clearing 14 scheduled days.' },
-  { id: 'ruby', name: 'Dragon chest', days: 30, xp: 260, power: '30-Day Crest', description: 'Unlocked after clearing 30 scheduled days.' },
+  { id: 'wood', name: 'Spark chest', days: 1, xp: 30, power: 'First Clear', description: 'Unlocked on your first cleared day.' },
+  { id: 'iron', name: 'Pulse chest', days: 7, xp: 70, power: 'Week Strong', description: 'Unlocked after clearing 7 scheduled days.' },
+  { id: 'gold', name: 'Nova chest', days: 14, xp: 140, power: 'Fortnight Arc', description: 'Unlocked after clearing 14 scheduled days.' },
+  { id: 'ruby', name: 'Apex vault', days: 30, xp: 260, power: '30-Day Crest', description: 'Unlocked after clearing 30 scheduled days.' },
 ]);
 const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -38,10 +38,56 @@ export function clearedDays(habits, records, today) {
   }).map(([date]) => date).sort();
 }
 
+function parseTreasureState(raw) {
+  const src = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  const rawOpened = Array.isArray(src.opened) ? src.opened : [];
+  const rawOpens = src.opens && typeof src.opens === 'object' && !Array.isArray(src.opens) ? src.opens : {};
+  const rawResetAt = src.resetAt && typeof src.resetAt === 'object' && !Array.isArray(src.resetAt) ? src.resetAt : {};
+  const opens = {};
+  const resetAt = {};
+  const opened = [];
+  let xp = 0;
+  for (const c of CHESTS) {
+    const legacyCount = rawOpened.includes(c.id) ? 1 : 0;
+    const n = Number.isInteger(rawOpens[c.id]) && rawOpens[c.id] > 0 ? rawOpens[c.id] : legacyCount;
+    if (n > 0) {
+      opens[c.id] = n;
+      opened.push(c.id);
+      xp += n * c.xp;
+    }
+    if (Number.isInteger(rawResetAt[c.id]) && rawResetAt[c.id] >= 0) {
+      resetAt[c.id] = rawResetAt[c.id];
+    } else if (n > 0) {
+      resetAt[c.id] = n * c.days;
+    }
+  }
+  const equipped = opened.includes(src.equipped) ? src.equipped : null;
+  return { opened, opens, resetAt, xp, equipped };
+}
+
 export function inventory(raw) {
-  const opened = CHESTS.filter(c => Array.isArray(raw?.opened) && raw.opened.includes(c.id));
-  return { opened: opened.map(c => c.id), xp: opened.reduce((sum, c) => sum + c.xp, 0),
-    equipped: opened.some(c => c.id === raw?.equipped) ? raw.equipped : null };
+  const { opened, xp, equipped } = parseTreasureState(raw);
+  return { opened, xp, equipped };
+}
+
+export function chestCycle(raw, id, count = 0) {
+  const chest = CHESTS.find(c => c.id === id);
+  if (!chest) return { progress: 0, target: 1, daysLeft: 1, ready: false, opens: 0, baseline: 0 };
+  const safeCount = Number.isInteger(count) && count > 0 ? count : 0;
+  const state = parseTreasureState(raw);
+  const baseline = Number.isInteger(state.resetAt[chest.id]) ? state.resetAt[chest.id] : 0;
+  const rawProgress = Math.max(0, safeCount - baseline);
+  const progress = Math.min(chest.days, rawProgress);
+  const ready = rawProgress >= chest.days;
+  const daysLeft = Math.max(0, chest.days - progress);
+  return {
+    progress,
+    target: chest.days,
+    daysLeft,
+    ready,
+    opens: state.opens[chest.id] || 0,
+    baseline,
+  };
 }
 
 export const AI_DEFAULT_NAME = 'ARC';
@@ -261,9 +307,25 @@ export function computeAiProgression({
 
 export function changeTreasure(raw, id, action, count) {
   const chest = CHESTS.find(c => c.id === id);
-  const { opened, equipped } = inventory(raw);
   if (!chest) return null;
-  if (action === 'open' && !opened.includes(id) && Number.isInteger(count) && count >= chest.days) opened.push(id);
-  else if (!(action === 'equip' && opened.includes(id) && equipped !== id)) return null;
-  return { version: 1, opened, equipped: id };
+  const state = parseTreasureState(raw);
+  if (action === 'open') {
+    if (!Number.isInteger(count) || count < 0) return null;
+    const cycle = chestCycle(raw, id, count);
+    if (!cycle.ready) return null;
+    const nextOpens = { ...state.opens, [id]: (state.opens[id] || 0) + 1 };
+    const nextOpened = state.opened.includes(id) ? [...state.opened] : [...state.opened, id];
+    const nextResetAt = { ...state.resetAt, [id]: count };
+    return { version: 2, opened: nextOpened, opens: nextOpens, resetAt: nextResetAt, equipped: id };
+  }
+  if (action === 'equip' && state.opened.includes(id) && state.equipped !== id) {
+    return {
+      version: 2,
+      opened: [...state.opened],
+      opens: { ...state.opens },
+      resetAt: { ...state.resetAt },
+      equipped: id,
+    };
+  }
+  return null;
 }

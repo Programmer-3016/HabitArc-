@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clearedDays, changeTreasure, inventory, AI_DEFAULT_NAME, AI_TONES, AI_LEVEL_TIERS, normaliseAiName, normaliseAiTone, computeAiProgression } from '../runner-treasures.js';
+import { clearedDays, changeTreasure, chestCycle, inventory, AI_DEFAULT_NAME, AI_TONES, AI_LEVEL_TIERS, normaliseAiName, normaliseAiTone, computeAiProgression } from '../runner-treasures.js';
 
 const habit = (id, repeat, extra = {}) => ({id, createdAt:'2026-11-01', repeat, ...extra});
 const done = (habitId, date, extra = {}) => ({habitId, date, status:'completed', updatedAt:date+'T10:32:11Z', ...extra});
@@ -45,6 +45,20 @@ test('tiers require 1/7/14/30 clears; opening auto-equips, remounting and re-equ
   assert.equal(inventory(bag).xp,500); assert.equal(inventory(bag).equipped,'wood');
   assert.equal(changeTreasure({},'gold','equip',99),null);
   assert.deepEqual(inventory({opened:['wood','wood','bogus'],equipped:'gold'}),{opened:['wood'],equipped:null,xp:30});
+
+  // Opening a chest resets its cycle back to closed/locked (0/Xd) and accumulates XP on the next run
+  assert.equal(chestCycle(bag, 'ruby', 30).ready, false);
+  assert.equal(chestCycle(bag, 'ruby', 30).progress, 0);
+  assert.equal(chestCycle(bag, 'ruby', 30).daysLeft, 30);
+  // Anti-farming guard: dipping below resetAt and returning to 30 cannot re-open
+  assert.equal(chestCycle(bag, 'ruby', 29).ready, false);
+  assert.equal(changeTreasure(bag, 'ruby', 'open', 30), null);
+  // Spark (1d) opened at count=1 resets at 1; at count=2 it is ready again and awards +30 XP!
+  const bag2 = changeTreasure({ version: 2, opened: ['wood'], opens: { wood: 1 }, resetAt: { wood: 1 }, equipped: 'wood' }, 'wood', 'open', 2);
+  assert.equal(inventory(bag2).xp, 60);
+  assert.equal(chestCycle(bag2, 'wood', 2).ready, false);
+  assert.equal(chestCycle(bag2, 'wood', 2).progress, 0);
+  assert.equal(chestCycle(bag2, 'wood', 2).daysLeft, 1);
 });
 
 test('AI quest progression unlocks LVL 1/2/3/4 cleanly with 7d/14d requirements, tones, and custom names', () => {

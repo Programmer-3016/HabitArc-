@@ -1541,7 +1541,10 @@
     document.querySelectorAll('#ai-name-chips .chip').forEach(chip => {
         chip.addEventListener('click', () => {
             const picked = chip.textContent.trim();
-            if (aiNameInput) { aiNameInput.value = picked; aiNameInput.focus(); }
+            if (aiNameInput) {
+                aiNameInput.value = picked;
+                aiNameInput.blur?.();
+            }
             syncAiNamePreview(picked);
         });
     });
@@ -1577,7 +1580,7 @@
     document.querySelectorAll('#north-star-chips .chip').forEach(chip => {
         chip.addEventListener('click', () => {
             const input = document.getElementById('north-star-input');
-            if (input) { input.value = chip.textContent.trim(); input.focus(); }
+            if (input) { input.value = chip.textContent.trim(); input.blur?.(); }
         });
     });
 

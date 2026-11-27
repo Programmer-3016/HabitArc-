@@ -436,7 +436,7 @@ try {
     }
     d.habits = [h];
     d.settings.theme = 'light';
-    d.settings.treasureRoom = { opened: ['wood', 'iron'] };
+    d.settings.treasureRoom = { version: 2, opened: ['wood', 'iron'], opens: { wood: 1, iron: 1 }, resetAt: { wood: 14, iron: 14 }, equipped: 'iron' };
     localStorage.setItem('habitarc_data', JSON.stringify(d));
     window.dispatchEvent(new CustomEvent('habitarc:data-changed', { detail: { source: 'storage' } }));
   })()`);
@@ -483,13 +483,30 @@ try {
   assert.equal(vaultCheck.fitsOneScreen, true, `Rewards Chests view fits cleanly without trailing blank scroll: ${vaultCheck.scrollHeight} vs ${vaultCheck.innerHeight}`);
   assert.equal(vaultCheck.defaultTabPressed, 'true', 'Chests tab activates cleanly on click');
   assert.equal(vaultCheck.leagueHidden, true, 'League hides when Chests tab is active');
-  assert.equal(vaultCheck.wood, '✓ Unlocked');
-  assert.equal(vaultCheck.iron, '✓ Unlocked');
+  assert.equal(vaultCheck.wood, '1d left');
+  assert.equal(vaultCheck.iron, '7d left');
   assert.equal(vaultCheck.gold, 'Open now');
   assert.equal(vaultCheck.rubyLockedClass, true);
   assert.equal(vaultCheck.liveChests.length, 4, 'All 4 Rewards cards mount 60fps .ha-live-chest rigs');
-  assert.equal(vaultCheck.liveChests.every(c => c.w >= 80 && c.nw === 256), true, 'All 4 live chests render >=80px wide backed by 256px crisp textures');
-  assert.ok(/d left$/.test(vaultCheck.ruby), `Expected countdown pill label on Dragon card, got: ${vaultCheck.ruby}`);
+  assert.equal(vaultCheck.liveChests.every(c => (c.state === 'ready' || c.state === 'locked') && c.w >= 80 && c.nw === 256), true, 'All 4 live chests use only ready/locked states backed by 256px crisp textures');
+  assert.ok(/d left$/.test(vaultCheck.ruby), `Expected countdown pill label on Apex card, got: ${vaultCheck.ruby}`);
+  // Open READY Nova chest and verify it immediately closes back up and resets to 0/14d (14d left)!
+  await ev(`document.querySelector('[data-tier="gold"] .lb-chest-action').click()`);
+  await sleep(120);
+  await ev(`document.querySelector('dialog.lb-reveal')?.click()`);
+  await sleep(120);
+  await ev(`document.querySelector('dialog.lb-reveal')?.close()`);
+  await sleep(120);
+  const afterOpenReset = await ev(`({
+    goldState: document.querySelector('[data-tier="gold"]')?.dataset.state,
+    goldStamp: document.querySelector('[data-tier="gold"] .lb-chest-stamp')?.textContent.trim(),
+    goldDays: document.querySelector('[data-tier="gold"] .lb-chest-days')?.textContent.trim(),
+    goldBtn: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim()
+  })`);
+  assert.equal(afterOpenReset.goldState, 'locked', 'Opened Nova chest immediately closes back to locked state');
+  assert.equal(afterOpenReset.goldStamp, 'Locked', 'Opened Nova chest stamp resets to Locked (no Opened state)');
+  assert.equal(afterOpenReset.goldDays, '0/14d', 'Opened Nova chest progress resets to 0/14d');
+  assert.equal(afterOpenReset.goldBtn, '14d left', 'Opened Nova chest button resets to 14d left');
   await ev(`document.querySelector('[data-tier="ruby"] .lb-chest-action').click()`);
   await sleep(150);
   const previewDetail = await ev(`({ open: !!document.querySelector('dialog.lb-reveal[open]'), badge: document.querySelector('.lb-reveal-badge')?.textContent })`);
@@ -531,11 +548,15 @@ try {
   const obAi = await ev(`(() => {
     const winkyBtn = document.querySelector('#ai-avatar-grid .ai-face-opt[data-avatar="winky"]');
     winkyBtn?.click();
+    const novaChip = Array.from(document.querySelectorAll('#ai-name-chips .chip')).find(c => c.textContent.trim() === 'NOVA');
+    novaChip?.click();
+    const focusedAfterChipTap = document.activeElement === document.getElementById('ai-name-input');
     const inp = document.getElementById('ai-name-input');
     inp.value = 'NOVA';
     inp.dispatchEvent(new Event('input', { bubbles: true }));
     return {
       step5Active: document.getElementById('step-5')?.classList.contains('active'),
+      focusedAfterChipTap,
       indicator: document.getElementById('step-indicator')?.textContent.trim(),
       preview: document.getElementById('ob-ai-preview-name')?.textContent.trim(),
       inline: document.getElementById('ob-ai-preview-inline')?.textContent.trim(),
@@ -551,6 +572,7 @@ try {
   })()`);
   await saveShot('onboarding-ai-name-390.png');
   assert.equal(obAi.step5Active, true, 'Onboarding advances cleanly to Step 5 Name your AI');
+  assert.equal(obAi.focusedAfterChipTap, false, 'Tapping an AI name preset chip must not auto-focus the text input or pop up keyboard');
   assert.equal(obAi.indicator, '5 / 8');
   assert.equal(obAi.preview, 'NOVA');
   assert.equal(obAi.inline, 'NOVA');

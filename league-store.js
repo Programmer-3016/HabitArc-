@@ -115,8 +115,7 @@ export function computeLiveLeagueScore({
   const totalChecks = completedPairs.size;
   const clearList = clearedDays(habits || [], historyList, safeToday);
   const weeklyClearCount = clearList.filter((d) => d >= weekStart && d <= safeToday).length;
-  const openedChests = new Set(inventory(treasureRoom).opened);
-  const chestXp = CHESTS.reduce((sum, chest) => sum + (openedChests.has(chest.id) ? chest.xp : 0), 0);
+  const chestXp = inventory(treasureRoom).xp;
   const cleanStreak = Math.max(0, Math.min(3650, Math.floor(Number(streak) || 0)));
   const streakBonus = Math.min(cleanStreak, 30) * 5;
 

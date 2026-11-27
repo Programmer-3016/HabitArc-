@@ -74,8 +74,8 @@ test('All four chest tiers render unified 64x64 3/4 pixel sprites with tier-spec
   const goldClosed = renderChestPixels('gold', 0);
   assert.ok(goldClosed.includes('#ff4d6d'), 'gold boss chest has ruby skull eyes');
   const rubyClosed = renderChestPixels('ruby', 0);
-  assert.ok(rubyClosed.includes('#ff2e63'), 'dragon chest has glowing crimson dragon clasp');
-  assert.ok(rubyClosed.some((_, idx) => (idx % 64) <= 7 && Boolean(rubyClosed[idx])), 'dragon chest includes side handle silhouette');
+  assert.ok(rubyClosed.includes('#47e393'), 'apex vault has glowing neon-mint reactor clasp');
+  assert.ok(rubyClosed.some((_, idx) => (idx % 64) <= 7 && Boolean(rubyClosed[idx])), 'apex vault includes side handle silhouette');
 });
 
 test('56-frame 112x96 reveal stage keeps neutral dark background behind chest and distinct item backlights', () => {
@@ -214,7 +214,8 @@ test('Treasure scope, all-tier previews, and PWA refresh stay isolated', () => {
   assert.match(js, /lb-chest-stage-btn/);
   assert.match(js, /lb-chest-action-locked/);
   assert.match(js, /'Open now'/);
-  assert.match(js, /'✓ Unlocked'/);
+  assert.doesNotMatch(js, /'✓ Unlocked'|'Opened'/);
+  assert.match(js, /chestCycle\(/);
   assert.match(js, /reveal\(c, !canOpen, button\)/);
   assert.match(js, /playChestRevealAudio\(/);
   assert.match(js, /stopSound\(\)/);
