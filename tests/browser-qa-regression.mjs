@@ -471,8 +471,8 @@ try {
     rubyNear: document.querySelector('[data-tier="ruby"] .lb-chest-art')?.dataset.near,
     goldNear: document.querySelector('[data-tier="gold"] .lb-chest-art')?.dataset.near,
     goldDrops: document.querySelectorAll('[data-tier="gold"] .ha-chest-back-rays').length,
-    rubyDrops: document.querySelectorAll('[data-tier="ruby"] .ha-chest-wisp').length,
-    ironDrops: document.querySelectorAll('[data-tier="iron"] .ha-chest-wisp').length,
+    rubyDrops: document.querySelectorAll('[data-tier="ruby"] .ha-chest-back-rays, [data-tier="ruby"] .ha-chest-wisp').length,
+    ironDrops: document.querySelectorAll('[data-tier="iron"] .ha-chest-back-rays, [data-tier="iron"] .ha-chest-wisp').length,
     ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
     rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked'),
     liveChests: Array.from(document.querySelectorAll('.lb-chest .ha-live-chest')).map(el => {
@@ -495,9 +495,9 @@ try {
   assert.equal(vaultCheck.gold, 'Open');
   assert.equal(vaultCheck.goldReadyStamp, null, 'Ready chest omits redundant READY tag');
   assert.equal(vaultCheck.ironNear, 'none', '0/7d reset chest has calm stage');
-  assert.equal(vaultCheck.rubyNear, 'low', '14/30d chest shows progressive warming stage FX');
-  assert.equal(vaultCheck.goldNear, 'max', '14/14d ready chest shows full behind-chest halo and top shower');
-  assert.ok(vaultCheck.goldDrops === 1 && vaultCheck.rubyDrops > 0 && vaultCheck.ironDrops === 0, 'Open chest shows radiant back-lights while approaching chest shows subtle rising wisps');
+  assert.equal(vaultCheck.rubyNear, 'none', 'Locked chest has clean stage without wisps or clutter');
+  assert.equal(vaultCheck.goldNear, 'max', '14/14d ready chest shows clean simple rays behind chest');
+  assert.ok(vaultCheck.goldDrops === 1 && vaultCheck.rubyDrops === 0 && vaultCheck.ironDrops === 0, 'Only ready chest renders simple back-rays (sirf rays)');
   assert.equal(vaultCheck.rubyLockedClass, true);
   assert.equal(vaultCheck.liveChests.length, 4, 'All 4 Rewards cards mount 60fps .ha-live-chest rigs');
   assert.equal(vaultCheck.liveChests.every(c => (c.state === 'ready' || c.state === 'locked') && c.w >= 80 && c.nw === 256), true, 'All 4 live chests use only ready/locked states backed by 256px crisp textures');
@@ -550,6 +550,38 @@ try {
   assert.equal(dashCheck.firstPaintOpacity, '1', 'Dashboard cards render immediately without fade-up lag');
   assert.equal(dashCheck.firstHabitVisibleAboveDock, true, 'First habit lifts cleanly above bottom dock on 390px phone');
   assert.equal(dashCheck.hasBottomScrim, true, 'Mobile bottom dock renders smooth gradient fade scrim');
+
+  // Verify completing Today's final scheduled habit on Dashboard rises the chest from the bottom with simple rays!
+  await ev(`(() => {
+    HabitArc.uncompleteHabit('h1');
+    const hs = HabitArc.getTodayHabits();
+    hs.forEach(h => { if (h.id !== 'h1') HabitArc.completeHabit(h.id); });
+    const s = HabitArc.getSettings();
+    HabitArc.updateSettings({ treasureRoom: { version: 2, opened: [], opens: {}, resetAt: {}, equipped: null } });
+  })()`);
+  await go(`${base}/Dashboard.html`);
+  await sleep(160);
+  await ev(`document.querySelector('.habit-toggle[data-id="h1"]')?.click()`);
+  await sleep(420);
+  const riseModalCheck = await ev(`({
+    open: !!document.querySelector('dialog.ha-day-chest-modal[open]'),
+    phase: document.querySelector('dialog.ha-day-chest-modal')?.dataset.phase,
+    hasRays: !!document.querySelector('dialog.ha-day-chest-modal .ha-day-chest-rays'),
+    cta: document.querySelector('dialog.ha-day-chest-modal .ha-day-chest-cta')?.textContent.trim()
+  })`);
+  assert.equal(riseModalCheck.open, true, 'Completing Today on Dashboard automatically rises chest modal from bottom');
+  assert.equal(riseModalCheck.phase, 'ready', 'Rising chest starts in ready phase');
+  assert.equal(riseModalCheck.hasRays, true, 'Rising chest displays simple rays behind it');
+  assert.equal(riseModalCheck.cta, 'Open', 'Rising chest shows clean Open CTA');
+  await ev(`document.querySelector('dialog.ha-day-chest-modal .ha-day-chest-cta')?.click()`);
+  await sleep(120);
+  const riseOpenedCheck = await ev(`({
+    phase: document.querySelector('dialog.ha-day-chest-modal')?.dataset.phase,
+    rewardText: document.querySelector('dialog.ha-day-chest-modal .ha-day-chest-reward')?.textContent.trim()
+  })`);
+  assert.equal(riseOpenedCheck.phase, 'opened', 'Tapping Open opens the risen chest right on Dashboard');
+  assert.match(riseOpenedCheck.rewardText || '', /\+\d+ XP/, 'Opened risen chest awards milestone XP');
+  await ev(`document.querySelector('dialog.ha-day-chest-modal')?.close()`);
 
   // 9) Custom AI Name + Pixel Level 1->2 UI across Onboarding Step 5, Settings, Dashboard & ARC AI at 390px
   await ev(`localStorage.removeItem('habitarc_data')`);

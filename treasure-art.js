@@ -1,6 +1,7 @@
 // HabitArc 16-bit 3/4 RPG Pixel Chest & Slow-Buildup Reveal Engine.
 // Single source of truth for both Vault Card sprites (64x64) and the 56-frame
 // center takeover reveal stage (112x96) across Wood, Iron, and Gold tiers.
+import { CHESTS, changeTreasure, chestCycle, clearedDays } from './runner-treasures.js';
 
 const CHEST_DELTA =
   '1234.4B58.2B4I7B50.B2IJ5I2OH2P9B40.BF6I2O3P4O4I3H9B30.BF6I2N4K2P2IJI8O2P4I5B25.' +
@@ -1233,65 +1234,24 @@ function buildLiveChestRig(tier, opened, chestState) {
   return wrap;
 }
 
-// Subtle rising wisp slots behind the chest silhouette (gently drifting upward & fading softly)
-const WISP_SLOTS = Object.freeze([
-  { x: 48, sway: -3, rise: -28, dur: 2.4, delay: -0.20, size: 'md', tone: 'primary' },
-  { x: 37, sway: -4, rise: -24, dur: 2.4, delay: -1.10, size: 'sm', tone: 'accent' },
-  { x: 61, sway: 4,  rise: -26, dur: 2.4, delay: -1.75, size: 'sm', tone: 'primary' },
-  { x: 43, sway: 2,  rise: -30, dur: 2.4, delay: -0.65, size: 'md', tone: 'accent' },
-  { x: 55, sway: -2, rise: -27, dur: 2.4, delay: -1.40, size: 'sm', tone: 'primary' },
-  { x: 33, sway: -4, rise: -22, dur: 2.4, delay: -2.05, size: 'sm', tone: 'accent' },
-  { x: 66, sway: 4,  rise: -23, dur: 2.4, delay: -0.85, size: 'md', tone: 'primary' },
-  { x: 51, sway: 3,  rise: -32, dur: 2.4, delay: -1.55, size: 'lg', tone: 'accent' },
-]);
-
-function buildChestNearStageFx(tier, chestState, progress, target) {
+function buildChestNearStageFx(tier, chestState) {
   const mk = (tag, cls) => {
     const n = document.createElement(tag);
     n.className = cls;
     return n;
   };
-  const hasNums = Number.isFinite(progress) && Number.isFinite(target) && target > 0;
-  const ratio = chestState === 'ready'
-    ? 1
-    : hasNums
-      ? Math.max(0, Math.min(1, progress / target))
-      : 0;
-  const band = ratio >= 1 ? 'max' : ratio >= 0.5 ? 'high' : ratio > 0 ? 'low' : 'none';
-  const wispCount = band === 'max' ? 8 : band === 'high' ? 5 : band === 'low' ? 3 : 0;
-  const waveCount = band === 'max' || band === 'high' ? 2 : band === 'low' ? 1 : 0;
-
+  const band = chestState === 'ready' ? 'max' : 'none';
   const fx = mk('div', 'ha-chest-near-fx');
   fx.dataset.near = band;
   fx.dataset.tier = tier;
   fx.setAttribute('aria-hidden', 'true');
-  fx.setAttribute('style', `--near-ratio:${ratio.toFixed(2)}`);
 
   if (band === 'max') {
-    // Open-ready chest: radiant light glow + rotating sunburst rays shining from behind the chest
+    // Only simple light rays behind ready-to-open chests
     fx.append(mk('span', 'ha-chest-back-glow'));
     fx.append(mk('span', 'ha-chest-back-rays'));
-  } else if (band !== 'none') {
-    // Locked chest getting closer day-by-day: subtle rising aura waves & soft wisps
-    fx.append(mk('span', 'ha-chest-soft-halo'));
-    for (let w = 0; w < waveCount; w += 1) {
-      const wave = mk('span', 'ha-chest-aura-wave');
-      wave.setAttribute('style', `--wave-delay:${(w * -1.2).toFixed(1)}s`);
-      fx.append(wave);
-    }
-    const wisps = mk('span', 'ha-chest-wisp-wrap');
-    for (let i = 0; i < wispCount; i += 1) {
-      const s = WISP_SLOTS[i];
-      const wisp = mk('span', `ha-chest-wisp is-${s.size} is-${s.tone}`);
-      wisp.setAttribute(
-        'style',
-        `left:${s.x}%;--wisp-sway:${s.sway}px;--wisp-rise:${s.rise}px;--wisp-dur:${s.dur}s;--wisp-delay:${s.delay}s`
-      );
-      wisps.append(wisp);
-    }
-    fx.append(wisps);
   }
-  return { fx, band, ratio };
+  return { fx, band };
 }
 
 /** Build a Vault Card chest stage displaying a crisp 256x256 HabitArc pixel chest + progressive nearness FX. */
@@ -1730,4 +1690,176 @@ export function playChestEquipChime() {
   scheduleChipTone(ctx, master, baseSec, 0, 587.33, 0.06, 'square', 0.065);
   scheduleChipTone(ctx, master, baseSec, 55, 880.0, 0.06, 'square', 0.065);
   scheduleChipTone(ctx, master, baseSec, 110, 1174.66, 0.16, 'square', 0.07);
+}
+
+let activeDayChestDialog = null;
+let pendingRiseTimer = 0;
+
+function getReadyChestsForClearedToday() {
+  const app = typeof window !== 'undefined' ? window.HabitArc : null;
+  if (!app?.isOnboardingComplete?.() || typeof app.getHabits !== 'function') return null;
+  const today = app.today?.();
+  if (!today) return null;
+  const clears = clearedDays(app.getHabits(), app.getCompletionHistory?.() || [], today);
+  if (!clears.includes(today)) return null;
+  const settings = app.getSettings?.() || {};
+  const readyList = CHESTS.filter(c => chestCycle(settings.treasureRoom, c.id, clears.length).ready);
+  return readyList.length > 0 ? { readyList, clearCount: clears.length } : null;
+}
+
+/**
+ * Show a chest rising smoothly up from the bottom of the screen with clean light rays behind it
+ * as soon as the user finishes their scheduled habits for Today.
+ */
+export function showRisingDayChestModal(chestsQueue) {
+  if (typeof document === 'undefined' || !document.body || !Array.isArray(chestsQueue) || chestsQueue.length === 0) return null;
+  if (document.querySelector('dialog.lb-reveal[open]')) return null;
+  if (activeDayChestDialog) {
+    if (activeDayChestDialog.open) return activeDayChestDialog;
+    activeDayChestDialog.remove();
+    activeDayChestDialog = null;
+  }
+
+  let idx = 0;
+  let stopSound = () => {};
+  const mk = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  };
+
+  const dialog = mk('dialog', 'ha-day-chest-modal');
+  dialog.setAttribute('aria-label', 'Day complete milestone chest');
+
+  const stage = mk('div', 'ha-day-chest-stage');
+  const kicker = mk('div', 'ha-day-chest-kicker');
+  const badge = mk('span', 'ha-day-chest-badge', 'Day complete');
+  const title = mk('h2', 'ha-day-chest-title');
+  kicker.append(badge, title);
+
+  const mover = mk('div', 'ha-day-chest-mover');
+  const glow = mk('span', 'ha-day-chest-glow');
+  const rays = mk('span', 'ha-day-chest-rays');
+  const chestBtn = mk('button', 'ha-day-chest-hit');
+  chestBtn.type = 'button';
+  const imgClosed = mk('img', 'ha-day-chest-img is-closed');
+  imgClosed.alt = '';
+  const imgOpen = mk('img', 'ha-day-chest-img is-open');
+  imgOpen.alt = '';
+  const imgHoard = mk('img', 'ha-day-chest-img is-hoard');
+  imgHoard.alt = '';
+  chestBtn.append(imgClosed, imgOpen, imgHoard);
+  mover.append(glow, rays, chestBtn);
+
+  const foot = mk('div', 'ha-day-chest-foot');
+  const rewardCopy = mk('p', 'ha-day-chest-reward');
+  rewardCopy.hidden = true;
+  const primaryBtn = mk('button', 'ha-day-chest-cta', 'Open');
+  primaryBtn.type = 'button';
+  const laterBtn = mk('button', 'ha-day-chest-later', 'Open later');
+  laterBtn.type = 'button';
+  foot.append(rewardCopy, primaryBtn, laterBtn);
+
+  stage.append(kicker, mover, foot);
+  dialog.append(stage);
+
+  function loadChestAt(i, replayRise = false) {
+    const chest = chestsQueue[i];
+    const tier = normTier(chest.id);
+    dialog.dataset.tier = tier;
+    dialog.dataset.phase = 'ready';
+    badge.textContent = 'Day complete';
+    title.textContent = chest.name;
+    chestBtn.setAttribute('aria-label', `Open ${chest.name}`);
+    imgClosed.src = `${CHEST_LAYER_ROOT}/${tier}-closed.png`;
+    imgOpen.src = `${CHEST_LAYER_ROOT}/${tier}-open.png`;
+    imgHoard.src = `${CHEST_LAYER_ROOT}/${tier}-hoard-float.png`;
+    rewardCopy.hidden = true;
+    rewardCopy.textContent = '';
+    primaryBtn.textContent = 'Open';
+    primaryBtn.dataset.mode = 'open';
+    laterBtn.hidden = false;
+    if (replayRise) {
+      mover.classList.remove('is-rising');
+      void mover.offsetWidth;
+    }
+    mover.classList.add('is-rising');
+  }
+
+  function openCurrentChest() {
+    if (dialog.dataset.phase !== 'ready') return;
+    const chest = chestsQueue[idx];
+    const app = window.HabitArc;
+    const today = app?.today?.() || '';
+    const clears = clearedDays(app?.getHabits?.() || [], app?.getCompletionHistory?.() || [], today);
+    const settings = app?.getSettings?.() || {};
+    const updated = changeTreasure(settings.treasureRoom, chest.id, 'open', clears.length);
+    if (updated) {
+      app.updateSettings({ treasureRoom: updated });
+    }
+    stopSound();
+    const reduced = Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
+    stopSound = playChestRevealAudio(chest.id, { reducedMotion: reduced });
+
+    dialog.dataset.phase = 'opened';
+    badge.textContent = 'Unlocked';
+    rewardCopy.textContent = `+${chest.xp} XP · ${chest.days}-day milestone`;
+    rewardCopy.hidden = false;
+    laterBtn.hidden = true;
+    const hasNext = idx + 1 < chestsQueue.length;
+    primaryBtn.textContent = hasNext ? 'Next chest' : 'Continue';
+    primaryBtn.dataset.mode = hasNext ? 'next' : 'done';
+    primaryBtn.focus({ preventScroll: true });
+  }
+
+  chestBtn.addEventListener('click', () => {
+    if (dialog.dataset.phase === 'ready') openCurrentChest();
+  });
+
+  primaryBtn.addEventListener('click', () => {
+    if (dialog.dataset.phase === 'ready') {
+      openCurrentChest();
+    } else if (idx + 1 < chestsQueue.length) {
+      idx += 1;
+      loadChestAt(idx, true);
+    } else {
+      dialog.close();
+    }
+  });
+
+  laterBtn.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+  dialog.addEventListener('close', () => {
+    stopSound();
+    if (activeDayChestDialog === dialog) activeDayChestDialog = null;
+    dialog.remove();
+  }, { once: true });
+
+  loadChestAt(0, false);
+  document.body.append(dialog);
+  activeDayChestDialog = dialog;
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+  else dialog.setAttribute('open', '');
+  primaryBtn.focus({ preventScroll: true });
+  return dialog;
+}
+
+export function mountDayCompleteChestRise() {
+  if (typeof window === 'undefined') return;
+  if (window.HabitArcChestRise) return;
+  window.HabitArcChestRise = Object.freeze({
+    onUserHabitCompleted() {
+      clearTimeout(pendingRiseTimer);
+      pendingRiseTimer = setTimeout(() => {
+        const res = getReadyChestsForClearedToday();
+        if (res && res.readyList.length > 0) {
+          showRisingDayChestModal(res.readyList);
+        }
+      }, 260);
+    },
+    showRisingDayChestModal,
+  });
 }

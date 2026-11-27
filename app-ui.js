@@ -713,6 +713,8 @@
         }
         import('./arc-sheet.js').then(mod=>mod.mountArcSheet())
             .catch(error=>console.warn('HabitArc ARC Sheet unavailable:',error));
+        import('./treasure-art.js').then(mod=>mod.mountDayCompleteChestRise?.())
+            .catch(error=>console.warn('HabitArc Chest Rise unavailable:',error));
     }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadCommandHub,{once:true});
     else loadCommandHub();

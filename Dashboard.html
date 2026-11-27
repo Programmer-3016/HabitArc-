@@ -447,6 +447,7 @@
                         HabitArc.completeHabit(id);
                         this.classList.add('pop');
                         setTimeout(() => this.classList.remove('pop'), 300);
+                        window.HabitArcChestRise?.onUserHabitCompleted?.(id);
                     }
                 } else {
                     if (HabitArc.isCompletedToday(id)) {

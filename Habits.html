@@ -353,7 +353,10 @@
                 if (!completedNow) {
                     if (HabitArc.isCompletedToday(id)) HabitArc.uncompleteHabit(id);
                 } else {
-                    if (!HabitArc.isCompletedToday(id)) HabitArc.completeHabit(id);
+                    if (!HabitArc.isCompletedToday(id)) {
+                        HabitArc.completeHabit(id);
+                        window.HabitArcChestRise?.onUserHabitCompleted?.(id);
+                    }
                 }
                 render();
 
