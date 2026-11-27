@@ -56,7 +56,7 @@
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- TOP BAR — Mobile -->
 <!-- ═══════════════════════════════════════════════════════ -->
-<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
+<header class="ha-mobile-pixel-header w-full sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-outline-variant/25 flex justify-between items-center px-4 py-2.5 md:hidden">
     <a href="Dashboard.html" class="ha-brand-link flex items-center gap-2.5">
         <span class="ha-brand-badge" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="square" stroke-linejoin="miter">
@@ -66,13 +66,20 @@
         </span>
         <span class="ha-brand-wordmark">HabitArc</span>
     </a>
-    <div class="flex items-center gap-2">
-        <div class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
+    <div class="ha-mobile-pixel-actions flex items-center gap-2">
+        <div class="ha-mobile-streak px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-600 flex items-center gap-1 font-semibold text-[11px] geist">
             <span class="material-symbols-outlined text-sm fill text-amber-500">local_fire_department</span>
             <span id="header-streak-count">0d</span>
         </div>
+        <a class="ha-mobile-top-action" href="Arc_AI.html" aria-label="Ask ARC AI">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        </a>
+        <a class="ha-mobile-top-action" href="Leaderboard.html" aria-label="Open leaderboard">
+            <span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>
+        </a>
         <a class="ha-hdr-profile flex items-center justify-center" href="Profile.html" aria-label="Profile">
             <span class="material-symbols-outlined text-[18px]" aria-hidden="true">person</span>
+            <span id="dashboard-profile-initial" class="ha-mobile-profile-initial" aria-hidden="true">S</span>
         </a>
     </div>
 </header>
@@ -130,13 +137,17 @@
             <p id="today-date" class="ha-today-kicker text-sm text-on-surface-variant geist font-medium">Loading...</p>
             <h1 id="greeting" class="ha-today-title text-on-surface"><span id="greeting-time">Good morning,</span> <span id="greeting-name">there.</span></h1>
         </div>
-        <span id="today-done-pill" class="ha-today-done-pill" aria-live="polite">0 of 0 done</span>
+        <div class="ha-today-actions">
+            <span id="today-done-pill" class="ha-today-done-pill" aria-live="polite">0 of 0 done</span>
+            <a href="Add_Habit.html" class="ha-dashboard-add-habit"><span aria-hidden="true">+</span> Habit</a>
+        </div>
     </section>
 
     <!-- Focused hero: daily progress, backed entirely by the user's real habit data. -->
     <section class="ha-progress-card ha-dashboard-hero fade-up" aria-labelledby="progress-title">
         <div class="ha-rpg-hero-toprow">
             <h2 id="progress-title" class="ha-dashboard-eyebrow">TODAY'S PROGRESS</h2>
+            <span id="hero-streak-chip" class="ha-dashboard-hero-chip"><span aria-hidden="true">♨</span> streak · 0d</span>
             <span id="dash-ai-pill" class="ha-ai-dash-pill sr-only" aria-label="Open HabitArc AI">
                 <span id="dash-ai-pill-label">ARC · LVL 1</span>
             </span>
@@ -153,6 +164,7 @@
                     <circle id="progress-arc" cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.8" stroke-dasharray="0, 100" stroke-linecap="round" class="ha-ring-fill progress-ring-circle"/>
                 </svg>
                 <div class="ha-dashboard-ring-label">
+                    <img id="hero-chest" class="ha-dashboard-hero-chest" src="icons/chests/layers/wood-closed.png" alt="" aria-hidden="true"/>
                     <span id="progress-pct" class="ha-dashboard-ring-frac">0%</span>
                 </div>
             </div>
@@ -188,6 +200,7 @@
         <div id="habits-container">
             <!-- Habits rendered dynamically -->
         </div>
+        <p class="ha-dashboard-history-note" aria-hidden="true">Last 7 days · today at right</p>
         <a href="Habits.html" class="ha-dashboard-view-all">View all habits</a>
     </section>
 
@@ -285,6 +298,8 @@
         const displayName = getDisplayName();
 
         if (profileLink) profileLink.setAttribute('aria-label', `${displayName}'s profile`);
+        const initial = document.getElementById('dashboard-profile-initial');
+        if (initial) initial.textContent = (displayName.trim().charAt(0) || 'H').toUpperCase();
         if (!avatar || !icon) return;
 
         if (signedInUser?.photoURL) {
@@ -309,6 +324,8 @@
         const overallStreak = HabitArc.getOverallCurrentStreak();
         if (document.getElementById('header-streak-count')) document.getElementById('header-streak-count').textContent = overallStreak + 'd';
         if (document.getElementById('header-streak-count-web')) document.getElementById('header-streak-count-web').textContent = overallStreak + ' Day Streak';
+        const heroStreakChip = document.getElementById('hero-streak-chip');
+        if (heroStreakChip) heroStreakChip.innerHTML = `<span aria-hidden="true">♨</span> streak · ${overallStreak}d`;
         updateProfileShortcut();
 
         const prog = HabitArc.getAiProgression?.() || {

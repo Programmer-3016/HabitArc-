@@ -182,6 +182,7 @@
         const pageCache = new Map();
         const inFlightPages = new Map();
         const STYLE_ORDER = [
+            'dashboard-pixel.css',
             'plan-tasks.css',
             'rescue-mode.css',
             'day-workspace.css',
@@ -246,6 +247,10 @@
         let workspaceStylesPromise = null;
         function ensureWorkspaceStyles() {
             return ensureOrderedLink('day-workspace.css', 'Daily workspace stylesheet failed', () => workspaceStylesPromise, v => { workspaceStylesPromise = v; });
+        }
+        let dashboardPixelStylesPromise = null;
+        function ensureDashboardPixelStyles() {
+            return ensureOrderedLink('dashboard-pixel.css', 'Dashboard pixel stylesheet failed', () => dashboardPixelStylesPromise, v => { dashboardPixelStylesPromise = v; });
         }
         let shieldStylesPromise = null;
         function ensureShieldStyles() {
@@ -553,7 +558,7 @@
                             await modReady;
                         }
                         if (targetPage === 'Habits.html') await Promise.all([ensurePlannerStyles(),ensureWorkspaceStyles(),ensureRescueStyles()]);
-                        if (targetPage === 'Dashboard.html') await ensureWorkspaceStyles();
+                        if (targetPage === 'Dashboard.html') await Promise.all([ensureWorkspaceStyles(), ensureDashboardPixelStyles()]);
                         if (targetPage === 'Arc_AI.html') await ensureRescueStyles();
                         if (targetPage === 'Insights.html') await ensureShieldStyles();
                         if (targetPage === 'Leaderboard.html') await Promise.all([ensureLeaderboardStyles(), ensureLeaderboardModule()]);
