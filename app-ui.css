@@ -5848,6 +5848,11 @@ body.ha-arc-body.is-arc-thread-active #ai-coach-asked-wrap.ha-arc-user-msg {
 }
 
 /* Day-Complete Instant Rising Chest Overlay (rises smoothly from bottom of screen with simple rays behind it) */
+html:has(dialog.ha-day-chest-modal[open]),
+html:has(dialog.ha-day-chest-modal[open]) body {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
 dialog.ha-day-chest-modal {
   --dc-ray-rgb: 250 204 21;
   --dc-aura-rgb: 245 158 11;
@@ -5857,20 +5862,56 @@ dialog.ha-day-chest-modal {
   margin: 0;
   padding: 0;
   border: 0;
-  width: 100%;
+  width: 100vw;
   max-width: none;
-  height: 100%;
-  height: 100dvh;
+  height: 100vh;
+  height: 100lvh;
+  min-height: 100%;
   max-height: none;
-  background: rgba(10, 9, 15, 0.84);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background: transparent;
   color: #ffffff;
   overflow: hidden;
   z-index: 9999;
 }
+dialog.ha-day-chest-modal:not([open]) {
+  display: none;
+}
 dialog.ha-day-chest-modal::backdrop {
   background: transparent;
+}
+.ha-day-chest-scrim {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100lvh;
+  z-index: 0;
+  display: block;
+  background: rgba(10, 9, 15, 0.86);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: haDayChestScrimIn 1150ms ease-out both;
+}
+.ha-day-chest-horizon {
+  position: fixed;
+  left: -15%;
+  right: -15%;
+  bottom: -18vh;
+  height: 48vh;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+  border-radius: 50% 50% 0 0;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgb(var(--dc-ray-rgb) / 0.42) 0%,
+    rgb(var(--dc-aura-rgb) / 0.20) 42%,
+    transparent 74%
+  );
+  opacity: 0;
+}
+.ha-day-chest-horizon.is-active {
+  animation: haDayChestHorizonBuild 3000ms ease-in-out both;
 }
 dialog.ha-day-chest-modal[data-tier="iron"] {
   --dc-ray-rgb: 56 189 248;
@@ -5888,6 +5929,8 @@ dialog.ha-day-chest-modal[data-tier="ruby"] {
   --dc-badge-bg: #47e393;
 }
 .ha-day-chest-stage {
+  position: relative;
+  z-index: 1;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
@@ -5898,13 +5941,16 @@ dialog.ha-day-chest-modal[data-tier="ruby"] {
   justify-content: space-between;
   text-align: center;
 }
+.ha-day-chest-stage:focus {
+  outline: none;
+}
 .ha-day-chest-kicker {
   position: relative;
   z-index: 3;
   display: grid;
   justify-items: center;
   gap: 10px;
-  animation: haDayChestFadeIn 320ms ease-out both;
+  animation: haDayChestFadeIn 480ms 2450ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .ha-day-chest-badge {
   display: inline-flex;
@@ -5939,10 +5985,16 @@ dialog.ha-day-chest-modal[data-tier="ruby"] {
   height: min(82vw, 310px);
   display: grid;
   place-items: center;
-  will-change: transform, opacity;
+  will-change: transform;
 }
 .ha-day-chest-mover.is-rising {
-  animation: haDayChestRiseFromBottom 680ms cubic-bezier(0.19, 1, 0.22, 1) both;
+  animation: haDayChestRiseFromBottom 2900ms cubic-bezier(0.42, 0, 0.22, 1) both;
+}
+.ha-day-chest-mover.is-rising .ha-day-chest-glow {
+  animation: haDayChestRaysBuild 2900ms ease-in-out both;
+}
+.ha-day-chest-mover.is-rising .ha-day-chest-rays {
+  animation: haDayChestRaysSpin 9s linear infinite, haDayChestRaysBuild 2900ms ease-in-out both;
 }
 .ha-day-chest-glow {
   position: absolute;
@@ -5967,7 +6019,7 @@ dialog.ha-day-chest-modal[data-tier="ruby"] {
   );
   -webkit-mask-image: radial-gradient(circle, #000 18%, rgba(0, 0, 0, 0.55) 48%, transparent 70%);
   mask-image: radial-gradient(circle, #000 18%, rgba(0, 0, 0, 0.55) 48%, transparent 70%);
-  animation: haDayChestRaysSpin 16s linear infinite;
+  animation: haDayChestRaysSpin 9s linear infinite;
   pointer-events: none;
   will-change: transform;
 }
@@ -6014,7 +6066,13 @@ dialog.ha-day-chest-modal[data-phase="opened"] .ha-day-chest-hit {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  animation: haDayChestFadeIn 380ms 180ms ease-out both;
+  animation: haDayChestFadeIn 480ms 2580ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+dialog.ha-day-chest-modal[data-phase="opened"] .ha-day-chest-kicker,
+dialog.ha-day-chest-modal[data-phase="opened"] .ha-day-chest-foot {
+  animation: none;
+  opacity: 1;
+  transform: none;
 }
 .ha-day-chest-reward {
   margin: 0 0 2px;
@@ -6052,17 +6110,31 @@ dialog.ha-day-chest-modal[data-phase="opened"] .ha-day-chest-cta {
 .ha-day-chest-later:hover {
   color: #ffffff;
 }
+@keyframes haDayChestScrimIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes haDayChestHorizonBuild {
+  0%   { opacity: 0; transform: translateY(24px) scale(0.85); }
+  22%  { opacity: 0.95; transform: translateY(0) scale(1.02); }
+  72%  { opacity: 0.72; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(16px) scale(0.92); }
+}
+@keyframes haDayChestRaysBuild {
+  0%, 8% { opacity: 0.25; scale: 0.62; }
+  45%    { opacity: 0.65; scale: 0.84; }
+  88%    { opacity: 1; scale: 1.05; }
+  100%   { opacity: 1; scale: 1; }
+}
 @keyframes haDayChestRiseFromBottom {
-  0% {
-    transform: translate3d(0, 78vh, 0) scale(0.90);
-    opacity: 0;
+  0%, 8% {
+    transform: translate3d(0, calc(56dvh + 195px), 0) scale(0.84);
   }
-  20% {
-    opacity: 1;
+  91% {
+    transform: translate3d(0, -6px, 0) scale(1.015);
   }
   100% {
     transform: translate3d(0, 0, 0) scale(1);
-    opacity: 1;
   }
 }
 @keyframes haDayChestRaysSpin {
@@ -6079,7 +6151,11 @@ dialog.ha-day-chest-modal[data-phase="opened"] .ha-day-chest-cta {
   to   { opacity: 1; transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .ha-day-chest-scrim,
+  .ha-day-chest-horizon.is-active,
   .ha-day-chest-mover.is-rising,
+  .ha-day-chest-mover.is-rising .ha-day-chest-glow,
+  .ha-day-chest-mover.is-rising .ha-day-chest-rays,
   .ha-day-chest-rays,
   .ha-day-chest-kicker,
   .ha-day-chest-foot,

@@ -511,13 +511,15 @@ try {
   await sleep(120);
   const afterOpenReset = await ev(`({
     goldState: document.querySelector('[data-tier="gold"]')?.dataset.state,
-    goldStamp: document.querySelector('[data-tier="gold"] .lb-chest-stamp')?.textContent.trim(),
-    goldDays: document.querySelector('[data-tier="gold"] .lb-chest-days')?.textContent.trim(),
-    goldBtn: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim()
+    anyStamp: document.querySelectorAll('.lb-chest-stamp').length,
+    anyDaysFraction: document.querySelectorAll('.lb-chest-days').length,
+    goldBtn: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim(),
+    anyLockSvg: document.querySelectorAll('.lb-quest-label svg').length
   })`);
   assert.equal(afterOpenReset.goldState, 'locked', 'Opened Nova chest immediately closes back to locked state');
-  assert.equal(afterOpenReset.goldStamp, 'Locked', 'Opened Nova chest stamp resets to Locked (no Opened state)');
-  assert.equal(afterOpenReset.goldDays, '0/14d', 'Opened Nova chest progress resets to 0/14d');
+  assert.equal(afterOpenReset.anyStamp, 0, 'All chest cards omit top-left READY/LOCKED stamps');
+  assert.equal(afterOpenReset.anyLockSvg, 0, 'Locked buttons omit padlock icon');
+  assert.equal(afterOpenReset.anyDaysFraction, 0, 'Chest cards omit 0/7 fraction counter');
   assert.equal(afterOpenReset.goldBtn, '14d left', 'Opened Nova chest button resets to 14d left');
   await ev(`document.querySelector('[data-tier="ruby"] .lb-chest-action').click()`);
   await sleep(150);
@@ -563,16 +565,27 @@ try {
   await sleep(160);
   await ev(`document.querySelector('.habit-toggle[data-id="h1"]')?.click()`);
   await sleep(420);
-  const riseModalCheck = await ev(`({
-    open: !!document.querySelector('dialog.ha-day-chest-modal[open]'),
-    phase: document.querySelector('dialog.ha-day-chest-modal')?.dataset.phase,
-    hasRays: !!document.querySelector('dialog.ha-day-chest-modal .ha-day-chest-rays'),
-    cta: document.querySelector('dialog.ha-day-chest-modal .ha-day-chest-cta')?.textContent.trim()
-  })`);
+  const riseModalCheck = await ev(`(() => {
+    const dlg = document.querySelector('dialog.ha-day-chest-modal[open]');
+    const scrim = dlg?.querySelector('.ha-day-chest-scrim')?.getBoundingClientRect();
+    const kicker = dlg?.querySelector('.ha-day-chest-kicker')?.getBoundingClientRect();
+    return {
+      open: !!dlg,
+      phase: dlg?.dataset.phase,
+      hasRays: !!dlg?.querySelector('.ha-day-chest-rays'),
+      cta: dlg?.querySelector('.ha-day-chest-cta')?.textContent.trim(),
+      scrollY: Math.round(window.scrollY),
+      scrimCoversFullHeight: Boolean(scrim && scrim.top <= 1 && scrim.bottom >= window.innerHeight - 1),
+      kickerInsideViewport: Boolean(kicker && kicker.top >= 0 && kicker.bottom < window.innerHeight)
+    };
+  })()`);
   assert.equal(riseModalCheck.open, true, 'Completing Today on Dashboard automatically rises chest modal from bottom');
   assert.equal(riseModalCheck.phase, 'ready', 'Rising chest starts in ready phase');
   assert.equal(riseModalCheck.hasRays, true, 'Rising chest displays simple rays behind it');
   assert.equal(riseModalCheck.cta, 'Open', 'Rising chest shows clean Open CTA');
+  assert.equal(riseModalCheck.scrollY, 0, 'Rising chest modal does not scroll the underlying page');
+  assert.equal(riseModalCheck.scrimCoversFullHeight, true, 'Rising chest scrim covers 100% of phone viewport including bottom dock');
+  assert.equal(riseModalCheck.kickerInsideViewport, true, 'Day complete badge and chest title stay inside top viewport');
   await ev(`document.querySelector('dialog.ha-day-chest-modal .ha-day-chest-cta')?.click()`);
   await sleep(120);
   const riseOpenedCheck = await ev(`({

@@ -1692,6 +1692,35 @@ export function playChestEquipChime() {
   scheduleChipTone(ctx, master, baseSec, 110, 1174.66, 0.16, 'square', 0.07);
 }
 
+/** Play a soft, suspenseful rising 8-bit build-up shimmer as the chest climbs slowly from the bottom. */
+export function playChestRiseBuildupAudio(tierId) {
+  if (!getTreasureSoundEnabled()) return () => {};
+  const audio = openAudioMaster();
+  if (!audio) return () => {};
+  const { ctx, master } = audio;
+  const tier = normTier(tierId);
+  const track = CHEST_AUDIO_TRACKS[tier];
+  const baseSec = (Number(ctx.currentTime) || 0) + 0.02;
+  const notes = [...track.climb, track.climb[track.climb.length - 1] * 1.25];
+  const totalMs = 2550;
+  const stepMs = totalMs / notes.length;
+  notes.forEach((f, idx) => {
+    const progress = idx / Math.max(1, notes.length - 1);
+    const atMs = 220 + Math.round(idx * stepMs);
+    const gain = 0.016 + progress * 0.032;
+    scheduleChipTone(ctx, master, baseSec, atMs, f * 0.5, 0.22, 'triangle', gain);
+    if (idx >= 3) {
+      scheduleChipTone(ctx, master, baseSec, atMs + 35, f, 0.12, 'sine', gain * 0.7);
+    }
+  });
+  // Soft arrival lock-in chord at center (~2.8s)
+  scheduleChipTone(ctx, master, baseSec, 2780, track.climb[4], 0.28, 'triangle', 0.055);
+  scheduleChipTone(ctx, master, baseSec, 2830, track.climb[7], 0.34, 'sine', 0.05);
+  return () => {
+    try { master.disconnect(); } catch {}
+  };
+}
+
 let activeDayChestDialog = null;
 let pendingRiseTimer = 0;
 
@@ -1732,7 +1761,13 @@ export function showRisingDayChestModal(chestsQueue) {
   const dialog = mk('dialog', 'ha-day-chest-modal');
   dialog.setAttribute('aria-label', 'Day complete milestone chest');
 
+  const scrim = mk('span', 'ha-day-chest-scrim');
+  scrim.setAttribute('aria-hidden', 'true');
+  const horizon = mk('span', 'ha-day-chest-horizon');
+  horizon.setAttribute('aria-hidden', 'true');
   const stage = mk('div', 'ha-day-chest-stage');
+  stage.tabIndex = -1;
+  stage.setAttribute('autofocus', '');
   const kicker = mk('div', 'ha-day-chest-kicker');
   const badge = mk('span', 'ha-day-chest-badge', 'Day complete');
   const title = mk('h2', 'ha-day-chest-title');
@@ -1762,7 +1797,7 @@ export function showRisingDayChestModal(chestsQueue) {
   foot.append(rewardCopy, primaryBtn, laterBtn);
 
   stage.append(kicker, mover, foot);
-  dialog.append(stage);
+  dialog.append(scrim, horizon, stage);
 
   function loadChestAt(i, replayRise = false) {
     const chest = chestsQueue[i];
@@ -1780,15 +1815,24 @@ export function showRisingDayChestModal(chestsQueue) {
     primaryBtn.textContent = 'Open';
     primaryBtn.dataset.mode = 'open';
     laterBtn.hidden = false;
+    stopSound();
+    const reduced = Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
+    if (!reduced) {
+      stopSound = playChestRiseBuildupAudio(chest.id);
+    }
     if (replayRise) {
       mover.classList.remove('is-rising');
+      horizon.classList.remove('is-active');
       void mover.offsetWidth;
     }
     mover.classList.add('is-rising');
+    horizon.classList.add('is-active');
   }
 
   function openCurrentChest() {
     if (dialog.dataset.phase !== 'ready') return;
+    mover.classList.remove('is-rising');
+    horizon.classList.remove('is-active');
     const chest = chestsQueue[idx];
     const app = window.HabitArc;
     const today = app?.today?.() || '';
@@ -1829,8 +1873,15 @@ export function showRisingDayChestModal(chestsQueue) {
   });
 
   laterBtn.addEventListener('click', () => dialog.close());
+  scrim.addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close();
+    if (e.target === dialog || e.target === stage) dialog.close();
+  });
+  dialog.addEventListener('keydown', (e) => {
+    if (dialog.dataset.phase === 'ready' && (e.key === 'Enter' || e.key === ' ') && e.target === stage) {
+      e.preventDefault();
+      openCurrentChest();
+    }
   });
   dialog.addEventListener('close', () => {
     stopSound();
@@ -1838,12 +1889,16 @@ export function showRisingDayChestModal(chestsQueue) {
     dialog.remove();
   }, { once: true });
 
+  const prevScrollY = typeof window.scrollY === 'number' ? window.scrollY : 0;
   loadChestAt(0, false);
   document.body.append(dialog);
   activeDayChestDialog = dialog;
   if (typeof dialog.showModal === 'function') dialog.showModal();
   else dialog.setAttribute('open', '');
-  primaryBtn.focus({ preventScroll: true });
+  stage.focus({ preventScroll: true });
+  if (typeof window.scrollTo === 'function' && window.scrollY !== prevScrollY) {
+    window.scrollTo(0, prevScrollY);
+  }
   return dialog;
 }
 

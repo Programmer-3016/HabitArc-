@@ -911,16 +911,11 @@ function makeLockIcon() {
       preview.append(makeReplayIcon(false));
       preview.addEventListener('click', () => reveal(c, true, preview));
 
-      media.append(stageBtn);
-      if (isLocked) {
-        media.append(el('span', 'lb-chest-stamp', 'Locked'));
-      }
-      media.append(preview);
+      media.append(stageBtn, preview);
 
       const body = el('div', 'lb-chest-body');
       const heading = el('div', 'lb-chest-kicker');
       heading.append(el('h3', null, shortNames[c.id] || c.name));
-      heading.append(el('span', 'lb-chest-days', `${shownDays}/${c.days}d`));
 
       const daysLabel = c.days === 1 ? '1 clear day' : `${c.days} clear days`;
       const pct = Math.max(0, Math.min(100, Math.round((shownDays / Math.max(1, c.days)) * 100)));
@@ -936,7 +931,7 @@ function makeLockIcon() {
         const fill = el('span', 'lb-quest-fill');
         fill.setAttribute('aria-hidden', 'true');
         const labelWrap = el('span', 'lb-quest-label');
-        labelWrap.append(makeLockIcon(), el('span', null, buttonLabel));
+        labelWrap.append(el('span', null, buttonLabel));
         button.append(fill, labelWrap);
       } else {
         button.textContent = buttonLabel;
