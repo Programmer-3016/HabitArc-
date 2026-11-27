@@ -238,10 +238,6 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     object-fit: contain;
     display: block;
     pointer-events: none;
-    will-change: transform, opacity;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
 }
 .ha-live-chest-sheen-mask {
     position: absolute;
@@ -273,36 +269,53 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     will-change: transform, opacity;
 }
 
-@keyframes haLiveChestLockedFloat {
-    0%, 100% { transform: translate3d(0, 0%, 0); }
-    50%      { transform: translate3d(0, -2.6%, 0); }
+@keyframes haLiveChestLockedBounce {
+    0%, 72%, 100% {
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    }
+    76% {
+        transform: translate3d(0, 1.5px, 0) scale3d(1.025, 0.975, 1);
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    85% {
+        transform: translate3d(0, -5px, 0) scale3d(0.985, 1.015, 1);
+        animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    94% {
+        transform: translate3d(0, 0.8px, 0) scale3d(1.015, 0.985, 1);
+        animation-timing-function: ease-out;
+    }
 }
 @keyframes haLiveChestLockedShadow {
-    0%, 100% { transform: scale(1); opacity: 0.95; }
-    50%      { transform: scale(0.91); opacity: 0.72; }
+    0%, 72%, 94%, 100% { transform: scale(1); opacity: 0.92; }
+    85%                { transform: scale(0.86); opacity: 0.68; }
 }
-@keyframes haLiveChestSheenSweep {
-    0%, 18%   { transform: translate3d(-78%, 0, 0); opacity: 0.92; }
-    50%       { transform: translate3d(78%, 0, 0); opacity: 0.92; }
-    56%, 100% { transform: translate3d(82%, 0, 0); opacity: 0; }
-}
-@keyframes haLiveChestReadyExcited {
-    0%, 88%, 100% { transform: translate3d(0, 0%, 0) scale3d(1, 1, 1) rotate(0deg); }
-    9%            { transform: translate3d(0, 4.8%, 0) scale3d(1.14, 0.85, 1) rotate(0deg); }
-    23%           { transform: translate3d(-1.8%, -14.5%, 0) scale3d(0.91, 1.11, 1) rotate(-6.8deg); }
-    32%           { transform: translate3d(2.0%, -16.2%, 0) scale3d(1.07, 1.05, 1) rotate(6.8deg); }
-    41%           { transform: translate3d(-1.4%, -13.6%, 0) scale3d(1.04, 1.02, 1) rotate(-4.8deg); }
-    49%           { transform: translate3d(0.8%, -9.5%, 0) scale3d(0.97, 1.04, 1) rotate(2.4deg); }
-    59%           { transform: translate3d(0, 4.0%, 0) scale3d(1.12, 0.88, 1) rotate(0deg); }
-    70%           { transform: translate3d(0, -5.4%, 0) scale3d(0.96, 1.05, 1) rotate(-2.2deg); }
-    80%           { transform: translate3d(0, 1.4%, 0) scale3d(1.03, 0.97, 1) rotate(0deg); }
+@keyframes haLiveChestReadyBounce {
+    0%, 48%, 100% {
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    }
+    7% {
+        transform: translate3d(0, 2px, 0) scale3d(1.05, 0.95, 1);
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    21% {
+        transform: translate3d(0, -8px, 0) scale3d(0.975, 1.03, 1);
+        animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    35% {
+        transform: translate3d(0, 1.2px, 0) scale3d(1.035, 0.965, 1);
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    42% {
+        transform: translate3d(0, -3px, 0) scale3d(0.99, 1.01, 1);
+        animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
 }
 @keyframes haLiveChestReadyShadow {
-    0%, 88%, 100% { transform: scale(1); opacity: 0.95; }
-    9%            { transform: scale(1.16); opacity: 1; }
-    23%, 41%      { transform: scale(0.66); opacity: 0.42; }
-    59%           { transform: scale(1.14); opacity: 1; }
-    70%           { transform: scale(0.86); opacity: 0.68; }
+    0%, 48%, 100% { transform: scale(1); opacity: 0.94; }
+    7%, 35%       { transform: scale(1.06); opacity: 1; }
+    21%           { transform: scale(0.80); opacity: 0.58; }
+    42%           { transform: scale(0.92); opacity: 0.78; }
 }
 @keyframes haLiveChestReadyPeek {
     0%, 16%, 56%, 100% { opacity: 0; transform: translate3d(0, 0%, 0); }
@@ -351,29 +364,23 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 
 /* Staggered subtle phase offsets per tier so the 2x2 grid feels organically alive */
 .ha-live-chest[data-tier="iron"] { --chest-delay: -0.6s; }
-.ha-live-chest[data-tier="gold"] { --chest-delay: -1.3s; }
-.ha-live-chest[data-tier="ruby"] { --chest-delay: -2.0s; }
+.ha-live-chest[data-tier="gold"] { --chest-delay: -1.2s; }
+.ha-live-chest[data-tier="ruby"] { --chest-delay: -1.8s; }
 
-/* State 1: LOCKED — Clean, solid 23-shade chest with calm 60fps hover (zero flash/glint) */
+/* State 1: LOCKED — Grounded chest with a subtle, crisp 60fps light bounce */
 .ha-live-chest[data-state="locked"] .ha-live-chest-rig {
-    animation: haLiveChestLockedFloat 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
+    animation: haLiveChestLockedBounce 2.4s linear var(--chest-delay, 0s) infinite;
 }
 .ha-live-chest[data-state="locked"] .ha-live-chest-shadow {
-    animation: haLiveChestLockedShadow 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
+    animation: haLiveChestLockedShadow 2.4s ease-in-out var(--chest-delay, 0s) infinite;
 }
 
-/* State 2: READY — Pure 60fps physical squash-jump & mid-air rattle + pixel sparks (zero flash/strobe) */
+/* State 2: READY — Crisp, responsive 60fps light bounce (zero laggy slow float) */
 .ha-live-chest[data-state="ready"] .ha-live-chest-rig {
-    animation: haLiveChestReadyExcited 1.7s cubic-bezier(0.34, 1.25, 0.64, 1) infinite;
+    animation: haLiveChestReadyBounce 1.2s linear infinite;
 }
 .ha-live-chest[data-state="ready"] .ha-live-chest-shadow {
-    animation: haLiveChestReadyShadow 1.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-.ha-live-chest[data-state="ready"] .is-sparks-a {
-    animation: haLiveChestReadySparksA 1.7s ease-out infinite;
-}
-.ha-live-chest[data-state="ready"] .is-sparks-b {
-    animation: haLiveChestReadySparksB 1.7s ease-out infinite;
+    animation: haLiveChestReadyShadow 1.2s ease-in-out infinite;
 }
 
 /* State 3: COLLECTED & EQUIPPED — Proud open chest + 2.5D levitating gems + dual spark streams */
@@ -510,9 +517,22 @@ html.lb-reveal-active body::-webkit-scrollbar {
     from { transform: rotate(0deg) scale(1); }
     to   { transform: rotate(360deg) scale(1); }
 }
-@keyframes haRevealSealedFloat {
-    0%, 100% { transform: translate3d(0, 0%, 0) scale(1); }
-    50%      { transform: translate3d(0, -4.5%, 0) scale(1.03); }
+@keyframes haRevealSealedBounce {
+    0%, 52%, 100% {
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    }
+    8% {
+        transform: translate3d(0, 3px, 0) scale3d(1.04, 0.96, 1);
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    24% {
+        transform: translate3d(0, -10px, 0) scale3d(0.98, 1.03, 1);
+        animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    40% {
+        transform: translate3d(0, 1.5px, 0) scale3d(1.025, 0.975, 1);
+        animation-timing-function: ease-out;
+    }
 }
 @keyframes haRevealAntic {
     0%   { transform: translate3d(0, 0%, 0) scale(1, 1); }
@@ -591,18 +611,15 @@ html.lb-reveal-active body::-webkit-scrollbar {
     will-change: transform;
 }
 .ha-reveal-hero[data-phase="sealed"] .ha-reveal-chest {
-    animation: haRevealSealedFloat 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    transform-origin: 50% 80%;
+    animation: haRevealSealedBounce 1.5s linear infinite;
 }
 .ha-reveal-hero[data-phase="sealed"] .is-open,
 .ha-reveal-hero[data-phase="sealed"] .is-peek,
-.ha-reveal-hero[data-phase="sealed"] .is-hoard-float {
-    opacity: 0;
-}
-.ha-reveal-hero[data-phase="sealed"] .is-sparks-a {
-    animation: haLiveChestSparkStream 2.4s ease-out infinite;
-}
+.ha-reveal-hero[data-phase="sealed"] .is-hoard-float,
+.ha-reveal-hero[data-phase="sealed"] .is-sparks-a,
 .ha-reveal-hero[data-phase="sealed"] .is-sparks-b {
-    animation: haLiveChestSparkStream 2.4s ease-out -1.2s infinite;
+    opacity: 0;
 }
 
 .ha-reveal-hero[data-phase="opening"] .ha-reveal-chest {
@@ -628,12 +645,12 @@ html.lb-reveal-active body::-webkit-scrollbar {
     animation: haRevealPopOpen 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 .ha-reveal-hero[data-phase="revealed"] .ha-reveal-chest {
-    animation: haLiveChestOpenFloat 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    transform-origin: 50% 80%;
+    animation: haLiveChestLockedBounce 2.2s linear infinite;
 }
 .ha-reveal-hero[data-phase="burst"] .is-hoard-float,
 .ha-reveal-hero[data-phase="revealed"] .is-hoard-float {
     opacity: 1;
-    animation: haLiveChestHoardBob 2.4s ease-in-out infinite;
 }
 .ha-reveal-hero[data-phase="burst"] .is-sparks-a,
 .ha-reveal-hero[data-phase="revealed"] .is-sparks-a {

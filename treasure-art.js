@@ -1224,14 +1224,8 @@ function buildLiveChestRig(tier, opened, chestState) {
   if (opened) {
     rig.append(img(`${tier}-open.png`, 'is-open'));
     rig.append(img(`${tier}-hoard-float.png`, 'is-hoard-float'));
-    rig.append(img(`${tier}-sparks-a.png`, 'is-sparks-a'));
-    rig.append(img(`${tier}-sparks-b.png`, 'is-sparks-b'));
   } else {
     rig.append(img(`${tier}-closed.png`, 'is-closed'));
-    if (chestState === 'ready') {
-      rig.append(img(`${tier}-sparks-a.png`, 'is-sparks-a'));
-      rig.append(img(`${tier}-sparks-b.png`, 'is-sparks-b'));
-    }
   }
 
   wrap.append(shadow);
@@ -1394,8 +1388,9 @@ export function createRevealStage(chest, opened = false) {
     rafId = raf(tick);
   };
 
+  const isLiveDom = typeof window !== 'undefined' && typeof window.HTMLElement !== 'undefined';
   const startIdle = () => {
-    if (!ctx || opened || stopped) return;
+    if (!ctx || opened || stopped || isLiveDom) return;
     const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     if (reduced) {
       paintState({ mode: 'idle', jumpY: 0, shakeX: 0 }, 'idle-static');
@@ -1437,6 +1432,21 @@ export function createRevealStage(chest, opened = false) {
       let notified = false;
       let lastDrawAt = -Infinity;
       const { rattleMs: RATTLE_END, riseStartMs: RISE_START, riseDurMs: RISE_DUR, climaxMs: CLIMAX_MS } = REVEAL_TIMING;
+
+      if (isLiveDom) {
+        const burstTimer = setTimeout(() => {
+          if (!stopped) revealHero.dataset.phase = 'burst';
+        }, RISE_START);
+        fallbackTimer = setTimeout(() => {
+          clearTimeout(burstTimer);
+          if (stopped || notified) return;
+          notified = true;
+          mode = 'revealed';
+          revealHero.dataset.phase = 'revealed';
+          onClimax?.();
+        }, CLIMAX_MS + 70);
+        return;
+      }
 
       startLoop((elapsed) => {
         if (elapsed - lastDrawAt < 14) return;
