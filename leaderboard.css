@@ -226,9 +226,6 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     display: block;
     width: 100%;
     height: 100%;
-    transform-origin: 50% 80%;
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
 }
 .ha-live-chest-layer {
     position: absolute;
@@ -238,6 +235,8 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     object-fit: contain;
     display: block;
     pointer-events: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 .ha-live-chest-sheen-mask {
     position: absolute;
@@ -362,51 +361,10 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     100%      { opacity: 0; transform: translate3d(0, -11%, 0) scale(0.75); }
 }
 
-/* Staggered subtle phase offsets per tier so the 2x2 grid feels organically alive */
-.ha-live-chest[data-tier="iron"] { --chest-delay: -0.6s; }
-.ha-live-chest[data-tier="gold"] { --chest-delay: -1.2s; }
-.ha-live-chest[data-tier="ruby"] { --chest-delay: -1.8s; }
-
-/* State 1: LOCKED — Grounded chest with a subtle, crisp 60fps light bounce */
-.ha-live-chest[data-state="locked"] .ha-live-chest-rig {
-    animation: haLiveChestLockedBounce 2.4s linear var(--chest-delay, 0s) infinite;
-}
-.ha-live-chest[data-state="locked"] .ha-live-chest-shadow {
-    animation: haLiveChestLockedShadow 2.4s ease-in-out var(--chest-delay, 0s) infinite;
-}
-
-/* State 2: READY — Crisp, responsive 60fps light bounce (zero laggy slow float) */
-.ha-live-chest[data-state="ready"] .ha-live-chest-rig {
-    animation: haLiveChestReadyBounce 1.2s linear infinite;
-}
-.ha-live-chest[data-state="ready"] .ha-live-chest-shadow {
-    animation: haLiveChestReadyShadow 1.2s ease-in-out infinite;
-}
-
-/* State 3: COLLECTED & EQUIPPED — Proud open chest + 2.5D levitating gems + dual spark streams */
-.ha-live-chest[data-state="collected"] .ha-live-chest-rig,
-.ha-live-chest[data-state="equipped"] .ha-live-chest-rig {
-    animation: haLiveChestOpenFloat 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
-}
-.ha-live-chest[data-state="collected"] .ha-live-chest-shadow,
-.ha-live-chest[data-state="equipped"] .ha-live-chest-shadow {
-    animation: haLiveChestLockedShadow 3.4s cubic-bezier(0.45, 0, 0.55, 1) var(--chest-delay, 0s) infinite;
-}
-.ha-live-chest[data-state="collected"] .ha-live-chest-aura,
-.ha-live-chest[data-state="equipped"] .ha-live-chest-aura {
-    animation: haLiveChestAuraPulse 3.4s ease-in-out var(--chest-delay, 0s) infinite;
-}
-.ha-live-chest[data-state="collected"] .is-hoard-float,
-.ha-live-chest[data-state="equipped"] .is-hoard-float {
-    animation: haLiveChestHoardBob 2.6s ease-in-out var(--chest-delay, 0s) infinite;
-}
-.ha-live-chest[data-state="collected"] .is-sparks-a,
-.ha-live-chest[data-state="equipped"] .is-sparks-a {
-    animation: haLiveChestSparkStream 2.8s ease-out var(--chest-delay, 0s) infinite;
-}
-.ha-live-chest[data-state="collected"] .is-sparks-b,
-.ha-live-chest[data-state="equipped"] .is-sparks-b {
-    animation: haLiveChestSparkStream 2.8s ease-out -1.4s infinite;
+/* Vault card chests stay clean, crisp, and grounded with zero looping idle bounce/float */
+.ha-live-chest .ha-live-chest-rig,
+.ha-live-chest .ha-live-chest-shadow {
+    animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -612,7 +570,7 @@ html.lb-reveal-active body::-webkit-scrollbar {
 }
 .ha-reveal-hero[data-phase="sealed"] .ha-reveal-chest {
     transform-origin: 50% 80%;
-    animation: haRevealSealedBounce 1.5s linear infinite;
+    animation: none;
 }
 .ha-reveal-hero[data-phase="sealed"] .is-open,
 .ha-reveal-hero[data-phase="sealed"] .is-peek,
@@ -646,21 +604,18 @@ html.lb-reveal-active body::-webkit-scrollbar {
 }
 .ha-reveal-hero[data-phase="revealed"] .ha-reveal-chest {
     transform-origin: 50% 80%;
-    animation: haLiveChestLockedBounce 2.2s linear infinite;
+    animation: none;
 }
 .ha-reveal-hero[data-phase="burst"] .is-hoard-float,
 .ha-reveal-hero[data-phase="revealed"] .is-hoard-float {
     opacity: 1;
 }
 .ha-reveal-hero[data-phase="burst"] .is-sparks-a,
-.ha-reveal-hero[data-phase="revealed"] .is-sparks-a {
-    opacity: 1;
-    animation: haLiveChestSparkStream 2.4s ease-out infinite;
-}
+.ha-reveal-hero[data-phase="revealed"] .is-sparks-a,
 .ha-reveal-hero[data-phase="burst"] .is-sparks-b,
 .ha-reveal-hero[data-phase="revealed"] .is-sparks-b {
     opacity: 1;
-    animation: haLiveChestSparkStream 2.4s ease-out -1.2s infinite;
+    animation: none;
 }
 
 .lb-reveal-slot {

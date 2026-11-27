@@ -887,8 +887,6 @@ function makeLockIcon() {
 
       const media = el('div', 'lb-chest-media');
       const shownDays = cycle.progress;
-      const stampText = canOpen ? 'Ready' : 'Locked';
-      const stamp = el('span', 'lb-chest-stamp', stampText);
 
       const stageBtn = el('button', 'lb-chest-stage-btn');
       stageBtn.type = 'button';
@@ -909,7 +907,11 @@ function makeLockIcon() {
       preview.append(makeReplayIcon(false));
       preview.addEventListener('click', () => reveal(c, true, preview));
 
-      media.append(stageBtn, stamp, preview);
+      media.append(stageBtn);
+      if (isLocked) {
+        media.append(el('span', 'lb-chest-stamp', 'Locked'));
+      }
+      media.append(preview);
 
       const body = el('div', 'lb-chest-body');
       const heading = el('div', 'lb-chest-kicker');

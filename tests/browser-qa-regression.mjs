@@ -466,6 +466,7 @@ try {
     wood: document.querySelector('[data-tier="wood"] .lb-chest-action')?.textContent.trim(),
     iron: document.querySelector('[data-tier="iron"] .lb-chest-action')?.textContent.trim(),
     gold: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim(),
+    goldReadyStamp: document.querySelector('[data-tier="gold"] .lb-chest-stamp'),
     ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
     rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked'),
     liveChests: Array.from(document.querySelectorAll('.lb-chest .ha-live-chest')).map(el => {
@@ -486,6 +487,7 @@ try {
   assert.equal(vaultCheck.wood, '1d left');
   assert.equal(vaultCheck.iron, '7d left');
   assert.equal(vaultCheck.gold, 'Open');
+  assert.equal(vaultCheck.goldReadyStamp, null, 'Ready chest omits redundant READY tag');
   assert.equal(vaultCheck.rubyLockedClass, true);
   assert.equal(vaultCheck.liveChests.length, 4, 'All 4 Rewards cards mount 60fps .ha-live-chest rigs');
   assert.equal(vaultCheck.liveChests.every(c => (c.state === 'ready' || c.state === 'locked') && c.w >= 80 && c.nw === 256), true, 'All 4 live chests use only ready/locked states backed by 256px crisp textures');
