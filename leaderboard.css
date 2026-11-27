@@ -129,10 +129,10 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     background-image: radial-gradient(rgba(3, 30, 19, 0.08) 1px, transparent 1.2px);
     background-size: 14px 14px;
 }
-.lb-chest-art[data-tier="wood"] { --chest-stage-bg: #fff8ec; --chest-aura-rgb: 245 158 11; --chest-ray-rgb: 250 204 21; }
-.lb-chest-art[data-tier="iron"] { --chest-stage-bg: #eafbf3; --chest-aura-rgb: 56 189 248; --chest-ray-rgb: 71 227 147; }
-.lb-chest-art[data-tier="gold"] { --chest-stage-bg: #f3efff; --chest-aura-rgb: 168 85 247; --chest-ray-rgb: 250 204 21; }
-.lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #e6f4ef; --chest-aura-rgb: 71 227 147; --chest-ray-rgb: 250 204 21; }
+.lb-chest-art[data-tier="wood"] { --chest-stage-bg: #fff8ec; --chest-aura-rgb: 249 115 22; --chest-ray-rgb: 250 204 21; --flame-tip: #ef4444; --flame-outer: #f97316; --flame-core: #fde047; }
+.lb-chest-art[data-tier="iron"] { --chest-stage-bg: #eafbf3; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 56 189 248; --flame-tip: #0284c7; --flame-outer: #10b981; --flame-core: #a7f3d0; }
+.lb-chest-art[data-tier="gold"] { --chest-stage-bg: #f3efff; --chest-aura-rgb: 249 115 22; --chest-ray-rgb: 250 204 21; --flame-tip: #ef4444; --flame-outer: #f97316; --flame-core: #fef08a; }
+.lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #e6f4ef; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 250 204 21; --flame-tip: #059669; --flame-outer: #47e393; --flame-core: #fef08a; }
 :root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art {
     background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1.2px);
 }
@@ -158,9 +158,137 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     image-rendering: crisp-edges;
 }
 
+/* Progressive Day-by-Day Flame Tongues ('Lapte') Emerging UPWARD Out From Behind Vault Card Chests ONLY */
+.lb-reveal .ha-chest-near-fx {
+    display: none !important;
+}
+.lb-chest-art:not(.lb-reveal-stage) .ha-chest-near-fx {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+.ha-chest-fire-core {
+    position: absolute;
+    left: 50%;
+    bottom: 22%;
+    width: clamp(68px, 11vw, 92px);
+    height: clamp(58px, 9.5vw, 80px);
+    transform: translateX(-50%);
+    border-radius: 50% 50% 42% 42%;
+    background: radial-gradient(
+      ellipse at 50% 65%,
+      rgb(var(--chest-ray-rgb, 250 204 21) / calc(0.24 + var(--near-ratio, 0) * 0.44)) 0%,
+      rgb(var(--chest-aura-rgb, 249 115 22) / calc(0.14 + var(--near-ratio, 0) * 0.30)) 52%,
+      transparent 78%
+    );
+    animation: haChestFireCorePulse 1.2s ease-in-out infinite;
+    will-change: transform;
+}
+.ha-chest-flame-wrap {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+}
+.ha-chest-lapta {
+    position: absolute;
+    bottom: 34%;
+    display: block;
+    width: 14px;
+    height: 30px;
+    margin-left: -7px;
+    transform-origin: 50% 100%;
+    background: linear-gradient(
+      to top,
+      #ffffff 0%,
+      var(--flame-core, #fde047) 34%,
+      var(--flame-outer, #f97316) 72%,
+      var(--flame-tip, #ef4444) 100%
+    );
+    clip-path: polygon(
+      36% 0%, 64% 0%,
+      64% 16%, 80% 16%,
+      80% 38%, 94% 38%,
+      94% 70%, 80% 70%,
+      80% 88%, 64% 88%,
+      64% 100%, 36% 100%,
+      36% 88%, 20% 88%,
+      20% 70%, 6% 70%,
+      6% 38%, 20% 38%,
+      20% 16%, 36% 16%
+    );
+    will-change: transform, opacity;
+    animation: haChestLaptaRise var(--lapta-dur, 1.2s) ease-out var(--lapta-delay, 0s) infinite;
+}
+.ha-chest-lapta.is-left {
+    clip-path: polygon(
+      24% 0%, 54% 0%,
+      54% 18%, 74% 18%,
+      74% 42%, 90% 42%,
+      90% 74%, 74% 74%,
+      74% 100%, 32% 100%,
+      32% 76%, 14% 76%,
+      14% 40%, 24% 40%
+    );
+}
+.ha-chest-lapta.is-right {
+    clip-path: polygon(
+      46% 0%, 76% 0%,
+      76% 40%, 86% 40%,
+      86% 76%, 68% 76%,
+      68% 100%, 26% 100%,
+      26% 74%, 10% 74%,
+      10% 42%, 26% 42%,
+      26% 18%, 46% 18%
+    );
+}
+.ha-chest-lapta.is-sm { width: 10px; height: 22px; margin-left: -5px; }
+.ha-chest-lapta.is-md { width: 13px; height: 28px; margin-left: -6.5px; }
+.ha-chest-lapta.is-lg { width: 16px; height: 35px; margin-left: -8px; }
+.ha-chest-near-fx[data-near="low"] .ha-chest-lapta {
+    bottom: 31%;
+}
+.ha-chest-near-fx[data-near="max"] .ha-chest-lapta {
+    bottom: 37%;
+}
+
+.ha-chest-ember {
+    position: absolute;
+    bottom: 44%;
+    display: block;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    background: var(--flame-core, #fde047);
+    border: 1px solid var(--flame-outer, #f97316);
+    box-sizing: border-box;
+    will-change: transform, opacity;
+    animation: haChestEmberRise var(--ember-dur, 1.2s) ease-out var(--ember-delay, 0s) infinite;
+}
+
+@keyframes haChestFireCorePulse {
+    0%, 100% { transform: translateX(-50%) scale(0.94, 0.92); }
+    50%      { transform: translateX(-50%) scale(1.06, 1.08); }
+}
+@keyframes haChestLaptaRise {
+    0%   { transform: translate3d(0, 12px, 0) scale3d(0.65, 0.45, 1); opacity: 0; }
+    20%  { transform: translate3d(calc(var(--lapta-sway, 2px) * -0.5), 0px, 0) scale3d(1, 0.95, 1); opacity: 0.95; }
+    62%  { transform: translate3d(var(--lapta-sway, 2px), -18px, 0) scale3d(0.86, 1.14, 1); opacity: 0.88; }
+    100% { transform: translate3d(calc(var(--lapta-sway, 2px) * -0.3), -34px, 0) scale3d(0.38, 0.65, 1); opacity: 0; }
+}
+@keyframes haChestEmberRise {
+    0%   { transform: translate3d(0, 6px, 0) scale(0.8); opacity: 0; }
+    22%  { opacity: 1; }
+    75%  { opacity: 0.85; }
+    100% { transform: translate3d(var(--ember-sway, 4px), -44px, 0) scale(0.45); opacity: 0; }
+}
+
 /* 60fps Articulated 256x256 GPU Chest Rig (Zero pixelated stair-stepping!) */
 .ha-live-chest {
     position: relative;
+    z-index: 2;
     display: block;
     width: clamp(88px, 13.5vw, 118px);
     height: clamp(88px, 13.5vw, 118px);
@@ -170,17 +298,15 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 }
 .ha-live-chest-shadow {
     position: absolute;
-    left: 17%;
-    right: 15%;
-    bottom: 8%;
-    height: 11%;
-    border-radius: 999px;
-    background: rgba(3, 30, 19, 0.22);
-    will-change: transform, opacity;
-    transform: translate3d(0, 0, 0);
+    left: 16%;
+    right: 14%;
+    bottom: 9%;
+    height: 10%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(3, 30, 19, 0.24) 0%, rgba(3, 30, 19, 0) 72%);
 }
 :root:not([data-theme="light"]):not([data-theme="sage"]) .ha-live-chest-shadow {
-    background: rgba(0, 0, 0, 0.48);
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.52) 0%, rgba(0, 0, 0, 0) 72%);
 }
 .ha-live-chest-rays {
     position: absolute;
@@ -368,6 +494,9 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .ha-chest-fire-core,
+    .ha-chest-lapta,
+    .ha-chest-ember,
     .ha-live-chest-rays,
     .ha-live-chest-ring,
     .ha-live-chest-rig,
@@ -554,12 +683,7 @@ html.lb-reveal-active body::-webkit-scrollbar {
     animation: haRevealRingPop 680ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .ha-reveal-shadow {
-    position: absolute;
-    width: 46%;
-    height: 8%;
-    bottom: 16%;
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.58);
+    display: none;
 }
 .ha-reveal-chest {
     position: relative;

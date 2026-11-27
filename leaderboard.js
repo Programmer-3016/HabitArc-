@@ -672,7 +672,11 @@ function mountTreasureRoom(root, find, redrawLeague) {
   // Keep the dialog inside the route root for SPA teardown. showModal() puts
   // it in the browser's top layer, above the header and bottom navigation.
   function reveal(chest, sample, trigger) {
-    if (showing) return;
+    if (showing) {
+      if (showing.dialog?.open) return;
+      showing.dialog?.remove?.();
+      showing = null;
+    }
     const {scope, ready} = read();
     const dialog = el('dialog', 'lb-reveal');
     dialog.tabIndex = -1;
@@ -896,7 +900,7 @@ function makeLockIcon() {
           ? `Open ${c.name}`
           : `Preview ${c.name} opening`
       );
-      stageBtn.append(chestArt(c, false, { state }));
+      stageBtn.append(chestArt(c, false, { state, progress: shownDays, target: c.days }));
       stageBtn.addEventListener('click', () => reveal(c, !canOpen, stageBtn));
 
       const preview = el('button', 'lb-chest-preview');

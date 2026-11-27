@@ -467,6 +467,12 @@ try {
     iron: document.querySelector('[data-tier="iron"] .lb-chest-action')?.textContent.trim(),
     gold: document.querySelector('[data-tier="gold"] .lb-chest-action')?.textContent.trim(),
     goldReadyStamp: document.querySelector('[data-tier="gold"] .lb-chest-stamp'),
+    ironNear: document.querySelector('[data-tier="iron"] .lb-chest-art')?.dataset.near,
+    rubyNear: document.querySelector('[data-tier="ruby"] .lb-chest-art')?.dataset.near,
+    goldNear: document.querySelector('[data-tier="gold"] .lb-chest-art')?.dataset.near,
+    goldDrops: document.querySelectorAll('[data-tier="gold"] .ha-chest-lapta').length,
+    rubyDrops: document.querySelectorAll('[data-tier="ruby"] .ha-chest-lapta').length,
+    ironDrops: document.querySelectorAll('[data-tier="iron"] .ha-chest-lapta').length,
     ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
     rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked'),
     liveChests: Array.from(document.querySelectorAll('.lb-chest .ha-live-chest')).map(el => {
@@ -488,6 +494,10 @@ try {
   assert.equal(vaultCheck.iron, '7d left');
   assert.equal(vaultCheck.gold, 'Open');
   assert.equal(vaultCheck.goldReadyStamp, null, 'Ready chest omits redundant READY tag');
+  assert.equal(vaultCheck.ironNear, 'none', '0/7d reset chest has calm stage');
+  assert.equal(vaultCheck.rubyNear, 'low', '14/30d chest shows progressive warming stage FX');
+  assert.equal(vaultCheck.goldNear, 'max', '14/14d ready chest shows full behind-chest halo and top shower');
+  assert.ok(vaultCheck.goldDrops > vaultCheck.rubyDrops && vaultCheck.rubyDrops > vaultCheck.ironDrops && vaultCheck.ironDrops === 0, 'Falling top pixel shower scales progressively with day-by-day nearness');
   assert.equal(vaultCheck.rubyLockedClass, true);
   assert.equal(vaultCheck.liveChests.length, 4, 'All 4 Rewards cards mount 60fps .ha-live-chest rigs');
   assert.equal(vaultCheck.liveChests.every(c => (c.state === 'ready' || c.state === 'locked') && c.w >= 80 && c.nw === 256), true, 'All 4 live chests use only ready/locked states backed by 256px crisp textures');
@@ -511,9 +521,10 @@ try {
   assert.equal(afterOpenReset.goldBtn, '14d left', 'Opened Nova chest button resets to 14d left');
   await ev(`document.querySelector('[data-tier="ruby"] .lb-chest-action').click()`);
   await sleep(150);
-  const previewDetail = await ev(`({ open: !!document.querySelector('dialog.lb-reveal[open]'), badge: document.querySelector('.lb-reveal-badge')?.textContent })`);
+  const previewDetail = await ev(`({ open: !!document.querySelector('dialog.lb-reveal[open]'), badge: document.querySelector('dialog.lb-reveal[open] .lb-reveal-badge')?.textContent, modalLapte: document.querySelectorAll('dialog.lb-reveal[open] .ha-chest-near-fx').length })`);
   assert.equal(previewDetail.open, true, 'Tapping locked Dragon Quest Fill Pill opens safe preview modal');
   assert.equal(previewDetail.badge, 'Opening preview', 'Locked pill opens preview only without claiming XP');
+  assert.equal(previewDetail.modalLapte, 0, 'Flame lapte FX is never added inside fullscreen Open/Preview modal');
   await ev(`document.querySelector('dialog.lb-reveal')?.close()`);
 
   // 8) Dashboard unified progress+day strip above the fold + bottom dock fade scrim at 390px

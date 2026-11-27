@@ -1233,8 +1233,80 @@ function buildLiveChestRig(tier, opened, chestState) {
   return wrap;
 }
 
-/** Build a Vault Card chest stage displaying a 60fps articulated 256x256 HabitArc pixel chest. */
-export function chestArt(chest, opened, { state } = {}) {
+// Flame tongue slots positioned behind the chest silhouette (x: 27%..73%) rising upward like fire lapte
+const FLAME_SLOTS = Object.freeze([
+  { x: 50, sway: 2,  dur: 1.2, delay: -0.10, size: 'lg', shape: 'mid' },
+  { x: 39, sway: -3, dur: 1.2, delay: -0.55, size: 'md', shape: 'left' },
+  { x: 61, sway: 3,  dur: 1.2, delay: -0.85, size: 'md', shape: 'right' },
+  { x: 45, sway: -2, dur: 0.8, delay: -0.30, size: 'sm', shape: 'mid' },
+  { x: 33, sway: -4, dur: 1.2, delay: -0.25, size: 'md', shape: 'left' },
+  { x: 67, sway: 4,  dur: 1.2, delay: -0.70, size: 'md', shape: 'right' },
+  { x: 55, sway: 2,  dur: 0.8, delay: -0.50, size: 'lg', shape: 'mid' },
+  { x: 29, sway: -4, dur: 1.2, delay: -0.95, size: 'sm', shape: 'left' },
+  { x: 71, sway: 4,  dur: 1.2, delay: -0.40, size: 'sm', shape: 'right' },
+  { x: 42, sway: -2, dur: 0.8, delay: -0.15, size: 'lg', shape: 'left' },
+  { x: 58, sway: 2,  dur: 0.8, delay: -0.65, size: 'lg', shape: 'right' },
+]);
+
+const EMBER_SLOTS = Object.freeze([
+  { x: 46, sway: -5, dur: 1.2, delay: -0.20 },
+  { x: 56, sway: 5,  dur: 1.2, delay: -0.80 },
+  { x: 36, sway: -6, dur: 1.2, delay: -0.50 },
+  { x: 64, sway: 6,  dur: 1.2, delay: -1.05 },
+  { x: 50, sway: 3,  dur: 0.8, delay: -0.35 },
+  { x: 31, sway: -4, dur: 0.8, delay: -0.60 },
+]);
+
+function buildChestNearStageFx(tier, chestState, progress, target) {
+  const mk = (tag, cls) => {
+    const n = document.createElement(tag);
+    n.className = cls;
+    return n;
+  };
+  const hasNums = Number.isFinite(progress) && Number.isFinite(target) && target > 0;
+  const ratio = chestState === 'ready'
+    ? 1
+    : hasNums
+      ? Math.max(0, Math.min(1, progress / target))
+      : 0;
+  const band = ratio >= 1 ? 'max' : ratio >= 0.5 ? 'high' : ratio > 0 ? 'low' : 'none';
+  const flameCount = band === 'max' ? 11 : band === 'high' ? 7 : band === 'low' ? 4 : 0;
+  const emberCount = band === 'max' ? 6 : band === 'high' ? 4 : band === 'low' ? 2 : 0;
+
+  const fx = mk('div', 'ha-chest-near-fx');
+  fx.dataset.near = band;
+  fx.dataset.tier = tier;
+  fx.setAttribute('aria-hidden', 'true');
+  fx.setAttribute('style', `--near-ratio:${ratio.toFixed(2)}`);
+
+  if (band !== 'none') {
+    fx.append(mk('span', 'ha-chest-fire-core'));
+    const flames = mk('span', 'ha-chest-flame-wrap');
+    for (let i = 0; i < flameCount; i += 1) {
+      const s = FLAME_SLOTS[i];
+      const lapta = mk('span', `ha-chest-lapta is-${s.size} is-${s.shape}`);
+      lapta.setAttribute(
+        'style',
+        `left:${s.x}%;--lapta-sway:${s.sway}px;--lapta-dur:${s.dur}s;--lapta-delay:${s.delay}s`
+      );
+      flames.append(lapta);
+    }
+    for (let i = 0; i < emberCount; i += 1) {
+      const e = EMBER_SLOTS[i];
+      const ember = mk('span', 'ha-chest-ember');
+      ember.setAttribute(
+        'style',
+        `left:${e.x}%;--ember-sway:${e.sway}px;--ember-dur:${e.dur}s;--ember-delay:${e.delay}s`
+      );
+      flames.append(ember);
+    }
+    fx.append(flames);
+  }
+  return { fx, band, ratio };
+}
+
+/** Build a Vault Card chest stage displaying a crisp 256x256 HabitArc pixel chest + progressive nearness FX. */
+export function chestArt(chest, opened, { state, progress, target } = {}) {
   const tier = normTier(chest?.id);
   const chestState = state || (opened ? 'collected' : 'locked');
   const stage = document.createElement('div');
@@ -1259,8 +1331,11 @@ export function chestArt(chest, opened, { state } = {}) {
     ctx.putImageData(img, 0, 0);
   }
 
+  const { fx, band } = buildChestNearStageFx(tier, chestState, progress, target);
+  stage.dataset.near = band;
   const liveChest = buildLiveChestRig(tier, Boolean(opened), chestState);
   stage.append(canvas);
+  stage.append(fx);
   stage.append(liveChest);
   return stage;
 }
@@ -1285,7 +1360,6 @@ function buildLiveRevealHero(tier, opened) {
   const rays = mk('span', 'ha-reveal-rays');
   const glow = mk('span', 'ha-reveal-glow');
   const ring = mk('span', 'ha-reveal-ring');
-  const shadow = mk('span', 'ha-reveal-shadow');
 
   const chestWrap = mk('span', 'ha-reveal-chest');
   chestWrap.append(img(`${tier}-closed.png`, 'is-closed'));
@@ -1298,7 +1372,6 @@ function buildLiveRevealHero(tier, opened) {
   hero.append(rays);
   hero.append(glow);
   hero.append(ring);
-  hero.append(shadow);
   hero.append(chestWrap);
   return hero;
 }
