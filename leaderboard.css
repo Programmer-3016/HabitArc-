@@ -129,10 +129,10 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     background-image: radial-gradient(rgba(3, 30, 19, 0.08) 1px, transparent 1.2px);
     background-size: 14px 14px;
 }
-.lb-chest-art[data-tier="wood"] { --chest-stage-bg: #fff8ec; --chest-aura-rgb: 245 158 11; --chest-ray-rgb: 71 227 147; --wisp-primary: #f59e0b; --wisp-accent: #10b981; }
+.lb-chest-art[data-tier="wood"] { --chest-stage-bg: #fff8ec; --chest-aura-rgb: 245 158 11; --chest-ray-rgb: 250 204 21; --wisp-primary: #f59e0b; --wisp-accent: #10b981; }
 .lb-chest-art[data-tier="iron"] { --chest-stage-bg: #eafbf3; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 56 189 248; --wisp-primary: #10b981; --wisp-accent: #38bdf8; }
 .lb-chest-art[data-tier="gold"] { --chest-stage-bg: #f3efff; --chest-aura-rgb: 139 92 246; --chest-ray-rgb: 250 204 21; --wisp-primary: #a855f7; --wisp-accent: #eab308; }
-.lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #e6f4ef; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 250 204 21; --wisp-primary: #10b981; --wisp-accent: #eab308; }
+.lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #e6f4ef; --chest-aura-rgb: 71 227 147; --chest-ray-rgb: 250 204 21; --wisp-primary: #10b981; --wisp-accent: #eab308; }
 :root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art {
     background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1.2px);
 }
@@ -168,6 +168,50 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     z-index: 1;
     overflow: hidden;
     pointer-events: none;
+}
+.ha-chest-back-glow {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: clamp(92px, 15vw, 126px);
+    height: clamp(82px, 13vw, 112px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgb(var(--chest-ray-rgb, 250 204 21) / 0.62) 0%,
+      rgb(var(--chest-aura-rgb, 71 227 147) / 0.36) 46%,
+      transparent 74%
+    );
+    animation: haChestBackBreath 2.4s ease-in-out infinite;
+    will-change: transform;
+}
+.ha-chest-back-rays {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: clamp(114px, 18vw, 150px);
+    height: clamp(114px, 18vw, 150px);
+    margin-left: calc(clamp(114px, 18vw, 150px) * -0.5);
+    margin-top: calc(clamp(114px, 18vw, 150px) * -0.5);
+    border-radius: 50%;
+    background: repeating-conic-gradient(
+      from 0deg,
+      rgb(var(--chest-ray-rgb, 250 204 21) / 0.38) 0deg 15deg,
+      transparent 15deg 30deg
+    );
+    -webkit-mask-image: radial-gradient(circle, #000 22%, rgba(0, 0, 0, 0.55) 48%, transparent 70%);
+    mask-image: radial-gradient(circle, #000 22%, rgba(0, 0, 0, 0.55) 48%, transparent 70%);
+    animation: haChestBackRaysSpin 7.2s linear infinite;
+    will-change: transform;
+}
+@keyframes haChestBackBreath {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.94); }
+    50%      { transform: translate(-50%, -50%) scale(1.08); }
+}
+@keyframes haChestBackRaysSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }
 .ha-chest-soft-halo {
     position: absolute;
@@ -449,6 +493,8 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .ha-chest-back-glow,
+    .ha-chest-back-rays,
     .ha-chest-aura-wave,
     .ha-chest-wisp,
     .ha-live-chest-rays,

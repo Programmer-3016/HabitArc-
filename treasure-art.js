@@ -1267,7 +1267,12 @@ function buildChestNearStageFx(tier, chestState, progress, target) {
   fx.setAttribute('aria-hidden', 'true');
   fx.setAttribute('style', `--near-ratio:${ratio.toFixed(2)}`);
 
-  if (band !== 'none') {
+  if (band === 'max') {
+    // Open-ready chest: radiant light glow + rotating sunburst rays shining from behind the chest
+    fx.append(mk('span', 'ha-chest-back-glow'));
+    fx.append(mk('span', 'ha-chest-back-rays'));
+  } else if (band !== 'none') {
+    // Locked chest getting closer day-by-day: subtle rising aura waves & soft wisps
     fx.append(mk('span', 'ha-chest-soft-halo'));
     for (let w = 0; w < waveCount; w += 1) {
       const wave = mk('span', 'ha-chest-aura-wave');

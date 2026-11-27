@@ -470,7 +470,7 @@ try {
     ironNear: document.querySelector('[data-tier="iron"] .lb-chest-art')?.dataset.near,
     rubyNear: document.querySelector('[data-tier="ruby"] .lb-chest-art')?.dataset.near,
     goldNear: document.querySelector('[data-tier="gold"] .lb-chest-art')?.dataset.near,
-    goldDrops: document.querySelectorAll('[data-tier="gold"] .ha-chest-wisp').length,
+    goldDrops: document.querySelectorAll('[data-tier="gold"] .ha-chest-back-rays').length,
     rubyDrops: document.querySelectorAll('[data-tier="ruby"] .ha-chest-wisp').length,
     ironDrops: document.querySelectorAll('[data-tier="iron"] .ha-chest-wisp').length,
     ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
@@ -497,7 +497,7 @@ try {
   assert.equal(vaultCheck.ironNear, 'none', '0/7d reset chest has calm stage');
   assert.equal(vaultCheck.rubyNear, 'low', '14/30d chest shows progressive warming stage FX');
   assert.equal(vaultCheck.goldNear, 'max', '14/14d ready chest shows full behind-chest halo and top shower');
-  assert.ok(vaultCheck.goldDrops > vaultCheck.rubyDrops && vaultCheck.rubyDrops > vaultCheck.ironDrops && vaultCheck.ironDrops === 0, 'Falling top pixel shower scales progressively with day-by-day nearness');
+  assert.ok(vaultCheck.goldDrops === 1 && vaultCheck.rubyDrops > 0 && vaultCheck.ironDrops === 0, 'Open chest shows radiant back-lights while approaching chest shows subtle rising wisps');
   assert.equal(vaultCheck.rubyLockedClass, true);
   assert.equal(vaultCheck.liveChests.length, 4, 'All 4 Rewards cards mount 60fps .ha-live-chest rigs');
   assert.equal(vaultCheck.liveChests.every(c => (c.state === 'ready' || c.state === 'locked') && c.w >= 80 && c.nw === 256), true, 'All 4 live chests use only ready/locked states backed by 256px crisp textures');
