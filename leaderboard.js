@@ -919,7 +919,7 @@ function makeLockIcon() {
       const daysLabel = c.days === 1 ? '1 clear day' : `${c.days} clear days`;
       const pct = Math.max(0, Math.min(100, Math.round((shownDays / Math.max(1, c.days)) * 100)));
       const daysLeft = cycle.daysLeft;
-      const buttonLabel = canOpen ? 'Open now' : `${daysLeft}d left`;
+      const buttonLabel = canOpen ? 'Open' : `${daysLeft}d left`;
 
       const button = el('button', isLocked ? 'lb-chest-action lb-chest-action-locked' : 'lb-chest-action lb-chest-action-ready');
       button.type = 'button';

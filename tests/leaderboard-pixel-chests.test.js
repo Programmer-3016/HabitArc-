@@ -213,8 +213,8 @@ test('Treasure scope, all-tier previews, and PWA refresh stay isolated', () => {
   assert.doesNotMatch(js, /opened \|\| c\.id === 'wood'/);
   assert.match(js, /lb-chest-stage-btn/);
   assert.match(js, /lb-chest-action-locked/);
-  assert.match(js, /'Open now'/);
-  assert.doesNotMatch(js, /'✓ Unlocked'|'Opened'/);
+  assert.match(js, /\? 'Open' :/);
+  assert.doesNotMatch(js, /'Open now'|'✓ Unlocked'|'Opened'/);
   assert.match(js, /chestCycle\(/);
   assert.match(js, /reveal\(c, !canOpen, button\)/);
   assert.match(js, /playChestRevealAudio\(/);

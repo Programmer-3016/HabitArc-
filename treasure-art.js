@@ -1218,10 +1218,7 @@ function buildLiveChestRig(tier, opened, chestState) {
   wrap.dataset.state = chestState;
   wrap.setAttribute('aria-hidden', 'true');
 
-  const rays = mk('span', 'ha-live-chest-rays');
   const shadow = mk('span', 'ha-live-chest-shadow');
-  const aura = mk('span', 'ha-live-chest-aura');
-  const ring = mk('span', 'ha-live-chest-ring');
   const rig = mk('span', 'ha-live-chest-rig');
 
   if (opened) {
@@ -1232,20 +1229,12 @@ function buildLiveChestRig(tier, opened, chestState) {
   } else {
     rig.append(img(`${tier}-closed.png`, 'is-closed'));
     if (chestState === 'ready') {
-      rig.append(img(`${tier}-peek.png`, 'is-peek'));
       rig.append(img(`${tier}-sparks-a.png`, 'is-sparks-a'));
       rig.append(img(`${tier}-sparks-b.png`, 'is-sparks-b'));
     }
-    const mask = mk('span', 'ha-live-chest-sheen-mask');
-    mask.setAttribute('style', `--chest-mask-url:url('${CHEST_LAYER_ROOT}/${tier}-sheen-mask.png')`);
-    mask.append(mk('span', 'ha-live-chest-sheen'));
-    rig.append(mask);
   }
 
-  wrap.append(rays);
   wrap.append(shadow);
-  wrap.append(aura);
-  wrap.append(ring);
   wrap.append(rig);
   return wrap;
 }
@@ -1311,10 +1300,6 @@ function buildLiveRevealHero(tier, opened) {
   chestWrap.append(img(`${tier}-hoard-float.png`, 'is-hoard-float'));
   chestWrap.append(img(`${tier}-sparks-a.png`, 'is-sparks-a'));
   chestWrap.append(img(`${tier}-sparks-b.png`, 'is-sparks-b'));
-  const mask = mk('span', 'ha-live-chest-sheen-mask');
-  mask.setAttribute('style', `--chest-mask-url:url('${CHEST_LAYER_ROOT}/${tier}-sheen-mask.png')`);
-  mask.append(mk('span', 'ha-live-chest-sheen'));
-  chestWrap.append(mask);
 
   hero.append(rays);
   hero.append(glow);

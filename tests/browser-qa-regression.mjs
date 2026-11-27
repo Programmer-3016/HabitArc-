@@ -485,7 +485,7 @@ try {
   assert.equal(vaultCheck.leagueHidden, true, 'League hides when Chests tab is active');
   assert.equal(vaultCheck.wood, '1d left');
   assert.equal(vaultCheck.iron, '7d left');
-  assert.equal(vaultCheck.gold, 'Open now');
+  assert.equal(vaultCheck.gold, 'Open');
   assert.equal(vaultCheck.rubyLockedClass, true);
   assert.equal(vaultCheck.liveChests.length, 4, 'All 4 Rewards cards mount 60fps .ha-live-chest rigs');
   assert.equal(vaultCheck.liveChests.every(c => (c.state === 'ready' || c.state === 'locked') && c.w >= 80 && c.nw === 256), true, 'All 4 live chests use only ready/locked states backed by 256px crisp textures');
