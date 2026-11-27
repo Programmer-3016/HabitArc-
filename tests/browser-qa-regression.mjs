@@ -470,9 +470,9 @@ try {
     ironNear: document.querySelector('[data-tier="iron"] .lb-chest-art')?.dataset.near,
     rubyNear: document.querySelector('[data-tier="ruby"] .lb-chest-art')?.dataset.near,
     goldNear: document.querySelector('[data-tier="gold"] .lb-chest-art')?.dataset.near,
-    goldDrops: document.querySelectorAll('[data-tier="gold"] .ha-chest-lapta').length,
-    rubyDrops: document.querySelectorAll('[data-tier="ruby"] .ha-chest-lapta').length,
-    ironDrops: document.querySelectorAll('[data-tier="iron"] .ha-chest-lapta').length,
+    goldDrops: document.querySelectorAll('[data-tier="gold"] .ha-chest-wisp').length,
+    rubyDrops: document.querySelectorAll('[data-tier="ruby"] .ha-chest-wisp').length,
+    ironDrops: document.querySelectorAll('[data-tier="iron"] .ha-chest-wisp').length,
     ruby: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.textContent.trim(),
     rubyLockedClass: document.querySelector('[data-tier="ruby"] .lb-chest-action')?.classList.contains('lb-chest-action-locked'),
     liveChests: Array.from(document.querySelectorAll('.lb-chest .ha-live-chest')).map(el => {

@@ -1233,28 +1233,16 @@ function buildLiveChestRig(tier, opened, chestState) {
   return wrap;
 }
 
-// Flame tongue slots positioned behind the chest silhouette (x: 27%..73%) rising upward like fire lapte
-const FLAME_SLOTS = Object.freeze([
-  { x: 50, sway: 2,  dur: 1.2, delay: -0.10, size: 'lg', shape: 'mid' },
-  { x: 39, sway: -3, dur: 1.2, delay: -0.55, size: 'md', shape: 'left' },
-  { x: 61, sway: 3,  dur: 1.2, delay: -0.85, size: 'md', shape: 'right' },
-  { x: 45, sway: -2, dur: 0.8, delay: -0.30, size: 'sm', shape: 'mid' },
-  { x: 33, sway: -4, dur: 1.2, delay: -0.25, size: 'md', shape: 'left' },
-  { x: 67, sway: 4,  dur: 1.2, delay: -0.70, size: 'md', shape: 'right' },
-  { x: 55, sway: 2,  dur: 0.8, delay: -0.50, size: 'lg', shape: 'mid' },
-  { x: 29, sway: -4, dur: 1.2, delay: -0.95, size: 'sm', shape: 'left' },
-  { x: 71, sway: 4,  dur: 1.2, delay: -0.40, size: 'sm', shape: 'right' },
-  { x: 42, sway: -2, dur: 0.8, delay: -0.15, size: 'lg', shape: 'left' },
-  { x: 58, sway: 2,  dur: 0.8, delay: -0.65, size: 'lg', shape: 'right' },
-]);
-
-const EMBER_SLOTS = Object.freeze([
-  { x: 46, sway: -5, dur: 1.2, delay: -0.20 },
-  { x: 56, sway: 5,  dur: 1.2, delay: -0.80 },
-  { x: 36, sway: -6, dur: 1.2, delay: -0.50 },
-  { x: 64, sway: 6,  dur: 1.2, delay: -1.05 },
-  { x: 50, sway: 3,  dur: 0.8, delay: -0.35 },
-  { x: 31, sway: -4, dur: 0.8, delay: -0.60 },
+// Subtle rising wisp slots behind the chest silhouette (gently drifting upward & fading softly)
+const WISP_SLOTS = Object.freeze([
+  { x: 48, sway: -3, rise: -28, dur: 2.4, delay: -0.20, size: 'md', tone: 'primary' },
+  { x: 37, sway: -4, rise: -24, dur: 2.4, delay: -1.10, size: 'sm', tone: 'accent' },
+  { x: 61, sway: 4,  rise: -26, dur: 2.4, delay: -1.75, size: 'sm', tone: 'primary' },
+  { x: 43, sway: 2,  rise: -30, dur: 2.4, delay: -0.65, size: 'md', tone: 'accent' },
+  { x: 55, sway: -2, rise: -27, dur: 2.4, delay: -1.40, size: 'sm', tone: 'primary' },
+  { x: 33, sway: -4, rise: -22, dur: 2.4, delay: -2.05, size: 'sm', tone: 'accent' },
+  { x: 66, sway: 4,  rise: -23, dur: 2.4, delay: -0.85, size: 'md', tone: 'primary' },
+  { x: 51, sway: 3,  rise: -32, dur: 2.4, delay: -1.55, size: 'lg', tone: 'accent' },
 ]);
 
 function buildChestNearStageFx(tier, chestState, progress, target) {
@@ -1270,8 +1258,8 @@ function buildChestNearStageFx(tier, chestState, progress, target) {
       ? Math.max(0, Math.min(1, progress / target))
       : 0;
   const band = ratio >= 1 ? 'max' : ratio >= 0.5 ? 'high' : ratio > 0 ? 'low' : 'none';
-  const flameCount = band === 'max' ? 11 : band === 'high' ? 7 : band === 'low' ? 4 : 0;
-  const emberCount = band === 'max' ? 6 : band === 'high' ? 4 : band === 'low' ? 2 : 0;
+  const wispCount = band === 'max' ? 8 : band === 'high' ? 5 : band === 'low' ? 3 : 0;
+  const waveCount = band === 'max' || band === 'high' ? 2 : band === 'low' ? 1 : 0;
 
   const fx = mk('div', 'ha-chest-near-fx');
   fx.dataset.near = band;
@@ -1280,27 +1268,23 @@ function buildChestNearStageFx(tier, chestState, progress, target) {
   fx.setAttribute('style', `--near-ratio:${ratio.toFixed(2)}`);
 
   if (band !== 'none') {
-    fx.append(mk('span', 'ha-chest-fire-core'));
-    const flames = mk('span', 'ha-chest-flame-wrap');
-    for (let i = 0; i < flameCount; i += 1) {
-      const s = FLAME_SLOTS[i];
-      const lapta = mk('span', `ha-chest-lapta is-${s.size} is-${s.shape}`);
-      lapta.setAttribute(
-        'style',
-        `left:${s.x}%;--lapta-sway:${s.sway}px;--lapta-dur:${s.dur}s;--lapta-delay:${s.delay}s`
-      );
-      flames.append(lapta);
+    fx.append(mk('span', 'ha-chest-soft-halo'));
+    for (let w = 0; w < waveCount; w += 1) {
+      const wave = mk('span', 'ha-chest-aura-wave');
+      wave.setAttribute('style', `--wave-delay:${(w * -1.2).toFixed(1)}s`);
+      fx.append(wave);
     }
-    for (let i = 0; i < emberCount; i += 1) {
-      const e = EMBER_SLOTS[i];
-      const ember = mk('span', 'ha-chest-ember');
-      ember.setAttribute(
+    const wisps = mk('span', 'ha-chest-wisp-wrap');
+    for (let i = 0; i < wispCount; i += 1) {
+      const s = WISP_SLOTS[i];
+      const wisp = mk('span', `ha-chest-wisp is-${s.size} is-${s.tone}`);
+      wisp.setAttribute(
         'style',
-        `left:${e.x}%;--ember-sway:${e.sway}px;--ember-dur:${e.dur}s;--ember-delay:${e.delay}s`
+        `left:${s.x}%;--wisp-sway:${s.sway}px;--wisp-rise:${s.rise}px;--wisp-dur:${s.dur}s;--wisp-delay:${s.delay}s`
       );
-      flames.append(ember);
+      wisps.append(wisp);
     }
-    fx.append(flames);
+    fx.append(wisps);
   }
   return { fx, band, ratio };
 }

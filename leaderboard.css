@@ -129,10 +129,10 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     background-image: radial-gradient(rgba(3, 30, 19, 0.08) 1px, transparent 1.2px);
     background-size: 14px 14px;
 }
-.lb-chest-art[data-tier="wood"] { --chest-stage-bg: #fff8ec; --chest-aura-rgb: 249 115 22; --chest-ray-rgb: 250 204 21; --flame-tip: #ef4444; --flame-outer: #f97316; --flame-core: #fde047; }
-.lb-chest-art[data-tier="iron"] { --chest-stage-bg: #eafbf3; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 56 189 248; --flame-tip: #0284c7; --flame-outer: #10b981; --flame-core: #a7f3d0; }
-.lb-chest-art[data-tier="gold"] { --chest-stage-bg: #f3efff; --chest-aura-rgb: 249 115 22; --chest-ray-rgb: 250 204 21; --flame-tip: #ef4444; --flame-outer: #f97316; --flame-core: #fef08a; }
-.lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #e6f4ef; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 250 204 21; --flame-tip: #059669; --flame-outer: #47e393; --flame-core: #fef08a; }
+.lb-chest-art[data-tier="wood"] { --chest-stage-bg: #fff8ec; --chest-aura-rgb: 245 158 11; --chest-ray-rgb: 71 227 147; --wisp-primary: #f59e0b; --wisp-accent: #10b981; }
+.lb-chest-art[data-tier="iron"] { --chest-stage-bg: #eafbf3; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 56 189 248; --wisp-primary: #10b981; --wisp-accent: #38bdf8; }
+.lb-chest-art[data-tier="gold"] { --chest-stage-bg: #f3efff; --chest-aura-rgb: 139 92 246; --chest-ray-rgb: 250 204 21; --wisp-primary: #a855f7; --wisp-accent: #eab308; }
+.lb-chest-art[data-tier="ruby"] { --chest-stage-bg: #e6f4ef; --chest-aura-rgb: 16 185 129; --chest-ray-rgb: 250 204 21; --wisp-primary: #10b981; --wisp-accent: #eab308; }
 :root:not([data-theme="light"]):not([data-theme="sage"]) .lb-chest-art {
     background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1.2px);
 }
@@ -158,7 +158,7 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     image-rendering: crisp-edges;
 }
 
-/* Progressive Day-by-Day Flame Tongues ('Lapte') Emerging UPWARD Out From Behind Vault Card Chests ONLY */
+/* Subtle Rising Energy Aura Waves & Soft Wisps ('Halka Halka Upar Rise') Behind Vault Chests ONLY */
 .lb-reveal .ha-chest-near-fx {
     display: none !important;
 }
@@ -169,120 +169,75 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
     overflow: hidden;
     pointer-events: none;
 }
-.ha-chest-fire-core {
+.ha-chest-soft-halo {
     position: absolute;
     left: 50%;
-    bottom: 22%;
-    width: clamp(68px, 11vw, 92px);
-    height: clamp(58px, 9.5vw, 80px);
+    bottom: 20%;
+    width: clamp(72px, 11.5vw, 96px);
+    height: clamp(54px, 8.5vw, 72px);
     transform: translateX(-50%);
-    border-radius: 50% 50% 42% 42%;
+    border-radius: 50%;
     background: radial-gradient(
-      ellipse at 50% 65%,
-      rgb(var(--chest-ray-rgb, 250 204 21) / calc(0.24 + var(--near-ratio, 0) * 0.44)) 0%,
-      rgb(var(--chest-aura-rgb, 249 115 22) / calc(0.14 + var(--near-ratio, 0) * 0.30)) 52%,
+      ellipse at 50% 60%,
+      rgb(var(--chest-aura-rgb, 16 185 129) / calc(0.10 + var(--near-ratio, 0) * 0.18)) 0%,
+      rgb(var(--chest-ray-rgb, 250 204 21) / calc(0.05 + var(--near-ratio, 0) * 0.10)) 52%,
+      transparent 76%
+    );
+}
+.ha-chest-aura-wave {
+    position: absolute;
+    left: 50%;
+    bottom: 28%;
+    width: clamp(60px, 9.8vw, 80px);
+    height: clamp(32px, 5.2vw, 44px);
+    margin-left: calc(clamp(60px, 9.8vw, 80px) * -0.5);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at 50% 55%,
+      rgb(var(--chest-aura-rgb, 16 185 129) / 0) 36%,
+      rgb(var(--chest-aura-rgb, 16 185 129) / calc(0.16 + var(--near-ratio, 0) * 0.22)) 64%,
       transparent 78%
     );
-    animation: haChestFireCorePulse 1.2s ease-in-out infinite;
-    will-change: transform;
+    will-change: transform, opacity;
+    animation: haChestWaveRise 2.4s ease-out var(--wave-delay, 0s) infinite;
 }
-.ha-chest-flame-wrap {
+.ha-chest-wisp-wrap {
     position: absolute;
     inset: 0;
     display: block;
     pointer-events: none;
 }
-.ha-chest-lapta {
+.ha-chest-wisp {
     position: absolute;
-    bottom: 34%;
+    bottom: 40%;
     display: block;
-    width: 14px;
-    height: 30px;
-    margin-left: -7px;
-    transform-origin: 50% 100%;
-    background: linear-gradient(
-      to top,
-      #ffffff 0%,
-      var(--flame-core, #fde047) 34%,
-      var(--flame-outer, #f97316) 72%,
-      var(--flame-tip, #ef4444) 100%
-    );
-    clip-path: polygon(
-      36% 0%, 64% 0%,
-      64% 16%, 80% 16%,
-      80% 38%, 94% 38%,
-      94% 70%, 80% 70%,
-      80% 88%, 64% 88%,
-      64% 100%, 36% 100%,
-      36% 88%, 20% 88%,
-      20% 70%, 6% 70%,
-      6% 38%, 20% 38%,
-      20% 16%, 36% 16%
-    );
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+    border-radius: 50%;
+    background: var(--wisp-primary, #10b981);
+    box-shadow: 0 0 6px var(--wisp-primary, #10b981);
     will-change: transform, opacity;
-    animation: haChestLaptaRise var(--lapta-dur, 1.2s) ease-out var(--lapta-delay, 0s) infinite;
+    animation: haChestWispRise var(--wisp-dur, 2.4s) ease-out var(--wisp-delay, 0s) infinite;
 }
-.ha-chest-lapta.is-left {
-    clip-path: polygon(
-      24% 0%, 54% 0%,
-      54% 18%, 74% 18%,
-      74% 42%, 90% 42%,
-      90% 74%, 74% 74%,
-      74% 100%, 32% 100%,
-      32% 76%, 14% 76%,
-      14% 40%, 24% 40%
-    );
+.ha-chest-wisp.is-accent {
+    background: var(--wisp-accent, #eab308);
+    box-shadow: 0 0 6px var(--wisp-accent, #eab308);
 }
-.ha-chest-lapta.is-right {
-    clip-path: polygon(
-      46% 0%, 76% 0%,
-      76% 40%, 86% 40%,
-      86% 76%, 68% 76%,
-      68% 100%, 26% 100%,
-      26% 74%, 10% 74%,
-      10% 42%, 26% 42%,
-      26% 18%, 46% 18%
-    );
-}
-.ha-chest-lapta.is-sm { width: 10px; height: 22px; margin-left: -5px; }
-.ha-chest-lapta.is-md { width: 13px; height: 28px; margin-left: -6.5px; }
-.ha-chest-lapta.is-lg { width: 16px; height: 35px; margin-left: -8px; }
-.ha-chest-near-fx[data-near="low"] .ha-chest-lapta {
-    bottom: 31%;
-}
-.ha-chest-near-fx[data-near="max"] .ha-chest-lapta {
-    bottom: 37%;
-}
+.ha-chest-wisp.is-sm { width: 4px; height: 4px; margin-left: -2px; }
+.ha-chest-wisp.is-md { width: 5px; height: 5px; margin-left: -2.5px; }
+.ha-chest-wisp.is-lg { width: 6px; height: 6px; margin-left: -3px; }
 
-.ha-chest-ember {
-    position: absolute;
-    bottom: 44%;
-    display: block;
-    width: 4px;
-    height: 4px;
-    margin-left: -2px;
-    background: var(--flame-core, #fde047);
-    border: 1px solid var(--flame-outer, #f97316);
-    box-sizing: border-box;
-    will-change: transform, opacity;
-    animation: haChestEmberRise var(--ember-dur, 1.2s) ease-out var(--ember-delay, 0s) infinite;
+@keyframes haChestWaveRise {
+    0%   { transform: translate3d(0, 6px, 0) scale(0.84, 0.78); opacity: 0; }
+    28%  { opacity: 0.9; }
+    100% { transform: translate3d(0, -24px, 0) scale(1.16, 1.08); opacity: 0; }
 }
-
-@keyframes haChestFireCorePulse {
-    0%, 100% { transform: translateX(-50%) scale(0.94, 0.92); }
-    50%      { transform: translateX(-50%) scale(1.06, 1.08); }
-}
-@keyframes haChestLaptaRise {
-    0%   { transform: translate3d(0, 12px, 0) scale3d(0.65, 0.45, 1); opacity: 0; }
-    20%  { transform: translate3d(calc(var(--lapta-sway, 2px) * -0.5), 0px, 0) scale3d(1, 0.95, 1); opacity: 0.95; }
-    62%  { transform: translate3d(var(--lapta-sway, 2px), -18px, 0) scale3d(0.86, 1.14, 1); opacity: 0.88; }
-    100% { transform: translate3d(calc(var(--lapta-sway, 2px) * -0.3), -34px, 0) scale3d(0.38, 0.65, 1); opacity: 0; }
-}
-@keyframes haChestEmberRise {
-    0%   { transform: translate3d(0, 6px, 0) scale(0.8); opacity: 0; }
-    22%  { opacity: 1; }
-    75%  { opacity: 0.85; }
-    100% { transform: translate3d(var(--ember-sway, 4px), -44px, 0) scale(0.45); opacity: 0; }
+@keyframes haChestWispRise {
+    0%   { transform: translate3d(0, 6px, 0) scale(0.65); opacity: 0; }
+    24%  { opacity: calc(0.45 + var(--near-ratio, 0.5) * 0.40); }
+    72%  { opacity: calc(0.32 + var(--near-ratio, 0.5) * 0.30); }
+    100% { transform: translate3d(var(--wisp-sway, 3px), var(--wisp-rise, -28px), 0) scale(0.35); opacity: 0; }
 }
 
 /* 60fps Articulated 256x256 GPU Chest Rig (Zero pixelated stair-stepping!) */
@@ -494,9 +449,8 @@ button.lb-sound-toggle:focus-visible { outline: 2.5px solid rgb(var(--ha-primary
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .ha-chest-fire-core,
-    .ha-chest-lapta,
-    .ha-chest-ember,
+    .ha-chest-aura-wave,
+    .ha-chest-wisp,
     .ha-live-chest-rays,
     .ha-live-chest-ring,
     .ha-live-chest-rig,
