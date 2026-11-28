@@ -147,8 +147,8 @@ export function mountCommandHub(){
   button.setAttribute('aria-label','Search and Quick Capture');button.title='Search (Ctrl+K)';
   button.innerHTML='<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
   button.addEventListener('click',open);
-  const nextAction=header.querySelector('.ha-mobile-top-action') || header.querySelector('a.ha-hdr-profile');
-  if(nextAction)nextAction.before(button);
+  const profile=header.querySelector('a.ha-hdr-profile');
+  if(profile)profile.before(button);
   else header.append(button);
  });
 }

@@ -1,123 +1,39 @@
-/* Pixel Craft — Today only. Shell actions, colours and data still belong to the app. */
-.ha-mobile-pixel-header {
-    --top-ink: #151b18;
-    min-height: 50px; padding: 4px 14px !important;
-    background: var(--rpg-mint) !important; color: var(--top-ink);
-    border-bottom: 2px solid var(--top-ink) !important;
-    box-shadow: none !important; backdrop-filter: none !important;
-}
-body > header.ha-mobile-pixel-header .ha-brand-link { gap: 4px; }
-body > header.ha-mobile-pixel-header :is(.ha-brand-badge,.ha-brand-wordmark) {
-    color: var(--top-ink) !important; background: transparent !important; box-shadow: none !important;
-}
-body > header.ha-mobile-pixel-header .ha-brand-badge { width: 17px; height: 20px; display: grid; place-items: center; border: 0; }
-body > header.ha-mobile-pixel-header .ha-brand-badge svg { width: 16px; }
-body > header.ha-mobile-pixel-header .ha-brand-wordmark { font-size: 16px; letter-spacing: -.05em; }
-.ha-mobile-pixel-actions { gap: 4px !important; }
-.ha-mobile-pixel-header .ha-mobile-streak,
-body > header.ha-mobile-pixel-header :is(.ha-mobile-top-action, .ha-command-trigger, a.ha-hdr-profile) {
-    position: relative; display: inline-flex !important; align-items: center; justify-content: center;
-    width: 30px !important; min-width: 30px !important; height: 30px !important; min-height: 30px !important;
-    border-radius: 50% !important; padding: 0 !important; text-decoration: none;
-    background: rgb(var(--ha-surface-container-lowest)) !important; color: rgb(var(--ha-on-surface)) !important;
-    border: 1.5px solid var(--top-ink) !important; box-shadow: 1px 1px var(--top-ink) !important;
-}
-.ha-mobile-pixel-header .ha-mobile-streak { width: auto !important; border-radius: 20px !important; padding: 0 7px !important; }
-.ha-mobile-pixel-header .ha-command-trigger { order: 1; }
-.ha-mobile-pixel-header .ha-mobile-top-action { order: 2; }
-.ha-mobile-pixel-header .ha-hdr-profile { order: 3; }
-.ha-mobile-pixel-header .ha-hdr-profile > .material-symbols-outlined { display: none; }
-.ha-mobile-profile-initial { font: 700 12px/1 'JetBrains Mono', monospace; }
-.ha-mobile-top-action .material-symbols-outlined { font-size: 16px; }
-.ha-dashboard { --pixel-font: 'Silkscreen','JetBrains Mono',monospace; --key-outline: rgb(var(--ha-on-surface) / .88); }
-.ha-dashboard .ha-today-head { align-items: center; margin-bottom: 16px; }
-.ha-dashboard .ha-today-head > :first-child { min-width: 0; }
-.ha-dashboard .ha-today-title { font-size: clamp(21px, 5vw, 33px); letter-spacing: -.055em; overflow-wrap: anywhere; }
-.ha-dashboard .ha-today-title #greeting-name { color: inherit !important; }
-.ha-dashboard #today-date { font-family: var(--pixel-font); margin-bottom: 6px; }
-.ha-today-actions { display: flex; align-items: center; flex-shrink: 0; gap: 8px; }
-.ha-dashboard-add-habit {
-    position: relative; padding: 6px 9px; border: 1.5px solid #24221a; border-radius: 7px;
-    background: #ffda48; color: #19170f; box-shadow: 2px 2px #24221a;
-    font: 700 11px/1.25 var(--pixel-font); text-decoration: none; white-space: nowrap;
-}
-body main .ha-progress-card.ha-dashboard-hero {
-    --steps: polygon(0 8px,4px 8px,4px 4px,8px 4px,8px 0,calc(100% - 8px) 0,calc(100% - 8px) 4px,calc(100% - 4px) 4px,calc(100% - 4px) 8px,100% 8px,100% calc(100% - 8px),calc(100% - 4px) calc(100% - 8px),calc(100% - 4px) calc(100% - 4px),calc(100% - 8px) calc(100% - 4px),calc(100% - 8px) 100%,8px 100%,8px calc(100% - 4px),4px calc(100% - 4px),4px calc(100% - 8px),0 calc(100% - 8px));
-    position: relative; isolation: isolate; overflow: visible; padding: 15px 16px 12px;
-    border: 0 !important; background: transparent !important; box-shadow: none !important;
-    filter: drop-shadow(3px 3px 0 var(--rpg-shadow-ink));
-}
-.ha-dashboard-hero::before,.ha-dashboard-hero::after {
-    content: ""; position: absolute; pointer-events: none; clip-path: var(--steps); inset: 0; z-index: -2;
-    background: var(--ha-hero-border);
-}
-.ha-dashboard-hero::after {
-    inset: 2px; z-index: -1; background-color: var(--ha-hero-bg);
-    background-image: radial-gradient(var(--ha-hero-divider) .65px,transparent .9px); background-size: 7px 7px;
-}
-.ha-dashboard .ha-dashboard-eyebrow { font: 700 10px/1.4 var(--pixel-font); letter-spacing: .07em; }
-.ha-dashboard-eyebrow::before { content: '▸ '; }
-.ha-dashboard .ha-dashboard-progress { grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; }
-.ha-dashboard-count { font-size: clamp(34px,7vw,48px); line-height: 1; letter-spacing: -.06em; }
-.ha-dashboard-count-of { font-size: .54em; white-space: nowrap; }
-.ha-dashboard-complete-word { font-size: 13px; }
-.ha-chest-emblem { display: grid; justify-items: center; gap: 3px; }
-.ha-dashboard-ring { width: 70px; height: 70px; }
-.ha-dashboard-ring svg,.ha-relic { shape-rendering: crispEdges; }
-.ha-dashboard-ring-label { display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.ha-dashboard-hero-chest { width: 39px; height: 29px; object-fit: contain; image-rendering: pixelated; }
-.ha-dashboard #progress-pct,.ha-chest-caption { font: 700 10px/1.25 var(--pixel-font); }
-.ha-chest-caption { border: 1px solid var(--ha-hero-divider); padding: 1px 5px; border-radius: 3px; }
-.ha-dashboard .ha-today-hero-bar {
-    border: 0; height: 7px; border-radius: 1px; margin-top: 10px;
-    background: var(--ha-hero-ring-track); mask-image: repeating-linear-gradient(90deg,#000 0 16px,transparent 16px 19px);
-}
-.ha-dashboard .ha-today-hero-bar-fill { border-radius: 0; background: var(--ha-hero-ring-fill); }
-.ha-dashboard .ha-dashboard-streaks { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--ha-hero-divider); }
-.ha-dashboard-stat { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; }
-.ha-dashboard-stat h3,.ha-dashboard-stat p { margin: 0; font-size: 12px; }
-.ha-dashboard-stat h3 .material-symbols-outlined { font-size: 13px; vertical-align: -2px; }
-.ha-dashboard-stat .ha-dashboard-unit { margin-left: 2px; font-size: 10px; }
-.ha-dashboard .ha-today-surface { margin-top: 21px; padding: 0; background: none; box-shadow: none; border: 0; border-radius: 0; overflow: visible; }
-.ha-dashboard .ha-today-surface-head { padding: 0 0 8px; background: none; border: 0; }
-.ha-dashboard .ha-today-surface-head h2 { font: 700 18px/1.2 'Space Grotesk',sans-serif; letter-spacing: -.055em; text-transform: none; color: rgb(var(--ha-on-surface)) !important; }
-.ha-dashboard #habits-remaining { font: 700 10px/1.35 var(--pixel-font); background: rgb(var(--ha-surface-container-low)); padding: 2px 6px; border: 1px solid var(--key-outline); border-radius: 4px; }
-.ha-dashboard-list-panel { border: 1.5px solid var(--key-outline); border-radius: 12px; box-shadow: 2px 3px var(--rpg-shadow-ink); background: rgb(var(--ha-surface-container-lowest)); }
-.ha-dashboard #habits-container { padding: 0 10px; }
-body main.ha-dashboard .ha-dashboard-habit { padding: 9px 1px; }
-body main.ha-dashboard .ha-dashboard-habit + .ha-dashboard-habit { border-top: 1px dashed rgb(var(--ha-on-surface) / .24) !important; }
-.ha-dashboard-habit-main { gap: 10px; }
-.ha-dashboard-habit-icon {
-    flex: 0 0 36px; height: 36px; display: grid; place-items: center; border-radius: 6px;
-    background: color-mix(in srgb,var(--habit-accent) 22%,rgb(var(--ha-surface-container-lowest)));
-    border: 1.5px solid var(--key-outline); box-shadow: 2px 2px var(--rpg-shadow-ink);
-}
-.ha-relic { width: 30px; height: 30px; }
-body main.ha-dashboard .ha-dashboard-habit.is-done-today .ha-dashboard-habit-copy { opacity: 1; }
-.ha-dashboard-habit-copy { overflow-wrap: anywhere; }
-.ha-dashboard-habit-meta { font-size: 11.5px; line-height: 1.3; }
-.ha-dashboard .ha-dashboard-week { gap: 3px; margin-top: 5px; }
-.ha-dashboard .ha-dashboard-day { width: 12px; }
-.ha-dashboard .ha-dashboard-day-mark { height: 5px; border-radius: 1px; }
-.ha-dashboard .ha-dashboard-day.is-today .ha-dashboard-day-mark { outline: 1px solid rgb(var(--ha-on-surface-variant)); outline-offset: 1px; border: 0; }
-.ha-dashboard .ha-dashboard-day.is-today.is-completed .ha-dashboard-day-mark { background: var(--rpg-mint); }
-.ha-dashboard-day-label { display: none; }
-.ha-dashboard .habit-toggle {
-    position: relative; width: 30px; height: 30px; border: 1.5px solid var(--key-outline) !important; border-radius: 6px !important;
-    box-shadow: 2px 2px var(--rpg-shadow-ink) !important;
-}
-.ha-dashboard .habit-toggle[aria-pressed=true] { background: var(--rpg-mint) !important; border-color: var(--key-outline) !important; box-shadow: 2px 2px var(--rpg-shadow-ink) !important; }
-.ha-dashboard .habit-toggle[aria-pressed=true] .material-symbols-outlined { color: #111b18 !important; }
-.ha-dashboard .habit-toggle::after,.ha-dashboard-add-habit::after { content:""; position:absolute; inset:-7px; }
-.ha-dashboard-list-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; margin-top: 8px; }
-.ha-dashboard-history-note,.ha-dashboard-view-all { margin: 0; font: 500 10px/1.4 var(--pixel-font); }
-.ha-dashboard-view-all { display: inline-flex; align-items: center; min-height: 40px; margin-left: auto; color: rgb(var(--ha-on-surface)); }
-.ha-dashboard-view-all::after { content: ' →'; padding-left: 3px; }
-@media(max-width:767px) {
-    .ha-dashboard .ha-today-done-pill { display: none; }
-    .ha-mobile-pixel-actions { gap: 0 !important; }
-    body > header.ha-mobile-pixel-header :is(.ha-mobile-top-action,.ha-command-trigger,a.ha-hdr-profile) { margin-inline: 5px; }
-    .ha-mobile-pixel-actions :is(a,button)::after { content: ""; position: absolute; inset: -7px -5px; }
-}
-@media(min-width:768px) { .ha-dashboard-add-habit { display: none; } }
-@media(prefers-reduced-motion:reduce) { .ha-dashboard :is(.progress-ring-circle,.ha-today-hero-bar-fill,.habit-toggle) { transition: none !important; animation: none !important; } }
+/* Today · Pixel Craft. A dashboard-only layer: shared app tokens remain source of truth. */
+/* Mobile shell intentionally echoes the Today surface only; desktop stays on the shared header. */
+body > header.ha-mobile-pixel-header{min-height:66px;padding:8px 12px!important;background:var(--rpg-mint,#47e393)!important;border-bottom:2px solid rgb(var(--ha-on-surface))!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;color:rgb(var(--ha-on-surface))}
+body > header.ha-mobile-pixel-header .ha-brand-link{gap:6px;color:rgb(var(--ha-on-surface))!important;text-decoration:none}body > header.ha-mobile-pixel-header .ha-brand-badge{display:none}body > header.ha-mobile-pixel-header .ha-brand-wordmark{font-family:'Space Grotesk','Hanken Grotesk',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.04em;color:rgb(var(--ha-on-surface))!important}
+.ha-mobile-pixel-actions{gap:5px!important}.ha-mobile-streak{min-height:30px;padding:4px 8px!important;border:1.5px solid rgb(var(--ha-on-surface))!important;border-radius:999px!important;background:rgb(var(--ha-surface-container-lowest))!important;box-shadow:2px 2px 0 rgb(var(--ha-on-surface)/.18);color:rgb(var(--ha-on-surface))!important;font-family:'JetBrains Mono',monospace;font-size:9px!important;font-weight:800!important}.ha-mobile-streak .material-symbols-outlined{font-size:14px!important}
+body > header.ha-mobile-pixel-header .ha-mobile-top-action,body > header.ha-mobile-pixel-header a.ha-hdr-profile{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;display:grid!important;place-items:center;border:1.5px solid rgb(var(--ha-on-surface))!important;border-radius:9px!important;background:rgb(var(--ha-surface-container-lowest))!important;box-shadow:2px 2px 0 rgb(var(--ha-on-surface)/.18);color:rgb(var(--ha-on-surface))!important;text-decoration:none}body > header.ha-mobile-pixel-header .ha-mobile-top-action .material-symbols-outlined{font-size:17px;font-variation-settings:'FILL' 0,'wght' 600,'GRAD' 0,'opsz' 20}body > header.ha-mobile-pixel-header a.ha-hdr-profile>.material-symbols-outlined{display:none}.ha-mobile-profile-initial{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800}
+.ha-dashboard .ha-today-head{align-items:center;margin-bottom:17px}
+.ha-dashboard .ha-today-title{font-size:clamp(25px,5.8vw,34px);letter-spacing:-.045em}
+.ha-dashboard .ha-today-title #greeting-name{color:var(--rpg-text-accent,rgb(var(--ha-primary)))!important}
+.ha-today-done-pill{border:1.5px solid rgb(var(--ha-on-surface)/.28);border-radius:9px;box-shadow:2px 2px 0 rgb(var(--ha-on-surface)/.18);padding:5px 9px}
+body main .ha-progress-card.ha-dashboard-hero{position:relative;overflow:hidden;border-radius:17px!important;border-width:2px!important;box-shadow:5px 5px 0 var(--rpg-shadow-ink)!important;background-image:radial-gradient(var(--ha-hero-dot,rgb(var(--ha-on-surface)/.13)) 1px,transparent 1.35px)!important;background-size:8px 8px!important}
+.ha-dashboard-hero>*{position:relative;z-index:1}
+.ha-dashboard-hero .ha-dashboard-eyebrow{letter-spacing:.13em;font-size:9.5px}
+.ha-rpg-hero-toprow{margin-bottom:8px}.ha-dashboard-hero-chip{display:inline-flex;align-items:center;gap:3px;min-height:25px;padding:3px 7px;border:1.5px solid rgb(var(--ha-on-surface)/.56);border-radius:6px;background:rgb(var(--ha-surface-container-lowest)/.46);box-shadow:2px 2px 0 rgb(var(--ha-on-surface)/.15);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:800;letter-spacing:.035em;text-transform:uppercase;white-space:nowrap}
+.ha-dashboard-progress{grid-template-columns:minmax(0,1fr) 76px;gap:16px;align-items:center}
+.ha-dashboard-count{font-family:'Space Grotesk','Hanken Grotesk',sans-serif;font-size:clamp(35px,9vw,48px);line-height:.94}
+.ha-dashboard-count-of{font-size:.52em;letter-spacing:-.04em;white-space:nowrap}
+.ha-dashboard-complete-word{margin:4px 0 0;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.035em;text-transform:uppercase;color:var(--ha-hero-sub,#2b2345)!important}
+.ha-dashboard-ring{width:82px;height:82px}.ha-dashboard-ring svg{shape-rendering:crispEdges}
+.ha-dashboard-hero .ha-ring-track,.ha-dashboard-hero .ha-ring-fill,.ha-dashboard-hero #progress-arc{stroke-linecap:butt}.ha-dashboard-hero #progress-arc{stroke-width:3.5}
+.ha-dashboard-ring-label{display:flex!important;flex-direction:column;gap:0;align-items:center;justify-content:center}.ha-dashboard-hero-chest{width:38px;height:32px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(1px 2px 0 rgb(var(--ha-on-surface)/.18));margin-top:-2px}.ha-dashboard-ring-frac{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;letter-spacing:-.05em;margin-top:1px}
+.ha-today-hero-bar{height:9px;border:1.5px solid rgb(var(--ha-on-surface)/.28);border-radius:4px;background-color:rgb(var(--ha-surface-container-lowest)/.32);background-image:repeating-linear-gradient(90deg,transparent 0 14px,rgb(var(--ha-on-surface)/.24) 14px 16px)}
+.ha-today-hero-bar-fill{border-radius:2px;background-image:repeating-linear-gradient(90deg,var(--ha-hero-ring-fill,#121215) 0 14px,transparent 14px 16px);background-color:transparent}
+.ha-dashboard-streaks{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:14px;padding-top:12px;border-top:1.5px solid rgb(var(--ha-on-surface)/.22)}
+.ha-dashboard-stat{min-width:0}.ha-dashboard-stat+.ha-dashboard-stat{padding-left:16px;border-left:1.5px solid rgb(var(--ha-on-surface)/.18)}
+.ha-dashboard-stat h3{margin:0 0 3px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:800;letter-spacing:.045em;text-transform:uppercase;color:var(--ha-hero-sub,#2b2345)!important}.ha-dashboard-stat p{margin:0;font-size:19px;font-weight:800;line-height:1.1}.ha-dashboard-unit{margin-left:4px;font-size:11px;font-weight:700;opacity:.8}
+.ha-today-surface{border:2px solid rgb(var(--ha-on-surface)/.82);border-radius:17px;box-shadow:4px 4px 0 rgb(var(--ha-on-surface)/.18);overflow:visible}
+.ha-today-surface-head{padding:12px 14px 9px;background:transparent;border-bottom:0}.ha-dashboard #habits-remaining{padding:3px 7px;border:1.5px solid rgb(var(--ha-on-surface)/.56);border-radius:5px;color:rgb(var(--ha-on-surface))!important}
+.ha-dashboard #habits-container{padding:0 13px}body main.ha-dashboard .ha-dashboard-habit{padding:12px 2px}body main.ha-dashboard .ha-dashboard-habit+.ha-dashboard-habit{border-top:1.5px dashed rgb(var(--ha-on-surface)/.24)!important}
+.ha-dashboard-habit-main{gap:11px}.ha-dashboard-habit-icon{width:42px;height:42px;display:grid;place-items:center;flex-shrink:0;color:rgb(var(--ha-on-surface));background:color-mix(in srgb,var(--habit-accent,rgb(var(--ha-primary))) 22%,rgb(var(--ha-surface-container-lowest)));border:1.5px solid rgb(var(--ha-on-surface)/.78);border-radius:9px;box-shadow:2px 2px 0 rgb(var(--ha-on-surface)/.22)}
+.ha-dashboard-habit-icon .material-symbols-outlined{font-size:23px;font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 20}.ha-dashboard-habit-link{min-height:42px}.ha-dashboard .ha-dashboard-habit h3{font-size:15px}.ha-dashboard-habit-meta{font-size:11.5px;font-weight:600}
+.ha-dashboard .habit-toggle{width:32px;height:32px;border-width:2px!important;border-radius:8px!important;box-shadow:2px 2px 0 rgb(var(--ha-on-surface)/.18)!important}.ha-dashboard .habit-toggle[aria-pressed="true"]{background:var(--rpg-mint,#47e393)!important;color:rgb(var(--ha-on-secondary,11 40 29))!important}.ha-dashboard .habit-toggle[aria-pressed="true"] .material-symbols-outlined{color:rgb(var(--ha-on-secondary,11 40 29))!important}
+.ha-dashboard-history{margin:8px 0 0 53px;gap:8px}.ha-dashboard-week{gap:4px}.ha-dashboard-day{width:14px;gap:3px}.ha-dashboard-day-mark{height:5px;border-radius:2px}.ha-dashboard-day.is-today .ha-dashboard-day-mark{height:6px}.ha-dashboard-day-label{font-family:'JetBrains Mono',monospace;font-size:8px}.ha-dashboard-history-caption{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;text-transform:uppercase}
+.ha-dashboard-history-note{margin:2px 15px 8px;color:rgb(var(--ha-on-surface-variant));font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:.035em;text-transform:uppercase}
+.ha-dashboard-view-all{display:flex;justify-content:center;align-items:center;min-height:42px;margin:0 13px;border-top:1.5px dashed rgb(var(--ha-on-surface)/.24);color:rgb(var(--ha-on-surface));font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.04em;text-decoration:none;text-transform:uppercase}.ha-dashboard-view-all::after{content:' →';padding-left:4px}
+ .ha-today-actions{display:flex;align-items:center;gap:8px}.ha-dashboard-add-habit{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:5px 9px;border:1.5px solid rgb(var(--ha-on-surface));border-radius:8px;background:#ffdc38;box-shadow:2px 2px 0 rgb(var(--ha-on-surface)/.22);color:rgb(var(--ha-on-surface));font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.05em;text-decoration:none;text-transform:uppercase}.ha-dashboard-add-habit span{font-size:14px;line-height:0;margin-right:2px}
+@media (max-width:420px){.ha-dashboard-progress{grid-template-columns:minmax(0,1fr) 76px;gap:10px}.ha-dashboard-ring{width:76px;height:76px}.ha-dashboard-history{margin-left:0}.ha-today-done-pill{display:none}}
+@media (min-width:768px){.ha-dashboard-add-habit{display:none}}
+@media (prefers-reduced-motion:reduce){.ha-dashboard .progress-ring-circle,.ha-today-hero-bar-fill,.ha-dashboard .habit-toggle{transition:none!important;animation:none!important}}
