@@ -68,7 +68,7 @@ test('focused dashboard reads real progress, streaks and escaped habit content',
     assert.equal(page.elements.get('progress-total').textContent, 4);
     assert.equal(page.elements.get('progress-ring').attrs['aria-valuenow'], '75');
     assert.equal(page.elements.get('current-streak').textContent, 12);
-    assert.equal(page.elements.get('habits-remaining').textContent, '1 remaining');
+    assert.equal(page.elements.get('habits-remaining').textContent, '1 left');
     const card = page.elements.get('habits-container').children[0].innerHTML;
     assert.match(card, /Read &lt;20&gt; pages/);
     assert.match(card, /Habit_Detail.html\?id=habit-0/);
@@ -91,10 +91,28 @@ test('focused dashboard completion and undo update counts and retain keyboard fo
 
 test('focused dashboard handles empty schedules without inventing progress', () => {
     const page = dashboard({ count: 0 });
+    assert.equal(page.elements.get('habits-history-note').hidden, true);
     assert.equal(page.elements.get('progress-pct').textContent, '0%');
     assert.equal(page.elements.get('progress-ring').attrs['aria-valuetext'], '0 of 0 habits completed');
     assert.equal(page.elements.get('habits-remaining').textContent, 'Nothing scheduled');
     assert.match(page.elements.get('habits-container').innerHTML, /No habits scheduled for today/);
+});
+
+test('every Add Habit preset renders a bundled pixel glyph; unknown icons retain a safe fallback', () => {
+    const picker = readFileSync(new URL('../Add_Habit.html', import.meta.url), 'utf8');
+    const catalog = picker.match(/const ICON_CATALOG = \[([\s\S]*?)\];/)[1];
+    const symbols = readFileSync(new URL('../icons/dashboard-relics.svg', import.meta.url), 'utf8');
+    const page = dashboard({ count: 1 });
+    for (const [, icon] of catalog.matchAll(/icon: '([^']+)'/g)) {
+        page.habits[0].icon = icon;
+        page.events.get('habitarc:data-changed')({ detail: { source: 'cloud' } });
+        const row = page.elements.get('habits-container').children[0].innerHTML;
+        const glyph = row.match(/dashboard-relics\.svg#([a-z]+)"/)?.[1];
+        assert.ok(glyph && symbols.includes('<symbol id="'+glyph+'"'), 'Missing sprite for '+icon);
+    }
+    page.habits[0].icon = '<custom>';
+    page.events.get('habitarc:data-changed')({ detail: { source: 'cloud' } });
+    assert.match(page.elements.get('habits-container').children[0].innerHTML, /&lt;custom&gt;/);
 });
 
 test('focused dashboard still responds to cloud data and authentication updates', () => {

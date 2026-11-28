@@ -15,6 +15,7 @@ const MIME = {
   '.css': 'text/css',
   '.js': 'text/javascript',
   '.png': 'image/png',
+  '.svg': 'image/svg+xml',
   '.webmanifest': 'application/manifest+json'
 };
 const ALL_THEMES = ['light', 'dark', 'sage', 'forest', 'midnight', 'ocean', 'purple', 'sunset'];
@@ -1083,6 +1084,35 @@ try {
   assert.equal(spaSwitch.histOpened, true, 'History drawer works cleanly after SPA navigation to Arc_AI.html');
   assert.equal(spaSwitch.hubOpened, true, 'Quest hub drawer works cleanly after SPA navigation to Arc_AI.html');
 
+  // Match the four-row Today reference using disposable records in this isolated browser.
+  await ev(`(() => {
+    const data = JSON.parse(localStorage.getItem('habitarc_data'));
+    const today = new Date();
+    const day = offset => { const dt = new Date(today); dt.setDate(dt.getDate()+offset);return [dt.getFullYear(),String(dt.getMonth()+1).padStart(2,'0'),String(dt.getDate()).padStart(2,'0')].join('-') };
+    data.habits = [['Read 20 pages','menu_book','Learning'],['Morning hydration','water_drop','Health'],['45 min deep work','bolt','Productivity'],['Evening walk','directions_walk','Health']].map(([name,icon,category],i)=>({
+      id:'pixel-test-'+i,name,icon,category,repeat:['sun','mon','tue','wed','thu','fri','sat'],createdAt:day(-14),
+      completions:Object.fromEntries([-6,-4,-3,-2,...(i?[0]:[])].map(n=>[day(n),true]))
+    }));
+    data.completionHistory={};data.settings.userName='Sarthak';data.settings.theme='light';
+    localStorage.setItem('habitarc_data',JSON.stringify(data));
+    localStorage.setItem('habitarc_pwa_banner_dismissed_at',String(Date.now()));
+  })()`);
+  await go(`${base}/Dashboard.html`);
+  for (const width of [390,320,1280]) {
+    await cdp('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:width<768});
+    await sleep(160);
+    const layout = await ev(`(() => {
+      const header=document.querySelector('.ha-mobile-pixel-header');
+      const cards=[...document.querySelectorAll('.ha-dashboard-habit')];
+      return {
+        pct:document.querySelector('#progress-pct').textContent,overflow:document.documentElement.scrollWidth>innerWidth,
+        search:header.querySelectorAll('.ha-command-trigger').length,
+        boxes:cards.map(row=>{const svg=row.querySelector('.ha-relic use');const week=row.querySelector('.ha-dashboard-week');return !!svg && svg.getBBox().width>0 && week.children.length===7 && week.getBoundingClientRect().right <= row.querySelector('button').getBoundingClientRect().left+1})
+      }
+    })()`);
+    assert.deepEqual(layout,{pct:'75%',overflow:false,search:1,boxes:[true,true,true,true]},'Pixel Dashboard at '+width+'px');
+    await saveShot('pixel-today-'+width+'.png');
+  }
   assert.equal(errors.length, 0, `Unexpected browser runtime errors: ${errors.join('; ')}`);
 
   console.log(JSON.stringify({
