@@ -94,7 +94,23 @@ test('focused dashboard handles empty schedules without inventing progress', () 
     assert.equal(page.elements.get('progress-pct').textContent, '0%');
     assert.equal(page.elements.get('progress-ring').attrs['aria-valuetext'], '0 of 0 habits completed');
     assert.equal(page.elements.get('habits-remaining').textContent, 'Nothing scheduled');
+    assert.equal(page.elements.get('today-ribbon').hidden, true);
     assert.match(page.elements.get('habits-container').innerHTML, /No habits scheduled for today/);
+});
+
+test('compact Today progress follows real schedule totals, completion and undo', () => {
+    const page = dashboard({ count: 6, completed: 5 });
+    const count = page.elements.get('today-ribbon-count');
+    const ribbon = page.elements.get('today-ribbon');
+    assert.equal(ribbon.hidden, false);
+    assert.equal(count.textContent, '5 / 6');
+    const tapLast = () => { const btn = page.toggles()[5]; btn.handlers.click.call(btn, { stopPropagation() {} }); };
+    tapLast();
+    assert.equal(count.textContent, '6 / 6');
+    assert.equal(ribbon.dataset.done, 'true');
+    tapLast();
+    assert.equal(count.textContent, '5 / 6');
+    assert.equal(ribbon.dataset.done, 'false');
 });
 
 test('focused dashboard still responds to cloud data and authentication updates', () => {

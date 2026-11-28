@@ -1908,12 +1908,17 @@ export function mountDayCompleteChestRise() {
   window.HabitArcChestRise = Object.freeze({
     onUserHabitCompleted() {
       clearTimeout(pendingRiseTimer);
+      const sourcePage = document.querySelector('body > main');
+      // Let Today settle on its final count before presenting the earned reward.
+      const onToday = sourcePage?.classList.contains('ha-dashboard');
+      const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
       pendingRiseTimer = setTimeout(() => {
+        if (!sourcePage?.isConnected || document.hidden) return;
         const res = getReadyChestsForClearedToday();
         if (res && res.readyList.length > 0) {
           showRisingDayChestModal(res.readyList);
         }
-      }, 260);
+      }, onToday && !reduced ? 1250 : 260);
     },
     showRisingDayChestModal,
   });

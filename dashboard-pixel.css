@@ -37,3 +37,46 @@ body main .ha-progress-card.ha-dashboard-hero{position:relative;overflow:hidden;
 @media (max-width:420px){.ha-dashboard-progress{grid-template-columns:minmax(0,1fr) 76px;gap:10px}.ha-dashboard-ring{width:76px;height:76px}.ha-dashboard-history{margin-left:0}.ha-today-done-pill{display:none}}
 @media (min-width:768px){.ha-dashboard-add-habit{display:none}}
 @media (prefers-reduced-motion:reduce){.ha-dashboard .progress-ring-circle,.ha-today-hero-bar-fill,.ha-dashboard .habit-toggle{transition:none!important;animation:none!important}}
+
+/* Keep the scroll anchor on the habit, not on changing copy above it. */
+.ha-today-ribbon { display: none; }
+.ha-dashboard .ha-meta-reserve { display: none; }
+@media (max-width: 767px) {
+  body > .ha-mobile-pixel-header { isolation: isolate; }
+  .ha-dashboard .ha-today-title { font-size: 26px; font-weight: 700; letter-spacing: -.05em; }
+  .ha-dashboard #progress-msg { min-height: 2.9em; }
+  .ha-dashboard .ha-dashboard-habit-copy { width: 100%; }
+  .ha-dashboard .ha-dashboard-habit-meta { display: grid; }
+  .ha-dashboard .ha-dashboard-habit-meta > span { grid-area: 1 / 1; }
+  .ha-dashboard .ha-meta-reserve { display: block; visibility: hidden; }
+  html:has(.ha-today-ribbon) { scroll-padding-top: 116px; }
+  .ha-today-ribbon:not([hidden]) {
+    --fold: 0;
+    position: absolute; inset: calc(100% + 1px) 0 auto;
+    z-index: -1; pointer-events: none;
+    display: flex; align-items: center; gap: 8px;
+    height: 45px; box-sizing: border-box; padding: 0 16px;
+    background: var(--ha-hero-bg); color: var(--ha-hero-fg);
+    border-bottom: 2px solid var(--ha-hero-border);
+    box-shadow: 0 2px 0 var(--ha-hero-divider);
+    transform: translateY(calc((1 - var(--fold)) * -50px));
+    opacity: var(--fold);
+  }
+  .ha-today-ribbon img { width: 29px; height: 29px; object-fit: contain; image-rendering: pixelated; }
+  .ha-today-ribbon strong { font: 700 16px/1 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+  #today-ribbon-count { margin-inline: auto 3px; font: 700 13px/1 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+  .ha-today-ribbon-meter {
+    width: 80px; height: 7px; background: var(--ha-hero-ring-track); border-radius: 2px;
+    mask-image: repeating-linear-gradient(to right,#000 0 calc(25% - 3px),transparent calc(25% - 3px) 25%);
+  }
+  .ha-today-ribbon-meter i { display: block; height: 100%; width: var(--meter-fill, 0%); background: var(--ha-hero-fg); }
+  .ha-today-ribbon[data-done="true"] .ha-today-ribbon-meter i { background: color-mix(in srgb,var(--ha-hero-fg) 75%,var(--rpg-mint)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ha-today-ribbon-meter i { transition: width .22s ease-out; }
+  .ha-dashboard .ha-check-settle { animation: haTodayCheckSettle .31s ease-out; }
+  .ha-dashboard .ha-check-wash { position: relative; isolation: isolate; }
+  .ha-dashboard .ha-check-wash::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--rpg-mint); opacity: 0; animation: haTodayCheckWash .7s ease-out; }
+}
+@keyframes haTodayCheckSettle { 0% { transform: scale(.87) } 52% { transform: scale(1.08) } 100% { transform: none } }
+@keyframes haTodayCheckWash { from { opacity: .2 } to { opacity: 0 } }

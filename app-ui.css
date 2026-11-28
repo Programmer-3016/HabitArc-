@@ -5944,6 +5944,20 @@ dialog.ha-day-chest-modal[data-tier="ruby"] {
 .ha-day-chest-stage:focus {
   outline: none;
 }
+/* Keep the stage centered in the viewport, independent of the page scroll. */
+dialog.ha-day-chest-modal[open] {
+  inset: 0;
+  margin: 0;
+  translate: none;
+  transform: none;
+  width: 100dvw;
+}
+dialog.ha-day-chest-modal .ha-day-chest-stage {
+  position: fixed;
+  inset: 0;
+  width: 100dvw;
+  height: 100dvh;
+}
 .ha-day-chest-kicker {
   position: relative;
   z-index: 3;
@@ -6113,6 +6127,13 @@ dialog.ha-day-chest-modal[data-phase="opened"] .ha-day-chest-cta {
 @keyframes haDayChestScrimIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  body:has(.ha-dashboard-hero) .ha-day-chest-mover.is-rising,
+  body:has(.ha-dashboard-hero) .ha-day-chest-mover.is-rising .ha-day-chest-glow { animation-duration: 1.15s; }
+  body:has(.ha-dashboard-hero) .ha-day-chest-mover.is-rising .ha-day-chest-rays { animation-duration: 9s, 1.15s; }
+  body:has(.ha-dashboard-hero) .ha-day-chest-kicker,
+  body:has(.ha-dashboard-hero) .ha-day-chest-foot { animation-delay: .5s; }
 }
 @keyframes haDayChestHorizonBuild {
   0%   { opacity: 0; transform: translateY(24px) scale(0.85); }

@@ -82,6 +82,13 @@
             <span id="dashboard-profile-initial" class="ha-mobile-profile-initial" aria-hidden="true">S</span>
         </a>
     </div>
+    <!-- Passive copy of the accessible hero; it never adds a second focus or live region. -->
+    <div id="today-ribbon" class="ha-today-ribbon" aria-hidden="true" hidden>
+        <img src="icons/chests/layers/wood-closed.png" width="29" height="29" alt=""/>
+        <strong>Today</strong>
+        <span id="today-ribbon-count"></span>
+        <span class="ha-today-ribbon-meter"><i></i></span>
+    </div>
 </header>
 
 <!-- ═══════════════════════════════════════════════════════ -->
@@ -285,6 +292,24 @@
 <script>
 (function() {
     let signedInUser = HabitArc.getAuthUser();
+    const ribbon = document.getElementById('today-ribbon');
+    const progressHero = document.getElementById('progress-title')?.closest?.('section');
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    let foldFrame = 0;
+    function updateFold() {
+        foldFrame = 0;
+        if (!ribbon || ribbon.hidden || !progressHero?.isConnected || !ribbon.parentElement.offsetHeight) return;
+        const distance = ribbon.parentElement.getBoundingClientRect().bottom + 142 - progressHero.getBoundingClientRect().bottom;
+        const fold = reducedMotion?.matches ? Number(distance >= 90) : Math.max(0, Math.min(1, distance / 90));
+        ribbon.style.setProperty('--fold', fold.toFixed(3));
+    }
+    function queueFold() {
+        if (!foldFrame && progressHero?.isConnected) foldFrame = window.requestAnimationFrame(updateFold);
+    }
+    window.addEventListener('scroll', queueFold, { passive: true });
+    window.addEventListener('resize', queueFold);
+    window.addEventListener('pageshow', queueFold);
+    document.fonts?.ready?.then(queueFold);
 
     function getDisplayName() {
         const settings = HabitArc.getSettings();
@@ -368,6 +393,13 @@
         // Progress
         const progress = HabitArc.getTodayProgress();
         const pct = progress.percentage;
+        if (ribbon) {
+            ribbon.hidden = progress.total === 0;
+            ribbon.dataset.done = String(progress.total > 0 && progress.completed === progress.total);
+            document.getElementById('today-ribbon-count').textContent = progress.completed + ' / ' + progress.total;
+            ribbon.style.setProperty('--meter-fill', pct + '%');
+            queueFold();
+        }
         const curStreak = HabitArc.getOverallCurrentStreak();
         document.getElementById('progress-completed').textContent = progress.completed;
         document.getElementById('progress-total').textContent = progress.total;
@@ -419,9 +451,9 @@
             const safeReminder = habit.reminder ? HabitArc.escapeHTML(habit.reminder) : '';
             const safeIcon = HabitArc.escapeHTML(habit.icon || 'check_circle');
             const habitUrlId = encodeURIComponent(String(habit.id || ''));
-            const metaLine = isCompleted
-                ? `Completed today · ${safeCategory} habit`
-                : `${safeReminder ? safeReminder + ' · ' : ''}${safeCategory} habit${streak > 0 ? ' · ' + streak + 'd streak' : ''}`;
+            const previousStreak = Math.max(0, streak - (isCompleted ? 1 : 0));
+            const reminderLine = `${safeReminder ? safeReminder + ' · ' : ''}${safeCategory} habit${previousStreak > 0 ? ' · ' + previousStreak + 'd streak' : ''}`;
+            const completedLine = `Completed today · ${safeCategory} habit`;
 
             const card = document.createElement('div');
             card.className = 'ha-habit-card ha-dashboard-habit' + (isCompleted ? ' is-done-today' : '');
@@ -440,7 +472,10 @@
                     <a class="ha-dashboard-habit-link" href="Habit_Detail.html?id=${HabitArc.escapeHTML(habitUrlId)}">
                         <div class="ha-dashboard-habit-copy">
                             <h3 class="text-on-surface">${safeName}</h3>
-                            <span class="ha-dashboard-habit-meta text-on-surface-variant">${metaLine}</span>
+                            <span class="ha-dashboard-habit-meta text-on-surface-variant">
+                                <span>${isCompleted ? completedLine : reminderLine}</span>
+                                <span class="ha-meta-reserve" aria-hidden="true">${isCompleted ? reminderLine : completedLine}</span>
+                            </span>
                         </div>
                     </a>
                     <button type="button" aria-label="Mark ${safeName} ${isCompleted ? 'incomplete' : 'complete'}" aria-pressed="${isCompleted}" class="habit-toggle" data-id="${HabitArc.escapeHTML(habit.id)}">
@@ -462,11 +497,11 @@
                 const shouldComplete = (pressedAttr === 'true' || pressedAttr === 'false')
                     ? pressedAttr !== 'true'
                     : !HabitArc.isCompletedToday(id);
+                let didComplete = false;
                 if (shouldComplete) {
                     if (!HabitArc.isCompletedToday(id)) {
                         HabitArc.completeHabit(id);
-                        this.classList.add('pop');
-                        setTimeout(() => this.classList.remove('pop'), 300);
+                        didComplete = true;
                         window.HabitArcChestRise?.onUserHabitCompleted?.(id);
                     }
                 } else {
@@ -479,6 +514,10 @@
                 // Rendering replaces the button; retain keyboard focus on it.
                 const refocusedBtn = [...document.querySelectorAll('.habit-toggle')].find(button => button.dataset.id === id);
                 refocusedBtn?.focus({ preventScroll: true });
+                if (didComplete && !reducedMotion?.matches) {
+                    refocusedBtn?.classList.add('ha-check-settle');
+                    refocusedBtn?.closest?.('.ha-dashboard-habit')?.classList.add('ha-check-wash');
+                }
             });
         });
     }
